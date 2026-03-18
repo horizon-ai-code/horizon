@@ -15,6 +15,10 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["500", "600", "700"], var
 export const metadata: Metadata = {
   title: "Horizon AI",
   description: "Multi-Agent Glassbox Refactoring Studio",
+  icons: {
+    icon: "/logo-dark.png", 
+    apple: "/logo-dark.png",
+  },
 };
 
 export default function RootLayout({
