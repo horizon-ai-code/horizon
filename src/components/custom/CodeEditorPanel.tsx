@@ -2,6 +2,8 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface CodeEditorPanelProps {
   value: string;
@@ -11,37 +13,6 @@ interface CodeEditorPanelProps {
   showDiff?: boolean;
   bottomPadding?: string;
 }
-
-const renderHighlightedLine = (line: string, lineIdx: number, isDarkTheme: boolean, type = 'none') => {
-  const keywords = ['public', 'private', 'class', 'int', 'return', 'static', 'void', 'new', 'if', 'else', 'for', 'while', 'double'];
-  
-  const bgClass = type === 'removed' 
-    ? (isDarkTheme ? "bg-red-500/10 border-red-500/20" : "bg-red-50 border-red-200") 
-    : type === 'added' 
-    ? (isDarkTheme ? "bg-cyan-500/10 border-cyan-500/20" : "bg-cyan-50 border-cyan-200") 
-    : "border-transparent";
-
-  const content = (() => {
-    if (line.trim().startsWith('//') || line.trim().startsWith('/*') || line.trim().startsWith('*') || line.trim().startsWith('/**')) {
-      return <span className={isDarkTheme ? "text-gray-500/70 italic h-6 leading-6 font-light" : "text-slate-400 italic h-6 leading-6 font-light"}>{line || ' '}</span>;
-    }
-
-    const words = line.split(/(\s+|\b)/);
-    return words.map((word, i) => {
-      if (keywords.includes(word)) return <span key={i} className={isDarkTheme ? "text-rose-400 font-medium" : "text-rose-600 font-medium"}>{word}</span>;
-      if (['add', 'subtract', 'multiply', 'performAddition', 'performSubtraction', 'computeSum', 'computeDifference'].includes(word)) return <span key={i} className={isDarkTheme ? "text-sky-400" : "text-sky-600"}>{word}</span>;
-      if (['Calculator'].includes(word)) return <span key={i} className={isDarkTheme ? "text-amber-300" : "text-amber-600"}>{word}</span>;
-      if (!isNaN(Number(word)) && word.trim() !== '') return <span key={i} className={isDarkTheme ? "text-orange-300" : "text-orange-700"}>{word}</span>;
-      return <span key={i} className={isDarkTheme ? "text-gray-300" : "text-slate-700"}>{word}</span>;
-    });
-  })();
-
-  return (
-    <div key={lineIdx} className={`whitespace-pre h-[24px] leading-[24px] px-4 -mx-4 transition-colors duration-300 border-l-[3px] ${bgClass}`}>
-      {content}
-    </div>
-  );
-};
 
 export default function CodeEditorPanel({ value, onChange, placeholder, diffType = "none", showDiff = false, bottomPadding = '48px' }: CodeEditorPanelProps) {
   const { resolvedTheme } = useTheme();
@@ -70,17 +41,19 @@ export default function CodeEditorPanel({ value, onChange, placeholder, diffType
 
   const lines = value.split('\n');
 
-  const getLineDiffType = (line: string) => {
-    if (!showDiff) return 'none';
-    if (diffType === 'removed') {
-      const removedTriggers = ['int add', 'int subtract', 'int multiply', 'return a + b', 'return a - b', 'return a * b'];
-      if (removedTriggers.some(trigger => line.includes(trigger))) return 'removed';
-    } else if (diffType === 'added') {
-      const addedTriggers = ['/**', 'perform', 'compute'];
-      if (addedTriggers.some(trigger => line.includes(trigger))) return 'added';
-    }
-    return 'none';
-  };
+  const getLineDiffType = (line: string | undefined) => {
+  // 1. Add a safety check for undefined lines
+  if (!showDiff || !line) return 'none'; 
+
+  if (diffType === 'removed') {
+    const removedTriggers = ['int add', 'int subtract', 'int multiply', 'return a + b', 'return a - b', 'return a * b'];
+    if (removedTriggers.some(trigger => line.includes(trigger))) return 'removed';
+  } else if (diffType === 'added') {
+    const addedTriggers = ['/**', 'perform', 'compute'];
+    if (addedTriggers.some(trigger => line.includes(trigger))) return 'added';
+  }
+  return 'none';
+};
 
   if (!mounted) return null;
 
@@ -115,12 +88,36 @@ export default function CodeEditorPanel({ value, onChange, placeholder, diffType
           ref={preRef}
           className="absolute inset-0 pointer-events-none overflow-hidden"
           aria-hidden="true"
-          style={{ lineHeight: '24px', padding: `24px 24px ${bottomPadding} 24px` }}
         >
-          {lines.map((line, idx) => {
-            const type = getLineDiffType(line);
-            return renderHighlightedLine(line, idx, isDark, type);
-          })}
+          <SyntaxHighlighter
+            language="java"
+            style={isDark ? vscDarkPlus : vs}
+            customStyle={{ 
+              margin: 0, 
+              padding: `24px 24px ${bottomPadding} 24px`, 
+              backgroundColor: 'transparent', 
+              fontSize: '13.5px',
+              lineHeight: '24px'
+            }}
+            wrapLines={true}
+            lineProps={(lineNumber) => {
+              const lineIndex = lineNumber - 1;
+              const type = lineIndex < lines.length ? getLineDiffType(lines[lineIndex]) : 'none';
+              let style: React.CSSProperties = { display: 'block' };
+              if (type === 'removed') {
+                style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.5)';
+                style.borderLeft = isDark ? '3px solid rgba(239, 68, 68, 0.2)' : '3px solid rgba(254, 202, 202, 1)';
+              } else if (type === 'added') {
+                style.backgroundColor = isDark ? 'rgba(6, 182, 212, 0.1)' : 'rgba(207, 250, 254, 0.5)';
+                style.borderLeft = isDark ? '3px solid rgba(6, 182, 212, 0.2)' : '3px solid rgba(165, 243, 252, 1)';
+              } else {
+                style.borderLeft = '3px solid transparent';
+              }
+              return { style };
+            }}
+          >
+            {value || ' '}
+          </SyntaxHighlighter>
         </div>
 
         <textarea

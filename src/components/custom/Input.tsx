@@ -46,6 +46,9 @@ export default function Input({
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
+  const lineCount = sourceCode ? sourceCode.split('\n').length : 0;
+  const isOverLimit = lineCount > 20;
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputInstruction(e.target.value);
     if (inputError) setInputError(false);
@@ -54,7 +57,7 @@ export default function Input({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (appState !== 'analyzing') {
+      if (appState !== 'analyzing' && !isOverLimit) {
         startAnalysis();
       }
     }
@@ -74,11 +77,16 @@ export default function Input({
         <div className={`px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 transition-colors duration-700
           ${isDark ? 'bg-white/[0.02] border-white/[0.08]' : 'bg-slate-50/50 border-slate-100'}`}>
           <div className="flex items-center gap-2.5">
-            <div className="w-3 h-3 rounded-full bg-[#FF5F56] ring-1 ring-[#E0443E]/50 shadow-inner cursor-pointer hover:bg-[#ff4b40] transition-colors"></div>
-            <div className="w-3 h-3 rounded-full bg-[#FFBD2E] ring-1 ring-[#DEA123]/50 shadow-inner cursor-pointer hover:bg-[#ffb000] transition-colors"></div>
-            <div className="w-3 h-3 rounded-full bg-[#27C93F] ring-1 ring-[#1AAB29]/50 shadow-inner cursor-pointer hover:bg-[#1bc033] transition-colors"></div>
+            <span className={`text-[11px] font-mono font-bold tracking-widest uppercase transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Student Snippet</span>
           </div>
-          <span className={`text-[11px] font-mono font-bold tracking-widest uppercase transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Input</span>
+          
+          <div className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-all flex items-center gap-1 ${
+            isOverLimit 
+              ? (isDark ? 'bg-red-500/10 text-red-400 border-red-500/20 animate-pulse' : 'bg-red-50 text-red-600 border-red-200 animate-pulse') 
+              : (isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-white text-slate-500 border-slate-200')
+          }`}>
+            <span className={isOverLimit ? 'text-red-500' : 'text-cyan-500'}>#</span> {lineCount} / 20 LINES
+          </div>
         </div>
         
         {/* Editor Area */}
@@ -90,10 +98,10 @@ export default function Input({
                 <FileCode2 size={36} className={isDark ? 'text-cyan-500/50' : 'text-cyan-500/60'} strokeWidth={1.5} />
               </div>
               <p className={`text-[15px] font-semibold transition-colors duration-700 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
-                Paste Java source code to begin
+                Paste a short Java code snippet (5–20 lines only)
               </p>
-              <p className={`text-[13px] mt-2 font-medium transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
-                Horizon AI will analyze and reconstruct your logic.
+              <p className={`text-[13px] mt-2 font-medium max-w-sm transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+                Best for loops, functions, and small logic blocks. No class/package declarations needed.
               </p>
             </div>
           )}
@@ -147,7 +155,7 @@ export default function Input({
               {appState === 'analyzing' ? (
                 <button onClick={stopAnalysis} className={`h-[34px] px-5 rounded-full text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${isDark ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}><Square size={12} className="fill-current" /> Stop</button>
               ) : (
-                <button onClick={startAnalysis} className="h-[34px] px-6 bg-gradient-to-r from-cyan-400 to-blue-500 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-all duration-300 cursor-pointer"><Sparkles size={14} className="fill-current" /> Refactor</button>
+                <button onClick={startAnalysis} disabled={isOverLimit} className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-all duration-300 cursor-pointer ${isOverLimit ? 'bg-gray-500 cursor-not-allowed opacity-50' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`}><Sparkles size={14} className="fill-current" /> Refactor</button>
               )}
             </div>
           </div>
