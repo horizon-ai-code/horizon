@@ -216,7 +216,7 @@ export default function Input({
               onKeyDown={handleKeyDown}
               onFocus={() => setIsChatFocused(true)}   
               onBlur={() => setIsChatFocused(false)}   
-              placeholder="Ask the Swarm to refactor or optimize..." 
+              placeholder="Ask the Swarm to refactor..." 
               className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-muted-foreground caret-cyan-500 ${appState === 'analyzing' ? 'text-muted-foreground/60 cursor-not-allowed' : 'text-foreground'}`} 
               disabled={appState === 'analyzing'}
               rows={1}
