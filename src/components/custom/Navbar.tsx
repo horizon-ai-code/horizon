@@ -15,7 +15,7 @@ export default function Navbar() {
         <div className="flex flex-col">
           <h1 className="text-xl font-poppins font-bold tracking-tight flex items-center gap-2.5 text-foreground">
             Horizon AI 
-            <span className="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ring-1 bg-cyan-500/10 text-cyan-600 ring-cyan-500/30">Java</span>
+            <span className="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ring-1 bg-cyan-500/5 text-cyan-600 ring-cyan-500/20">Java</span>
           </h1>
           <p className="text-[10px] font-medium tracking-widest uppercase opacity-60 text-muted-foreground">Multi-Agent Refactoring Studio</p>
         </div>

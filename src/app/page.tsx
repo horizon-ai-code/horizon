@@ -155,17 +155,17 @@ export default function Home() {
         <div 
           className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px]"
           style={{
-            backgroundColor: isDark ? 'rgba(22, 78, 99, 0.3)' : 'rgba(207, 250, 254, 0.4)',
-            opacity: isDark ? 0.5 : 0.6,
-            transition: 'background-color 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+            backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(6, 182, 212, 0.08)',
+            opacity: 0.5,
+            transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         ></div>
         <div 
           className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full blur-[150px]"
           style={{
-            backgroundColor: isDark ? 'rgba(30, 58, 138, 0.2)' : 'rgba(239, 246, 255, 0.5)',
-            opacity: isDark ? 0.5 : 0.6,
-            transition: 'background-color 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+            backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+            opacity: 0.5,
+            transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         ></div>
       </div>

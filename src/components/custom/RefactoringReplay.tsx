@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ChevronLeft, ChevronRight, FastForward } from 'lucide-react';
 
 // THE ULTIMATE SANITIZER: Eradicates both 'background' and 'backgroundImage' 
@@ -23,8 +23,8 @@ const sanitizeTheme = (theme: any) => {
   return cleanTheme;
 };
 
-const safeDarkTheme = sanitizeTheme(vscDarkPlus);
-const safeLightTheme = sanitizeTheme(vs);
+const safeDarkTheme = sanitizeTheme(oneDark);
+const safeLightTheme = sanitizeTheme(oneLight);
 
 const replaySteps = [
   {
@@ -79,9 +79,9 @@ export default function RefactoringReplay() {
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
       {/* Replay Header */}
-      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 bg-zinc-50/50 border-border dark:bg-white/[0.02]">
+      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 bg-secondary/50 border-border">
         <h3 className="text-[14px] font-semibold text-foreground">{step.title}</h3>
-        <p className="text-[12px] text-muted-foreground">{step.description}</p>
+        <p className="text-[12px] text-muted-foreground font-medium">{step.description}</p>
       </div>
       
       {/* Syntax Highlighting display */}
@@ -98,7 +98,7 @@ export default function RefactoringReplay() {
           }}
           wrapLines={true}
           showLineNumbers={true}
-          lineNumberStyle={{ color: isDark ? '#4b5563' : '#a1a1aa', minWidth: '2.5em', paddingRight: '1.5em', textAlign: 'right' }}
+          lineNumberStyle={{ color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', minWidth: '2.5em', paddingRight: '1.5em', textAlign: 'right' }}
           lineProps={(lineNumber) => {
             let style: React.CSSProperties = { 
               display: 'block', 
@@ -108,13 +108,13 @@ export default function RefactoringReplay() {
             };
             
             if (step.issueLines?.includes(lineNumber)) {
-              style.backgroundColor = isDark ? 'rgba(249, 115, 22, 0.15)' : 'rgba(255, 237, 213, 0.6)';
+              style.backgroundColor = isDark ? 'rgba(249, 115, 22, 0.15)' : 'rgba(249, 115, 22, 0.08)';
               style.borderLeft = '3px solid #f97316';
             } else if (step.addedLines.includes(lineNumber)) {
-              style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(223, 247, 228, 0.6)';
+              style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.08)';
               style.borderLeft = '3px solid #22c55e';
             } else if (step.removedLines.includes(lineNumber)) {
-              style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 227, 227, 0.6)';
+              style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)';
               style.borderLeft = '3px solid #ef4444';
             }
             return { style };

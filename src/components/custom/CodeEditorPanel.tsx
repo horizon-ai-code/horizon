@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus, oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // Sanitizes the themes to prevent React from crashing on shorthand properties
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,7 +18,7 @@ const sanitizeTheme = (theme: any) => {
   return cleanTheme;
 };
 
-const safeDarkTheme = sanitizeTheme(vscDarkPlus);
+const safeDarkTheme = sanitizeTheme(oneDark);
 const safeLightTheme = sanitizeTheme(oneLight);
 
 interface CodeEditorPanelProps {
@@ -87,9 +87,9 @@ export default function CodeEditorPanel({
             const isIssue = showDiff && highlightLines.issue?.includes(i);
             
             let bgClass = "h-[24px] w-full ";
-            if (isRemoved) bgClass += isDark ? 'bg-red-500/15' : 'bg-red-500/10';
-            else if (isAdded) bgClass += isDark ? 'bg-cyan-500/15' : 'bg-cyan-500/10';
-            else if (isIssue) bgClass += isDark ? 'bg-orange-500/15' : 'bg-orange-500/10';
+            if (isRemoved) bgClass += isDark ? 'bg-red-500/15' : 'bg-red-500/08';
+            else if (isAdded) bgClass += isDark ? 'bg-cyan-500/15' : 'bg-cyan-500/08';
+            else if (isIssue) bgClass += isDark ? 'bg-orange-500/15' : 'bg-orange-500/08';
             else bgClass += "bg-transparent";
 
             return <div key={i} className={bgClass} />;

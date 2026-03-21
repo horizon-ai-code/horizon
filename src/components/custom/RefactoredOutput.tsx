@@ -35,7 +35,7 @@ const FlowNode = ({ icon: Icon, title, desc, status, isDark, colorCode }: any) =
 
 const FlowConnector = ({ isActive, isDark }: { isActive: boolean, isDark: boolean }) => (
   <div className="flex-1 min-h-[3px] h-[3px] shrink-0 w-4 md:w-8 relative overflow-hidden rounded-full mx-2 flex items-center">
-    <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800"></div>
+    <div className="absolute inset-0 bg-border"></div>
     <div className={`absolute h-full left-0 ${isActive ? 'w-full bg-cyan-400 shadow-[0_0_10px_rgba(0,229,255,0.8)]' : 'w-0 bg-cyan-400'}`}></div>
   </div>
 );

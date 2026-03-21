@@ -134,7 +134,7 @@ export default function Input({
             className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl
               ${isFocused ? 'max-w-full w-full' : 'max-w-xl'} 
               ${inputError 
-                ? 'ring-red-500/50 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
+                ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
                 : 'bg-background/95 ring-border focus-within:ring-cyan-500/50 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.1)] shadow-2xl'
               }`}
             style={{

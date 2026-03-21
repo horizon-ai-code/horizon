@@ -34,7 +34,7 @@ const AgentTerminalLine = ({ text, delay, colorClass, icon: Icon, isDark }: Agen
       <div className={`mt-0.5 ${colorClass}`}><Icon size={14} /></div>
       <div className="flex-1">
         <span className={colorClass}>&gt; </span>
-        <span className={`transition-colors duration-700 ${isDark ? 'text-gray-300' : 'text-slate-700 font-medium'}`}>
+        <span className="text-foreground transition-opacity opacity-90">
           {displayedText}
         </span>
       </div>
@@ -69,13 +69,12 @@ export default function Terminal({
 
   return (
     <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl transition-all duration-500 ease-in-out 
-      ${isDark ? 'bg-[#0f0f11]/80 ring-white/[0.08] backdrop-blur-2xl' : 'bg-white/80 ring-slate-200/60 backdrop-blur-2xl'}
+      bg-background/80 ring-border backdrop-blur-2xl
       ${isTerminalCollapsed ? 'h-[48px] flex-none' : 'flex-1'}`}>
       
       <div 
         onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
-        className={`px-5 h-[48px] border-b flex items-center justify-between shrink-0 cursor-pointer select-none transition-colors 
-          ${isDark ? 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05]' : 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/80'}`}
+        className="px-5 h-[48px] border-b flex items-center justify-between shrink-0 cursor-pointer select-none bg-secondary/30 hover:bg-secondary/50 border-border"
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
       >
         <h3 className={`text-[12px] font-mono font-bold uppercase tracking-widest flex items-center gap-2.5 transition-colors duration-700 ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
@@ -95,7 +94,7 @@ export default function Terminal({
 
       <div className={`p-6 overflow-y-auto flex-1 flex flex-col gap-4 bg-transparent`}>
          {activeStep === 0 && appState === 'idle' && (
-            <div className={`h-full flex items-center justify-center font-mono text-[13px] italic transition-colors duration-700 ${isDark ? 'text-gray-600' : 'text-slate-400 font-medium'}`}>
+            <div className="h-full flex items-center justify-center font-mono text-[13px] italic text-muted-foreground/50">
                 Terminal standing by. Awaiting execution.
             </div>
          )}

@@ -33,17 +33,17 @@ export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
   if (!mounted) return null;
 
   return (
-    <div className={`fixed inset-0 flex flex-col items-center justify-center z-[100] transition-colors duration-1000 ${isDark ? 'bg-[#000000]' : 'bg-[#FAFAFA]'}`}>
+    <div className="fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background">
       <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
         <div className={`w-[600px] h-[600px] rounded-full blur-[120px] transition-colors duration-1000 ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-400/40'}`}></div>
       </div>
       <div className="relative flex flex-col items-center animate-in fade-in duration-1000 z-10">
         <div className="mb-12 scale-[1.5]"><HorizonLogo glowing={true} /></div>
-        <h2 className={`text-4xl md:text-5xl font-poppins font-extrabold tracking-tight px-6 text-center transition-colors duration-700`}>
-          <span className={isDark ? 'text-white' : 'text-slate-900'}>{greetingText}</span>
-          <span className={`inline-block w-2 h-12 ml-2 bg-cyan-400/80 align-middle animate-pulse shadow-[0_0_15px_rgba(0,229,255,0.5)]`}></span>
+        <h2 className="text-4xl md:text-5xl font-poppins font-extrabold tracking-tight px-6 text-center text-foreground">
+          {greetingText}
+          <span className="inline-block w-2 h-12 ml-2 bg-cyan-400/80 align-middle animate-pulse shadow-[0_0_15px_rgba(0,229,255,0.5)]"></span>
         </h2>
-        <p className={`mt-8 text-[11px] uppercase tracking-[0.5em] font-semibold transition-colors duration-1000 ${isDark ? 'text-white/30' : 'text-slate-900/40'}`}>Multi-Agent Orchestration</p>
+        <p className="mt-8 text-[11px] uppercase tracking-[0.5em] font-semibold text-muted-foreground/40">Multi-Agent Orchestration</p>
       </div>
     </div>
   );

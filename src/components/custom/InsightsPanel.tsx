@@ -15,10 +15,10 @@ export default function InsightsPanel() {
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const metrics = [
-    { title: "Time Complexity", value: "O(N²) → O(N)", icon: TrendingDown, color: isDark ? "text-cyan-400" : "text-cyan-600", bg: isDark ? "bg-cyan-500/10" : "bg-cyan-50", border: isDark ? "border-cyan-500/20" : "border-cyan-200" },
-    { title: "Readability", value: "Low → High", icon: Sparkles, color: isDark ? "text-purple-400" : "text-purple-600", bg: isDark ? "bg-purple-500/10" : "bg-purple-50", border: isDark ? "border-purple-500/20" : "border-purple-200" },
-    { title: "Variables Managed", value: "2 → 1", icon: Layers, color: isDark ? "text-orange-400" : "text-orange-600", bg: isDark ? "bg-orange-500/10" : "bg-orange-50", border: isDark ? "border-orange-500/20" : "border-orange-200" },
-    { title: "Syntax Check", value: "Valid", icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-600", bg: isDark ? "bg-green-500/10" : "bg-green-50", border: isDark ? "border-green-500/20" : "border-green-200" }
+    { title: "Time Complexity", value: "O(N²) → O(N)", icon: TrendingDown, color: isDark ? "text-cyan-400" : "text-cyan-600", bg: isDark ? "bg-cyan-500/10" : "bg-cyan-500/5", border: isDark ? "border-cyan-500/20" : "border-cyan-500/10" },
+    { title: "Readability", value: "Low → High", icon: Sparkles, color: isDark ? "text-purple-400" : "text-purple-600", bg: isDark ? "bg-purple-500/10" : "bg-purple-500/5", border: isDark ? "border-purple-500/20" : "border-purple-500/10" },
+    { title: "Variables Managed", value: "2 → 1", icon: Layers, color: isDark ? "text-orange-400" : "text-orange-600", bg: isDark ? "bg-orange-500/10" : "bg-orange-500/5", border: isDark ? "border-orange-500/20" : "border-orange-500/10" },
+    { title: "Syntax Check", value: "Valid", icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-600", bg: isDark ? "bg-green-500/10" : "bg-green-500/5", border: isDark ? "border-green-500/20" : "border-green-500/10" }
   ];
 
   if (!mounted) return null;
@@ -31,7 +31,7 @@ export default function InsightsPanel() {
       <div className="grid grid-cols-2 gap-4">
         {metrics.map((m, i) => (
           <div key={i} className={`p-4 rounded-[16px] border ${m.border} ${m.bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300`}>
-            <div className={`p-2.5 w-max rounded-[12px] border ${m.border} ${m.color} ${isDark ? 'bg-[#18181b]' : 'bg-white'} shadow-sm group-hover:scale-110 transition-transform`}>
+            <div className={`p-2.5 w-max rounded-[12px] border ${m.border} ${m.color} bg-background shadow-sm group-hover:scale-110 transition-transform`}>
               <m.icon size={18} />
             </div>
             <div>
@@ -42,7 +42,7 @@ export default function InsightsPanel() {
         ))}
       </div>
       
-      <div className={`mt-6 p-4 rounded-[16px] border ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'}`}>
+      <div className="mt-6 p-4 rounded-[16px] border border-border bg-secondary/30">
          <h4 className={`text-[12px] font-bold mb-2 uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Summary</h4>
          <p className={`text-[13px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
             The multi-agent swarm successfully reduced time complexity by optimizing the original nested loop structure into a linear scan using a HashSet. Space complexity increased to O(N) as a tradeoff, which the Consensus Judge determined acceptable for modern memory constraints natively observed in Next.js backend/frontend architectures.
