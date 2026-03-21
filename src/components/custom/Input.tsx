@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { FileCode2, Command, Square, Sparkles } from "lucide-react";
-import CodeEditorPanel from "./CodeEditorPanel";
+import CodeEditorPanel from "@/components/feature/CodeEditorPanel";
 import { useAppContext } from "@/context/AppContext";
 
 interface InputProps {

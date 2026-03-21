@@ -2,11 +2,11 @@
 
 import { useTheme } from "next-themes";
 import { Copy, Layers, X, FileCode2, Cpu, AlertCircle, CheckCircle2 } from "lucide-react";
-import CodeEditorPanel from "./CodeEditorPanel";
+import CodeEditorPanel from "@/components/feature/CodeEditorPanel";
 import { useAppContext } from "@/context/AppContext";
 import { useState, useEffect } from "react";
-import RefactoringReplay from "./RefactoringReplay";
-import InsightsPanel from "./InsightsPanel";
+import RefactoringReplay from "@/components/feature/RefactoringReplay";
+import InsightsPanel from "@/components/feature/InsightsPanel";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;

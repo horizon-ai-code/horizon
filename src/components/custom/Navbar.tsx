@@ -1,8 +1,8 @@
 "use client"
 
 import { Settings, User } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
-import HorizonLogo from "./HorizonLogo";
+import ThemeToggle from "@/components/theme/ThemeToggle";
+import HorizonLogo from "@/components/feature/HorizonLogo";
 import { useAppContext } from "@/context/AppContext";
 
 export default function Navbar() {

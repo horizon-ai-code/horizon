@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Fira_Code, Poppins, Geist } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Navbar from "@/components/custom/Navbar";
-import ScrollHandler from "@/components/custom/ScrollHandler";
+import ScrollHandler from "@/components/feature/ScrollHandler";
 import { AppProvider } from "@/context/AppContext";
 import { cn } from "@/lib/utils";
 

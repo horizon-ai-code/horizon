@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useAppContext } from "@/context/AppContext";
 
-import LoadingOverlay from "@/components/custom/LoadingOverlay";
+import LoadingOverlay from "@/components/feature/LoadingOverlay";
 import Input from "@/components/custom/Input";
 import RefactoredOutput from "@/components/custom/RefactoredOutput";
 import Terminal from "@/components/custom/Terminal";
