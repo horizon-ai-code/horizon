@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} ${firaCode.variable} ${poppins.variable} font-sans antialiased text-slate-900 dark:text-gray-200 transition-colors duration-700 ease-in-out`}>
+      <body className={`${inter.variable} ${firaCode.variable} ${poppins.variable} font-sans antialiased text-foreground theme-transition delay-bg`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

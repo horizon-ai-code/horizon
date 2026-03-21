@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // Sanitizes the themes to prevent React from crashing on shorthand properties
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,7 +19,7 @@ const sanitizeTheme = (theme: any) => {
 };
 
 const safeDarkTheme = sanitizeTheme(vscDarkPlus);
-const safeLightTheme = sanitizeTheme(vs);
+const safeLightTheme = sanitizeTheme(oneLight);
 
 interface CodeEditorPanelProps {
   value: string;
@@ -86,10 +86,10 @@ export default function CodeEditorPanel({
             const isAdded = showDiff && highlightLines.added?.includes(i);
             const isIssue = showDiff && highlightLines.issue?.includes(i);
             
-            let bgClass = "h-[24px] w-full transition-colors duration-300 ";
-            if (isRemoved) bgClass += isDark ? 'bg-red-500/20' : 'bg-red-200/60';
-            else if (isAdded) bgClass += isDark ? 'bg-cyan-500/20' : 'bg-cyan-200/60';
-            else if (isIssue) bgClass += isDark ? 'bg-orange-500/20' : 'bg-orange-200/60';
+            let bgClass = "h-[24px] w-full theme-transition ";
+            if (isRemoved) bgClass += isDark ? 'bg-red-500/15' : 'bg-red-500/10';
+            else if (isAdded) bgClass += isDark ? 'bg-cyan-500/15' : 'bg-cyan-500/10';
+            else if (isIssue) bgClass += isDark ? 'bg-orange-500/15' : 'bg-orange-500/10';
             else bgClass += "bg-transparent";
 
             return <div key={i} className={bgClass} />;
@@ -100,8 +100,8 @@ export default function CodeEditorPanel({
       {/* 2. GUTTER LAYER (Now transparent, only colors the numbers) */}
       <div 
         ref={gutterRef}
-        className={`w-14 z-10 select-none flex flex-col transition-colors duration-700 overflow-hidden shrink-0 bg-transparent
-          ${isDark ? 'text-gray-600/70' : 'text-slate-400'}`}
+        className={`w-14 z-10 select-none flex flex-col theme-transition overflow-hidden shrink-0 bg-transparent
+          ${isDark ? 'text-zinc-600/70' : 'text-zinc-400'}`}
         style={{ paddingTop: '24px', paddingBottom: bottomPadding }}
       >
         {lines.map((_, i) => {
@@ -141,7 +141,7 @@ export default function CodeEditorPanel({
               lineHeight: '24px', 
               letterSpacing: 'normal', 
               wordSpacing: 'normal', 
-              fontWeight: 'normal', 
+              fontWeight: '500', 
               fontVariantLigatures: 'none', 
               boxSizing: 'border-box'
             }}

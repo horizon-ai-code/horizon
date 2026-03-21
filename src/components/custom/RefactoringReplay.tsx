@@ -79,9 +79,9 @@ export default function RefactoringReplay() {
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
       {/* Replay Header */}
-      <div className={`px-5 py-4 border-b flex flex-col gap-1 z-10 ${isDark ? 'bg-white/[0.02] border-white/[0.08]' : 'bg-slate-50 border-slate-100'}`}>
-        <h3 className={`text-[14px] font-semibold ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>{step.title}</h3>
-        <p className={`text-[12px] ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{step.description}</p>
+      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 theme-transition bg-zinc-50/50 border-zinc-200/50 dark:bg-white/[0.02] dark:border-white/[0.08]">
+        <h3 className="text-[14px] font-semibold text-zinc-800 dark:text-zinc-200">{step.title}</h3>
+        <p className="text-[12px] text-zinc-500 dark:text-zinc-400">{step.description}</p>
       </div>
       
       {/* Syntax Highlighting display */}
@@ -98,26 +98,24 @@ export default function RefactoringReplay() {
           }}
           wrapLines={true}
           showLineNumbers={true}
-          lineNumberStyle={{ color: isDark ? '#4b5563' : '#9CA3AF', minWidth: '2.5em', paddingRight: '1.5em', textAlign: 'right' }}
+          lineNumberStyle={{ color: isDark ? '#4b5563' : '#a1a1aa', minWidth: '2.5em', paddingRight: '1.5em', textAlign: 'right' }}
           lineProps={(lineNumber) => {
             let style: React.CSSProperties = { 
               display: 'block', 
               paddingLeft: '4px',
-              backgroundColor: 'transparent'
+              backgroundColor: 'transparent',
+              borderLeft: '3px solid transparent'
             };
             
-            // RESTORED ORANGE CHECK
             if (step.issueLines?.includes(lineNumber)) {
               style.backgroundColor = isDark ? 'rgba(249, 115, 22, 0.15)' : 'rgba(255, 237, 213, 0.6)';
-              style.borderLeft = '3px solid #f97316'; // Tailwind orange-500
+              style.borderLeft = '3px solid #f97316';
             } else if (step.addedLines.includes(lineNumber)) {
               style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(223, 247, 228, 0.6)';
-              style.borderLeft = '3px solid #22c55e'; // Tailwind green-500
+              style.borderLeft = '3px solid #22c55e';
             } else if (step.removedLines.includes(lineNumber)) {
               style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 227, 227, 0.6)';
-              style.borderLeft = '3px solid #ef4444'; // Tailwind red-500
-            } else {
-              style.borderLeft = '3px solid transparent';
+              style.borderLeft = '3px solid #ef4444';
             }
             return { style };
           }}
@@ -127,29 +125,29 @@ export default function RefactoringReplay() {
       </div>
 
       {/* Control Bar */}
-      <div className={`px-5 py-3 border-t flex items-center justify-between z-10 ${isDark ? 'bg-[#0f0f11] border-white/[0.08]' : 'bg-white border-slate-100'}`}>
-        <span className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+      <div className="px-5 py-3 border-t flex items-center justify-between z-10 theme-transition bg-white dark:bg-zinc-950 border-zinc-200/50 dark:border-white/[0.08]">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
           Step {currentReplayStep + 1} of {replaySteps.length}
         </span>
         <div className="flex items-center gap-2">
           <button 
             onClick={handlePrev} 
             disabled={currentReplayStep === 0}
-            className={`p-1.5 rounded-md transition-all ${isDark ? 'text-gray-400 border border-white/10 hover:bg-white/5 disabled:opacity-30 disabled:border-transparent cursor-pointer' : 'text-slate-600 border border-slate-200 hover:bg-slate-50 disabled:opacity-30 disabled:border-transparent'}`}
+            className="p-1.5 rounded-md transition-all border cursor-pointer disabled:opacity-30 disabled:border-transparent text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:text-zinc-400 dark:border-white/10 dark:hover:bg-white/5"
           >
             <ChevronLeft size={16} />
           </button>
           <button 
             onClick={handleNext} 
             disabled={isFinal}
-            className={`p-1.5 rounded-md transition-all ${isDark ? 'text-gray-400 border border-white/10 hover:bg-white/5 disabled:opacity-30 disabled:border-transparent cursor-pointer' : 'text-slate-600 border border-slate-200 hover:bg-slate-50 disabled:opacity-30 disabled:border-transparent'}`}
+            className="p-1.5 rounded-md transition-all border cursor-pointer disabled:opacity-30 disabled:border-transparent text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:text-zinc-400 dark:border-white/10 dark:hover:bg-white/5"
           >
             <ChevronRight size={16} />
           </button>
           <button 
             onClick={() => setCurrentReplayStep(replaySteps.length - 1)} 
             disabled={isFinal}
-            className={`flex items-center gap-1.5 px-3 py-1.5 ml-2 text-[12px] font-medium rounded-md transition-all ${isDark ? 'text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 disabled:border-transparent cursor-pointer' : 'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 disabled:opacity-30 disabled:border-transparent'}`}
+            className="flex items-center gap-1.5 px-3 py-1.5 ml-2 text-[12px] font-medium rounded-md transition-all border cursor-pointer disabled:opacity-30 disabled:border-transparent text-zinc-600 bg-zinc-50 hover:bg-zinc-100 border-zinc-200 dark:text-zinc-300 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10"
           >
             Skip to Final <FastForward size={14} />
           </button>

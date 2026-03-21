@@ -150,8 +150,8 @@ export default function Home() {
   return (
     <>
       {/* Ultra Premium Ambient Background */}
-      <div className="fixed inset-0 z-[-1] pointer-events-none">
-        <div className={`absolute inset-0 transition-colors duration-1000 ${isDark ? 'bg-[#000000]' : 'bg-[#FAFAFA]'}`}></div>
+      <div className="fixed inset-0 z-[-1] pointer-events-none theme-transition delay-bg">
+        <div className={`absolute inset-0 theme-transition delay-bg ${isDark ? 'bg-black' : 'bg-background'}`}></div>
         {isDark ? (
           <>
             <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-900/20 rounded-full blur-[120px]"></div>
@@ -159,8 +159,8 @@ export default function Home() {
           </>
         ) : (
           <>
-            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-100/60 rounded-full blur-[120px]"></div>
-            <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-50/50 rounded-full blur-[150px]"></div>
+            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-100/40 rounded-full blur-[120px] opacity-60"></div>
+            <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-50/40 rounded-full blur-[150px] opacity-60"></div>
           </>
         )}
       </div>
