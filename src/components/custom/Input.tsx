@@ -68,7 +68,7 @@ export default function Input({
 
   return (
     <div className="flex flex-col h-full min-h-0 animate-meet-left relative">
-      <div className={`flex-1 flex flex-col min-h-0 rounded-[24px] ring-1 overflow-hidden shadow-2xl relative backdrop-blur-2xl transition-all duration-700 delay-150 ease-in-out
+      <div className={`flex-1 flex flex-col min-h-0 rounded-[24px] ring-1 overflow-hidden shadow-2xl relative backdrop-blur-2xl
         ${sourceError 
           ? 'bg-red-500/5 ring-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
           : 'bg-background/80 dark:bg-[#0D0D0F] ring-border/60 dark:ring-white/[0.05]'
