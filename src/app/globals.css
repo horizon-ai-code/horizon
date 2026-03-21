@@ -12,21 +12,75 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
-  *, *::before, *::after {
+
+  /* ─── THEME TRANSITION ─────────────────────────────────────────
+     Surgical targeting only. Never use * { transition }.
+     Durations are 200-280ms — fast feels premium, slow feels laggy.
+     will-change + translateZ(0) pre-promotes heavy layers to GPU
+     so blur and color transitions never compete on the same frame.
+  ──────────────────────────────────────────────────────────────── */
+
+  html, body {
     transition:
-      background-color 700ms cubic-bezier(0.4, 0, 0.2, 1),
-      color            600ms cubic-bezier(0.4, 0, 0.2, 1),
-      border-color     650ms cubic-bezier(0.4, 0, 0.2, 1),
-      fill             600ms cubic-bezier(0.4, 0, 0.2, 1),
-      stroke           600ms cubic-bezier(0.4, 0, 0.2, 1),
-      box-shadow       600ms cubic-bezier(0.4, 0, 0.2, 1),
-      opacity          400ms cubic-bezier(0.4, 0, 0.2, 1);
+      background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      color            200ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: background-color;
+  }
+
+  nav, header, main, aside, footer, section,
+  [data-sidebar], [data-slot="sidebar"],
+  [role="dialog"],
+  [data-radix-popper-content-wrapper] {
+    transition:
+      background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color     220ms cubic-bezier(0.4, 0, 0.2, 1),
+      color            200ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: background-color;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  .bg-background, .bg-card, .bg-popover,
+  .bg-muted, .bg-accent, .bg-secondary,
+  .bg-sidebar, .bg-primary {
+    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .text-foreground, .text-muted-foreground,
+  .text-card-foreground, .text-popover-foreground,
+  .text-secondary-foreground, .text-accent-foreground,
+  .text-primary, .text-sidebar-foreground {
+    transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .border-border, .border-input,
+  .border-sidebar-border, .divide-border {
+    transition: border-color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  button, input, textarea, select,
+  [role="button"], [role="tab"],
+  [role="menuitem"], [role="option"],
+  [role="combobox"], [role="listbox"] {
+    transition:
+      background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color     220ms cubic-bezier(0.4, 0, 0.2, 1),
+      color            200ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow       200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  svg {
+    transition:
+      fill   200ms cubic-bezier(0.4, 0, 0.2, 1),
+      stroke 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .no-transition,
   .no-transition * {
     transition: none !important;
   }
+
+  /* ─── ANIMATIONS ───────────────────────────────────────────── */
 
   .animate-meet-left {
     animation: slideInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -36,36 +90,19 @@
   }
 
   @keyframes slideInLeft {
-    from {
-      transform: translateX(-50px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(-50px); opacity: 0; }
+    to   { transform: translateX(0);     opacity: 1; }
   }
 
   @keyframes slideInRight {
-    from {
-      transform: translateX(50px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(50px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
   }
-}
 
-@layer base {
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  /* ─── SCROLLBARS ───────────────────────────────────────────── */
+
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     background: rgba(150, 150, 150, 0.2);
     border-radius: 4px;
@@ -73,12 +110,9 @@
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(150, 150, 150, 0.4);
   }
-  .custom-chat-scrollbar::-webkit-scrollbar {
-    width: 4px;
-  }
-  .custom-chat-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
+
+  .custom-chat-scrollbar::-webkit-scrollbar       { width: 4px; }
+  .custom-chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-chat-scrollbar::-webkit-scrollbar-thumb {
     background: rgba(0, 229, 255, 0.3);
     border-radius: 4px;
@@ -86,6 +120,9 @@
   .custom-chat-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 229, 255, 0.6);
   }
+
+  /* ─── BASE RESETS ──────────────────────────────────────────── */
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -98,11 +135,14 @@
   button, [role="button"] {
     cursor: pointer;
   }
+
 }
 
+/* ─── LIGHT THEME ────────────────────────────────────────────── */
+
 :root {
-  --background: oklch(0.99 0.001 247.833); /* Ultra-Premium Off-White #FAFAFA */
-  --foreground: oklch(0.21 0.006 285.885); /* Deep Zinc Primary Text */
+  --background: oklch(0.99 0.001 247.833);
+  --foreground: oklch(0.21 0.006 285.885);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.21 0.006 285.885);
   --popover: oklch(1 0 0);
@@ -134,6 +174,8 @@
   --sidebar-border: oklch(0.927 0.006 264.531);
   --sidebar-ring: oklch(0.21 0.006 285.885 / 10%);
 }
+
+/* ─── DARK THEME ─────────────────────────────────────────────── */
 
 .dark {
   --background: oklch(0 0 0);
@@ -168,6 +210,8 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* ─── TAILWIND THEME MAP ─────────────────────────────────────── */
 
 @theme inline {
   --font-sans: var(--font-sans);

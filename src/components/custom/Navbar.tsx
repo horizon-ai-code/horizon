@@ -23,12 +23,12 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         <ThemeToggle />
         <div className="w-px h-6 bg-border"></div>
-        <button className="p-2.5 rounded-full transition-all duration-300 ring-1 hover:bg-zinc-100 hover:scale-105 active:scale-95 ring-zinc-200 text-zinc-500 hover:text-zinc-900 dark:hover:bg-white/5 dark:ring-white/5 dark:hover:text-white cursor-pointer">
+        <button className="p-2.5 rounded-full transition-transform ring-1 hover:bg-accent hover:scale-105 active:scale-95 ring-border text-muted-foreground hover:text-foreground cursor-pointer">
           <Settings size={16} />
         </button>
-        <div className="w-10 h-10 ml-2 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-[2px] cursor-pointer shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all hover:scale-105 active:scale-95">
+        <div className="w-10 h-10 ml-2 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-[2px] cursor-pointer shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-transform hover:scale-105 active:scale-95">
           <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden bg-background">
-            <User size={16} className="text-cyan-600 dark:text-gray-300" />
+            <User size={16} className="text-primary-foreground/90" />
           </div>
         </div>
       </div>

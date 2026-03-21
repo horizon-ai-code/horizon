@@ -133,21 +133,21 @@ export default function RefactoringReplay() {
           <button 
             onClick={handlePrev} 
             disabled={currentReplayStep === 0}
-            className="p-1.5 rounded-md transition-all border cursor-pointer disabled:opacity-30 disabled:border-transparent text-foreground border-border hover:bg-secondary"
+            className="p-1.5 rounded-md border cursor-pointer disabled:opacity-30 disabled:border-transparent text-foreground border-border hover:bg-secondary"
           >
             <ChevronLeft size={16} />
           </button>
           <button 
             onClick={handleNext} 
             disabled={isFinal}
-            className="p-1.5 rounded-md transition-all border cursor-pointer disabled:opacity-30 disabled:border-transparent text-foreground border-border hover:bg-secondary"
+            className="p-1.5 rounded-md border cursor-pointer disabled:opacity-30 disabled:border-transparent text-foreground border-border hover:bg-secondary"
           >
             <ChevronRight size={16} />
           </button>
           <button 
             onClick={() => setCurrentReplayStep(replaySteps.length - 1)} 
             disabled={isFinal}
-            className="flex items-center gap-1.5 px-3 py-1.5 ml-2 text-[12px] font-medium rounded-md transition-all border cursor-pointer disabled:opacity-30 disabled:border-transparent bg-secondary/50 text-foreground border-border hover:bg-secondary"
+            className="flex items-center gap-1.5 px-3 py-1.5 ml-2 text-[12px] font-medium rounded-md border cursor-pointer disabled:opacity-30 disabled:border-transparent bg-secondary/50 text-foreground border-border hover:bg-secondary"
           >
             Skip to Final <FastForward size={14} />
           </button>

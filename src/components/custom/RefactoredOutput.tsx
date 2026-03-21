@@ -20,11 +20,11 @@ interface RefactoredOutputProps {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FlowNode = ({ icon: Icon, title, desc, status, isDark, colorCode }: any) => {
   const getColors = () => {
-    if (status === 'active') return 'bg-background ring-1 ring-cyan-400/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] text-cyan-600 dark:text-cyan-400';
-    return 'bg-secondary/50 ring-1 ring-border text-zinc-400 dark:text-zinc-500';
+    if (status === 'active') return 'bg-background ring-1 ring-cyan-400/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] text-cyan-500';
+    return 'bg-secondary/50 ring-1 ring-border text-muted-foreground';
   };
   return (
-    <div className={`relative flex flex-col items-center justify-center p-3 w-32 h-32 rounded-[20px] transition-all duration-700 ${getColors()} ${status === 'active' ? 'scale-105 z-10' : 'scale-95 z-0 opacity-60'}`}>
+    <div className={`relative flex flex-col items-center justify-center p-3 w-32 h-32 rounded-[20px] transition-transform duration-700 ${getColors()} ${status === 'active' ? 'scale-105 z-10' : 'scale-95 z-0 opacity-60'}`}>
       {status === 'active' && <div className="absolute inset-0 rounded-[20px] animate-ping opacity-10" style={{ backgroundColor: colorCode }}></div>}
       <Icon size={26} className={`mb-3 ${status === 'active' ? 'animate-bounce' : ''}`} style={{ color: status !== 'waiting' ? colorCode : '' }} />
       <h4 className="text-[11px] font-bold text-center mb-1 leading-tight tracking-wide">{title}</h4>
@@ -93,25 +93,25 @@ export default function RefactoredOutput({
     <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl bg-background/80 ring-border/60 backdrop-blur-2xl
       ${isTerminalCollapsed ? 'flex-1' : 'flex-[1.5]'}`}>
       
-      <div className={`px-3 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 transition-colors duration-700 ${isDark ? 'bg-white/[0.02] border-white/[0.08]' : 'bg-slate-50/50 border-slate-100'}`}>
+      <div className="px-3 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 border-border">
         
         {/* 2. UPDATE TOGGLE BUTTONS */}
         <div className="flex p-1 rounded-lg bg-secondary ring-1 ring-border">
           <button 
             onClick={() => setRightPanelMode('output')}
-            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-all active:scale-95 cursor-pointer ${rightPanelMode === 'output' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'output' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
           >
             OUTPUT
           </button>
           <button 
             onClick={() => setRightPanelMode('replay')}
-            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-all active:scale-95 cursor-pointer ${rightPanelMode === 'replay' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'replay' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
           >
             REPLAY
           </button>
           <button 
             onClick={() => setRightPanelMode('insights')}
-            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-all active:scale-95 cursor-pointer ${rightPanelMode === 'insights' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'insights' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
           >
             INSIGHTS
           </button>
@@ -119,13 +119,13 @@ export default function RefactoredOutput({
         
         <div className="flex items-center gap-2">
           {appState === 'done' && (
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-all flex items-center gap-1.5 ${isDark ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-green-50 text-green-600 border-green-200'}`}>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 bg-green-500/10 text-green-500 border-green-500/20">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Ready
             </span>
           )}
           <button 
             onClick={handleCopy}
-            className="p-1.5 rounded-md transition-all ring-1 cursor-pointer hover:scale-110 active:scale-90 text-muted-foreground hover:text-foreground hover:bg-secondary ring-transparent hover:ring-border"
+            className="p-1.5 rounded-md transition-transform ring-1 cursor-pointer hover:scale-110 active:scale-90 text-muted-foreground hover:text-foreground hover:bg-secondary ring-transparent hover:ring-border"
             title="Copy Code"
           >
             <Copy size={16} />
@@ -136,14 +136,13 @@ export default function RefactoredOutput({
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
         {appState === 'idle' ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10">
-            <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.2)] transition-colors duration-700
-              ${isDark ? 'bg-[#18181b] ring-1 ring-white/5' : 'bg-white ring-1 ring-slate-200/50 shadow-xl'}`}>
-              <Layers size={36} className={isDark ? 'text-cyan-500/50' : 'text-cyan-500/60'} strokeWidth={1.5} />
+            <div className="flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.2)] bg-background ring-1 ring-border">
+              <Layers size={36} className="text-cyan-500/60" strokeWidth={1.5} />
             </div>
-            <p className={`text-[15px] font-semibold transition-colors duration-700 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
+            <p className="text-[15px] font-semibold text-foreground">
               Awaiting source code analysis
             </p>
-            <p className={`text-[13px] mt-2 font-medium transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+            <p className="text-[13px] mt-2 font-medium text-muted-foreground">
               Output will be generated by the Swarm
             </p>
           </div>
@@ -171,10 +170,9 @@ export default function RefactoredOutput({
         )}
 
         {showFlowchartModal && (
-          <div className={`absolute inset-0 z-30 flex flex-col items-center justify-center transition-all duration-500 
-            ${isDark ? 'bg-[#000000]/90 backdrop-blur-2xl' : 'bg-white/95 backdrop-blur-2xl'}`}>
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-background/95 backdrop-blur-2xl">
              <div className="flex justify-end p-5 absolute top-0 right-0 w-full z-40">
-                {appState === 'done' && <button onClick={() => setShowFlowchartModal(false)} className={`p-2 rounded-full ring-1 transition-colors cursor-pointer ${isDark ? 'bg-white/5 hover:bg-white/10 ring-white/10 text-white' : 'bg-slate-50 hover:bg-slate-100 ring-slate-200 text-slate-800'}`}><X size={18} /></button>}
+                {appState === 'done' && <button onClick={() => setShowFlowchartModal(false)} className="p-2 rounded-full ring-1 transition-transform cursor-pointer bg-secondary hover:bg-secondary/80 ring-border text-foreground"><X size={18} /></button>}
              </div>
              
              <OrchestrationFlowchart activeStep={activeStep} isDark={isDark} />

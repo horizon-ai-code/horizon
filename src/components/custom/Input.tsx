@@ -86,14 +86,14 @@ export default function Input({
           
           {/* Right Aligned Badges */}
           <div className="flex items-center gap-3">
-            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm transition-all flex items-center gap-1 ${
+            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 ${
               isOverLimit 
-                ? (isDark ? 'bg-red-500/10 text-red-400 border-red-500/20 animate-pulse' : 'bg-red-50 text-red-600 border-red-200 animate-pulse') 
-                : (isDark ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-cyan-50 text-cyan-600 border-cyan-200')
+                ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse'
+                : 'bg-cyan-500/10 text-cyan-500 border-cyan-500/30'
             }`}>
-              <span className={isOverLimit ? 'text-red-500' : 'text-cyan-500'}>#</span> {lineCount} / 20 LINES
+              <span className={isOverLimit ? 'text-destructive' : 'text-cyan-500'}>#</span> {lineCount} / 20 LINES
             </div>
-            <span className={`text-[11px] font-mono font-bold tracking-widest uppercase transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+            <span className="text-[11px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
               INPUT
             </span>
           </div>
@@ -144,7 +144,7 @@ export default function Input({
           >
             
             <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
-              <Command className={`${inputError ? 'text-red-500' : (isDark ? 'text-cyan-400' : 'text-cyan-500')} transition-colors duration-300 opacity-90`} size={18} />
+              <Command className={`${inputError ? 'text-destructive' : 'text-cyan-500'} opacity-90`} size={18} />
             </div>
 
             <textarea 
@@ -163,9 +163,9 @@ export default function Input({
 
             <div className="h-[40px] flex items-center shrink-0">
               {appState === 'analyzing' ? (
-                <button onClick={stopAnalysis} className={`h-[34px] px-5 rounded-full text-xs font-bold flex items-center gap-2 transition-all cursor-pointer hover:scale-105 active:scale-95 ${isDark ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}><Square size={12} className="fill-current" /> Stop</button>
+                <button onClick={stopAnalysis} className="h-[34px] px-5 rounded-full text-xs font-bold flex items-center gap-2 transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-destructive/10 text-destructive hover:bg-destructive/20"><Square size={12} className="fill-current" /> Stop</button>
               ) : (
-                <button onClick={startAnalysis} disabled={isOverLimit} className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 ${isOverLimit ? 'bg-zinc-500 cursor-not-allowed opacity-50' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`}><Sparkles size={14} className="fill-current" /> Refactor</button>
+                <button onClick={startAnalysis} disabled={isOverLimit} className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-transform cursor-pointer hover:scale-105 active:scale-95 ${isOverLimit ? 'bg-muted-foreground cursor-not-allowed opacity-50' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`}><Sparkles size={14} className="fill-current" /> Refactor</button>
               )}
             </div>
           </div>

@@ -152,17 +152,22 @@ export default function Home() {
       {/* Ultra Premium Ambient Background */}
       <div className="fixed inset-0 z-[-1] pointer-events-none">
         <div className="absolute inset-0 bg-background"></div>
-        {isDark ? (
-          <>
-            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-900/10 rounded-full blur-[120px]"></div>
-            <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-900/5 rounded-full blur-[150px]"></div>
-          </>
-        ) : (
-          <>
-            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-100/20 rounded-full blur-[120px] opacity-40"></div>
-            <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-50/20 rounded-full blur-[150px] opacity-40"></div>
-          </>
-        )}
+        <div 
+          className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px]"
+          style={{
+            backgroundColor: isDark ? 'rgba(22, 78, 99, 0.3)' : 'rgba(207, 250, 254, 0.4)',
+            opacity: isDark ? 0.5 : 0.6,
+            transition: 'background-color 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full blur-[150px]"
+          style={{
+            backgroundColor: isDark ? 'rgba(30, 58, 138, 0.2)' : 'rgba(239, 246, 255, 0.5)',
+            opacity: isDark ? 0.5 : 0.6,
+            transition: 'background-color 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        ></div>
       </div>
 
       <main className="max-w-[1800px] mx-auto w-full flex-1 p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-hidden min-h-0 relative z-0">
