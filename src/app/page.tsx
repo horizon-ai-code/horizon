@@ -50,7 +50,7 @@ export default function Home() {
   const [inputError, setInputError] = useState(false);
   const [sourceError, setSourceError] = useState(false);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(false);
+  const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
   
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -114,6 +114,7 @@ export default function Home() {
 
     if (appState === 'analyzing') return;
     setAppState('analyzing');
+    setIsTerminalCollapsed(false);
     setShowFlowchartModal(true);
     setActiveStep(1); 
     setRefactoredOutput(""); 

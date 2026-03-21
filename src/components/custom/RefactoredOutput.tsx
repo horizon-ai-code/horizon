@@ -92,7 +92,7 @@ export default function RefactoredOutput({
   return (
     <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl bg-background/80 dark:bg-[#0D0D0F] ring-border/60 dark:ring-white/[0.05] backdrop-blur-2xl
       transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
-      ${isTerminalCollapsed ? 'flex-1' : 'flex-[1.5]'}`}>
+      ${isTerminalCollapsed ? 'flex-1' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
       
       <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
         
