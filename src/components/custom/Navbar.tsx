@@ -28,7 +28,7 @@ export default function Navbar() {
         </button>
         <div className="w-10 h-10 ml-2 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-[2px] cursor-pointer shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-transform hover:scale-105 active:scale-95">
           <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden bg-background">
-            <User size={16} className="text-primary-foreground/90" />
+            <User size={16} className="text-foreground/90" />
           </div>
         </div>
       </div>

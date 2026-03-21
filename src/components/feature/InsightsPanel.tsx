@@ -15,10 +15,9 @@ export default function InsightsPanel() {
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const metrics = [
-    { title: "Time Complexity", value: "O(N²) → O(N)", icon: TrendingDown, color: isDark ? "text-cyan-400" : "text-cyan-600", bg: isDark ? "bg-cyan-500/10" : "bg-cyan-500/5", border: isDark ? "border-cyan-500/20" : "border-cyan-500/10" },
     { title: "Readability", value: "Low → High", icon: Sparkles, color: isDark ? "text-purple-400" : "text-purple-600", bg: isDark ? "bg-purple-500/10" : "bg-purple-500/5", border: isDark ? "border-purple-500/20" : "border-purple-500/10" },
     { title: "Variables Managed", value: "2 → 1", icon: Layers, color: isDark ? "text-orange-400" : "text-orange-600", bg: isDark ? "bg-orange-500/10" : "bg-orange-500/5", border: isDark ? "border-orange-500/20" : "border-orange-500/10" },
-    { title: "Cyclomatic Complexitys", value: "1 → 1", icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-600", bg: isDark ? "bg-green-500/10" : "bg-green-500/5", border: isDark ? "border-green-500/20" : "border-green-500/10" }
+    { title: "Cyclomatic Complexity", value: "1 → 1", icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-600", bg: isDark ? "bg-green-500/10" : "bg-green-500/5", border: isDark ? "border-green-500/20" : "border-green-500/10" }
   ];
 
   if (!mounted) return null;
@@ -30,7 +29,7 @@ export default function InsightsPanel() {
       </h3>
       <div className="grid grid-cols-2 gap-4">
         {metrics.map((m, i) => (
-          <div key={i} className={`p-4 rounded-[16px] border ${m.border} ${m.bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300`}>
+          <div key={i} className={`p-4 rounded-[16px] border ${m.border} ${m.bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300 ${i === 0 ? 'col-span-2' : ''}`}>
             <div className={`p-2.5 w-max rounded-[12px] border ${m.border} ${m.color} bg-background shadow-sm group-hover:scale-110 transition-transform`}>
               <m.icon size={18} />
             </div>
