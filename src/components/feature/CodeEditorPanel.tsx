@@ -32,6 +32,12 @@ interface CodeEditorPanelProps {
   };
   showDiff?: boolean;
   bottomPadding?: string;
+  ghostValue?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export default function CodeEditorPanel({ 
@@ -40,7 +46,13 @@ export default function CodeEditorPanel({
   placeholder, 
   highlightLines = {}, 
   showDiff = false, 
-  bottomPadding = '48px' 
+  bottomPadding = '48px',
+  ghostValue = '',
+  onKeyDown,
+  onFocus,
+  onBlur,
+  onMouseEnter,
+  onMouseLeave
 }: CodeEditorPanelProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -71,7 +83,11 @@ export default function CodeEditorPanel({
   if (!mounted) return null;
 
   return (
-    <div className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05]">
+    <div 
+      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05]"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       
       {/* 1. BACKGROUND LAYER (The Magic Fix)
           This layer sits completely behind everything and draws full-width colored 
@@ -126,10 +142,11 @@ export default function CodeEditorPanel({
       {/* 3. CODE LAYER (Cleaned up, perfectly aligned to text area) */}
       <div className="relative flex-1 overflow-hidden h-full z-10 no-transition">
         <div ref={preRef} className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          {/* Main Content Layer */}
           <SyntaxHighlighter
             language="java"
             style={isDark ? safeDarkTheme : safeLightTheme}
-            wrapLines={false} // Disabled! No more collapsing line wrappers!
+            wrapLines={false}
             customStyle={{ 
               margin: 0, 
               border: "none", 
@@ -161,6 +178,47 @@ export default function CodeEditorPanel({
           >
             {value || ' '}
           </SyntaxHighlighter>
+
+          {/* Ghost Preview Layer */}
+          {ghostValue && !value && (
+            <div className="absolute inset-0 opacity-30 pointer-events-none">
+              <SyntaxHighlighter
+                language="java"
+                style={isDark ? safeDarkTheme : safeLightTheme}
+                wrapLines={false}
+                customStyle={{ 
+                  margin: 0, 
+                  border: "none", 
+                  boxShadow: "none", 
+                  backgroundImage: "none",
+                  padding: `24px 24px ${bottomPadding} 24px`, 
+                  backgroundColor: "transparent", 
+                  fontSize: '13px', 
+                  lineHeight: '24px', 
+                  letterSpacing: 'normal', 
+                  wordSpacing: 'normal', 
+                  fontWeight: '500', 
+                  fontVariantLigatures: 'none', 
+                  boxSizing: 'border-box'
+                }}
+                codeTagProps={{
+                  style: {
+                    fontFamily: 'var(--font-fira-code), monospace', 
+                    fontSize: '13px', 
+                    lineHeight: '24px', 
+                    tabSize: 4,
+                    backgroundColor: "transparent", 
+                    letterSpacing: 'normal', 
+                    wordSpacing: 'normal', 
+                    fontWeight: 'normal', 
+                    fontVariantLigatures: 'none',
+                  }
+                }}
+              >
+                {ghostValue}
+              </SyntaxHighlighter>
+            </div>
+          )}
         </div>
 
         <textarea
@@ -168,6 +226,9 @@ export default function CodeEditorPanel({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
+          onKeyDown={onKeyDown}
+          onFocus={onFocus}
+          onBlur={onBlur}
           spellCheck="false"
           placeholder={placeholder}
           className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-cyan-400 overflow-auto text-transparent selection:bg-cyan-500/20 font-mono"
