@@ -5,77 +5,117 @@ import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+// Sanitizes the themes to prevent React from crashing on shorthand properties
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sanitizeTheme = (theme: any) => {
+  const cleanTheme = JSON.parse(JSON.stringify(theme));
+  Object.keys(cleanTheme).forEach(key => {
+    if (cleanTheme[key].background) {
+      cleanTheme[key].backgroundColor = cleanTheme[key].background;
+      delete cleanTheme[key].background;
+    }
+  });
+  return cleanTheme;
+};
+
+const safeDarkTheme = sanitizeTheme(vscDarkPlus);
+const safeLightTheme = sanitizeTheme(vs);
+
 interface CodeEditorPanelProps {
   value: string;
   onChange: (val: string) => void;
   placeholder: string;
-  diffType?: "none" | "removed" | "added";
+  highlightLines?: {
+    removed?: number[];
+    added?: number[];
+    issue?: number[];
+  };
   showDiff?: boolean;
   bottomPadding?: string;
 }
 
-export default function CodeEditorPanel({ value, onChange, placeholder, diffType = "none", showDiff = false, bottomPadding = '48px' }: CodeEditorPanelProps) {
+export default function CodeEditorPanel({ 
+  value, 
+  onChange, 
+  placeholder, 
+  highlightLines = {}, 
+  showDiff = false, 
+  bottomPadding = '48px' 
+}: CodeEditorPanelProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null); // NEW: Controls background scroll
 
   useEffect(() => {
-    // eslint-disable-next-line
     setMounted(true);
   }, []);
 
   const isDark = mounted ? resolvedTheme === 'dark' : true;
 
+  // Sync scrolling across the Text, Gutter, and Background layers simultaneously
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     const { scrollTop, scrollLeft } = e.currentTarget;
     if (preRef.current) {
       preRef.current.scrollTop = scrollTop;
       preRef.current.scrollLeft = scrollLeft;
     }
-    if (gutterRef.current) {
-      gutterRef.current.scrollTop = scrollTop;
-    }
+    if (gutterRef.current) gutterRef.current.scrollTop = scrollTop;
+    if (bgRef.current) bgRef.current.scrollTop = scrollTop;
   };
 
   const lines = value.split('\n');
-
-  const getLineDiffType = (line: string | undefined) => {
-  // 1. Add a safety check for undefined lines
-  if (!showDiff || !line) return 'none'; 
-
-  if (diffType === 'removed') {
-    const removedTriggers = ['int add', 'int subtract', 'int multiply', 'return a + b', 'return a - b', 'return a * b'];
-    if (removedTriggers.some(trigger => line.includes(trigger))) return 'removed';
-  } else if (diffType === 'added') {
-    const addedTriggers = ['/**', 'perform', 'compute'];
-    if (addedTriggers.some(trigger => line.includes(trigger))) return 'added';
-  }
-  return 'none';
-};
 
   if (!mounted) return null;
 
   return (
     <div className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden">
+      
+      {/* 1. BACKGROUND LAYER (The Magic Fix)
+          This layer sits completely behind everything and draws full-width colored 
+          rectangles that perfectly span from the gutter to the far right edge. */}
+      <div 
+        ref={bgRef} 
+        className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
+      >
+        <div style={{ paddingTop: '24px', paddingBottom: bottomPadding }}>
+          {lines.map((_, i) => {
+            const isRemoved = showDiff && highlightLines.removed?.includes(i);
+            const isAdded = showDiff && highlightLines.added?.includes(i);
+            const isIssue = showDiff && highlightLines.issue?.includes(i);
+            
+            let bgClass = "h-[24px] w-full transition-colors duration-300 ";
+            if (isRemoved) bgClass += isDark ? 'bg-red-500/20' : 'bg-red-200/60';
+            else if (isAdded) bgClass += isDark ? 'bg-cyan-500/20' : 'bg-cyan-200/60';
+            else if (isIssue) bgClass += isDark ? 'bg-orange-500/20' : 'bg-orange-200/60';
+            else bgClass += "bg-transparent";
+
+            return <div key={i} className={bgClass} />;
+          })}
+        </div>
+      </div>
+
+      {/* 2. GUTTER LAYER (Now transparent, only colors the numbers) */}
       <div 
         ref={gutterRef}
-        className={`w-14 select-none flex flex-col border-r transition-colors duration-700 overflow-hidden shrink-0 z-10
-          ${isDark ? 'bg-[#0a0a0c]/80 backdrop-blur-xl border-white/5 text-gray-600/70' : 'bg-slate-50/80 backdrop-blur-xl border-slate-100 text-slate-400'}`}
+        className={`w-14 z-10 select-none flex flex-col transition-colors duration-700 overflow-hidden shrink-0 bg-transparent
+          ${isDark ? 'text-gray-600/70' : 'text-slate-400'}`}
         style={{ paddingTop: '24px', paddingBottom: bottomPadding }}
       >
-        {lines.map((line, i) => {
-          const type = getLineDiffType(lines[i]);
-          const isRemoved = type === 'removed';
-          const isAdded = type === 'added';
+        {lines.map((_, i) => {
+          const isRemoved = showDiff && highlightLines.removed?.includes(i);
+          const isAdded = showDiff && highlightLines.added?.includes(i);
+          const isIssue = showDiff && highlightLines.issue?.includes(i);
           
           return (
             <div 
               key={i} 
-              className={`h-[24px] leading-[24px] flex items-center justify-center transition-all duration-300
-                ${isRemoved ? 'bg-red-500/10 text-red-400 font-medium' : 
-                  isAdded ? 'bg-cyan-500/10 text-cyan-400 font-medium' : ''}`}
+              className={`h-[24px] leading-[24px] flex items-center justify-center transition-colors duration-300
+                ${isRemoved ? (isDark ? 'text-red-400 font-medium' : 'text-red-600 font-medium') : 
+                  isAdded ? (isDark ? 'text-cyan-400 font-medium' : 'text-cyan-600 font-medium') : 
+                  isIssue ? (isDark ? 'text-orange-400 font-medium' : 'text-orange-600 font-medium') : ''}`}
             >
               {i + 1}
             </div>
@@ -83,56 +123,40 @@ export default function CodeEditorPanel({ value, onChange, placeholder, diffType
         })}
       </div>
 
-      <div className="relative flex-1 overflow-hidden h-full">
-        <div 
-          ref={preRef}
-          className="absolute inset-0 pointer-events-none overflow-hidden"
-          aria-hidden="true"
-        >
+      {/* 3. CODE LAYER (Cleaned up, perfectly aligned to text area) */}
+      <div className="relative flex-1 overflow-hidden h-full z-10">
+        <div ref={preRef} className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
           <SyntaxHighlighter
             language="java"
-            style={isDark ? vscDarkPlus : vs}
+            style={isDark ? safeDarkTheme : safeLightTheme}
+            wrapLines={false} // Disabled! No more collapsing line wrappers!
             customStyle={{ 
               margin: 0, 
-              border: "none",
-              boxShadow: "none",
+              border: "none", 
+              boxShadow: "none", 
               backgroundImage: "none",
               padding: `24px 24px ${bottomPadding} 24px`, 
-              background: "transparent",
-              backgroundColor: 'transparent', 
-              fontSize: '13px',
-              lineHeight: '24px',
-              fontWeight: 'normal',
-              fontVariantLigatures: 'none',
+              backgroundColor: "transparent", 
+              fontSize: '13px', 
+              lineHeight: '24px', 
+              letterSpacing: 'normal', 
+              wordSpacing: 'normal', 
+              fontWeight: 'normal', 
+              fontVariantLigatures: 'none', 
+              boxSizing: 'border-box'
             }}
             codeTagProps={{
               style: {
-                fontFamily: "'Fira Code', monospace", 
-                fontSize: '13px',                    
-                lineHeight: '24px',                  
-                tabSize: 4,                         
-                padding: 0,                          
-                background: "transparent",
-                letterSpacing: 'normal',
-                fontWeight: 400,
+                fontFamily: 'var(--font-fira-code), monospace', 
+                fontSize: '13px', 
+                lineHeight: '24px', 
+                tabSize: 4,
+                backgroundColor: "transparent", 
+                letterSpacing: 'normal', 
+                wordSpacing: 'normal', 
+                fontWeight: 'normal', 
                 fontVariantLigatures: 'none',
               }
-            }}
-            wrapLines={true}
-            lineProps={(lineNumber) => {
-              const lineIndex = lineNumber - 1;
-              const type = lineIndex < lines.length ? getLineDiffType(lines[lineIndex]) : 'none';
-              let style: React.CSSProperties = { display: 'block' };
-              if (type === 'removed') {
-                style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.5)';
-                style.borderLeft = isDark ? '3px solid rgba(239, 68, 68, 0.2)' : '3px solid rgba(254, 202, 202, 1)';
-              } else if (type === 'added') {
-                style.backgroundColor = isDark ? 'rgba(6, 182, 212, 0.1)' : 'rgba(207, 250, 254, 0.5)';
-                style.borderLeft = isDark ? '3px solid rgba(6, 182, 212, 0.2)' : '3px solid rgba(165, 243, 252, 1)';
-              } else {
-                style.borderLeft = '3px solid transparent';
-              }
-              return { style };
             }}
           >
             {value || ' '}
@@ -146,21 +170,21 @@ export default function CodeEditorPanel({ value, onChange, placeholder, diffType
           onScroll={handleScroll}
           spellCheck="false"
           placeholder={placeholder}
-          className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-l-[3px] border-transparent caret-cyan-400 overflow-auto text-transparent selection:bg-cyan-500/20 font-mono"
+          className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-cyan-400 overflow-auto text-transparent selection:bg-cyan-500/20 font-mono"
           style={{ 
-            color: 'transparent',
-            WebkitTextFillColor: 'transparent',
-            whiteSpace: 'pre',
-            wordSpacing: 'normal',
+            color: 'transparent', 
+            WebkitTextFillColor: 'transparent', 
+            whiteSpace: 'pre', 
+            wordSpacing: 'normal', 
             boxSizing: 'border-box',
-            fontFamily: 'var(--font-fira-code), monospace',
-            fontSize: "13px",
-            tabSize: 4,
-            lineHeight: '24px',
+            fontFamily: 'var(--font-fira-code), monospace', 
+            fontSize: "13px", 
+            tabSize: 4, 
+            lineHeight: '24px', 
             letterSpacing: 'normal',
-            display: 'block',
-            padding: `24px 24px ${bottomPadding} 24px`,
-            fontWeight: 'normal',
+            display: 'block', 
+            padding: `24px 24px ${bottomPadding} 24px`, 
+            fontWeight: 'normal', 
             fontVariantLigatures: 'none',
           }}
         />

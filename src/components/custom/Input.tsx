@@ -74,19 +74,29 @@ export default function Input({
           : (isDark ? 'bg-[#0f0f11]/80 ring-white/[0.08]' : 'bg-white/80 ring-slate-200/60')
         }`}>
         
-        {/* Inner Header */}
+        {/* NEW MAC-STYLE HEADER */}
         <div className={`px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 transition-colors duration-700
           ${isDark ? 'bg-white/[0.02] border-white/[0.08]' : 'bg-slate-50/50 border-slate-100'}`}>
-          <div className="flex items-center gap-2.5">
-            <span className={`text-[11px] font-mono font-bold tracking-widest uppercase transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Student Snippet</span>
+          
+          {/* Mac Traffic Lights */}
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
           </div>
           
-          <div className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-all flex items-center gap-1 ${
-            isOverLimit 
-              ? (isDark ? 'bg-red-500/10 text-red-400 border-red-500/20 animate-pulse' : 'bg-red-50 text-red-600 border-red-200 animate-pulse') 
-              : (isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-white text-slate-500 border-slate-200')
-          }`}>
-            <span className={isOverLimit ? 'text-red-500' : 'text-cyan-500'}>#</span> {lineCount} / 20 LINES
+          {/* Right Aligned Badges */}
+          <div className="flex items-center gap-3">
+            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm transition-all flex items-center gap-1 ${
+              isOverLimit 
+                ? (isDark ? 'bg-red-500/10 text-red-400 border-red-500/20 animate-pulse' : 'bg-red-50 text-red-600 border-red-200 animate-pulse') 
+                : (isDark ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-cyan-50 text-cyan-600 border-cyan-200')
+            }`}>
+              <span className={isOverLimit ? 'text-red-500' : 'text-cyan-500'}>#</span> {lineCount} / 20 LINES
+            </div>
+            <span className={`text-[11px] font-mono font-bold tracking-widest uppercase transition-colors duration-700 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+              INPUT
+            </span>
           </div>
         </div>
         
@@ -106,36 +116,35 @@ export default function Input({
               </p>
             </div>
           )}
-          {/* Massive 240px bottom padding to clear the floating chatbox */}
           <CodeEditorPanel 
             value={sourceCode} 
             onChange={(val) => {
               setSourceCode(val);
               if (sourceError) setSourceError(false);
             }} 
-            diffType="removed"
+            highlightLines={{ removed: [1, 2, 3, 4, 5, 6, 7] }} 
             showDiff={appState === 'done'}
             placeholder="" 
             bottomPadding="240px"
           />
         </div>
 
-        {/* Luxurious Floating Chatbox with Buttery Smooth Transitions */}
+        {/* Luxurious Floating Chatbox */}
         <div className={`absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none transition-colors duration-700
           ${isDark ? 'bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/90 to-transparent' : 'bg-gradient-to-t from-white via-white/90 to-transparent'}`}>
           
           <div 
-  className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl
-    ${isFocused ? 'max-w-full w-full' : 'max-w-xl'} 
-    ${inputError 
-      ? 'ring-red-500/50 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
-      : (isDark ? 'bg-[#111]/95 ring-white/10 focus-within:ring-cyan-400/50 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.1)] shadow-[0_10px_40px_rgba(0,0,0,0.6)]' : 'bg-white/95 ring-slate-200/80 focus-within:ring-cyan-400/40 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.15)] shadow-[0_10px_40px_rgba(0,0,0,0.08)]')
-    }`}
-  style={{
-    borderRadius: isChatExpanded ? '16px' : '28px',
-    transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-  }}
->
+            className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl
+              ${isFocused ? 'max-w-full w-full' : 'max-w-xl'} 
+              ${inputError 
+                ? 'ring-red-500/50 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
+                : (isDark ? 'bg-[#111]/95 ring-white/10 focus-within:ring-cyan-400/50 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.1)] shadow-[0_10px_40px_rgba(0,0,0,0.6)]' : 'bg-white/95 ring-slate-200/80 focus-within:ring-cyan-400/40 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.15)] shadow-[0_10px_40px_rgba(0,0,0,0.08)]')
+              }`}
+            style={{
+              borderRadius: isChatExpanded ? '16px' : '28px',
+              transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          >
             
             <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
               <Command className={`${inputError ? 'text-red-500' : (isDark ? 'text-cyan-400' : 'text-cyan-500')} transition-colors duration-300 opacity-90`} size={18} />
@@ -146,8 +155,8 @@ export default function Input({
               value={inputInstruction} 
               onChange={handleInputChange} 
               onKeyDown={handleKeyDown}
-              onFocus={() => setIsFocused(true)}   // <-- ADD THIS
-              onBlur={() => setIsFocused(false)}   // <-- ADD THIS
+              onFocus={() => setIsFocused(true)}   
+              onBlur={() => setIsFocused(false)}   
               placeholder="Ask the Swarm to refactor or optimize..." 
               className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium transition-colors resize-none overflow-y-auto custom-chat-scrollbar
                 ${isDark ? 'text-gray-200 placeholder-gray-500' : 'text-slate-900 placeholder-slate-400'}`} 

@@ -67,7 +67,9 @@ export default function RefactoredOutput({
   const { appState } = useAppContext();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [rightPanelMode, setRightPanelMode] = useState<'replay' | 'insights'>('replay');
+  
+  // 1. ADD 'output' state and make it the default
+  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'replay' | 'insights'>('output');
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +95,15 @@ export default function RefactoredOutput({
       ${isTerminalCollapsed ? 'flex-1' : 'flex-[1.5]'}`}>
       
       <div className={`px-3 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 transition-colors duration-700 ${isDark ? 'bg-white/[0.02] border-white/[0.08]' : 'bg-slate-50/50 border-slate-100'}`}>
+        
+        {/* 2. UPDATE TOGGLE BUTTONS */}
         <div className={`flex p-1 rounded-md transition-colors ${isDark ? 'bg-[#0f0f11] ring-1 ring-white/10' : 'bg-slate-200/50 ring-1 ring-slate-200'}`}>
+          <button 
+            onClick={() => setRightPanelMode('output')}
+            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded transition-all cursor-pointer ${rightPanelMode === 'output' ? (isDark ? 'bg-white/10 text-white shadow-sm' : 'bg-white text-slate-800 shadow-sm') : (isDark ? 'text-gray-500 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')}`}
+          >
+            OUTPUT
+          </button>
           <button 
             onClick={() => setRightPanelMode('replay')}
             className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded transition-all cursor-pointer ${rightPanelMode === 'replay' ? (isDark ? 'bg-white/10 text-white shadow-sm' : 'bg-white text-slate-800 shadow-sm') : (isDark ? 'text-gray-500 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')}`}
@@ -143,7 +153,22 @@ export default function RefactoredOutput({
             {/* The OrchestrationFlowchart handles the visuals here */}
           </div>
         ) : (
-          rightPanelMode === 'replay' ? <RefactoringReplay /> : <InsightsPanel />
+          // 3. RENDER LOGIC UPDATE
+          rightPanelMode === 'output' ? (
+             <CodeEditorPanel 
+               value={refactoredOutput} 
+               onChange={setRefactoredOutput} 
+               // NEW: Only highlight newly added/edited lines in CYAN on the output side
+               highlightLines={{ added: [1, 2, 3, 4, 5] }}
+               showDiff={appState === 'done'}
+               placeholder="" 
+               bottomPadding="48px"
+             />
+          ) : rightPanelMode === 'replay' ? (
+             <RefactoringReplay />
+          ) : (
+             <InsightsPanel />
+          )
         )}
 
         {showFlowchartModal && (

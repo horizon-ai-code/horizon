@@ -9,30 +9,33 @@ import Input from "@/components/custom/Input";
 import RefactoredOutput from "@/components/custom/RefactoredOutput";
 import Terminal from "@/components/custom/Terminal";
 
-const INITIAL_SOURCE = ``; 
-
-const INITIAL_REFACTORED = `/** Refactored Calculator with improved organization */
-public class Calculator {
-    // Performs arithmetic addition
-    public int performAddition(int firstOperand, int secondOperand) {
-        return computeSum(firstOperand, secondOperand);
+const INITIAL_SOURCE = `public boolean containsDuplicate(int[] nums) {
+    for (int i = 0; i < nums.length; i++) {
+        for (int j = i + 1; j < nums.length; j++) {
+            if (nums[i] == nums[j]) {
+                return true;
+            }
+        }
     }
+    return false;
+}`; 
 
-    // Performs arithmetic subtraction
-    public int performSubtraction(int firstOperand, int secondOperand) {
-        return computeDifference(firstOperand, secondOperand);
+const INITIAL_REFACTORED = `public boolean containsDuplicate(int[] nums) {
+    Set<Integer> seen = new HashSet<>();
+    for (int num : nums) {
+        if (!seen.add(num)) {
+            return true;
+        }
     }
-
-    // Helper: calculates sum
-    private int computeSum(int a, int b) {
-        return a + b;
-    }
-
-    // Helper: calculates difference
-    private int computeDifference(int a, int b) {
-        return a - b;
-    }
+    return false;
 }`;
+
+// We define our dynamic highlight indices here (0-indexed for the editor)
+// These can later be provided by your AI backend!
+export const mockHighlights = {
+  inputRemoved: [1, 2, 3, 4, 5, 6, 7], // Lines that get deleted from the original
+  outputAdded: [1, 2, 3, 4, 5]         // Lines that are brand new in the output
+};
 
 export default function Home() {
   const { appState, setAppState } = useAppContext();
