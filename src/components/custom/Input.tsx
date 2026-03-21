@@ -159,7 +159,7 @@ export default function Input({
               onFocus={() => setIsFocused(true)}   
               onBlur={() => setIsFocused(false)}   
               placeholder="Ask the Swarm to refactor or optimize..." 
-              className="flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar text-foreground placeholder-muted-foreground" 
+              className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-muted-foreground ${appState === 'analyzing' ? 'text-muted-foreground/60 cursor-not-allowed' : 'text-foreground'}`} 
               disabled={appState === 'analyzing'}
               rows={1}
               style={{ minHeight: '40px', lineHeight: '24px', paddingTop: '8px', paddingBottom: '8px' }}

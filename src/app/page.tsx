@@ -109,6 +109,7 @@ export default function Home() {
     
     if (chatInputRef.current) {
       chatInputRef.current.style.height = '40px';
+      chatInputRef.current.blur();
     }
 
     if (appState === 'analyzing') return;
