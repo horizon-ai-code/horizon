@@ -77,9 +77,9 @@ export default function RefactoringReplay() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-500">
+    <div className="flex flex-col h-full animate-in fade-in duration-500 transition-all duration-700 delay-150 ease-in-out dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05] rounded-[24px] overflow-hidden">
       {/* Replay Header */}
-      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 bg-secondary/50 border-border">
+      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
         <h3 className="text-[14px] font-semibold text-foreground">{step.title}</h3>
         <p className="text-[12px] text-muted-foreground font-medium">{step.description}</p>
       </div>
@@ -125,7 +125,7 @@ export default function RefactoringReplay() {
       </div>
 
       {/* Control Bar */}
-      <div className="px-5 py-3 border-t flex items-center justify-between z-10 bg-background border-border">
+      <div className="px-5 py-3 border-t flex items-center justify-between z-10 bg-background dark:bg-[#0D0D0F] border-border dark:border-white/[0.04]">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Step {currentReplayStep + 1} of {replaySteps.length}
         </span>

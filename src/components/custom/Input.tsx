@@ -68,14 +68,14 @@ export default function Input({
 
   return (
     <div className="flex flex-col h-full min-h-0 animate-meet-left relative">
-      <div className={`flex-1 flex flex-col min-h-0 rounded-[24px] ring-1 overflow-hidden shadow-2xl relative backdrop-blur-2xl
+      <div className={`flex-1 flex flex-col min-h-0 rounded-[24px] ring-1 overflow-hidden shadow-2xl relative backdrop-blur-2xl transition-all duration-700 delay-150 ease-in-out
         ${sourceError 
           ? 'bg-red-500/5 ring-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
-          : 'bg-background/80 ring-border/60'
+          : 'bg-background/80 dark:bg-[#0D0D0F] ring-border/60 dark:ring-white/[0.05]'
         }`}>
         
         {/* NEW MAC-STYLE HEADER */}
-        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 border-border">
+        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
           
           {/* Mac Traffic Lights */}
           <div className="flex items-center gap-2">
@@ -128,14 +128,14 @@ export default function Input({
         </div>
 
         {/* Luxurious Floating Chatbox */}
-        <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-background via-background/90 to-transparent">
+        <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-background via-background/90 dark:from-[#0D0D0F] dark:via-[#0D0D0F]/90 to-transparent">
           
           <div 
             className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl
               ${isFocused ? 'max-w-full w-full' : 'max-w-xl'} 
               ${inputError 
                 ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
-                : 'bg-background/95 ring-border focus-within:ring-cyan-500/50 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.1)] shadow-2xl'
+                : 'bg-background/95 dark:bg-[#0D0D0F] ring-border dark:ring-white/[0.05] focus-within:ring-cyan-500/50 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.1)] shadow-2xl'
               }`}
             style={{
               borderRadius: isChatExpanded ? '16px' : '28px',

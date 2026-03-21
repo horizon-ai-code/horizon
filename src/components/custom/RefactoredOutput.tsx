@@ -90,10 +90,10 @@ export default function RefactoredOutput({
   if (!mounted) return null;
 
   return (
-    <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl bg-background/80 ring-border/60 backdrop-blur-2xl
+    <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl bg-background/80 dark:bg-[#0D0D0F] ring-border/60 dark:ring-white/[0.05] backdrop-blur-2xl transition-all duration-700 delay-150 ease-in-out
       ${isTerminalCollapsed ? 'flex-1' : 'flex-[1.5]'}`}>
       
-      <div className="px-3 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 border-border">
+      <div className="px-3 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
         
         {/* 2. UPDATE TOGGLE BUTTONS */}
         <div className="flex p-1 rounded-lg bg-secondary ring-1 ring-border">

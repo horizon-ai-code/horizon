@@ -71,7 +71,7 @@ export default function CodeEditorPanel({
   if (!mounted) return null;
 
   return (
-    <div className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden">
+    <div className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden transition-all duration-700 delay-150 ease-in-out dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05]">
       
       {/* 1. BACKGROUND LAYER (The Magic Fix)
           This layer sits completely behind everything and draws full-width colored 

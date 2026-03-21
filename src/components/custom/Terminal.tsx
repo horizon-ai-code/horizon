@@ -68,13 +68,13 @@ export default function Terminal({
   if (!mounted) return null;
 
   return (
-    <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl transition-all duration-500 ease-in-out 
-      bg-background/80 ring-border backdrop-blur-2xl
+    <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl transition-all duration-700 delay-150 ease-in-out 
+      bg-background/80 dark:bg-[#0D0D0F] ring-border dark:ring-white/[0.05] backdrop-blur-2xl
       ${isTerminalCollapsed ? 'h-[48px] flex-none' : 'flex-1'}`}>
       
       <div 
         onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
-        className="px-5 h-[48px] border-b flex items-center justify-between shrink-0 cursor-pointer select-none bg-secondary/30 hover:bg-secondary/50 border-border"
+        className="px-5 h-[48px] border-b flex items-center justify-between shrink-0 cursor-pointer select-none bg-secondary/30 dark:bg-white/[0.02] hover:bg-secondary/50 border-border dark:border-white/[0.04]"
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
       >
         <h3 className={`text-[12px] font-mono font-bold uppercase tracking-widest flex items-center gap-2.5 transition-colors duration-700 ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
