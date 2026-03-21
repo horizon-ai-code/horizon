@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${firaCode.variable} ${poppins.variable} font-sans antialiased text-slate-900 dark:text-gray-200 transition-colors duration-700 ease-in-out`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
