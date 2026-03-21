@@ -101,24 +101,38 @@
 
   /* ─── SCROLLBARS ───────────────────────────────────────────── */
 
-  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(150, 150, 150, 0.2);
-    border-radius: 4px;
+    background: transparent;
+    border-radius: 10px;
+    transition: background 0.3s ease;
   }
-  ::-webkit-scrollbar-thumb:hover {
+  
+  /* Show only when the element is actively being scrolled (managed by ScrollHandler) */
+  .is-scrolling::-webkit-scrollbar-thumb {
     background: rgba(150, 150, 150, 0.4);
+  }
+  
+  /* Even more prominent on direct hover of the thumb */
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 229, 255, 0.5) !important;
   }
 
   .custom-chat-scrollbar::-webkit-scrollbar       { width: 4px; }
   .custom-chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-chat-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 229, 255, 0.3);
+    background: transparent;
     border-radius: 4px;
+    transition: background 0.3s ease;
   }
+  
+  .is-scrolling.custom-chat-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 229, 255, 0.4);
+  }
+  
   .custom-chat-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 229, 255, 0.6);
+    background: rgba(0, 229, 255, 0.8) !important;
   }
 
   /* ─── BASE RESETS ──────────────────────────────────────────── */

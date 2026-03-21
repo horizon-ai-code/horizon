@@ -3,6 +3,7 @@ import { Inter, Fira_Code, Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/custom/Navbar";
+import ScrollHandler from "@/components/custom/ScrollHandler";
 import { AppProvider } from "@/context/AppContext";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <AppProvider>
+            <ScrollHandler />
             <div className="flex flex-col h-screen overflow-hidden">
               <Navbar />
               {children}

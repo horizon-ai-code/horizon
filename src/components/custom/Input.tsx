@@ -48,7 +48,6 @@ export default function Input({
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const lineCount = sourceCode ? sourceCode.split('\n').length : 0;
-  const isOverLimit = lineCount > 20;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputInstruction(e.target.value);
@@ -58,7 +57,7 @@ export default function Input({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (appState !== 'analyzing' && !isOverLimit) {
+      if (appState !== 'analyzing') {
         startAnalysis();
       }
     }
@@ -86,12 +85,8 @@ export default function Input({
           
           {/* Right Aligned Badges */}
           <div className="flex items-center gap-3">
-            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 ${
-              isOverLimit 
-                ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse'
-                : 'bg-cyan-500/10 text-cyan-500 border-cyan-500/30'
-            }`}>
-              <span className={isOverLimit ? 'text-destructive' : 'text-cyan-500'}>#</span> {lineCount} / 20 LINES
+            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 bg-cyan-500/10 text-cyan-500 border-cyan-500/30`}>
+              <span className="text-cyan-500">#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
             </div>
             <span className="text-[11px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
               INPUT
@@ -107,10 +102,10 @@ export default function Input({
                 <FileCode2 size={36} className="text-cyan-500/60" strokeWidth={1.5} />
               </div>
               <p className="text-[15px] font-semibold text-foreground">
-                Paste a short Java code snippet (5–20 lines only)
+                Paste your Java code snippet
               </p>
               <p className="text-[13px] mt-2 font-medium max-w-sm text-muted-foreground">
-                Best for loops, functions, and small logic blocks. No class/package declarations needed.
+                Best for loops, functions, and logic blocks. No class/package declarations needed.
               </p>
             </div>
           )}
@@ -165,7 +160,7 @@ export default function Input({
               {appState === 'analyzing' ? (
                 <button onClick={stopAnalysis} className="h-[34px] px-5 rounded-full text-xs font-bold flex items-center gap-2 transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-destructive/10 text-destructive hover:bg-destructive/20"><Square size={12} className="fill-current" /> Stop</button>
               ) : (
-                <button onClick={startAnalysis} disabled={isOverLimit} className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-transform cursor-pointer hover:scale-105 active:scale-95 ${isOverLimit ? 'bg-muted-foreground cursor-not-allowed opacity-50' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`}><Sparkles size={14} className="fill-current" /> Refactor</button>
+                <button onClick={startAnalysis} className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-gradient-to-r from-cyan-400 to-blue-500`}><Sparkles size={14} className="fill-current" /> Refactor</button>
               )}
             </div>
           </div>

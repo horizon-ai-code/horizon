@@ -70,6 +70,7 @@ export default function Terminal({
   return (
     <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl
       bg-background/80 dark:bg-[#0D0D0F] ring-border dark:ring-white/[0.05] backdrop-blur-2xl
+      transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
       ${isTerminalCollapsed ? 'h-[48px] flex-none' : 'flex-1'}`}>
       
       <div 
