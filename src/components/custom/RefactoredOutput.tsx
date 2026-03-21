@@ -94,10 +94,27 @@ export default function RefactoredOutput({
       transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
       ${isTerminalCollapsed ? 'flex-1' : 'flex-[1.5]'}`}>
       
-      <div className="px-3 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
+      <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
         
-        {/* 2. UPDATE TOGGLE BUTTONS */}
-        <div className="flex p-1 rounded-lg bg-secondary ring-1 ring-border">
+        <div className="flex items-center gap-4">
+          {/* Mac Traffic Lights */}
+          <div className="flex items-center gap-2 pr-4 border-r border-border dark:border-white/[0.04] h-6">
+            <div 
+              className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
+              style={{ color: '#ff5f56', animationDelay: '0ms' }}
+            ></div>
+            <div 
+              className={`w-3 h-3 rounded-full bg-[#ffbd2e] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
+              style={{ color: '#ffbd2e', animationDelay: '300ms' }}
+            ></div>
+            <div 
+              className={`w-3 h-3 rounded-full bg-[#27c93f] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
+              style={{ color: '#27c93f', animationDelay: '600ms' }}
+            ></div>
+          </div>
+
+          {/* 2. UPDATE TOGGLE BUTTONS */}
+          <div className="flex p-1 rounded-lg bg-secondary ring-1 ring-border">
           <button 
             onClick={() => setRightPanelMode('output')}
             className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'output' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
@@ -116,6 +133,7 @@ export default function RefactoredOutput({
           >
             INSIGHTS
           </button>
+          </div>
         </div>
         
         <div className="flex items-center gap-2">

@@ -78,9 +78,18 @@ export default function Input({
           
           {/* Mac Traffic Lights */}
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+            <div 
+              className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
+              style={{ color: '#ff5f56', animationDelay: '0ms' }}
+            ></div>
+            <div 
+              className={`w-3 h-3 rounded-full bg-[#ffbd2e] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
+              style={{ color: '#ffbd2e', animationDelay: '300ms' }}
+            ></div>
+            <div 
+              className={`w-3 h-3 rounded-full bg-[#27c93f] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
+              style={{ color: '#27c93f', animationDelay: '600ms' }}
+            ></div>
           </div>
           
           {/* Right Aligned Badges */}

@@ -99,6 +99,22 @@
     to   { transform: translateX(0);    opacity: 1; }
   }
 
+  @keyframes traffic-pulse {
+    0%, 100% { 
+      opacity: 0.3; 
+      transform: scale(1); 
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1.05); 
+      box-shadow: 0 0 8px currentColor; 
+    }
+  }
+
+  .animate-traffic-pulse {
+    animation: traffic-pulse 2s ease-in-out infinite;
+  }
+
   /* ─── SCROLLBARS ───────────────────────────────────────────── */
 
   ::-webkit-scrollbar       { width: 5px; height: 5px; }
