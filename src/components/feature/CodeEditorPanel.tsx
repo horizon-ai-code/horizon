@@ -18,7 +18,19 @@ const sanitizeTheme = (theme: any) => {
   return cleanTheme;
 };
 
-const safeDarkTheme = sanitizeTheme(oneDark);
+const baseTheme = sanitizeTheme(oneDark);
+
+const jetbrainsTheme = {
+  ...baseTheme,
+  'keyword': { ...baseTheme['keyword'], color: '#cf8e6d' },
+  'class-name': { ...baseTheme['class-name'], color: '#2aacb8' },
+  'string': { ...baseTheme['string'], color: '#56a8f5' },
+  'function': { ...baseTheme['function'], color: '#56a8f5' },
+  'comment': { ...baseTheme['comment'], color: '#6f737a' },
+  'builtin': { ...baseTheme['builtin'], color: '#f4bf4f' },
+  'type': { ...baseTheme['type'], color: '#2aacb8' },
+};
+
 const safeLightTheme = sanitizeTheme(oneLight);
 
 interface CodeEditorPanelProps {
@@ -84,7 +96,7 @@ export default function CodeEditorPanel({
 
   return (
     <div 
-      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05]"
+      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden bg-[#2b2d30] dark:bg-[#2b2d30] dark:ring-1 dark:ring-[#393b40]"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -145,7 +157,7 @@ export default function CodeEditorPanel({
           {/* Main Content Layer */}
           <SyntaxHighlighter
             language="java"
-            style={isDark ? safeDarkTheme : safeLightTheme}
+            style={isDark ? jetbrainsTheme : safeLightTheme}
             wrapLines={false}
             customStyle={{ 
               margin: 0, 
@@ -184,7 +196,7 @@ export default function CodeEditorPanel({
             <div className="absolute inset-0 opacity-30 pointer-events-none">
               <SyntaxHighlighter
                 language="java"
-                style={isDark ? safeDarkTheme : safeLightTheme}
+                style={isDark ? jetbrainsTheme : safeLightTheme}
                 wrapLines={false}
                 customStyle={{ 
                   margin: 0, 

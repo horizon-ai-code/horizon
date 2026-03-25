@@ -52,6 +52,8 @@ export default function Home() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
   
+  const [terminalEntries, setTerminalEntries] = useState<{id: string, type: 'command' | 'log' | 'system', text: string, colorClass?: string, icon?: any}[]>([]);
+  
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
@@ -68,7 +70,7 @@ export default function Home() {
     if (!isTerminalCollapsed) {
       terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [activeStep, isTerminalCollapsed]);
+  }, [terminalEntries, activeStep, isTerminalCollapsed, appState]);
 
   // Auto-expanding chatbox logic - handles smooth transition from Pill to Rounded Rectangle
   useEffect(() => {
@@ -101,7 +103,11 @@ export default function Home() {
 
     if (hasError) return;
 
-    // Instantly clear the prompt, reset height and shape for visual confirmation
+    // 1. Push the command to terminal history IMMEDIATELY
+    const commandId = Date.now().toString();
+    setTerminalEntries(prev => [...prev, { id: commandId, type: 'command', text: inputInstruction }]);
+
+    // Instantly clear the prompt
     setInputInstruction("");
     setInputError(false);
     setSourceError(false);
@@ -122,11 +128,49 @@ export default function Home() {
     timeoutRefs.current.forEach(clearTimeout);
     timeoutRefs.current = [];
 
-    timeoutRefs.current.push(setTimeout(() => setActiveStep(2), 2000));
-    timeoutRefs.current.push(setTimeout(() => setActiveStep(3), 4500));
-    timeoutRefs.current.push(setTimeout(() => setActiveStep(4), 7000));
+    // 2. Sequential logs pushed to history array
+    timeoutRefs.current.push(setTimeout(() => {
+        setActiveStep(2);
+        setTerminalEntries(prev => [...prev, { 
+            id: 'log-1-' + Date.now(), 
+            type: 'log', 
+            icon: 'Cpu', 
+            colorClass: 'text-[#56a8f5]', 
+            text: "[Logical Prover]: Analyzing abstract syntax tree... High cyclomatic risk detected in arithmetic sequences. Recommending methodical abstraction." 
+        }]);
+    }, 2000));
+
+    timeoutRefs.current.push(setTimeout(() => {
+        setActiveStep(3);
+        setTerminalEntries(prev => [...prev, { 
+            id: 'log-2-' + Date.now(), 
+            type: 'log', 
+            icon: 'AlertCircle', 
+            colorClass: 'text-[#2aacb8]', 
+            text: "[Adversarial Critic]: Warning — over-abstraction may induce slight overhead. Proceeding with micro-benchmark validations. Consensus required." 
+        }]);
+    }, 4500));
+
+    timeoutRefs.current.push(setTimeout(() => {
+        setActiveStep(4);
+        setTerminalEntries(prev => [...prev, { 
+            id: 'log-3-' + Date.now(), 
+            type: 'log', 
+            icon: 'Layers', 
+            colorClass: 'text-[#cf8e6d]', 
+            text: "[Consensus Judge]: Validating trade-offs. Abstraction paradigm approved for enhanced maintainability. Synthesizing refactored Java outputs." 
+        }]);
+    }, 7000));
+
     timeoutRefs.current.push(setTimeout(() => {
       setActiveStep(5);
+      setTerminalEntries(prev => [...prev, { 
+          id: 'log-4-' + Date.now(), 
+          type: 'log', 
+          icon: 'CheckCircle2', 
+          colorClass: 'text-[#27c93f]', 
+          text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." 
+      }]);
       setRefactoredOutput(INITIAL_REFACTORED);
       timeoutRefs.current.push(setTimeout(() => {
         setAppState('done');
@@ -153,11 +197,11 @@ export default function Home() {
     <>
       {/* Ultra Premium Ambient Background */}
       <div className="fixed inset-0 z-[-1] pointer-events-none">
-        <div className="absolute inset-0 bg-background"></div>
+        <div className="absolute inset-0 bg-background dark:bg-[#1e1f22]"></div>
         <div 
           className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px]"
           style={{
-            backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(6, 182, 212, 0.08)',
+            backgroundColor: isDark ? 'rgba(6, 182, 212, 0.08)' : 'rgba(6, 182, 212, 0.08)',
             opacity: 0.5,
             transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1)'
           }}
@@ -172,27 +216,17 @@ export default function Home() {
         ></div>
       </div>
 
-      <main className="max-w-[1800px] mx-auto w-full flex-1 p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-hidden min-h-0 relative z-0">
+      <main className="max-w-[1800px] mx-auto w-full flex-1 p-6 flex flex-col gap-6 overflow-hidden min-h-0 relative z-0">
         
-        {/* LEFT COLUMN: Source Code & Floating Chatbox */}
-        <Input 
-          sourceCode={sourceCode}
-          setSourceCode={setSourceCode}
-          sourceError={sourceError}
-          setSourceError={setSourceError}
-          inputInstruction={inputInstruction}
-          setInputInstruction={setInputInstruction}
-          inputError={inputError}
-          setInputError={setInputError}
-          isChatExpanded={isChatExpanded}
-          setIsChatExpanded={setIsChatExpanded}
-          startAnalysis={startAnalysis}
-          stopAnalysis={stopAnalysis}
-          chatInputRef={chatInputRef}
-        />
+        {/* TOP HALF: 2 Columns */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+          <Input 
+            sourceCode={sourceCode}
+            setSourceCode={setSourceCode}
+            sourceError={sourceError}
+            setSourceError={setSourceError}
+          />
 
-        {/* RIGHT COLUMN */}
-        <div className="flex flex-col h-full min-h-0 relative animate-meet-right gap-6">
           <RefactoredOutput 
             refactoredOutput={refactoredOutput}
             setRefactoredOutput={setRefactoredOutput}
@@ -201,14 +235,23 @@ export default function Home() {
             activeStep={activeStep}
             isTerminalCollapsed={isTerminalCollapsed}
           />
-
-          <Terminal 
-            activeStep={activeStep}
-            isTerminalCollapsed={isTerminalCollapsed}
-            setIsTerminalCollapsed={setIsTerminalCollapsed}
-            terminalEndRef={terminalEndRef}
-          />
         </div>
+
+        {/* BOTTOM PANE: Swarm Consensus Terminal */}
+        <Terminal 
+          activeStep={activeStep}
+          isTerminalCollapsed={isTerminalCollapsed}
+          setIsTerminalCollapsed={setIsTerminalCollapsed}
+          terminalEndRef={terminalEndRef}
+          inputInstruction={inputInstruction}
+          setInputInstruction={setInputInstruction}
+          inputError={inputError}
+          setInputError={setInputError}
+          startAnalysis={startAnalysis}
+          stopAnalysis={stopAnalysis}
+          chatInputRef={chatInputRef}
+          terminalEntries={terminalEntries}
+        />
       </main>
     </>
   );

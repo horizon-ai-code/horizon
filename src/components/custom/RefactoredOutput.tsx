@@ -90,53 +90,50 @@ export default function RefactoredOutput({
   if (!mounted) return null;
 
   return (
-    <div className={`rounded-[24px] ring-1 flex flex-col min-h-0 overflow-hidden shadow-2xl bg-background/80 dark:bg-[#0D0D0F] ring-border/60 dark:ring-white/[0.05] backdrop-blur-2xl
+    <div className={`rounded-2xl border flex flex-col min-h-0 overflow-hidden shadow-2xl bg-[#2b2d30] dark:bg-[#2b2d30] border-[#393b40] dark:border-[#393b40]
       transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
       ${isTerminalCollapsed ? 'flex-1' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
       
-      <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
+      <div className="flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-[#1e1f22] border-[#393b40]">
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center h-full">
           {/* Mac Traffic Lights */}
-          <div className="flex items-center gap-2 pr-4 border-r border-border dark:border-white/[0.04] h-6">
+          <div className="flex items-center gap-2 px-4 border-r border-[#393b40] h-full">
             <div 
               className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-              style={{ color: '#ff5f56', animationDelay: '0ms' }}
             ></div>
             <div 
               className={`w-3 h-3 rounded-full bg-[#ffbd2e] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-              style={{ color: '#ffbd2e', animationDelay: '300ms' }}
             ></div>
             <div 
               className={`w-3 h-3 rounded-full bg-[#27c93f] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-              style={{ color: '#27c93f', animationDelay: '600ms' }}
             ></div>
           </div>
 
           {/* 2. UPDATE TOGGLE BUTTONS */}
-          <div className="flex p-1 rounded-lg bg-secondary ring-1 ring-border">
-          <button 
-            onClick={() => setRightPanelMode('output')}
-            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'output' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            OUTPUT
-          </button>
-          <button 
-            onClick={() => setRightPanelMode('replay')}
-            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'replay' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            REPLAY
-          </button>
-          <button 
-            onClick={() => setRightPanelMode('insights')}
-            className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-transform active:scale-95 cursor-pointer ${rightPanelMode === 'insights' ? 'bg-background text-foreground shadow-sm ring-1 ring-border/20' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            INSIGHTS
-          </button>
+          <div className="flex h-full bg-transparent">
+            <button 
+              onClick={() => setRightPanelMode('replay')}
+              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'replay' ? 'bg-[#2b2d30] text-[#548af7] border-[#3574f0]' : 'text-[#a9b7c6] border-transparent hover:bg-[#2b2d30]/50'}`}
+            >
+              Replay++
+            </button>
+            <button 
+              onClick={() => setRightPanelMode('insights')}
+              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'insights' ? 'bg-[#2b2d30] text-[#548af7] border-[#3574f0]' : 'text-[#a9b7c6] border-transparent hover:bg-[#2b2d30]/50'}`}
+            >
+              Insights.md
+            </button>
+            <button 
+              onClick={() => setRightPanelMode('output')}
+              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'output' ? 'bg-[#2b2d30] text-[#548af7] border-[#3574f0]' : 'text-[#a9b7c6] border-transparent hover:bg-[#2b2d30]/50'}`}
+            >
+              RefactoredOutput.java
+            </button>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pr-4">
           {appState === 'done' && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 bg-green-500/10 text-green-500 border-green-500/20">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Ready

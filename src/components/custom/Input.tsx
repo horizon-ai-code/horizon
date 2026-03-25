@@ -11,15 +11,6 @@ interface InputProps {
   setSourceCode: (val: string) => void;
   sourceError: boolean;
   setSourceError: (val: boolean) => void;
-  inputInstruction: string;
-  setInputInstruction: (val: string) => void;
-  inputError: boolean;
-  setInputError: (val: boolean) => void;
-  isChatExpanded: boolean;
-  setIsChatExpanded: (val: boolean) => void;
-  startAnalysis: () => void;
-  stopAnalysis: () => void;
-  chatInputRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export default function Input({
@@ -27,19 +18,10 @@ export default function Input({
   setSourceCode,
   sourceError,
   setSourceError,
-  inputInstruction,
-  setInputInstruction,
-  inputError,
-  setInputError,
-  isChatExpanded,
-  startAnalysis,
-  stopAnalysis,
-  chatInputRef
 }: InputProps) {
   const { appState } = useAppContext();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [isChatFocused, setIsChatFocused] = useState(false);
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const [clipboardPreview, setClipboardPreview] = useState("");
 
@@ -82,20 +64,6 @@ export default function Input({
 
   const lineCount = sourceCode ? sourceCode.split('\n').length : 0;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputInstruction(e.target.value);
-    if (inputError) setInputError(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (appState !== 'analyzing') {
-        startAnalysis();
-      }
-    }
-  };
-
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab' && clipboardPreview) {
       e.preventDefault();
@@ -108,28 +76,25 @@ export default function Input({
 
   return (
     <div className="flex flex-col h-full min-h-0 animate-meet-left relative">
-      <div className={`flex-1 flex flex-col min-h-0 rounded-[24px] ring-1 overflow-hidden shadow-2xl relative backdrop-blur-2xl
+      <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border overflow-hidden shadow-2xl relative
         ${sourceError 
-          ? 'bg-red-500/5 ring-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
-          : 'bg-background/80 dark:bg-[#0D0D0F] ring-border/60 dark:ring-white/[0.05]'
+          ? 'bg-red-500/5 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
+          : 'bg-[#2b2d30] dark:bg-[#2b2d30] border-[#393b40] dark:border-[#393b40]'
         }`}>
         
         {/* NEW MAC-STYLE HEADER */}
-        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
+        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-[#1e1f22] border-[#393b40]">
           
           {/* Mac Traffic Lights */}
           <div className="flex items-center gap-2">
             <div 
               className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-              style={{ color: '#ff5f56', animationDelay: '0ms' }}
             ></div>
             <div 
               className={`w-3 h-3 rounded-full bg-[#ffbd2e] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-              style={{ color: '#ffbd2e', animationDelay: '300ms' }}
             ></div>
             <div 
               className={`w-3 h-3 rounded-full bg-[#27c93f] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-              style={{ color: '#27c93f', animationDelay: '600ms' }}
             ></div>
           </div>
           
@@ -138,8 +103,8 @@ export default function Input({
             <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 bg-cyan-500/10 text-cyan-500 border-cyan-500/30`}>
               <span className="text-cyan-500">#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
             </div>
-            <span className="text-[11px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
-              INPUT
+            <span className="text-[11px] font-mono font-bold tracking-widest text-[#a9b7c6]">
+              Input.java
             </span>
           </div>
         </div>
@@ -171,7 +136,7 @@ export default function Input({
             onFocus={() => setIsEditorFocused(true)}
             onBlur={() => setIsEditorFocused(false)}
             ghostValue={isEditorFocused ? clipboardPreview : ""}
-            highlightLines={{ removed: [1, 2, 3, 4, 5, 6, 7] }} 
+            highlightLines={{ removed: [1, 2, 3, 4, 5, 6] }} 
             showDiff={appState === 'done'}
             placeholder="" 
             bottomPadding="240px"
@@ -186,51 +151,6 @@ export default function Input({
               </div>
             </div>
           )}
-        </div>
-
-        {/* Luxurious Floating Chatbox */}
-        <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-background via-background/90 dark:from-[#0D0D0F] dark:via-[#0D0D0F]/90 to-transparent">
-          
-          <div 
-            onClick={() => chatInputRef.current?.focus()}
-            className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl cursor-text
-              ${isChatFocused ? 'max-w-full w-full' : 'max-w-xl'} 
-              ${inputError 
-                ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
-                : 'bg-background/95 dark:bg-[#0D0D0F] ring-border dark:ring-white/[0.05] focus-within:ring-cyan-500/50 focus-within:shadow-[0_0_30px_rgba(0,229,255,0.1)] shadow-2xl'
-              }`}
-            style={{
-              borderRadius: isChatExpanded ? '16px' : '28px',
-              transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-            }}
-          >
-            
-            <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
-              <Command className={`${inputError ? 'text-destructive' : 'text-cyan-500'} opacity-90`} size={18} />
-            </div>
-
-            <textarea 
-              ref={chatInputRef}
-              value={inputInstruction} 
-              onChange={handleInputChange} 
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsChatFocused(true)}   
-              onBlur={() => setIsChatFocused(false)}   
-              placeholder="Ask the Swarm to refactor..." 
-              className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-muted-foreground caret-cyan-500 ${appState === 'analyzing' ? 'text-muted-foreground/60 cursor-not-allowed' : 'text-foreground'}`} 
-              disabled={appState === 'analyzing'}
-              rows={1}
-              style={{ minHeight: '40px', lineHeight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
-            />
-
-            <div className="h-[40px] flex items-center shrink-0">
-              {appState === 'analyzing' ? (
-                <button onClick={stopAnalysis} className="h-[34px] px-5 rounded-full text-xs font-bold flex items-center gap-2 transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-destructive/10 text-destructive hover:bg-destructive/20"><Square size={12} className="fill-current" /> Stop</button>
-              ) : (
-                <button onClick={startAnalysis} className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-gradient-to-r from-cyan-400 to-blue-500`}><Sparkles size={14} className="fill-current" /> Refactor</button>
-              )}
-            </div>
-          </div>
         </div>
         
       </div>
