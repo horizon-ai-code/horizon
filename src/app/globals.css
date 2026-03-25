@@ -203,6 +203,14 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.927 0.006 264.531);
   --sidebar-ring: oklch(0.21 0.006 285.885 / 10%);
+
+  /* JetBrains Theme Tokens - Light */
+  --jb-bg: #f2f2f2;
+  --jb-panel: #ffffff;
+  --jb-border: #d1d1d1;
+  --jb-text: #3c3f41;
+  --jb-text-muted: #787878;
+  --jb-accent: #3574f0;
 }
 
 /* ─── DARK THEME ─────────────────────────────────────────────── */
@@ -239,6 +247,14 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* JetBrains Theme Tokens - Dark */
+  --jb-bg: #1e1f22;
+  --jb-panel: #2b2d30;
+  --jb-border: #393b40;
+  --jb-text: #a9b7c6;
+  --jb-text-muted: #6f737a;
+  --jb-accent: #3574f0;
 }
 
 /* ─── TAILWIND THEME MAP ─────────────────────────────────────── */
@@ -283,4 +299,12 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* JetBrains Tailwind Tokens */
+  --color-jb-bg: var(--jb-bg);
+  --color-jb-panel: var(--jb-panel);
+  --color-jb-border: var(--jb-border);
+  --color-jb-text: var(--jb-text);
+  --color-jb-text-muted: var(--jb-text-muted);
+  --color-jb-accent: var(--jb-accent);
 }

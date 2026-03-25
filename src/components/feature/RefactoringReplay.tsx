@@ -5,26 +5,9 @@ import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ChevronLeft, ChevronRight, FastForward } from 'lucide-react';
+import { jetbrainsTheme, intellijLightTheme } from './CodeEditorPanel';
 
-// THE ULTIMATE SANITIZER: Eradicates both 'background' and 'backgroundImage' 
-// to guarantee React never throws a shorthand/longhand conflict again.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sanitizeTheme = (theme: any) => {
-  const cleanTheme = JSON.parse(JSON.stringify(theme));
-  Object.keys(cleanTheme).forEach(key => {
-    if (cleanTheme[key].background) {
-      cleanTheme[key].backgroundColor = cleanTheme[key].background;
-      delete cleanTheme[key].background;
-    }
-    if (cleanTheme[key].backgroundImage) {
-      delete cleanTheme[key].backgroundImage;
-    }
-  });
-  return cleanTheme;
-};
-
-const safeDarkTheme = sanitizeTheme(oneDark);
-const safeLightTheme = sanitizeTheme(oneLight);
+// Themes are imported from CodeEditorPanel for consistency
 
 const replaySteps = [
   {
@@ -77,18 +60,18 @@ export default function RefactoringReplay() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-500 dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05] rounded-[24px] overflow-hidden">
+    <div className="flex flex-col h-full animate-in fade-in duration-500 bg-jb-panel rounded-[24px] overflow-hidden border border-jb-border">
       {/* Replay Header */}
-      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 bg-secondary/50 dark:bg-white/[0.02] border-border dark:border-white/[0.04]">
-        <h3 className="text-[14px] font-semibold text-foreground">{step.title}</h3>
-        <p className="text-[12px] text-muted-foreground font-medium">{step.description}</p>
+      <div className="px-5 py-4 border-b flex flex-col gap-1 z-10 bg-jb-bg border-jb-border transition-colors">
+        <h3 className="text-[14px] font-semibold text-jb-text">{step.title}</h3>
+        <p className="text-[12px] text-jb-text-muted font-medium">{step.description}</p>
       </div>
       
       {/* Syntax Highlighting display */}
       <div className="flex-1 overflow-auto p-0 relative font-mono text-[13px] no-transition">
         <SyntaxHighlighter
           language="java"
-          style={isDark ? safeDarkTheme : safeLightTheme}
+          style={isDark ? jetbrainsTheme : intellijLightTheme}
           customStyle={{ 
             margin: 0, 
             border: "none", 
@@ -125,8 +108,8 @@ export default function RefactoringReplay() {
       </div>
 
       {/* Control Bar */}
-      <div className="px-5 py-3 border-t flex items-center justify-between z-10 bg-background dark:bg-[#0D0D0F] border-border dark:border-white/[0.04]">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="px-5 py-3 border-t flex items-center justify-between z-10 bg-jb-bg border-jb-border transition-colors">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-jb-text-muted">
           Step {currentReplayStep + 1} of {replaySteps.length}
         </span>
         <div className="flex items-center gap-2">
@@ -147,7 +130,7 @@ export default function RefactoringReplay() {
           <button 
             onClick={() => setCurrentReplayStep(replaySteps.length - 1)} 
             disabled={isFinal}
-            className="flex items-center gap-1.5 px-3 py-1.5 ml-2 text-[12px] font-medium rounded-md border cursor-pointer disabled:opacity-30 disabled:border-transparent bg-secondary/50 text-foreground border-border hover:bg-secondary"
+            className="flex items-center gap-1.5 px-3 py-1.5 ml-2 text-[12px] font-medium rounded-md border cursor-pointer disabled:opacity-30 disabled:border-transparent bg-jb-panel text-jb-text border-jb-border hover:bg-jb-bg hover:text-jb-accent transition-colors"
           >
             Skip to Final <FastForward size={14} />
           </button>

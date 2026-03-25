@@ -76,14 +76,14 @@ export default function Input({
 
   return (
     <div className="flex flex-col h-full min-h-0 animate-meet-left relative">
-      <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border overflow-hidden shadow-2xl relative
+      <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border overflow-hidden shadow-2xl relative transition-all duration-300
         ${sourceError 
           ? 'bg-red-500/5 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
-          : 'bg-[#2b2d30] dark:bg-[#2b2d30] border-[#393b40] dark:border-[#393b40]'
+          : 'bg-jb-panel border-jb-border'
         }`}>
         
-        {/* NEW MAC-STYLE HEADER */}
-        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-[#1e1f22] border-[#393b40]">
+        {/* IDE HEADER */}
+        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-jb-bg border-jb-border transition-colors duration-300">
           
           {/* Mac Traffic Lights */}
           <div className="flex items-center gap-2">
@@ -100,10 +100,10 @@ export default function Input({
           
           {/* Right Aligned Badges */}
           <div className="flex items-center gap-3">
-            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 bg-cyan-500/10 text-cyan-500 border-cyan-500/30`}>
-              <span className="text-cyan-500">#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
+            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 bg-jb-accent/10 text-jb-accent border-jb-accent/30`}>
+              <span className="text-jb-accent">#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
             </div>
-            <span className="text-[11px] font-mono font-bold tracking-widest text-[#a9b7c6]">
+            <span className="text-[11px] font-mono font-bold tracking-widest text-jb-text opacity-80 uppercase transition-colors">
               Input.java
             </span>
           </div>

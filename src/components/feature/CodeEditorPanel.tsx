@@ -20,18 +20,33 @@ const sanitizeTheme = (theme: any) => {
 
 const baseTheme = sanitizeTheme(oneDark);
 
-const jetbrainsTheme = {
+export const jetbrainsTheme = {
   ...baseTheme,
   'keyword': { ...baseTheme['keyword'], color: '#cf8e6d' },
   'class-name': { ...baseTheme['class-name'], color: '#2aacb8' },
-  'string': { ...baseTheme['string'], color: '#56a8f5' },
+  'string': { ...baseTheme['string'], color: '#6aab73' },
   'function': { ...baseTheme['function'], color: '#56a8f5' },
-  'comment': { ...baseTheme['comment'], color: '#6f737a' },
+  'comment': { ...baseTheme['comment'], color: '#6f737a', fontStyle: 'italic' },
   'builtin': { ...baseTheme['builtin'], color: '#f4bf4f' },
   'type': { ...baseTheme['type'], color: '#2aacb8' },
+  'number': { ...baseTheme['number'], color: '#2aacb8' },
+  'operator': { ...baseTheme['operator'], color: '#a9b7c6' },
 };
 
 const safeLightTheme = sanitizeTheme(oneLight);
+
+export const intellijLightTheme = {
+  ...safeLightTheme,
+  'keyword': { ...safeLightTheme['keyword'], color: '#0033b3', fontWeight: 'bold' },
+  'class-name': { ...safeLightTheme['class-name'], color: '#000000' },
+  'string': { ...safeLightTheme['string'], color: '#067d17' },
+  'function': { ...safeLightTheme['function'], color: '#00627a' },
+  'comment': { ...safeLightTheme['comment'], color: '#8c8c8c', fontStyle: 'italic' },
+  'builtin': { ...safeLightTheme['builtin'], color: '#000000' },
+  'type': { ...safeLightTheme['type'], color: '#000000' },
+  'number': { ...safeLightTheme['number'], color: '#1750eb' },
+  'operator': { ...safeLightTheme['operator'], color: '#000000' },
+};
 
 interface CodeEditorPanelProps {
   value: string;
@@ -96,7 +111,7 @@ export default function CodeEditorPanel({
 
   return (
     <div 
-      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden bg-[#2b2d30] dark:bg-[#2b2d30] dark:ring-1 dark:ring-[#393b40]"
+      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden bg-jb-panel border-jb-border transition-colors duration-300"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -157,7 +172,7 @@ export default function CodeEditorPanel({
           {/* Main Content Layer */}
           <SyntaxHighlighter
             language="java"
-            style={isDark ? jetbrainsTheme : safeLightTheme}
+            style={isDark ? jetbrainsTheme : intellijLightTheme}
             wrapLines={false}
             customStyle={{ 
               margin: 0, 
@@ -196,7 +211,7 @@ export default function CodeEditorPanel({
             <div className="absolute inset-0 opacity-30 pointer-events-none">
               <SyntaxHighlighter
                 language="java"
-                style={isDark ? jetbrainsTheme : safeLightTheme}
+                style={isDark ? jetbrainsTheme : intellijLightTheme}
                 wrapLines={false}
                 customStyle={{ 
                   margin: 0, 
@@ -243,7 +258,7 @@ export default function CodeEditorPanel({
           onBlur={onBlur}
           spellCheck="false"
           placeholder={placeholder}
-          className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-cyan-400 overflow-auto text-transparent selection:bg-cyan-500/20 font-mono"
+          className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-jb-accent overflow-auto text-transparent selection:bg-jb-accent/20 font-mono"
           style={{ 
             color: 'transparent', 
             WebkitTextFillColor: 'transparent', 

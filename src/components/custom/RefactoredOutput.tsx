@@ -90,15 +90,14 @@ export default function RefactoredOutput({
   if (!mounted) return null;
 
   return (
-    <div className={`rounded-2xl border flex flex-col min-h-0 overflow-hidden shadow-2xl bg-[#2b2d30] dark:bg-[#2b2d30] border-[#393b40] dark:border-[#393b40]
-      transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
-      ${isTerminalCollapsed ? 'flex-1' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
+    <div className={`rounded-2xl border flex flex-col min-h-0 overflow-hidden shadow-2xl bg-jb-panel border-jb-border transition-all duration-300 h-full
+      ${isTerminalCollapsed ? 'flex-none h-[48px]' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
       
-      <div className="flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-[#1e1f22] border-[#393b40]">
+      <div className="flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-jb-bg border-jb-border transition-colors duration-300">
         
         <div className="flex items-center h-full">
           {/* Mac Traffic Lights */}
-          <div className="flex items-center gap-2 px-4 border-r border-[#393b40] h-full">
+          <div className="flex items-center gap-2 px-4 border-r border-jb-border h-full">
             <div 
               className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
             ></div>
@@ -114,19 +113,19 @@ export default function RefactoredOutput({
           <div className="flex h-full bg-transparent">
             <button 
               onClick={() => setRightPanelMode('replay')}
-              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'replay' ? 'bg-[#2b2d30] text-[#548af7] border-[#3574f0]' : 'text-[#a9b7c6] border-transparent hover:bg-[#2b2d30]/50'}`}
+              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'replay' ? 'bg-jb-panel text-jb-accent border-jb-accent' : 'text-jb-text border-transparent hover:bg-jb-panel/50'}`}
             >
               Replay++
             </button>
             <button 
               onClick={() => setRightPanelMode('insights')}
-              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'insights' ? 'bg-[#2b2d30] text-[#548af7] border-[#3574f0]' : 'text-[#a9b7c6] border-transparent hover:bg-[#2b2d30]/50'}`}
+              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'insights' ? 'bg-jb-panel text-jb-accent border-jb-accent' : 'text-jb-text border-transparent hover:bg-jb-panel/50'}`}
             >
               Insights.md
             </button>
             <button 
               onClick={() => setRightPanelMode('output')}
-              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'output' ? 'bg-[#2b2d30] text-[#548af7] border-[#3574f0]' : 'text-[#a9b7c6] border-transparent hover:bg-[#2b2d30]/50'}`}
+              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'output' ? 'bg-jb-panel text-jb-accent border-jb-accent' : 'text-jb-text border-transparent hover:bg-jb-panel/50'}`}
             >
               RefactoredOutput.java
             </button>
@@ -151,14 +150,14 @@ export default function RefactoredOutput({
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
         {appState === 'idle' ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10">
-            <div className="flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.2)] bg-background ring-1 ring-border">
-              <Layers size={36} className="text-cyan-500/60" strokeWidth={1.5} />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10 transition-colors">
+            <div className="flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.2)] bg-jb-bg ring-1 ring-jb-border">
+              <Layers size={36} className="text-jb-accent/60" strokeWidth={1.5} />
             </div>
-            <p className="text-[15px] font-semibold text-foreground">
+            <p className="text-[15px] font-semibold text-jb-text">
               Awaiting source code analysis
             </p>
-            <p className="text-[13px] mt-2 font-medium text-muted-foreground">
+            <p className="text-[13px] mt-2 font-medium text-jb-text-muted">
               Output will be generated by the Swarm
             </p>
           </div>

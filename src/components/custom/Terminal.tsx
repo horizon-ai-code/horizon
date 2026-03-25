@@ -32,7 +32,7 @@ const AgentTerminalLine = ({ text, delay, colorClass, icon: Icon, isDark }: Agen
       <div className={`mt-0.5 ${colorClass}`}><Icon size={14} /></div>
       <div className="flex-1">
         <span className={colorClass}>&gt; </span>
-        <span className="text-foreground transition-opacity opacity-90">
+        <span className="text-jb-text transition-opacity opacity-90 transition-colors">
           {displayedText}
         </span>
       </div>
@@ -105,18 +105,17 @@ export default function Terminal({
   if (!mounted) return null;
 
   return (
-    <div className={`rounded-2xl border flex flex-col min-h-0 overflow-hidden shadow-2xl
-      bg-[#2b2d30] dark:bg-[#2b2d30] border-[#393b40] dark:border-[#393b40]
-      transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) relative
+    <div className={`rounded-2xl border flex flex-col min-h-0 overflow-hidden shadow-2xl transition-all duration-300
+      bg-jb-panel border-jb-border relative h-full
       ${isTerminalCollapsed ? 'h-[48px] flex-none' : (appState === 'done' ? 'flex-[1.5]' : 'flex-1')}`}>
       
       <div 
         onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
-        className="px-5 h-[48px] border-b flex items-center justify-between shrink-0 cursor-pointer select-none bg-[#1e1f22] bg-[#1e1f22] hover:bg-[#2b2d30] border-[#393b40]"
+        className="px-5 h-[48px] border-b flex items-center justify-between shrink-0 cursor-pointer select-none bg-jb-bg hover:bg-jb-panel/50 border-jb-border transition-colors duration-300"
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
       >
-        <h3 className={`text-[12px] font-mono font-bold uppercase tracking-widest flex items-center gap-2.5 text-[#a9b7c6]`}>
-          <TerminalIcon size={15} className="text-[#548af7]"/> Consensus Terminal
+        <h3 className={`text-[12px] font-mono font-bold uppercase tracking-widest flex items-center gap-2.5 text-jb-text opacity-90`}>
+          <TerminalIcon size={15} className="text-jb-accent"/> Consensus Terminal
         </h3>
         
         <div className="flex items-center gap-4">
@@ -130,8 +129,8 @@ export default function Terminal({
         </div>
       </div>
 
-      <div className={`p-6 overflow-y-auto flex-1 flex flex-col gap-1 bg-[#1e1f22] custom-terminal-scrollbar font-mono`}>
-         <div className="text-[13px] text-[#6f737a] mb-4 leading-relaxed shrink-0">
+      <div className={`p-6 overflow-y-auto flex-1 flex flex-col gap-1 bg-jb-panel custom-terminal-scrollbar font-mono transition-colors duration-300`}>
+         <div className="text-[13px] text-jb-text-muted mb-4 leading-relaxed shrink-0 transition-colors">
             Horizon OS [Version 10.0.26100]<br/>
             (c) Horizon Corporation. All rights reserved.<br/>
          </div>
@@ -141,10 +140,10 @@ export default function Terminal({
             if (entry.type === 'command') {
                return (
                   <div key={entry.id} className="flex items-start gap-2 w-full max-w-6xl animate-in fade-in duration-300 mb-1">
-                     <span className="text-[#a9b7c6] text-[14px] whitespace-nowrap pt-[2px] font-semibold">
+                     <span className="text-jb-text opacity-70 text-[14px] whitespace-nowrap pt-[2px] font-semibold transition-colors">
                        C:\Projects-School\horizon-code&gt;
                      </span>
-                     <div className="text-[#a9b7c6] text-[14px] font-medium py-[2px] opacity-90 overflow-hidden break-all">
+                     <div className="text-jb-text text-[14px] font-medium py-[2px] opacity-90 overflow-hidden break-all transition-colors">
                        {entry.text}
                      </div>
                   </div>
@@ -154,9 +153,9 @@ export default function Terminal({
                   <div key={entry.id} className="mb-3">
                      <AgentTerminalLine 
                         isDark={isDark} 
-                        delay={0} // No additional delay here as they were pushed after timeouts
+                        delay={0} 
                         icon={ICON_MAP[entry.icon] || Cpu} 
-                        colorClass={entry.colorClass || "text-[#548af7]"} 
+                        colorClass={entry.colorClass || "text-jb-accent"} 
                         text={entry.text} 
                      />
                   </div>
@@ -168,7 +167,7 @@ export default function Terminal({
          {/* ACTIVE INPUT PROMPT (Only shown when IDLE or DONE - hidden during the debate) */}
          {(appState === 'idle' || appState === 'done') && (
            <div className="flex items-start gap-2 w-full max-w-6xl mt-2 animate-in fade-in slide-in-from-left-2 duration-300">
-              <span className="text-[#a9b7c6] text-[14px] whitespace-nowrap pt-[2px] font-semibold">
+              <span className="text-jb-text opacity-70 text-[14px] whitespace-nowrap pt-[2px] font-semibold transition-colors">
                 C:\Projects-School\horizon-code&gt;
               </span>
               <div className={`flex-1 flex items-start bg-transparent`}>
@@ -180,7 +179,7 @@ export default function Terminal({
                   onFocus={() => setIsChatFocused(true)}   
                   onBlur={() => setIsChatFocused(false)}   
                   placeholder=""
-                  className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto px-1 py-[2px] text-[#a9b7c6] placeholder-[#6f737a] caret-[#a9b7c6] w-full`} 
+                  className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto px-1 py-[2px] text-jb-text placeholder-jb-text-muted caret-jb-accent w-full transition-colors duration-300`} 
                   rows={1}
                   style={{ minHeight: '26px', lineHeight: '22px' }}
                 />
