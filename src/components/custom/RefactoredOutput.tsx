@@ -20,8 +20,8 @@ interface RefactoredOutputProps {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FlowNode = ({ icon: Icon, title, desc, status, isDark, colorCode }: any) => {
   const getColors = () => {
-    if (status === 'active') return 'bg-background ring-1 ring-cyan-400/50 shadow-[0_0_20px_rgba(0,229,255,0.15)] text-cyan-500';
-    return 'bg-secondary/50 ring-1 ring-border text-muted-foreground';
+    if (status === 'active') return 'bg-jb-bg ring-1 ring-jb-accent/50 shadow-[0_0_20px_rgba(53,116,240,0.15)] text-jb-accent';
+    return 'bg-jb-panel/50 ring-1 ring-jb-border text-jb-text-muted';
   };
   return (
     <div className={`relative flex flex-col items-center justify-center p-3 w-32 h-32 rounded-[20px] transition-transform duration-700 ${getColors()} ${status === 'active' ? 'scale-105 z-10' : 'scale-95 z-0 opacity-60'}`}>
@@ -35,8 +35,8 @@ const FlowNode = ({ icon: Icon, title, desc, status, isDark, colorCode }: any) =
 
 const FlowConnector = ({ isActive, isDark }: { isActive: boolean, isDark: boolean }) => (
   <div className="flex-1 min-h-[3px] h-[3px] shrink-0 w-4 md:w-8 relative overflow-hidden rounded-full mx-2 flex items-center">
-    <div className="absolute inset-0 bg-border"></div>
-    <div className={`absolute h-full left-0 ${isActive ? 'w-full bg-cyan-400 shadow-[0_0_10px_rgba(0,229,255,0.8)]' : 'w-0 bg-cyan-400'}`}></div>
+    <div className="absolute inset-0 bg-jb-border/50"></div>
+    <div className={`absolute h-full left-0 ${isActive ? 'w-full bg-jb-accent shadow-[0_0_10px_rgba(53,116,240,0.8)]' : 'w-0 bg-jb-accent'}`}></div>
   </div>
 );
 
@@ -185,7 +185,7 @@ export default function RefactoredOutput({
         )}
 
         {showFlowchartModal && (
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-background/95 backdrop-blur-2xl">
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-jb-panel/95 backdrop-blur-2xl">
              <div className="flex justify-end p-5 absolute top-0 right-0 w-full z-40">
                 {appState === 'done' && <button onClick={() => setShowFlowchartModal(false)} className="p-2 rounded-full ring-1 transition-transform cursor-pointer bg-secondary hover:bg-secondary/80 ring-border text-foreground"><X size={18} /></button>}
              </div>

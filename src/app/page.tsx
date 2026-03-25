@@ -156,21 +156,21 @@ export default function Home() {
           style={{ backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.03)', opacity: 0.5 }}></div>
       </div>
 
-      <main className="flex-1 w-full flex flex-col overflow-hidden relative z-0 p-1.5 pt-2 pb-1.5 gap-1.5">
+      <main className="flex-1 w-full flex flex-col overflow-hidden relative z-0 p-3 pt-2 pb-3 gap-3">
         <div className="flex-1 min-h-0">
           <PanelGroup orientation="horizontal">
             <Panel defaultSize={50} minSize={20}>
-              <div className="h-full pr-1.5">
+              <div className="h-full pr-3">
                 <Input sourceCode={sourceCode} setSourceCode={setSourceCode} sourceError={sourceError} setSourceError={setSourceError} />
               </div>
             </Panel>
             
-            <PanelResizeHandle className="w-1.5 hover:bg-jb-accent/30 transition-colors duration-200 cursor-col-resize flex items-center justify-center group">
-               <div className="w-[1px] h-8 bg-jb-border group-hover:bg-jb-accent transition-colors" />
+            <PanelResizeHandle className="w-3 hover:bg-jb-accent/30 transition-colors duration-200 cursor-col-resize flex items-center justify-center group">
+               <div className="w-[1px] h-10 bg-jb-border group-hover:bg-jb-accent transition-colors" />
             </PanelResizeHandle>
 
             <Panel defaultSize={50} minSize={20}>
-              <div className="h-full pl-1.5">
+              <div className="h-full pl-3">
                 <RefactoredOutput 
                   refactoredOutput={refactoredOutput} setRefactoredOutput={setRefactoredOutput}
                   showFlowchartModal={showFlowchartModal} setShowFlowchartModal={setShowFlowchartModal}
