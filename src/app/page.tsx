@@ -147,7 +147,7 @@ export default function Home() {
   if (isInitializing) return <LoadingOverlay onComplete={() => setIsInitializing(false)} />;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-jb-bg">
+    <div className="flex flex-col h-full overflow-hidden bg-jb-bg">
       
       <div className="fixed inset-0 z-[-1] pointer-events-none bg-jb-bg transition-colors duration-300">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px]"
@@ -156,11 +156,11 @@ export default function Home() {
           style={{ backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.03)', opacity: 0.5 }}></div>
       </div>
 
-      <main className="flex-1 w-full flex flex-col overflow-hidden relative z-0 p-3 pt-2 pb-3 gap-3">
+      <main className="flex-1 w-full flex flex-col overflow-hidden relative z-0 p-6 pt-2 pb-6 gap-5">
         <div className="flex-1 min-h-0">
           <PanelGroup orientation="horizontal">
             <Panel defaultSize={50} minSize={20}>
-              <div className="h-full pr-3">
+              <div className="h-full pr-4">
                 <Input sourceCode={sourceCode} setSourceCode={setSourceCode} sourceError={sourceError} setSourceError={setSourceError} />
               </div>
             </Panel>
@@ -170,7 +170,7 @@ export default function Home() {
             </PanelResizeHandle>
 
             <Panel defaultSize={50} minSize={20}>
-              <div className="h-full pl-3">
+              <div className="h-full pl-4">
                 <RefactoredOutput 
                   refactoredOutput={refactoredOutput} setRefactoredOutput={setRefactoredOutput}
                   showFlowchartModal={showFlowchartModal} setShowFlowchartModal={setShowFlowchartModal}

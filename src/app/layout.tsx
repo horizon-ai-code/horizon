@@ -38,7 +38,7 @@ export default function RootLayout({
         >
           <AppProvider>
             <ScrollHandler />
-            <div className="flex flex-col h-screen overflow-hidden">
+            <div className="flex flex-col h-screen overflow-hidden gap-4 pb-4">
               <Navbar />
               {children}
             </div>
