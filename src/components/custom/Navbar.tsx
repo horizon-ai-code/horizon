@@ -29,7 +29,7 @@ export default function Navbar() {
         </button>
         <button className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-default
           ${isDark ? 'text-jb-text opacity-80 hover:bg-jb-panel hover:opacity-100' : 'text-[#080808] opacity-60 hover:bg-[#ebecf0] hover:opacity-100'}`}>
-          Refactored Studio <ChevronDown size={14} className="opacity-50" />
+          Refactoring Studio <ChevronDown size={14} className="opacity-50" />
         </button>
       </div>
 
