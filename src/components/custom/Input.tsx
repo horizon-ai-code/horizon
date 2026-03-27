@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { FileCode2, Command, Square, Sparkles } from "lucide-react";
+import { FileCode2, Command, Square, Sparkles, X } from "lucide-react";
 import CodeEditorPanel from "@/components/feature/CodeEditorPanel";
 import { useAppContext } from "@/context/AppContext";
 
@@ -76,50 +76,48 @@ export default function Input({
 
   return (
     <div className="flex flex-col h-full min-h-0 animate-meet-left relative">
-      <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border overflow-hidden shadow-2xl relative transition-all duration-300
+      <div className={`flex-1 flex flex-col min-h-0 overflow-hidden relative transition-all duration-300
         ${sourceError 
-          ? 'bg-red-500/5 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
-          : 'bg-jb-panel border-jb-border'
+          ? 'bg-red-500/5 shadow-[inset_0_0_40px_rgba(239,68,68,0.15)] ring-1 ring-inset ring-red-500/50'
+          : 'bg-jb-panel'
         }`}>
         
         {/* IDE HEADER */}
-        <div className="px-5 flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-jb-bg border-jb-border transition-colors duration-300">
+        <div className={`px-2 flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300
+          ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
           
-          {/* Mac Traffic Lights */}
-          <div className="flex items-center gap-2">
-            <div 
-              className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-            ></div>
-            <div 
-              className={`w-3 h-3 rounded-full bg-[#ffbd2e] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-            ></div>
-            <div 
-              className={`w-3 h-3 rounded-full bg-[#27c93f] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-            ></div>
+          <div className="flex items-center h-full pt-1.5 pb-1 gap-1">
+            <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm cursor-default transition-colors duration-300
+              ${isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50' : 'bg-white text-[#080808] border-[#dfdfdf]'}`}>
+              <span className="text-orange-400">☕</span>
+              Input.java
+              <button className={`opacity-0 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
+                ${isDark ? 'hover:bg-jb-border' : 'hover:bg-[#ebecf0]'}`}>
+                 <X size={10} />
+              </button>
+            </div>
           </div>
           
-          {/* Right Aligned Badges */}
-          <div className="flex items-center gap-3">
-            <div className={`text-[10px] font-bold px-3 py-1 rounded-full border shadow-sm flex items-center gap-1 bg-jb-accent/10 text-jb-accent border-jb-accent/30`}>
-              <span className="text-jb-accent">#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
+          <div className="flex items-center gap-3 pr-2">
+            <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm flex items-center gap-1 transition-colors duration-300
+              ${isDark ? 'bg-jb-accent/10 text-jb-accent border-jb-accent/30' : 'bg-[#3574f0]/10 text-[#3574f0] border-[#3574f0]/20'}`}>
+              <span className={isDark ? "text-jb-accent" : "text-[#3574f0]"}>#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
             </div>
-            <span className="text-[11px] font-mono font-bold tracking-widest text-jb-text opacity-80 uppercase transition-colors">
-              Input.java
-            </span>
           </div>
         </div>
         
         {/* Editor Area */}
         <div className="flex-1 min-h-0 flex flex-col relative z-10">
           {sourceCode.trim() === '' && !(isEditorFocused && clipboardPreview) && (
-            <div className="absolute top-0 right-0 bottom-0 left-14 flex flex-col items-center justify-center text-center px-6 pointer-events-none z-10">
-              <div className="flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl bg-background ring-1 ring-border">
-                <FileCode2 size={36} className="text-cyan-500/60" strokeWidth={1.5} />
+            <div className="absolute top-0 right-0 bottom-0 left-14 flex flex-col items-center justify-center text-center px-6 pointer-events-none z-10 transition-colors duration-300">
+              <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
+                ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
+                <FileCode2 size={36} className={isDark ? "text-[#548af7]/60" : "text-[#3574f0]/60"} strokeWidth={1.5} />
               </div>
-              <p className="text-[15px] font-semibold text-foreground">
+              <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
                 Paste your Java code snippet
               </p>
-              <p className="text-[13px] mt-2 font-medium max-w-sm text-muted-foreground">
+              <p className={`text-[13px] mt-2 font-medium max-w-sm transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
                 Best for loops, functions, and logic blocks. No class/package declarations needed.
               </p>
             </div>
@@ -145,9 +143,10 @@ export default function Input({
           {/* Ghost Text Hint */}
           {isEditorFocused && clipboardPreview && !sourceCode && (
             <div className="absolute bottom-4 left-14 z-20 pointer-events-none animate-pulse">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md">
-                <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-wider">Tip</span>
-                <span className="text-[11px] font-medium text-cyan-500/80">Press <kbd className="font-sans px-1.5 py-0.5 rounded border border-cyan-500/30 bg-cyan-500/5 text-[10px]">Tab</kbd> to paste copied code</span>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border backdrop-blur-md transition-all duration-300
+                ${isDark ? 'bg-jb-accent/10 border-jb-accent/20' : 'bg-[#3574f0]/5 border-[#3574f0]/15'}`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-jb-accent' : 'text-[#3574f0]'}`}>Tip</span>
+                <span className={`text-[11px] font-medium ${isDark ? 'text-jb-accent/80' : 'text-[#3574f0]/80'}`}>Press <kbd className={`font-sans px-1.5 py-0.5 rounded border ${isDark ? 'border-jb-accent/30 bg-jb-accent/5' : 'border-[#3574f0]/20 bg-[#3574f0]/5'} text-[10px]`}>Tab</kbd> to paste copied code</span>
               </div>
             </div>
           )}

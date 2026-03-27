@@ -216,45 +216,38 @@
 /* ─── DARK THEME ─────────────────────────────────────────────── */
 
 .dark {
-  --background: oklch(0 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.18 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #1e1f22;
+  --foreground: #dfe1e5;
+  --card: #2b2d30;
+  --card-foreground: #dfe1e5;
+  --popover: #2b2d30;
+  --popover-foreground: #dfe1e5;
+  --primary: #548af7;
+  --primary-foreground: #ffffff;
+  --secondary: #393b40;
+  --secondary-foreground: #dfe1e5;
+  --muted: #1e1f22;
+  --muted-foreground: #6f737a;
+  --accent: #548af7;
+  --accent-foreground: #ffffff;
+  --destructive: #f93e3e;
+  --destructive-foreground: #ffffff;
+  --border: #393b40;
+  --input: #393b40;
+  --ring: #548af7;
+  --chart-1: #548af7;
+  --chart-2: #2aacb8;
+  --chart-3: #cf8e6d;
+  --chart-4: #f4bf4f;
+  --chart-5: #61c554;
 
-  /* JetBrains Theme Tokens - Dark */
+  /* JetBrains Dark Mode Tokens */
   --jb-bg: #1e1f22;
   --jb-panel: #2b2d30;
   --jb-border: #393b40;
-  --jb-text: #a9b7c6;
+  --jb-text: #dfe1e5;
   --jb-text-muted: #6f737a;
-  --jb-accent: #3574f0;
+  --jb-accent: #548af7;
 }
 
 /* ─── TAILWIND THEME MAP ─────────────────────────────────────── */
@@ -307,4 +300,13 @@
   --color-jb-text: var(--jb-text);
   --color-jb-text-muted: var(--jb-text-muted);
   --color-jb-accent: var(--jb-accent);
+}
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  animation: terminal-blink 1s step-end infinite;
 }

@@ -90,57 +90,59 @@ export default function RefactoredOutput({
   if (!mounted) return null;
 
   return (
-    <div className={`rounded-2xl border flex flex-col min-h-0 overflow-hidden shadow-2xl bg-jb-panel border-jb-border transition-all duration-300 h-full
+    <div className={`flex flex-col min-h-0 overflow-hidden bg-jb-panel transition-all duration-300 h-full
       ${isTerminalCollapsed ? 'flex-none h-[48px]' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
       
-      <div className="flex items-center justify-between border-b h-[48px] shrink-0 relative z-20 bg-jb-bg border-jb-border transition-colors duration-300">
+      <div className={`flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300 pr-2
+        ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
         
-        <div className="flex items-center h-full">
-          {/* Mac Traffic Lights */}
-          <div className="flex items-center gap-2 px-4 border-r border-jb-border h-full">
-            <div 
-              className={`w-3 h-3 rounded-full bg-[#ff5f56] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-            ></div>
-            <div 
-              className={`w-3 h-3 rounded-full bg-[#ffbd2e] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-            ></div>
-            <div 
-              className={`w-3 h-3 rounded-full bg-[#27c93f] ${appState === 'analyzing' ? 'animate-traffic-pulse' : ''}`}
-            ></div>
-          </div>
+        <div className="flex items-center h-full pt-1.5 pb-1 px-2 gap-1 overflow-x-auto custom-chat-scrollbar">
 
-          {/* 2. UPDATE TOGGLE BUTTONS */}
-          <div className="flex h-full bg-transparent">
-            <button 
-              onClick={() => setRightPanelMode('replay')}
-              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'replay' ? 'bg-jb-panel text-jb-accent border-jb-accent' : 'text-jb-text border-transparent hover:bg-jb-panel/50'}`}
-            >
-              Replay++
-            </button>
-            <button 
-              onClick={() => setRightPanelMode('insights')}
-              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'insights' ? 'bg-jb-panel text-jb-accent border-jb-accent' : 'text-jb-text border-transparent hover:bg-jb-panel/50'}`}
-            >
-              Insights.md
-            </button>
-            <button 
-              onClick={() => setRightPanelMode('output')}
-              className={`h-full px-5 text-[12px] font-medium tracking-wide flex items-center border-b-[3px] transition-colors cursor-pointer ${rightPanelMode === 'output' ? 'bg-jb-panel text-jb-accent border-jb-accent' : 'text-jb-text border-transparent hover:bg-jb-panel/50'}`}
-            >
-              RefactoredOutput.java
-            </button>
-          </div>
+          <button 
+            onClick={() => setRightPanelMode('replay')}
+            className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
+              ${rightPanelMode === 'replay' 
+                ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
+                : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
+          >
+            <span className="text-[#8B5CF6]">▶</span>
+            Replay++
+          </button>
+          
+          <button 
+            onClick={() => setRightPanelMode('insights')}
+            className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
+              ${rightPanelMode === 'insights' 
+                ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
+                : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
+          >
+            <span className="text-[#e2c08d]">📄</span>
+            Insights.md
+          </button>
+          
+          <button 
+            onClick={() => setRightPanelMode('output')}
+            className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
+              ${rightPanelMode === 'output' 
+                ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
+                : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
+          >
+            <span className="text-[#56a8f5]">☕</span>
+            RefactoredOutput.java
+          </button>
         </div>
         
         <div className="flex items-center gap-2 pr-4">
           {appState === 'done' && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 bg-green-500/10 text-green-500 border-green-500/20">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Ready
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 duration-300
+              ${isDark ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
+              <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isDark ? 'bg-green-500' : 'bg-emerald-600'}`}></div> Ready
             </span>
           )}
           <button 
             onClick={handleCopy}
-            className="p-1.5 rounded-md transition-transform ring-1 cursor-pointer hover:scale-110 active:scale-90 text-muted-foreground hover:text-foreground hover:bg-secondary ring-transparent hover:ring-border"
+            className={`p-1.5 rounded-md transition-all ring-1 cursor-pointer hover:scale-110 active:scale-90 ring-transparent
+              ${isDark ? 'text-jb-text-muted hover:text-jb-text hover:bg-jb-border/40 hover:ring-jb-border' : 'text-[#818594] hover:text-[#080808] hover:bg-[#ebecf0] hover:ring-[#dbdbdb]'}`}
             title="Copy Code"
           >
             <Copy size={16} />
@@ -150,14 +152,15 @@ export default function RefactoredOutput({
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
         {appState === 'idle' ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10 transition-colors">
-            <div className="flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.2)] bg-jb-bg ring-1 ring-jb-border">
-              <Layers size={36} className="text-jb-accent/60" strokeWidth={1.5} />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10 transition-colors duration-300">
+            <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-2xl ring-1 transition-all duration-300
+              ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
+              <Layers size={36} className={isDark ? "text-jb-accent/60" : "text-[#3574f0]/60"} strokeWidth={1.5} />
             </div>
-            <p className="text-[15px] font-semibold text-jb-text">
+            <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
               Awaiting source code analysis
             </p>
-            <p className="text-[13px] mt-2 font-medium text-jb-text-muted">
+            <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
               Output will be generated by the Swarm
             </p>
           </div>

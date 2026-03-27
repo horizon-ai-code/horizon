@@ -24,13 +24,14 @@ export const jetbrainsTheme = {
   ...baseTheme,
   'keyword': { ...baseTheme['keyword'], color: '#cf8e6d' },
   'class-name': { ...baseTheme['class-name'], color: '#2aacb8' },
-  'string': { ...baseTheme['string'], color: '#6aab73' },
+  'string': { ...baseTheme['string'], color: '#56a8f5' },
   'function': { ...baseTheme['function'], color: '#56a8f5' },
   'comment': { ...baseTheme['comment'], color: '#6f737a', fontStyle: 'italic' },
   'builtin': { ...baseTheme['builtin'], color: '#f4bf4f' },
   'type': { ...baseTheme['type'], color: '#2aacb8' },
-  'number': { ...baseTheme['number'], color: '#2aacb8' },
-  'operator': { ...baseTheme['operator'], color: '#a9b7c6' },
+  'number': { ...baseTheme['number'], color: '#56a8f5' },
+  'boolean': { ...baseTheme['boolean'], color: '#cf8e6d' },
+  'operator': { ...baseTheme['operator'], color: '#dfe1e5' },
 };
 
 const safeLightTheme = sanitizeTheme(oneLight);
@@ -40,12 +41,13 @@ export const intellijLightTheme = {
   'keyword': { ...safeLightTheme['keyword'], color: '#0033b3', fontWeight: 'bold' },
   'class-name': { ...safeLightTheme['class-name'], color: '#000000' },
   'string': { ...safeLightTheme['string'], color: '#067d17' },
-  'function': { ...safeLightTheme['function'], color: '#00627a' },
+  'function': { ...safeLightTheme['function'], color: '#067d17' },
   'comment': { ...safeLightTheme['comment'], color: '#8c8c8c', fontStyle: 'italic' },
   'builtin': { ...safeLightTheme['builtin'], color: '#000000' },
   'type': { ...safeLightTheme['type'], color: '#000000' },
   'number': { ...safeLightTheme['number'], color: '#1750eb' },
-  'operator': { ...safeLightTheme['operator'], color: '#000000' },
+  'boolean': { ...safeLightTheme['boolean'], color: '#1750eb' },
+  'operator': { ...safeLightTheme['operator'], color: '#080808' },
 };
 
 interface CodeEditorPanelProps {
@@ -130,9 +132,9 @@ export default function CodeEditorPanel({
             const isIssue = showDiff && highlightLines.issue?.includes(i);
             
             const getBgStyle = () => {
-              if (isRemoved) return { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.8)' };
-              if (isAdded) return { backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(220, 252, 231, 0.8)' };
-              if (isIssue) return { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.15)' : 'rgba(255, 237, 213, 0.8)' };
+              if (isRemoved) return { backgroundColor: isDark ? 'rgba(249, 62, 62, 0.2)' : '#fef2f2' }; // Dark: red-500/20, Light: red-50
+              if (isAdded) return { backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : '#ecfdf5' }; // Dark: cyan-500/15, Light: emerald-50
+              if (isIssue) return { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' }; // Dark: amber-500/15, Light: amber-100
               return { backgroundColor: 'transparent' };
             };
 
@@ -155,10 +157,10 @@ export default function CodeEditorPanel({
           return (
             <div 
               key={i} 
-              className={`h-[24px] leading-[24px] flex items-center justify-center
-                ${isRemoved ? 'text-red-500 font-medium' : 
-                  isAdded ? 'text-cyan-500 font-medium' : 
-                  isIssue ? 'text-orange-500 font-medium' : ''}`}
+              className={`h-[24px] leading-[24px] flex items-center justify-center font-medium
+                ${isRemoved ? 'text-red-500' : 
+                  isAdded ? (isDark ? 'text-cyan-400' : 'text-emerald-600') : 
+                  isIssue ? 'text-amber-500' : 'text-jb-text-muted opacity-50'}`}
             >
               {i + 1}
             </div>
