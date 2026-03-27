@@ -89,7 +89,6 @@ export default function Input({
           <div className="flex items-center h-full pt-1.5 pb-1 gap-1">
             <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm cursor-default transition-colors duration-300
               ${isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50' : 'bg-white text-[#080808] border-[#dfdfdf]'}`}>
-              <span className="text-orange-400">☕</span>
               Input.java
               <button className={`opacity-0 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
                 ${isDark ? 'hover:bg-jb-border' : 'hover:bg-[#ebecf0]'}`}>

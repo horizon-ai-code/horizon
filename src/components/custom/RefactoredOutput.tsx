@@ -105,7 +105,6 @@ export default function RefactoredOutput({
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
-            <span className="text-[#8B5CF6]">▶</span>
             Replay++
           </button>
           
@@ -116,7 +115,6 @@ export default function RefactoredOutput({
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
-            <span className="text-[#e2c08d]">📄</span>
             Insights.md
           </button>
           
@@ -127,7 +125,6 @@ export default function RefactoredOutput({
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
-            <span className="text-[#56a8f5]">☕</span>
             RefactoredOutput.java
           </button>
         </div>
