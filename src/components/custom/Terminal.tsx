@@ -5,35 +5,19 @@ import { useAppContext } from "@/context/AppContext";
 
 interface AgentTerminalLineProps {
   text: string;
-  delay: number;
   colorClass: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
-  isDark: boolean;
 }
 
-const AgentTerminalLine = ({ text, delay, colorClass, icon: Icon, isDark }: AgentTerminalLineProps) => {
-  const [displayedText, setDisplayedText] = useState('');
-  useEffect(() => {
-    let i = 0;
-    const timeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        setDisplayedText(text.slice(0, i + 1));
-        i++;
-        if (i > text.length) clearInterval(interval);
-      }, 15);
-      return () => clearInterval(interval);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [text, delay]);
-  
+const AgentTerminalLine = ({ text, colorClass, icon: Icon }: AgentTerminalLineProps) => {
   return (
-    <div className="flex items-start gap-3 text-[12px] font-mono leading-relaxed animate-in fade-in duration-300 shrink-0">
+    <div className="flex items-start gap-3 text-[12px] font-mono leading-relaxed shrink-0 transition-opacity">
       <div className={`mt-0.5 ${colorClass}`}><Icon size={14} /></div>
       <div className="flex-1">
         <span className={colorClass}>&gt; </span>
-        <span className="text-jb-text transition-opacity opacity-90 transition-colors">
-          {displayedText}
+        <span className="text-jb-text transition-colors opacity-90">
+          {text}
         </span>
       </div>
     </div>
@@ -156,7 +140,7 @@ export default function Terminal({
            {terminalEntries.map((entry) => {
               if (entry.type === 'command') {
                  return (
-                    <div key={entry.id} className="flex items-start gap-1 w-full max-w-6xl animate-in fade-in duration-300 mb-0.5">
+                    <div key={entry.id} className="flex items-start gap-1 w-full max-w-6xl mb-0.5">
                        <span className={`text-[14px] whitespace-nowrap pt-[2px] font-semibold transition-colors duration-300
                          ${isDark ? 'text-jb-text opacity-70' : 'text-[#818594]'}`}>
                          user@horizon ~ {'>'}
@@ -171,8 +155,6 @@ export default function Terminal({
                  return (
                     <div key={entry.id} className="mb-3">
                        <AgentTerminalLine 
-                          isDark={isDark} 
-                          delay={0} 
                           icon={ICON_MAP[entry.icon] || Cpu} 
                           colorClass={entry.colorClass || "text-jb-accent"} 
                           text={entry.text} 
@@ -185,7 +167,7 @@ export default function Terminal({
 
            {/* ACTIVE INPUT PROMPT (Only shown when IDLE or DONE - hidden during the debate) */}
            {(appState === 'idle' || appState === 'done') && (
-             <div className="flex items-start gap-1 w-full max-w-6xl mt-2 animate-in fade-in slide-in-from-left-2 duration-300">
+             <div className="flex items-start gap-1 w-full max-w-6xl mt-2 transition-opacity duration-300">
                 <span className={`text-[14px] whitespace-nowrap pt-[2px] font-semibold transition-colors duration-300
                   ${isDark ? 'text-jb-text opacity-70' : 'text-[#818594]'}`}>
                   user@horizon ~ {'>'}
