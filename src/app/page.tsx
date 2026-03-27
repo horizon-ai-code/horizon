@@ -161,16 +161,29 @@ export default function Home() {
   return (
     <div className={`flex h-screen overflow-hidden transition-colors duration-500 relative ${isDark ? 'bg-jb-bg text-jb-text' : 'bg-[#ffffff] text-[#080808]'}`}>
 
-      {/* Activity Bar (Left) - Now spans full height */}
-      <div className={`w-[48px] shrink-0 border-r flex flex-col items-center py-4 gap-6 z-20 transition-all duration-300
+      {/* Activity Bar (Left) */}
+      <div className={`w-[48px] shrink-0 border-r flex flex-col items-center z-20 transition-all duration-300
         ${isDark ? 'border-jb-border/40 bg-[#1e1f22]/60' : 'border-[#ebecf0] bg-[#f7f8fa]/80'} backdrop-blur-xl`}>
-        <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><FolderTree size={20} strokeWidth={1.5} /></button>
-        <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><Search size={20} strokeWidth={1.5} /></button>
-        <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><GitBranch size={20} strokeWidth={1.5} /></button>
-        <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><Play size={20} strokeWidth={1.5} /></button>
-        <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><LayoutGrid size={20} strokeWidth={1.5} /></button>
-        <div className="flex-1" />
-        <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><Settings2 size={20} strokeWidth={1.5} /></button>
+        
+        {/* Corner Logo Container - Aligns with Navbar Height */}
+        <div className="h-[44px] w-full flex items-center justify-center shrink-0">
+           <img 
+             src={isDark ? "/logo-dark.png" : "/logo-light.png"} 
+             alt="Logo" 
+             className="h-[22px] w-auto transition-opacity duration-300 opacity-90 hover:opacity-100"
+           />
+        </div>
+
+        {/* Activity Bar Icons */}
+        <div className="flex flex-col items-center py-4 gap-6 w-full">
+          <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><FolderTree size={20} strokeWidth={1.5} /></button>
+          <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><Search size={20} strokeWidth={1.5} /></button>
+          <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><GitBranch size={20} strokeWidth={1.5} /></button>
+          <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><Play size={20} strokeWidth={1.5} /></button>
+          <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><LayoutGrid size={20} strokeWidth={1.5} /></button>
+          <div className="flex-1" />
+          <button className={`transition-colors ${isDark ? 'text-jb-text opacity-50 hover:opacity-100 hover:text-jb-accent' : 'text-[#818594] hover:text-[#3574f0]'}`}><Settings2 size={20} strokeWidth={1.5} /></button>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-10">
