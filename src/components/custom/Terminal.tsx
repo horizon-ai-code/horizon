@@ -101,7 +101,7 @@ export default function Terminal({
         <div className="flex items-center h-full gap-4">
           <h3 className={`text-[12px] font-semibold tracking-wide flex items-center gap-2 transition-colors duration-300
             ${isDark ? 'text-jb-text opacity-90' : 'text-[#080808] opacity-80'}`}>
-             Consensus Terminal
+             Terminal
           </h3>
           <div className={`h-[20px] w-[1px] ${isDark ? 'bg-[#393b40]/60' : 'bg-[#ebecf0]'}`}></div>
           
@@ -132,7 +132,7 @@ export default function Terminal({
         <div className={`p-6 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono transition-colors duration-300
           ${isDark ? 'bg-jb-panel' : 'bg-white'}`}>
            <div className="text-[13px] text-jb-text-muted mb-4 leading-relaxed shrink-0 transition-colors">
-              Horizon OS [Version 10.0.26100]<br/>
+              Horizon AI [Version 10.0.26100]<br/>
               (c) Horizon Corporation. All rights reserved.<br/>
            </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, ChevronDown, Play, Bug, Square, MoreVertical, Search, Settings, Minus, Maximize2, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -25,11 +25,11 @@ export default function Navbar() {
         </button>
         <button className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-semibold tracking-wide transition-colors cursor-default
           ${isDark ? 'text-jb-text hover:bg-jb-panel' : 'text-[#080808] hover:bg-[#ebecf0]'}`}>
-          Horizon AI <ChevronDown size={14} className="opacity-50" />
+          Horizon AI
         </button>
         <button className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-default
           ${isDark ? 'text-jb-text opacity-80 hover:bg-jb-panel hover:opacity-100' : 'text-[#080808] opacity-60 hover:bg-[#ebecf0] hover:opacity-100'}`}>
-          Refactoring Studio <ChevronDown size={14} className="opacity-50" />
+          Refactoring Studio
         </button>
       </div>
 
