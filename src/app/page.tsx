@@ -146,7 +146,8 @@ export default function Home() {
 
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-10">
+      <div className={`flex-1 flex flex-col min-h-0 overflow-hidden relative z-10 transition-colors duration-500
+        ${isDark ? 'bg-jb-bg' : 'bg-[#ebecf0]'}`}>
         <Navbar />
         
         {/* Main Editor Area - Now includes vertical resizable terminal */}
@@ -168,6 +169,7 @@ export default function Home() {
                     inputError={inputError}
                     setInputError={setInputError}
                     startAnalysis={startAnalysis}
+                    stopAnalysis={stopAnalysis}
                   />
                 </Panel>
                 

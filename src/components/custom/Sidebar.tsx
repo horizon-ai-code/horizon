@@ -16,7 +16,7 @@ export default function Sidebar() {
 
   return (
     <div className={`w-[48px] shrink-0 border-r flex flex-col items-center z-20 transition-all duration-300
-      ${isDark ? 'border-jb-border/40 bg-[#1e1f22]/60' : 'border-[#ebecf0] bg-[#f7f8fa]/80'} backdrop-blur-xl`}>
+      ${isDark ? 'border-jb-border/40 bg-jb-panel' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}>
       
       {/* Top Menu Icon Corner - Aligns with Navbar Height */}
       <div className={`h-[44px] w-full flex items-center justify-center shrink-0 border-b transition-colors duration-300

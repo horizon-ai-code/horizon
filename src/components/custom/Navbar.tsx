@@ -15,7 +15,7 @@ export default function Navbar() {
 
   return (
     <nav className={`relative z-40 border-b flex justify-between items-center shrink-0 h-[44px] select-none transition-all duration-300
-      ${isDark ? 'bg-[#1e1f22]/75 border-jb-border/50' : 'bg-[#f7f8fa]/85 border-[#ebecf0]'} backdrop-blur-md font-sans`}>
+      ${isDark ? 'bg-jb-bg border-jb-border/50' : 'bg-[#f7f8fa] border-[#ebecf0]'} font-sans`}>
       
       {/* Left Section: Logo, Menu & Project Info */}
       <div className="flex items-center h-full">

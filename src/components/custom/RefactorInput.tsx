@@ -1,6 +1,6 @@
 "use client"
 
-import { Command, Sparkles } from "lucide-react";
+import { Command, Sparkles, Square } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import { useAppContext } from "@/context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +11,7 @@ interface RefactorInputProps {
   inputError: boolean;
   setInputError: (val: boolean) => void;
   startAnalysis: () => void;
+  stopAnalysis: () => void;
   isDark: boolean;
 }
 
@@ -20,6 +21,7 @@ export default function RefactorInput({
   inputError,
   setInputError,
   startAnalysis,
+  stopAnalysis,
   isDark
 }: RefactorInputProps) {
   const { appState } = useAppContext();
@@ -28,7 +30,7 @@ export default function RefactorInput({
 
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = '34px';
+      textareaRef.current.style.height = '40px';
       const scrollHeight = textareaRef.current.scrollHeight;
       textareaRef.current.style.height = Math.min(scrollHeight, 160) + 'px';
     }
@@ -51,95 +53,86 @@ export default function RefactorInput({
   const isExpanded = isFocused || inputInstruction.length > 0;
 
   return (
-    <div className="mx-auto w-full px-4 mb-6 absolute bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+    <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
       <motion.div 
         layout
         initial={false}
         animate={{ 
-          maxWidth: isExpanded ? 900 : 400, 
+          maxWidth: isExpanded ? '900px' : '576px', // stays expanded with text or on focus
+          borderRadius: '28px',
           opacity: 1,
           y: 0
         }}
         transition={{ 
-          type: "spring", 
-          stiffness: 260, 
-          damping: 28,
-          opacity: { duration: 0.4 }
+          type: "spring",
+          stiffness: 400,
+          damping: 30,
+          opacity: { duration: 0.2 }
         }}
-        className={`w-full pointer-events-auto relative group`}
+        onClick={() => textareaRef.current?.focus()}
+        className={`w-full pointer-events-auto mx-auto ring-1 backdrop-blur-2xl shadow-2xl transition-all duration-500 flex items-end gap-3 pl-4 pr-2 py-2 cursor-text
+          ${inputError 
+            ? 'ring-red-500/50 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
+            : `${isDark ? 'bg-jb-panel/95 ring-white/[0.05]' : 'bg-white/95 ring-black/[0.05]'} 
+               ${isFocused ? 'ring-cyan-500/50 shadow-[0_0_40px_rgba(0,229,255,0.1)]' : ''}`
+          }`}
       >
-        <div className={`flex items-center gap-3 p-1.5 rounded-[32px] border transition-all duration-500 relative
-          ${isDark 
-            ? 'bg-[#1e1f22]/95 border-white/5 backdrop-blur-3xl ring-1 ring-inset ring-white/5' 
-            : 'bg-white/95 border-[#ebecf0] backdrop-blur-2xl shadow-slate-200/60 ring-1 ring-inset ring-black/[0.02]'
-          }
-          ${inputError ? 'ring-2 ring-red-500/50 border-red-500/40 shadow-red-500/10' : 'hover:border-white/10'}
-          ${isFocused && !inputError ? 'ring-2 ring-cyan-500/20 border-cyan-500/30 shadow-[0_0_40px_rgba(6,182,212,0.15)]' : 'shadow-2xl'}`}>
-          
-          {/* Decorative side illumination (Premium detail) */}
-          <div className="absolute inset-x-5 -top-px h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
+          <Command 
+            className={`transition-colors duration-300 ${inputError ? 'text-red-500' : 'text-cyan-500'} ${isFocused ? 'opacity-100' : 'opacity-70'}`} 
+            size={18} 
+          />
+        </div>
 
-          <motion.div 
-            animate={{ 
-              backgroundColor: isFocused ? (isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(6, 182, 212, 0.1)') : (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'),
-              color: isFocused ? (isDark ? '#06b6d4' : '#0891b2') : (isDark ? '#06b6d4' : '#0891b2')
-            }}
-            className="flex items-center justify-center w-[34px] h-[34px] shrink-0 rounded-full transition-colors overflow-hidden"
-          >
-            <Command size={16} strokeWidth={2.5} />
-          </motion.div>
+        <textarea
+          ref={textareaRef}
+          value={inputInstruction}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder="Ask the Swarm to refactor..."
+          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted/50 caret-cyan-500 transition-colors
+            ${appState === 'analyzing' ? 'text-jb-text-muted/60 cursor-not-allowed' : 'text-jb-text'}`}
+          disabled={appState === 'analyzing'}
+          rows={1}
+          style={{ minHeight: '40px', lineHeight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
+        />
 
-          {/* Textarea Area */}
-          <div className="flex-1 min-w-0">
-            <textarea
-              ref={textareaRef}
-              value={inputInstruction}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder="Ask the Swarm to refactor..."
-              className={`w-full bg-transparent border-none outline-none resize-none py-[6px] text-[14px] font-medium leading-[22px] max-h-[160px] transition-colors
-                ${isDark ? 'text-jb-text placeholder-jb-text-muted/60' : 'text-[#080808] placeholder-[#818594]'}`}
-              rows={1}
-            />
-          </div>
-
-          {/* Refactor Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={startAnalysis}
-            disabled={appState === 'analyzing'}
-            className={`h-[34px] px-6 rounded-full flex items-center gap-2 font-bold text-[13px] tracking-tight transition-all duration-300 shadow-lg active:scale-95 group/btn mr-[1px]
-              ${appState === 'analyzing' 
-                ? 'bg-jb-bg/50 text-jb-text-muted cursor-not-allowed opacity-50' 
-                : 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 hover:brightness-110 text-white shadow-blue-500/20'
-              }`}
-          >
-            <AnimatePresence mode="wait">
-              {appState === 'analyzing' ? (
-                <motion.div
-                  key="analyzing"
-                  initial={{ rotate: 0 }}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles size={14} className="opacity-80" />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="idle"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  <Sparkles size={14} className="group-hover/btn:rotate-12 transition-transform" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <span>{appState === 'analyzing' ? 'Refactoring...' : 'Refactor'}</span>
-          </motion.button>
+        <div className="h-[40px] flex items-center shrink-0">
+          <AnimatePresence mode="wait">
+            {appState === 'analyzing' ? (
+              <motion.button
+                key="stop"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  stopAnalysis();
+                }}
+                className="h-[34px] px-5 rounded-full text-xs font-bold flex items-center gap-2 transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-red-500/10 text-red-500 hover:bg-red-500/20"
+              >
+                <Square size={12} className="fill-current" /> 
+                <span>Stop</span>
+              </motion.button>
+            ) : (
+              <motion.button
+                key="refactor"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startAnalysis();
+                }}
+                className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_20px_rgba(0,229,255,0.4)] transition-all cursor-pointer hover:scale-105 active:scale-95 bg-gradient-to-r from-cyan-400 to-blue-500 group`}
+              >
+                <Sparkles size={14} className="group-hover:rotate-12 transition-transform" />
+                <span>Run</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </div>

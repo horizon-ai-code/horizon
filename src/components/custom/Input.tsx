@@ -17,6 +17,7 @@ interface InputProps {
   inputError: boolean;
   setInputError: (val: boolean) => void;
   startAnalysis: () => void;
+  stopAnalysis: () => void;
 }
 
 export default function Input({
@@ -29,6 +30,7 @@ export default function Input({
   inputError,
   setInputError,
   startAnalysis,
+  stopAnalysis,
 }: InputProps) {
   const { appState } = useAppContext();
   const { resolvedTheme } = useTheme();
@@ -166,6 +168,7 @@ export default function Input({
             inputError={inputError}
             setInputError={setInputError}
             startAnalysis={startAnalysis}
+            stopAnalysis={stopAnalysis}
             isDark={isDark}
           />
         </div>

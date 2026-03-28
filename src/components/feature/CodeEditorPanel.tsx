@@ -19,6 +19,9 @@ const sanitizeTheme = (theme: any) => {
 };
 
 const baseTheme = sanitizeTheme(oneDark);
+// Force transparent background for the base themes
+if (baseTheme['pre[class*="language-"]']) baseTheme['pre[class*="language-"]'].backgroundColor = 'transparent';
+if (baseTheme['code[class*="language-"]']) baseTheme['code[class*="language-"]'].backgroundColor = 'transparent';
 
 export const jetbrainsTheme = {
   ...baseTheme,
@@ -35,6 +38,8 @@ export const jetbrainsTheme = {
 };
 
 const safeLightTheme = sanitizeTheme(oneLight);
+if (safeLightTheme['pre[class*="language-"]']) safeLightTheme['pre[class*="language-"]'].backgroundColor = 'transparent';
+if (safeLightTheme['code[class*="language-"]']) safeLightTheme['code[class*="language-"]'].backgroundColor = 'transparent';
 
 export const intellijLightTheme = {
   ...safeLightTheme,
