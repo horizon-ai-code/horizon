@@ -28,7 +28,7 @@ export default function RefactorInput({
 
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = '42px';
+      textareaRef.current.style.height = '34px';
       const scrollHeight = textareaRef.current.scrollHeight;
       textareaRef.current.style.height = Math.min(scrollHeight, 160) + 'px';
     }
@@ -56,33 +56,33 @@ export default function RefactorInput({
         layout
         initial={false}
         animate={{ 
-          maxWidth: isExpanded ? 896 : 480, // max-w-4xl to max-w-xl
+          maxWidth: isExpanded ? 900 : 400, 
           opacity: 1,
           y: 0
         }}
         transition={{ 
           type: "spring", 
           stiffness: 260, 
-          damping: 24,
+          damping: 28,
           opacity: { duration: 0.4 }
         }}
         className={`w-full pointer-events-auto relative group`}
       >
         <div className={`flex items-center gap-3 p-1.5 rounded-[32px] border transition-all duration-500 relative
           ${isDark 
-            ? 'bg-[#1e1f22]/90 border-jb-border/60 backdrop-blur-2xl ring-1 ring-inset ring-white/5' 
+            ? 'bg-[#1e1f22]/95 border-white/5 backdrop-blur-3xl ring-1 ring-inset ring-white/5' 
             : 'bg-white/95 border-[#ebecf0] backdrop-blur-2xl shadow-slate-200/60 ring-1 ring-inset ring-black/[0.02]'
           }
-          ${inputError ? 'ring-2 ring-red-500/50 border-red-500/40 shadow-red-500/10' : 'hover:border-jb-accent/40'}
-          ${isFocused && !inputError ? 'ring-2 ring-jb-accent/30 border-jb-accent/40 shadow-[0_0_30px_rgba(53,116,240,0.15)]' : 'shadow-2xl'}`}>
+          ${inputError ? 'ring-2 ring-red-500/50 border-red-500/40 shadow-red-500/10' : 'hover:border-white/10'}
+          ${isFocused && !inputError ? 'ring-2 ring-cyan-500/20 border-cyan-500/30 shadow-[0_0_40px_rgba(6,182,212,0.15)]' : 'shadow-2xl'}`}>
           
           {/* Decorative side illumination (Premium detail) */}
-          <div className="absolute inset-x-5 -top-px h-px bg-gradient-to-r from-transparent via-jb-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <div className="absolute inset-x-5 -top-px h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
           <motion.div 
             animate={{ 
-              backgroundColor: isFocused ? (isDark ? 'rgba(53, 116, 240, 0.15)' : 'rgba(53, 116, 240, 0.1)') : (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'),
-              color: isFocused ? (isDark ? '#548af7' : '#3574f0') : (isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)')
+              backgroundColor: isFocused ? (isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(6, 182, 212, 0.1)') : (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'),
+              color: isFocused ? (isDark ? '#06b6d4' : '#0891b2') : (isDark ? '#06b6d4' : '#0891b2')
             }}
             className="flex items-center justify-center w-[34px] h-[34px] shrink-0 rounded-full transition-colors overflow-hidden"
           >
@@ -90,7 +90,7 @@ export default function RefactorInput({
           </motion.div>
 
           {/* Textarea Area */}
-          <div className="flex-1 min-w-0 pb-[3px]">
+          <div className="flex-1 min-w-0">
             <textarea
               ref={textareaRef}
               value={inputInstruction}
