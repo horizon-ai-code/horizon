@@ -38,9 +38,7 @@ export default function RootLayout({
         >
           <AppProvider>
             <ScrollHandler />
-            <div className="h-screen overflow-hidden">
-              {children}
-            </div>
+            {children}
           </AppProvider>
         </ThemeProvider>
       </body>
