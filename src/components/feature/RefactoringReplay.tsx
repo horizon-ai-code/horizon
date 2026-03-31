@@ -3,40 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ChevronLeft, ChevronRight, FastForward } from 'lucide-react';
 import { jetbrainsTheme, intellijLightTheme } from './CodeEditorPanel';
+import { ReplayStep } from '@/store/useChatStore';
 
 // Themes are imported from CodeEditorPanel for consistency
 
-const replaySteps = [
-  {
-    title: "Inefficient Loop Detected",
-    description: "Nested O(N²) loops found. This is highly inefficient for large arrays. Recommending a HashSet to track elements in O(N) time.",
-    codeSnapshot: `public boolean containsDuplicate(int[] nums) {\n    for (int i = 0; i < nums.length; i++) {\n        for (int j = i + 1; j < nums.length; j++) {\n            if (nums[i] == nums[j]) {\n                return true;\n            }\n        }\n    }\n    return false;\n}`,
-    issueLines: [2, 3, 4, 5, 6, 7, 8], // RESTORED ORANGE LINES
-    addedLines: [] as number[],
-    removedLines: [] as number[]
-  },
-  {
-    title: "Initialize HashSet",
-    description: "A HashSet provides O(1) lookups. We remove the inner loop entirely.",
-    codeSnapshot: `public boolean containsDuplicate(int[] nums) {\n    Set<Integer> seen = new HashSet<>();\n    for (int i = 0; i < nums.length; i++) {\n        // ... \n    }\n    return false;\n}`,
-    issueLines: [] as number[],
-    addedLines: [2],
-    removedLines: [3, 4, 5, 6, 7, 8]
-  },
-  {
-    title: "Enhanced For-Loop & Add Check",
-    description: "HashSet.add() returns false if the element is already present. We can simplify the logic beautifully.",
-    codeSnapshot: `public boolean containsDuplicate(int[] nums) {\n    Set<Integer> seen = new HashSet<>();\n    for (int num : nums) {\n        if (!seen.add(num)) {\n            return true;\n        }\n    }\n    return false;\n}`,
-    issueLines: [] as number[],
-    addedLines: [3, 4, 5, 6],
-    removedLines: [] as number[]
-  }
-];
+interface RefactoringReplayProps {
+  replaySteps: ReplayStep[];
+}
 
-export default function RefactoringReplay() {
+export default function RefactoringReplay({ replaySteps }: RefactoringReplayProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [currentReplayStep, setCurrentReplayStep] = useState(0);
@@ -45,7 +22,24 @@ export default function RefactoringReplay() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (currentReplayStep >= replaySteps.length) {
+      setCurrentReplayStep(0);
+    }
+  }, [currentReplayStep, replaySteps.length]);
+
   const isDark = mounted ? resolvedTheme === "dark" : true;
+  const hasReplayData = replaySteps.length > 0;
+
+  if (!mounted) return null;
+  if (!hasReplayData) {
+    return (
+      <div className="flex items-center justify-center h-full animate-in fade-in duration-500 bg-jb-panel rounded-[24px] overflow-hidden border border-jb-border">
+        <p className="text-[13px] font-medium text-jb-text-muted">No replay data yet.</p>
+      </div>
+    );
+  }
+
   const step = replaySteps[currentReplayStep];
   const isFinal = currentReplayStep === replaySteps.length - 1;
 
@@ -56,8 +50,6 @@ export default function RefactoringReplay() {
   const handlePrev = () => {
     if (currentReplayStep > 0) setCurrentReplayStep(p => p - 1);
   };
-
-  if (!mounted) return null;
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500 bg-jb-panel rounded-[24px] overflow-hidden border border-jb-border">

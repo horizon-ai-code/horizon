@@ -1,19 +1,15 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react";
-import { useChatStore, INITIAL_SOURCE, INITIAL_REFACTORED, SessionData } from "../../store/useChatStore";
+import { useChatStore, INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT, SessionData } from "../../store/useChatStore";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTheme } from "next-themes";
+import { generateMockOrchestrationResult } from "@/lib/orchestrationUtils";
 
 import Input from "@/components/chat/Input";
 import RefactoredOutput from "@/components/chat/RefactoredOutput";
 import Terminal from "@/components/chat/Terminal";
-
-export const mockHighlights = {
-  inputRemoved: [1, 2, 3, 4, 5, 6, 7], 
-  outputAdded: [1, 2, 3, 4, 5]         
-};
 
 export default function ChatWorkspace({ sessionId }: { sessionId: string | null }) {
   const store = useChatStore();
@@ -57,11 +53,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     isTerminalCollapsed: false,
     appState: "idle",
     showFlowchartModal: false,
+    orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
   }) : { ...store.draftSession, id: "draft" };
 
   const {
     sourceCode, refactoredOutput, activeStep, inputInstruction,
-    terminalEntries, isTerminalCollapsed, appState, showFlowchartModal
+    terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, orchestrationResult
   } = activeSession;
 
   const validateBeforeSubmit = () => {
@@ -140,7 +137,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       isTerminalCollapsed: false,
       showFlowchartModal: true,
       activeStep: 1,
-      refactoredOutput: ""
+      refactoredOutput: "",
+      orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
     };
 
     // Standard local update
@@ -173,10 +171,14 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }, 7000));
 
     timeoutRefs.current.push(setTimeout(() => {
+      const orchestrationData = generateMockOrchestrationResult(sourceCode);
+      const generatedOutput = orchestrationData.replaySteps[orchestrationData.replaySteps.length - 1]?.codeSnapshot || sourceCode;
+
       store.updateSession(targetId, (prev: SessionData) => ({
         activeStep: 5,
         terminalEntries: [...prev.terminalEntries, { id: 'l4'+Date.now(), type: 'log', icon: 'CheckCircle2', colorClass: 'text-[#27c93f]', text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." }],
-        refactoredOutput: INITIAL_REFACTORED
+        refactoredOutput: generatedOutput,
+        orchestrationResult: orchestrationData,
       }));
 
       timeoutRefs.current.push(setTimeout(() => {
@@ -219,10 +221,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       }, 7000));
   
       timeoutRefs.current.push(setTimeout(() => {
+        const sessionSnapshot = store.sessions[targetId];
+        const sourceForMock = sessionSnapshot?.sourceCode || sourceCode;
+        const orchestrationData = generateMockOrchestrationResult(sourceForMock);
+        const generatedOutput = orchestrationData.replaySteps[orchestrationData.replaySteps.length - 1]?.codeSnapshot || sourceForMock;
+
         store.updateSession(targetId, (prev: SessionData) => ({
           activeStep: 5,
           terminalEntries: [...prev.terminalEntries, { id: 'l4'+Date.now(), type: 'log', icon: 'CheckCircle2', colorClass: 'text-[#27c93f]', text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." }],
-          refactoredOutput: INITIAL_REFACTORED
+          refactoredOutput: generatedOutput,
+          orchestrationResult: orchestrationData,
         }));
   
         timeoutRefs.current.push(setTimeout(() => {
@@ -267,6 +275,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               startAnalysis={startAnalysis}
               stopAnalysis={stopAnalysis}
               appState={appState}
+              orchestrationResult={orchestrationResult}
             />
           </Panel>
           
@@ -282,6 +291,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               activeStep={activeStep} 
               isTerminalCollapsed={isTerminalCollapsed}
               appState={appState}
+              orchestrationResult={orchestrationResult}
             />
           </Panel>
         </PanelGroup>

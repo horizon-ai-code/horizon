@@ -2,6 +2,43 @@ import { create } from 'zustand';
 
 export type AppState = "idle" | "analyzing" | "done";
 
+export interface ReplayStep {
+  title: string;
+  description: string;
+  codeSnapshot: string;
+  issueLines: number[];
+  addedLines: number[];
+  removedLines: number[];
+}
+
+export interface InsightMetric {
+  title: string;
+  before: string;
+  after: string;
+  direction: 'up' | 'down' | 'neutral';
+  iconKey?: string;
+}
+
+export interface OrchestrationResult {
+  replaySteps: ReplayStep[];
+  metrics: InsightMetric[];
+  summary: string;
+  diffHighlights: {
+    added: number[];
+    removed: number[];
+  };
+}
+
+export const EMPTY_ORCHESTRATION_RESULT: OrchestrationResult = {
+  replaySteps: [],
+  metrics: [],
+  summary: "",
+  diffHighlights: {
+    added: [],
+    removed: [],
+  },
+};
+
 export const INITIAL_SOURCE = `public boolean containsDuplicate(int[] nums) {
     for (int i = 0; i < nums.length; i++) {
         for (int j = i + 1; j < nums.length; j++) {
@@ -44,6 +81,7 @@ export interface SessionData {
   isTerminalCollapsed: boolean;
   appState: AppState;
   showFlowchartModal: boolean;
+  orchestrationResult: OrchestrationResult;
   error?: string;
 }
 
@@ -59,6 +97,7 @@ const DEFAULT_SESSION: Omit<SessionData, "id"> = {
   isTerminalCollapsed: false,
   appState: "idle",
   showFlowchartModal: false,
+  orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
 };
 
 const generateSessionId = () => Math.random().toString(36).slice(2, 10);

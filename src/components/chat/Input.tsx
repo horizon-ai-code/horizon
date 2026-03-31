@@ -2,11 +2,11 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { FileCode2, Command, X, Loader2 } from "lucide-react";
+import { FileCode2, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CodeEditorPanel from "@/components/feature/CodeEditorPanel";
 import RefactorInput from "@/components/chat/RefactorInput";
-import { AppState } from "@/store/useChatStore";
+import { AppState, OrchestrationResult } from "@/store/useChatStore";
 
 interface InputProps {
   sessionId: string | null;
@@ -22,6 +22,7 @@ interface InputProps {
   startAnalysis: () => void;
   stopAnalysis: () => void;
   appState: AppState;
+  orchestrationResult: OrchestrationResult;
 }
 
 export default function Input({
@@ -38,6 +39,7 @@ export default function Input({
   startAnalysis,
   stopAnalysis,
   appState,
+  orchestrationResult,
 }: InputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -157,7 +159,7 @@ export default function Input({
             onFocus={() => setIsEditorFocused(true)}
             onBlur={() => setIsEditorFocused(false)}
             ghostValue={isEditorFocused ? clipboardPreview : ""}
-            highlightLines={{ removed: [1, 2, 3, 4, 5, 6] }} 
+            highlightLines={{ removed: orchestrationResult.diffHighlights.removed }}
             showDiff={appState === 'done'}
             placeholder="" 
             bottomPadding="240px"

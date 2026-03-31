@@ -2,9 +2,9 @@
 
 import { useTheme } from "next-themes";
 import { Copy, Layers, X, FileCode2, Cpu, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
 import CodeEditorPanel from "@/components/feature/CodeEditorPanel";
-import { AppState } from "@/store/useChatStore";
+import { AppState, OrchestrationResult } from "@/store/useChatStore";
 import { useState, useEffect } from "react";
 import RefactoringReplay from "@/components/feature/RefactoringReplay";
 import InsightsPanel from "@/components/feature/InsightsPanel";
@@ -17,10 +17,20 @@ interface RefactoredOutputProps {
   activeStep: number;
   isTerminalCollapsed: boolean;
   appState: AppState;
+  orchestrationResult: OrchestrationResult;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const FlowNode = ({ icon: Icon, title, desc, status, isDark, colorCode }: any) => {
+type NodeStatus = 'active' | 'done' | 'waiting';
+
+interface FlowNodeProps {
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  status: NodeStatus;
+  colorCode: string;
+}
+
+const FlowNode = ({ icon: Icon, title, desc, status, colorCode }: FlowNodeProps) => {
   const getColors = () => {
     if (status === 'active') return 'bg-jb-bg ring-1 ring-jb-accent/50 shadow-[0_0_20px_rgba(53,116,240,0.15)] text-jb-accent';
     return 'bg-jb-panel/50 ring-1 ring-jb-border text-jb-text-muted';
@@ -35,25 +45,25 @@ const FlowNode = ({ icon: Icon, title, desc, status, isDark, colorCode }: any) =
   );
 };
 
-const FlowConnector = ({ isActive, isDark }: { isActive: boolean, isDark: boolean }) => (
+const FlowConnector = ({ isActive }: { isActive: boolean }) => (
   <div className="flex-1 min-h-[3px] h-[3px] shrink-0 w-4 md:w-8 relative overflow-hidden rounded-full mx-2 flex items-center">
     <div className="absolute inset-0 bg-jb-border/50"></div>
     <div className={`absolute h-full left-0 ${isActive ? 'w-full bg-jb-accent shadow-[0_0_10px_rgba(53,116,240,0.8)]' : 'w-0 bg-jb-accent'}`}></div>
   </div>
 );
 
-const OrchestrationFlowchart = ({ activeStep, isDark }: { activeStep: number, isDark: boolean }) => (
+const OrchestrationFlowchart = ({ activeStep }: { activeStep: number }) => (
   <div className="flex flex-col items-center justify-center w-full h-full p-4 animate-in fade-in zoom-in-95 duration-500">
     <div className="flex flex-row items-center justify-center w-full max-w-4xl">
-      <FlowNode icon={FileCode2} title="AST Parser" desc="Reads abstract tree" status={activeStep === 1 ? 'active' : activeStep > 1 ? 'done' : 'waiting'} isDark={isDark} colorCode="#00e5ff" />
-      <FlowConnector isActive={activeStep > 1} isDark={isDark} />
-      <FlowNode icon={Cpu} title="Logical Prover" desc="Drafts optimizations" status={activeStep === 2 ? 'active' : activeStep > 2 ? 'done' : 'waiting'} isDark={isDark} colorCode="#3B82F6" />
-      <FlowConnector isActive={activeStep > 2} isDark={isDark} />
-      <FlowNode icon={AlertCircle} title="Adversarial Critic" desc="Challenges logic" status={activeStep === 3 ? 'active' : activeStep > 3 ? 'done' : 'waiting'} isDark={isDark} colorCode="#8B5CF6" />
-      <FlowConnector isActive={activeStep > 3} isDark={isDark} />
-      <FlowNode icon={Layers} title="Consensus Judge" desc="Synthesizes code" status={activeStep === 4 ? 'active' : activeStep > 4 ? 'done' : 'waiting'} isDark={isDark} colorCode="#EC4899" />
-      <FlowConnector isActive={activeStep > 4} isDark={isDark} />
-      <FlowNode icon={CheckCircle2} title="Code Emitter" desc="Formats output" status={activeStep >= 5 ? 'active' : 'waiting'} isDark={isDark} colorCode="#10B981" />
+      <FlowNode icon={FileCode2} title="AST Parser" desc="Reads abstract tree" status={activeStep === 1 ? 'active' : activeStep > 1 ? 'done' : 'waiting'} colorCode="#00e5ff" />
+      <FlowConnector isActive={activeStep > 1} />
+      <FlowNode icon={Cpu} title="Logical Prover" desc="Drafts optimizations" status={activeStep === 2 ? 'active' : activeStep > 2 ? 'done' : 'waiting'} colorCode="#3B82F6" />
+      <FlowConnector isActive={activeStep > 2} />
+      <FlowNode icon={AlertCircle} title="Adversarial Critic" desc="Challenges logic" status={activeStep === 3 ? 'active' : activeStep > 3 ? 'done' : 'waiting'} colorCode="#8B5CF6" />
+      <FlowConnector isActive={activeStep > 3} />
+      <FlowNode icon={Layers} title="Consensus Judge" desc="Synthesizes code" status={activeStep === 4 ? 'active' : activeStep > 4 ? 'done' : 'waiting'} colorCode="#EC4899" />
+      <FlowConnector isActive={activeStep > 4} />
+      <FlowNode icon={CheckCircle2} title="Code Emitter" desc="Formats output" status={activeStep >= 5 ? 'active' : 'waiting'} colorCode="#10B981" />
     </div>
   </div>
 );
@@ -65,7 +75,8 @@ export default function RefactoredOutput({
   setShowFlowchartModal,
   activeStep,
   isTerminalCollapsed,
-  appState
+  appState,
+  orchestrationResult,
 }: RefactoredOutputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -183,16 +194,18 @@ export default function RefactoredOutput({
              <CodeEditorPanel 
                value={refactoredOutput} 
                onChange={setRefactoredOutput} 
-               // NEW: Only highlight newly added/edited lines in CYAN on the output side
-               highlightLines={{ added: [1, 2, 3, 4, 5] }}
+               highlightLines={{
+                 added: orchestrationResult.diffHighlights.added,
+                 removed: orchestrationResult.diffHighlights.removed,
+               }}
                showDiff={appState === 'done'}
                placeholder="" 
                bottomPadding="48px"
              />
           ) : rightPanelMode === 'replay' ? (
-             <RefactoringReplay />
+             <RefactoringReplay replaySteps={orchestrationResult.replaySteps} />
           ) : (
-             <InsightsPanel />
+             <InsightsPanel metrics={orchestrationResult.metrics} summary={orchestrationResult.summary} />
           )
         )}
 
@@ -202,7 +215,7 @@ export default function RefactoredOutput({
                 {appState === 'done' && <button onClick={() => setShowFlowchartModal(false)} className="p-2 rounded-full ring-1 transition-transform cursor-pointer bg-secondary hover:bg-secondary/80 ring-border text-foreground"><X size={18} /></button>}
              </div>
              
-             <OrchestrationFlowchart activeStep={activeStep} isDark={isDark} />
+             <OrchestrationFlowchart activeStep={activeStep} />
           </div>
         )}
       </div>

@@ -2,9 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
-import { TrendingDown, Sparkles, Layers, CheckCircle } from 'lucide-react';
+import { Sparkles, Layers, CheckCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { InsightMetric } from '@/store/useChatStore';
 
-export default function InsightsPanel() {
+interface InsightsPanelProps {
+  metrics: InsightMetric[];
+  summary: string;
+}
+
+const metricIconMap: Record<string, LucideIcon> = {
+  Sparkles,
+  Layers,
+  CheckCircle,
+};
+
+export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -14,13 +27,17 @@ export default function InsightsPanel() {
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  const metrics = [
-    { title: "Readability", value: "Low → High", icon: Sparkles, color: isDark ? "text-purple-400" : "text-purple-600", bg: isDark ? "bg-purple-500/10" : "bg-purple-500/5", border: isDark ? "border-purple-500/20" : "border-purple-500/10" },
-    { title: "Variables Managed", value: "2 → 1", icon: Layers, color: isDark ? "text-orange-400" : "text-orange-600", bg: isDark ? "bg-orange-500/10" : "bg-orange-500/5", border: isDark ? "border-orange-500/20" : "border-orange-500/10" },
-    { title: "Cyclomatic Complexity", value: "1 → 1", icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-600", bg: isDark ? "bg-green-500/10" : "bg-green-500/5", border: isDark ? "border-green-500/20" : "border-green-500/10" }
-  ];
-
   if (!mounted) return null;
+
+  if (metrics.length === 0 && !summary.trim()) {
+    return (
+      <div className="h-full p-6 animate-in fade-in duration-500 overflow-y-auto flex items-center justify-center">
+        <p className={`text-[13px] font-medium ${isDark ? 'text-jb-text-muted' : 'text-slate-500'}`}>
+          No insights available for this run.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full p-6 animate-in fade-in duration-500 overflow-y-auto">
@@ -29,24 +46,51 @@ export default function InsightsPanel() {
       </h3>
       <div className="grid grid-cols-2 gap-4">
         {metrics.map((m, i) => (
-          <div key={i} className={`p-4 rounded-[16px] border ${m.border} ${m.bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300 ${i === 0 ? 'col-span-2' : ''}`}>
-            <div className={`p-2.5 w-max rounded-[12px] border ${m.border} ${m.color} bg-background shadow-sm group-hover:scale-110 transition-transform`}>
-              <m.icon size={18} />
-            </div>
-            <div>
-              <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{m.title}</p>
-              <p className={`text-[16px] font-bold ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>{m.value}</p>
-            </div>
-          </div>
+          (() => {
+            const displayTitle = m.title === 'Loop Complexity' ? 'Cyclomatic Complexity' : m.title;
+            const MetricIcon = (m.iconKey && metricIconMap[m.iconKey]) || Sparkles;
+            const isIncrease = m.direction === 'up';
+            const isDecrease = m.direction === 'down';
+            const color = isIncrease
+              ? (isDark ? 'text-green-400' : 'text-green-600')
+              : isDecrease
+                ? (isDark ? 'text-red-400' : 'text-red-600')
+                : (isDark ? 'text-blue-400' : 'text-blue-600');
+            const bg = isIncrease
+              ? (isDark ? 'bg-green-500/10' : 'bg-green-500/5')
+              : isDecrease
+                ? (isDark ? 'bg-red-500/10' : 'bg-red-500/5')
+                : (isDark ? 'bg-blue-500/10' : 'bg-blue-500/5');
+            const border = isIncrease
+              ? (isDark ? 'border-green-500/20' : 'border-green-500/10')
+              : isDecrease
+                ? (isDark ? 'border-red-500/20' : 'border-red-500/10')
+                : (isDark ? 'border-blue-500/20' : 'border-blue-500/10');
+
+            return (
+              <div key={`${m.title}-${i}`} className={`p-4 rounded-[16px] border ${border} ${bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300 ${i === 0 ? 'col-span-2' : ''}`}>
+                <div className={`p-2.5 w-max rounded-[12px] border ${border} ${color} bg-background shadow-sm group-hover:scale-110 transition-transform flex items-center gap-2`}>
+                  <MetricIcon size={18} />
+                  {isIncrease ? <TrendingUp size={14} /> : isDecrease ? <TrendingDown size={14} /> : null}
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{displayTitle}</p>
+                  <p className={`text-[16px] font-bold ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>{m.before} -&gt; {m.after}</p>
+                </div>
+              </div>
+            );
+          })()
         ))}
       </div>
-      
-      <div className="mt-6 p-4 rounded-[16px] border border-border bg-secondary/30">
-         <h4 className={`text-[12px] font-bold mb-2 uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Summary</h4>
-         <p className={`text-[13px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
-            The multi-agent swarm successfully reduced time complexity by optimizing the original nested loop structure into a linear scan using a HashSet. Space complexity increased to O(N) as a tradeoff, which the Consensus Judge determined acceptable for modern memory constraints natively observed in Next.js backend/frontend architectures.
-         </p>
-      </div>
+
+      {summary.trim() && (
+        <div className="mt-6 p-4 rounded-[16px] border border-border bg-secondary/30">
+           <h4 className={`text-[12px] font-bold mb-2 uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Summary</h4>
+           <p className={`text-[13px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
+              {summary}
+           </p>
+        </div>
+      )}
     </div>
   );
 }
