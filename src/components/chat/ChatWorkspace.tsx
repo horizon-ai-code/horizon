@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react";
-import { useChatStore, INITIAL_SOURCE, INITIAL_REFACTORED } from "@/store/useChatStore";
+import { useChatStore, INITIAL_SOURCE, INITIAL_REFACTORED, SessionData } from "../../store/useChatStore";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
 
 import Input from "@/components/chat/Input";
 import RefactoredOutput from "@/components/chat/RefactoredOutput";
@@ -18,7 +18,6 @@ export const mockHighlights = {
 export default function ChatWorkspace({ sessionId }: { sessionId: string | null }) {
   const store = useChatStore();
   const id = sessionId;
-  const router = useRouter();
 
   const { resolvedTheme } = useTheme();
   
@@ -26,7 +25,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const [localSourceError, setLocalSourceError] = useState(false);
   const [localInputError, setLocalInputError] = useState(false);
   
-  const terminalPanelRef = useRef<any>(null);
+  const terminalPanelRef = useRef<PanelImperativeHandle | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
@@ -65,8 +64,28 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     terminalEntries, isTerminalCollapsed, appState, showFlowchartModal
   } = activeSession;
 
+  const validateBeforeSubmit = () => {
+    let hasError = false;
+
+    if (!sourceCode.trim()) {
+      setLocalSourceError(true);
+      hasError = true;
+    } else {
+      setLocalSourceError(false);
+    }
+
+    if (!inputInstruction.trim()) {
+      setLocalInputError(true);
+      hasError = true;
+    } else {
+      setLocalInputError(false);
+    }
+
+    return !hasError;
+  };
+
   // Local helper to update the correct slice
-  const updateLocal = (data: any) => {
+  const updateLocal = (data: Partial<SessionData>) => {
     if (id) {
       store.updateSession(id, data);
     } else {
@@ -93,18 +112,15 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   }, [terminalEntries, activeStep, isTerminalCollapsed, appState]);
 
   const startAnalysis = () => {
-    let hasError = false;
-    if (!sourceCode.trim()) { setLocalSourceError(true); hasError = true; } else { setLocalSourceError(false); }
-    if (!inputInstruction.trim()) { setLocalInputError(true); hasError = true; } else { setLocalInputError(false); }
-    if (hasError) return;
-
+    if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing') return;
+    if (!id) return;
 
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: inputInstruction };
 
-    // Set shared initial animation state
-    const targetId = id || Math.random().toString(36).substring(2, 10);
+    // Existing-session submit flow (/id): append prompt and run analysis locally.
+    const targetId = id;
     const updatedState = {
       inputInstruction: "",
       terminalEntries: [...terminalEntries, newEntry],
@@ -115,18 +131,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       refactoredOutput: ""
     };
 
-    if (!id) {
-      // Lazy Create Session
-      store.createSession(targetId, {
-        ...store.draftSession,
-        ...updatedState,
-      });
-      store.resetDraftSession();
-      router.push(`/${targetId}`);
-      // Return early; the new route will pick up the analyzing state and trigger its own timeouts
-      return; 
-    }
-
     // Standard local update
     updateLocal(updatedState);
     setLocalInputError(false);
@@ -136,28 +140,28 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     timeoutRefs.current = [];
 
     timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev) => ({
+        store.updateSession(targetId, (prev: SessionData) => ({
           activeStep: 2,
           terminalEntries: [...prev.terminalEntries, { id: 'l1'+Date.now(), type: 'log', icon: 'Cpu', colorClass: 'text-[#56a8f5]', text: "[Logical Prover]: Analyzing abstract syntax tree... High cyclomatic risk detected in arithmetic sequences. Recommending methodical abstraction." }]
         }));
     }, 2000));
 
     timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev) => ({
+        store.updateSession(targetId, (prev: SessionData) => ({
           activeStep: 3,
           terminalEntries: [...prev.terminalEntries, { id: 'l2'+Date.now(), type: 'log', icon: 'AlertCircle', colorClass: 'text-[#2aacb8]', text: "[Adversarial Critic]: Warning — over-abstraction may induce slight overhead. Proceeding with micro-benchmark validations. Consensus required." }]
         }));
     }, 4500));
 
     timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev) => ({
+        store.updateSession(targetId, (prev: SessionData) => ({
           activeStep: 4,
           terminalEntries: [...prev.terminalEntries, { id: 'l3'+Date.now(), type: 'log', icon: 'Layers', colorClass: 'text-[#cf8e6d]', text: "[Consensus Judge]: Validating trade-offs. Abstraction paradigm approved for enhanced maintainability. Synthesizing refactored Java outputs." }]
         }));
     }, 7000));
 
     timeoutRefs.current.push(setTimeout(() => {
-      store.updateSession(targetId, (prev) => ({
+      store.updateSession(targetId, (prev: SessionData) => ({
         activeStep: 5,
         terminalEntries: [...prev.terminalEntries, { id: 'l4'+Date.now(), type: 'log', icon: 'CheckCircle2', colorClass: 'text-[#27c93f]', text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." }],
         refactoredOutput: INITIAL_REFACTORED
@@ -182,28 +186,28 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       const targetId = id;
 
       timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, (prev) => ({
+          store.updateSession(targetId, (prev: SessionData) => ({
             activeStep: 2,
             terminalEntries: [...prev.terminalEntries, { id: 'l1'+Date.now(), type: 'log', icon: 'Cpu', colorClass: 'text-[#56a8f5]', text: "[Logical Prover]: Analyzing abstract syntax tree... High cyclomatic risk detected in arithmetic sequences. Recommending methodical abstraction." }]
           }));
       }, 2000));
   
       timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, (prev) => ({
+          store.updateSession(targetId, (prev: SessionData) => ({
             activeStep: 3,
             terminalEntries: [...prev.terminalEntries, { id: 'l2'+Date.now(), type: 'log', icon: 'AlertCircle', colorClass: 'text-[#2aacb8]', text: "[Adversarial Critic]: Warning — over-abstraction may induce slight overhead. Proceeding with micro-benchmark validations. Consensus required." }]
           }));
       }, 4500));
   
       timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, (prev) => ({
+          store.updateSession(targetId, (prev: SessionData) => ({
             activeStep: 4,
             terminalEntries: [...prev.terminalEntries, { id: 'l3'+Date.now(), type: 'log', icon: 'Layers', colorClass: 'text-[#cf8e6d]', text: "[Consensus Judge]: Validating trade-offs. Abstraction paradigm approved for enhanced maintainability. Synthesizing refactored Java outputs." }]
           }));
       }, 7000));
   
       timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev) => ({
+        store.updateSession(targetId, (prev: SessionData) => ({
           activeStep: 5,
           terminalEntries: [...prev.terminalEntries, { id: 'l4'+Date.now(), type: 'log', icon: 'CheckCircle2', colorClass: 'text-[#27c93f]', text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." }],
           refactoredOutput: INITIAL_REFACTORED
@@ -238,6 +242,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
           <Panel defaultSize={50} minSize={20} className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
             ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf]'}`}>
             <Input 
+              sessionId={id}
               sourceCode={sourceCode} 
               setSourceCode={(val) => updateLocal({ sourceCode: val })} 
               sourceError={localSourceError} 
@@ -246,6 +251,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               setInputInstruction={(val) => updateLocal({ inputInstruction: val })}
               inputError={localInputError}
               setInputError={setLocalInputError}
+              validateBeforeSubmit={validateBeforeSubmit}
               startAnalysis={startAnalysis}
               stopAnalysis={stopAnalysis}
               appState={appState}

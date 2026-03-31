@@ -3,30 +3,39 @@
 import { Command, Sparkles, Square } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { AppState } from "@/store/useChatStore";
+import { useRouter } from "next/navigation";
+import { AppState, useChatStore } from "@/store/useChatStore";
 
 interface RefactorInputProps {
+  sessionId: string | null;
+  sourceCode: string;
   inputInstruction: string;
   setInputInstruction: (val: string) => void;
   inputError: boolean;
   setInputError: (val: boolean) => void;
+  validateBeforeSubmit: () => boolean;
   startAnalysis: () => void;
   stopAnalysis: () => void;
-  isDark: boolean;
   appState: AppState;
 }
 
 export default function RefactorInput({
+  sessionId,
+  sourceCode,
   inputInstruction,
   setInputInstruction,
   inputError,
   setInputError,
+  validateBeforeSubmit,
   startAnalysis,
   stopAnalysis,
-  isDark,
   appState
 }: RefactorInputProps) {
   const controls = useAnimation();
+  const router = useRouter();
+  const createSessionWithInitialPrompt = useChatStore((state) => state.createSessionWithInitialPrompt);
+  const draftSession = useChatStore((state) => state.draftSession);
+  const resetDraftSession = useChatStore((state) => state.resetDraftSession);
   
   useEffect(() => {
     if (inputError) {
@@ -53,15 +62,43 @@ export default function RefactorInput({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (appState !== 'analyzing') {
-        startAnalysis();
-      }
+      handleSubmit();
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputInstruction(e.target.value);
     if (inputError) setInputError(false);
+  };
+
+  const handleSubmit = () => {
+    if (appState === "analyzing") return;
+    if (!validateBeforeSubmit()) return;
+
+    if (sessionId) {
+      startAnalysis();
+      return;
+    }
+
+    const commandId = Date.now().toString();
+    const initialPrompt = inputInstruction;
+    const nextSessionId = createSessionWithInitialPrompt(initialPrompt, {
+      ...draftSession,
+      sourceCode,
+      inputInstruction: "",
+      terminalEntries: [
+        ...draftSession.terminalEntries,
+        { id: commandId, type: "command", text: initialPrompt },
+      ],
+      appState: "analyzing",
+      isTerminalCollapsed: false,
+      showFlowchartModal: true,
+      activeStep: 1,
+      refactoredOutput: "",
+    });
+
+    resetDraftSession();
+    router.push(`/${nextSessionId}`);
   };
 
   const isChatExpanded = isChatFocused || inputInstruction.length > 0;
@@ -105,7 +142,7 @@ export default function RefactorInput({
             </button>
           ) : (
             <button 
-              onClick={startAnalysis} 
+              onClick={handleSubmit}
               className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(53,116,240,0.25)] hover:shadow-[0_6px_20px_rgba(53,116,240,0.4)] transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-jb-accent border-none outline-none focus:ring-0`}
             >
               <Sparkles size={14} className="fill-current" /> Refactor
@@ -115,4 +152,4 @@ export default function RefactorInput({
       </motion.div>
     </div>
   );
-}
+}

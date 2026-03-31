@@ -9,6 +9,7 @@ import RefactorInput from "@/components/chat/RefactorInput";
 import { AppState } from "@/store/useChatStore";
 
 interface InputProps {
+  sessionId: string | null;
   sourceCode: string;
   setSourceCode: (val: string) => void;
   sourceError: boolean;
@@ -17,12 +18,14 @@ interface InputProps {
   setInputInstruction: (val: string) => void;
   inputError: boolean;
   setInputError: (val: boolean) => void;
+  validateBeforeSubmit: () => boolean;
   startAnalysis: () => void;
   stopAnalysis: () => void;
   appState: AppState;
 }
 
 export default function Input({
+  sessionId,
   sourceCode,
   setSourceCode,
   sourceError,
@@ -31,6 +34,7 @@ export default function Input({
   setInputInstruction,
   inputError,
   setInputError,
+  validateBeforeSubmit,
   startAnalysis,
   stopAnalysis,
   appState,
@@ -165,13 +169,15 @@ export default function Input({
             </div>
           )}
           <RefactorInput 
+            sessionId={sessionId}
+            sourceCode={sourceCode}
             inputInstruction={inputInstruction}
             setInputInstruction={setInputInstruction}
             inputError={inputError}
             setInputError={setInputError}
+            validateBeforeSubmit={validateBeforeSubmit}
             startAnalysis={startAnalysis}
             stopAnalysis={stopAnalysis}
-            isDark={isDark}
             appState={appState}
           />
 

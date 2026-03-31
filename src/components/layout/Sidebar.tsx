@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, FolderTree, Search, GitBranch, Play, LayoutGrid, Settings2, Plus, MessageSquare, MoreVertical, Pencil, Trash } from "lucide-react";
+import { Menu, Plus, MessageSquare, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
+import { useChatStore } from "@/store/useChatStore";
 
 import {
   DropdownMenu,
@@ -13,27 +14,59 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Mock sessions for demonstration
-const MOCK_SESSIONS = [
-  { id: '1a2b3c4d', title: 'Refactor Input.tsx' },
-  { id: '5e6f7g8h', title: 'Parse JSON Logic' }
-];
-
 export default function Sidebar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
   const params = useParams();
+  const sessions = useChatStore((state) => state.sessions);
+  const renameSession = useChatStore((state) => state.renameSession);
+  const deleteSession = useChatStore((state) => state.deleteSession);
+
+  const recentSessions = Object.values(sessions).sort((a, b) => b.updatedAt - a.updatedAt);
+  const activeId = typeof params.id === "string" ? params.id : "";
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!editingSessionId) return;
+
+    const focusId = requestAnimationFrame(() => {
+      editInputRef.current?.focus();
+      editInputRef.current?.select();
+    });
+
+    return () => cancelAnimationFrame(focusId);
+  }, [editingSessionId]);
+
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleNewSession = () => {
     router.push(`/`);
+  };
+
+  const startInlineRename = (sessionId: string, currentTitle: string) => {
+    setEditingSessionId(sessionId);
+    setEditValue(currentTitle);
+  };
+
+  const cancelInlineRename = () => {
+    setEditingSessionId(null);
+    setEditValue("");
+  };
+
+  const saveInlineRename = (sessionId: string) => {
+    const trimmed = editValue.trim();
+    if (trimmed) {
+      renameSession(sessionId, trimmed);
+    }
+    cancelInlineRename();
   };
 
   const springConfig = { type: "spring" as const, stiffness: 450, damping: 40, mass: 0.8 };
@@ -101,46 +134,106 @@ export default function Sidebar() {
                  Recent
                </div>
 
-               {MOCK_SESSIONS.map((session) => (
+               {recentSessions.map((session) => {
+                  const isEditing = editingSessionId === session.id;
+
+                  return (
                  <div 
                     key={session.id}
                     className={`group w-full flex items-center gap-3 p-2 rounded-md transition-all duration-200 cursor-pointer active:scale-[0.98] relative
                       justify-start
-                      ${params.id === session.id ? (isDark ? 'bg-[#3e4045] text-jb-text ring-1 ring-white/[0.05]' : 'bg-[#ebecf0] text-[#080808] ring-1 ring-black/[0.05]') : ''}
+                      ${activeId === session.id ? (isDark ? 'bg-[#3e4045] text-jb-text ring-1 ring-white/[0.05]' : 'bg-[#ebecf0] text-[#080808] ring-1 ring-black/[0.05]') : ''}
                       ${isDark 
                         ? 'text-jb-text/70 hover:bg-[#3e4045] hover:text-jb-text hover:ring-1 hover:ring-white/[0.05]' 
                         : 'text-[#080808]/70 hover:bg-[#ebecf0] hover:text-[#080808] hover:ring-1 hover:ring-black/[0.05]'
                       }`}
-                    onClick={() => router.push(`/${session.id}`)}
+                    onClick={() => {
+                      if (isEditing) return;
+                      router.push(`/${session.id}`);
+                    }}
                   >
                    <MessageSquare size={18} strokeWidth={1.5} className="shrink-0" />
-                   <div className="flex flex-col items-start whitespace-nowrap overflow-hidden pr-6">
-                     <span className="text-[13px] text-ellipsis overflow-hidden w-full text-left">{session.title}</span>
+                   <div className="flex items-center gap-2 min-w-0 flex-1">
+                     {isEditing ? (
+                       <input
+                         ref={editInputRef}
+                         type="text"
+                         value={editValue}
+                         onChange={(e) => setEditValue(e.target.value)}
+                         onClick={(e) => e.stopPropagation()}
+                         onKeyDown={(e) => {
+                           if (e.key === "Enter") {
+                             e.preventDefault();
+                             saveInlineRename(session.id);
+                           }
+                           if (e.key === "Escape") {
+                             e.preventDefault();
+                             cancelInlineRename();
+                           }
+                         }}
+                         autoFocus
+                         className={`w-full min-w-0 bg-transparent text-[13px] text-left outline-none border-0 border-b px-0.5 py-0.5 ${isDark ? 'border-jb-border text-jb-text' : 'border-[#d4d8e0] text-[#080808]'} focus:ring-1 focus:ring-cyan-500/50 rounded-sm`}
+                       />
+                     ) : (
+                       <span className="text-[13px] text-ellipsis overflow-hidden w-full text-left whitespace-nowrap">
+                         {session.title}
+                       </span>
+                     )}
                    </div>
 
-                   {/* Dropdown Menu */}
-                   <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                     <DropdownMenu>
-                       <DropdownMenuTrigger className={`p-1 rounded-md outline-none transition-colors ${isDark ? 'hover:bg-black/20 text-jb-text/70 hover:text-jb-text' : 'hover:bg-black/5 text-[#080808]/70 hover:text-[#080808]'}`}>
-                         <MoreVertical size={14} />
-                       </DropdownMenuTrigger>
-                       <DropdownMenuContent 
-                         align="end" 
-                         className={`w-40 border-0 shadow-xl ${isDark ? 'bg-[#2b2d30] text-jb-text' : 'bg-white text-[#080808] shadow-slate-200/50'}`}
+                   {isEditing ? (
+                     <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                       <button
+                         onClick={() => saveInlineRename(session.id)}
+                         className="p-1 rounded-md text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                         aria-label="Save rename"
                        >
-                         <DropdownMenuItem className={`gap-2 cursor-pointer ${isDark ? 'focus:bg-[#3e4045]' : ''}`}>
-                           <Pencil size={14} />
-                           <span>Rename</span>
-                         </DropdownMenuItem>
-                         <DropdownMenuItem className="gap-2 text-red-500 focus:text-red-500 cursor-pointer focus:bg-red-500/10">
-                           <Trash size={14} />
-                           <span>Delete</span>
-                         </DropdownMenuItem>
-                       </DropdownMenuContent>
-                     </DropdownMenu>
-                   </div>
+                         <Check size={16} />
+                       </button>
+                       <button
+                         onClick={cancelInlineRename}
+                         className={`p-1 rounded-md transition-colors ${isDark ? 'text-jb-text/60 hover:text-jb-text hover:bg-black/20' : 'text-[#080808]/60 hover:text-[#080808] hover:bg-black/5'}`}
+                         aria-label="Cancel rename"
+                       >
+                         <X size={16} />
+                       </button>
+                     </div>
+                   ) : (
+                     <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                       <DropdownMenu>
+                         <DropdownMenuTrigger className={`p-1 rounded-md outline-none transition-colors ${isDark ? 'hover:bg-black/20 text-jb-text/70 hover:text-jb-text' : 'hover:bg-black/5 text-[#080808]/70 hover:text-[#080808]'}`}>
+                           <MoreVertical size={14} />
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent 
+                           align="end" 
+                           className={`w-40 border-0 shadow-xl ${isDark ? 'bg-[#2b2d30] text-jb-text' : 'bg-white text-[#080808] shadow-slate-200/50'}`}
+                         >
+                           <DropdownMenuItem
+                             className={`gap-2 cursor-pointer ${isDark ? 'focus:bg-[#3e4045]' : ''}`}
+                             onClick={() => startInlineRename(session.id, session.title)}
+                           >
+                             <Pencil size={14} />
+                             <span>Rename</span>
+                           </DropdownMenuItem>
+                           <DropdownMenuItem
+                             className="gap-2 text-red-500 focus:text-red-500 cursor-pointer focus:bg-red-500/10"
+                             onClick={() => {
+                               deleteSession(session.id);
+                               if (activeId === session.id) {
+                                 router.push("/");
+                               }
+                             }}
+                           >
+                             <Trash size={14} />
+                             <span>Delete</span>
+                           </DropdownMenuItem>
+                         </DropdownMenuContent>
+                       </DropdownMenu>
+                     </div>
+                   )}
                 </div>
-               ))}
+               );
+                })}
             </motion.div>
           )}
         </AnimatePresence>
