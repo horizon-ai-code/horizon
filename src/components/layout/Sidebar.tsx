@@ -29,6 +29,8 @@ export default function Sidebar() {
 
   const recentSessions = Object.values(sessions).sort((a, b) => b.updatedAt - a.updatedAt);
   const activeId = typeof params.id === "string" ? params.id : "";
+  const activeSession = activeId ? sessions[activeId] : undefined;
+  const isActiveAnalyzing = activeSession?.appState === "analyzing";
 
   useEffect(() => {
     setMounted(true);
@@ -48,6 +50,15 @@ export default function Sidebar() {
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleNewSession = () => {
+    if (isActiveAnalyzing) {
+      const shouldLeave = window.confirm("A refactor is currently running. Leave this session and stop generation?");
+      if (!shouldLeave) return;
+    }
+
+    if (editingSessionId) {
+      cancelInlineRename();
+    }
+
     router.push(`/`);
   };
 
@@ -149,6 +160,16 @@ export default function Sidebar() {
                       }`}
                     onClick={() => {
                       if (isEditing) return;
+
+                      if (isActiveAnalyzing && activeId === session.id) {
+                        return;
+                      }
+
+                      if (isActiveAnalyzing && activeId && activeId !== session.id) {
+                        const shouldLeave = window.confirm("A refactor is currently running. Switch sessions and stop generation?");
+                        if (!shouldLeave) return;
+                      }
+
                       router.push(`/${session.id}`);
                     }}
                   >
@@ -161,6 +182,7 @@ export default function Sidebar() {
                          value={editValue}
                          onChange={(e) => setEditValue(e.target.value)}
                          onClick={(e) => e.stopPropagation()}
+                         onBlur={cancelInlineRename}
                          onKeyDown={(e) => {
                            if (e.key === "Enter") {
                              e.preventDefault();
@@ -185,7 +207,8 @@ export default function Sidebar() {
                      <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                        <button
                          onClick={() => saveInlineRename(session.id)}
-                         className="p-1 rounded-md text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                         disabled={!editValue.trim()}
+                         className={`p-1 rounded-md transition-colors ${editValue.trim() ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-emerald-400/40 cursor-not-allowed'}`}
                          aria-label="Save rename"
                        >
                          <Check size={16} />
@@ -218,7 +241,15 @@ export default function Sidebar() {
                            <DropdownMenuItem
                              className="gap-2 text-red-500 focus:text-red-500 cursor-pointer focus:bg-red-500/10"
                              onClick={() => {
+                               if (isActiveAnalyzing && activeId === session.id) {
+                                 const shouldDelete = window.confirm("This session is still generating. Delete it and stop generation?");
+                                 if (!shouldDelete) return;
+                               }
+
                                deleteSession(session.id);
+                               if (editingSessionId === session.id) {
+                                 cancelInlineRename();
+                               }
                                if (activeId === session.id) {
                                  router.push("/");
                                }

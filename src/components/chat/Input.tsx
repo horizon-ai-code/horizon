@@ -43,6 +43,11 @@ export default function Input({
   const [mounted, setMounted] = useState(false);
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const [clipboardPreview, setClipboardPreview] = useState("");
+  const sourceCodeRef = useRef(sourceCode);
+
+  useEffect(() => {
+    sourceCodeRef.current = sourceCode;
+  }, [sourceCode]);
 
   useEffect(() => {
     setMounted(true);
@@ -56,7 +61,7 @@ export default function Input({
         const trimmedText = text.trim();
         
         // Only show preview if there's new text that isn't already in the editor
-        if (trimmedText.length > 0 && trimmedText !== sourceCode.trim()) {
+        if (trimmedText.length > 0 && trimmedText !== sourceCodeRef.current.trim()) {
           setClipboardPreview(text);
         } else {
           setClipboardPreview("");
@@ -77,7 +82,7 @@ export default function Input({
       window.removeEventListener('focus', checkClipboard);
       window.removeEventListener('pointerdown', checkClipboard);
     };
-  }, [sourceCode]);
+  }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 

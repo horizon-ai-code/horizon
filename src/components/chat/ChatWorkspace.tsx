@@ -111,6 +111,18 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }
   }, [terminalEntries, activeStep, isTerminalCollapsed, appState]);
 
+  useEffect(() => {
+    if (appState !== "analyzing") return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [appState]);
+
   const startAnalysis = () => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing') return;
