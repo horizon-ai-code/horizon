@@ -5,7 +5,7 @@ import { useChatStore, INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT, SessionData }
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTheme } from "next-themes";
-import { generateMockOrchestrationResult } from "@/lib/orchestrationUtils";
+import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 
 import Input from "@/components/chat/Input";
 import RefactoredOutput from "@/components/chat/RefactoredOutput";
@@ -23,19 +23,14 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   
   const terminalPanelRef = useRef<PanelImperativeHandle | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
-  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
+
+  // WebSocket hook — manages connection lifecycle and message dispatching
+  const { connectionStatus, connect, disconnect, sendRefactorRequest } =
+    useOrchestrationSocket({ sessionId: id });
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // CRITICAL: Cleanup timeouts when the ID changes to prevent state bleeding
-  useEffect(() => {
-    return () => {
-      timeoutRefs.current.forEach(clearTimeout);
-      timeoutRefs.current = [];
-    };
-  }, [id]);
 
   useEffect(() => {
     if (id && !store.sessions[id]) {
@@ -128,9 +123,11 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: inputInstruction };
 
-    // Existing-session submit flow (/id): append prompt and run analysis locally.
-    const targetId = id;
-    const updatedState = {
+    const currentInstruction = inputInstruction;
+    const currentSourceCode = sourceCode;
+
+    // Set UI to analyzing state
+    updateLocal({
       inputInstruction: "",
       terminalEntries: [...terminalEntries, newEntry],
       appState: "analyzing" as const,
@@ -139,113 +136,58 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       activeStep: 1,
       refactoredOutput: "",
       orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
-    };
-
-    // Standard local update
-    updateLocal(updatedState);
+    });
     setLocalInputError(false);
     setLocalSourceError(false);
-    
-    timeoutRefs.current.forEach(clearTimeout);
-    timeoutRefs.current = [];
 
-    timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev: SessionData) => ({
-          activeStep: 2,
-          terminalEntries: [...prev.terminalEntries, { id: 'l1'+Date.now(), type: 'log', icon: 'Cpu', colorClass: 'text-[#56a8f5]', text: "[Logical Prover]: Analyzing abstract syntax tree... High cyclomatic risk detected in arithmetic sequences. Recommending methodical abstraction." }]
-        }));
-    }, 2000));
-
-    timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev: SessionData) => ({
-          activeStep: 3,
-          terminalEntries: [...prev.terminalEntries, { id: 'l2'+Date.now(), type: 'log', icon: 'AlertCircle', colorClass: 'text-[#2aacb8]', text: "[Adversarial Critic]: Warning — over-abstraction may induce slight overhead. Proceeding with micro-benchmark validations. Consensus required." }]
-        }));
-    }, 4500));
-
-    timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, (prev: SessionData) => ({
-          activeStep: 4,
-          terminalEntries: [...prev.terminalEntries, { id: 'l3'+Date.now(), type: 'log', icon: 'Layers', colorClass: 'text-[#cf8e6d]', text: "[Consensus Judge]: Validating trade-offs. Abstraction paradigm approved for enhanced maintainability. Synthesizing refactored Java outputs." }]
-        }));
-    }, 7000));
-
-    timeoutRefs.current.push(setTimeout(() => {
-      const orchestrationData = generateMockOrchestrationResult(sourceCode);
-      const generatedOutput = orchestrationData.replaySteps[orchestrationData.replaySteps.length - 1]?.codeSnapshot || sourceCode;
-
-      store.updateSession(targetId, (prev: SessionData) => ({
-        activeStep: 5,
-        terminalEntries: [...prev.terminalEntries, { id: 'l4'+Date.now(), type: 'log', icon: 'CheckCircle2', colorClass: 'text-[#27c93f]', text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." }],
-        refactoredOutput: generatedOutput,
-        orchestrationResult: orchestrationData,
-      }));
-
-      timeoutRefs.current.push(setTimeout(() => {
-        store.updateSession(targetId, {
-          appState: 'done',
-          showFlowchartModal: false
+    // Connect WebSocket and send the refactor request
+    connect();
+    // Small delay to ensure WS is open before sending
+    const sendInterval = setInterval(() => {
+      if (connectionStatus === 'connected') {
+        sendRefactorRequest({
+          code: currentSourceCode,
+          user_instruction: currentInstruction,
         });
-      }, 1500));
-    }, 9500));
+        clearInterval(sendInterval);
+      }
+    }, 100);
+    // Safety: clear interval after 10s to prevent infinite loop
+    setTimeout(() => clearInterval(sendInterval), 10000);
   };
 
-  // If a session was already loaded in analyzing state (due to lazy creation redirect),
-  // fire the timeouts. This ensures a seamless transition across URL change!
+  // If a session was loaded in analyzing state (due to lazy creation redirect),
+  // ensure the WebSocket connection is established for it.
+  const hasResumedRef = useRef(false);
   useEffect(() => {
     if (appState === "analyzing" && activeStep === 1 && id && terminalEntries.length > 0) {
-      // Prevent double firing if already doing it
-      if (timeoutRefs.current.length > 0) return;
+      if (hasResumedRef.current) return;
+      hasResumedRef.current = true;
 
-      const targetId = id;
+      // The session was created with analyzing state from the draft flow.
+      // We need to connect and send the request that was captured in the
+      // terminal's first command entry.
+      const lastCommand = [...terminalEntries].reverse().find(e => e.type === 'command');
+      if (!lastCommand) return;
 
-      timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, (prev: SessionData) => ({
-            activeStep: 2,
-            terminalEntries: [...prev.terminalEntries, { id: 'l1'+Date.now(), type: 'log', icon: 'Cpu', colorClass: 'text-[#56a8f5]', text: "[Logical Prover]: Analyzing abstract syntax tree... High cyclomatic risk detected in arithmetic sequences. Recommending methodical abstraction." }]
-          }));
-      }, 2000));
-  
-      timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, (prev: SessionData) => ({
-            activeStep: 3,
-            terminalEntries: [...prev.terminalEntries, { id: 'l2'+Date.now(), type: 'log', icon: 'AlertCircle', colorClass: 'text-[#2aacb8]', text: "[Adversarial Critic]: Warning — over-abstraction may induce slight overhead. Proceeding with micro-benchmark validations. Consensus required." }]
-          }));
-      }, 4500));
-  
-      timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, (prev: SessionData) => ({
-            activeStep: 4,
-            terminalEntries: [...prev.terminalEntries, { id: 'l3'+Date.now(), type: 'log', icon: 'Layers', colorClass: 'text-[#cf8e6d]', text: "[Consensus Judge]: Validating trade-offs. Abstraction paradigm approved for enhanced maintainability. Synthesizing refactored Java outputs." }]
-          }));
-      }, 7000));
-  
-      timeoutRefs.current.push(setTimeout(() => {
-        const sessionSnapshot = store.sessions[targetId];
-        const sourceForMock = sessionSnapshot?.sourceCode || sourceCode;
-        const orchestrationData = generateMockOrchestrationResult(sourceForMock);
-        const generatedOutput = orchestrationData.replaySteps[orchestrationData.replaySteps.length - 1]?.codeSnapshot || sourceForMock;
-
-        store.updateSession(targetId, (prev: SessionData) => ({
-          activeStep: 5,
-          terminalEntries: [...prev.terminalEntries, { id: 'l4'+Date.now(), type: 'log', icon: 'CheckCircle2', colorClass: 'text-[#27c93f]', text: "[System]: Refactoring cycle complete. New AST generated and serialized successfully." }],
-          refactoredOutput: generatedOutput,
-          orchestrationResult: orchestrationData,
-        }));
-  
-        timeoutRefs.current.push(setTimeout(() => {
-          store.updateSession(targetId, {
-            appState: 'done',
-            showFlowchartModal: false
+      connect();
+      const sendInterval = setInterval(() => {
+        if (connectionStatus === 'connected') {
+          sendRefactorRequest({
+            code: sourceCode,
+            user_instruction: lastCommand.text,
           });
-        }, 1500));
-      }, 9500));
+          clearInterval(sendInterval);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(sendInterval), 10000);
+    } else {
+      hasResumedRef.current = false;
     }
-  }, [appState, activeStep, id, terminalEntries, store]); // eslint-disable-line
+  }, [appState, activeStep, id]); // eslint-disable-line
 
   const stopAnalysis = () => {
-    timeoutRefs.current.forEach(clearTimeout);
-    timeoutRefs.current = [];
+    disconnect();
     updateLocal({
       appState: 'idle',
       activeStep: 0,

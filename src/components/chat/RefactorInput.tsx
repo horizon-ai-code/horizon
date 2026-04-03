@@ -102,21 +102,27 @@ export default function RefactorInput({
   };
 
   const isChatExpanded = isChatFocused || inputInstruction.length > 0;
+  const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing";
 
   return (
     <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
       <motion.div
+        layout
         animate={controls}
         onClick={() => chatInputRef.current?.focus()}
-        className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl cursor-text
-          ${isChatFocused ? 'max-w-full w-full' : 'max-w-xl'}
+        className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl cursor-text transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
+          ${isChatExpanded ? 'max-w-full w-full' : 'max-w-[420px]'}
           ${inputError
             ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
             : 'bg-jb-panel/95 ring-jb-border/50 focus-within:ring-jb-accent/30 focus-within:shadow-[0_0_30px_rgba(53,116,240,0.1)] shadow-2xl'
           }`}
         style={{
           borderRadius: isChatExpanded ? '16px' : '28px',
-          transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 450,
+          damping: 40
         }}
       >
         <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
@@ -143,9 +149,14 @@ export default function RefactorInput({
           ) : (
             <button 
               onClick={handleSubmit}
-              className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(53,116,240,0.25)] hover:shadow-[0_6px_20px_rgba(53,116,240,0.4)] transition-transform cursor-pointer hover:scale-105 active:scale-95 bg-jb-accent border-none outline-none focus:ring-0`}
+              disabled={isSubmitDisabled}
+              className={`h-[34px] px-6 text-white rounded-full text-[13px] font-bold flex items-center gap-2 transition-all cursor-pointer 
+                ${isSubmitDisabled 
+                  ? 'opacity-40 cursor-not-allowed bg-jb-text-muted/20 text-jb-text-muted shadow-none' 
+                  : 'shadow-[0_4px_15px_rgba(53,116,240,0.25)] hover:shadow-[0_6px_20px_rgba(53,116,240,0.4)] hover:scale-105 active:scale-95 bg-jb-accent border-none'
+                }`}
             >
-              <Sparkles size={14} className="fill-current" /> Refactor
+              <Sparkles size={14} className={isSubmitDisabled ? "" : "fill-current"} /> Run
             </button>
           )}
         </div>

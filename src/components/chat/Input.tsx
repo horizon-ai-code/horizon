@@ -124,10 +124,12 @@ export default function Input({
           </div>
           
           <div className="flex items-center gap-3 pr-2">
-            <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm flex items-center gap-1 transition-colors duration-300
-              ${isDark ? 'bg-jb-accent/10 text-jb-accent border-jb-accent/30' : 'bg-[#3574f0]/10 text-[#3574f0] border-[#3574f0]/20'}`}>
-              <span className={isDark ? "text-jb-accent" : "text-[#3574f0]"}>#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
-            </div>
+            {sourceCode.trim() !== "" && (
+              <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm flex items-center gap-1 transition-all duration-300
+                ${isDark ? 'bg-jb-accent/10 text-jb-accent border-jb-accent/30' : 'bg-[#3574f0]/10 text-[#3574f0] border-[#3574f0]/20'}`}>
+                <span className={isDark ? "text-jb-accent" : "text-[#3574f0]"}>#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
+              </div>
+            )}
           </div>
         </div>
         
@@ -140,10 +142,10 @@ export default function Input({
                 <FileCode2 size={36} className={isDark ? "text-[#548af7]/60" : "text-[#3574f0]/60"} strokeWidth={1.5} />
               </div>
               <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-                Paste your Java code snippet
+                Paste your source code here...
               </p>
               <p className={`text-[13px] mt-2 font-medium max-w-sm transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-                Best for loops, functions, and logic blocks. No class/package declarations needed.
+                Best for loops, functions, and logic blocks.
               </p>
             </div>
           )}
