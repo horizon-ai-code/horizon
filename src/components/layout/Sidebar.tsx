@@ -6,7 +6,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Plus, MessageSquare, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useChatStore } from "@/store/useChatStore";
-import DeleteSessionDialog from "@/components/ui/DeleteSessionDialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 import {
   DropdownMenu,
@@ -61,7 +70,32 @@ export default function Sidebar() {
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
+  // ── Rename Helpers ──────────────────────────────────────────────────────────
+  const startInlineRename = (sessionId: string, currentTitle: string) => {
+    setEditingSessionId(sessionId);
+    setEditValue(currentTitle);
+  };
+
+  const cancelInlineRename = useCallback(() => {
+    setEditingSessionId(null);
+    setEditValue("");
+  }, []);
+
+  const saveInlineRename = (sessionId: string) => {
+    const trimmed = editValue.trim();
+    if (trimmed) {
+      renameSession(sessionId, trimmed);
+    }
+    cancelInlineRename();
+  };
+
   // ── Dialog Helpers ──────────────────────────────────────────────────────────
+  const closeDialog = useCallback(() => {
+    setDialogOpen(false);
+    setDialogSessionId(null);
+    setSwitchTargetId(null);
+  }, []);
+
   const openDialog = useCallback(
     (action: "delete" | "leave" | "switch", sessionId: string, switchTo?: string) => {
       setDialogAction(action);
@@ -72,12 +106,6 @@ export default function Sidebar() {
     []
   );
 
-  const closeDialog = useCallback(() => {
-    setDialogOpen(false);
-    setDialogSessionId(null);
-    setSwitchTargetId(null);
-  }, []);
-
   const handleDialogConfirm = useCallback(() => {
     if (!dialogSessionId) return;
 
@@ -86,7 +114,6 @@ export default function Sidebar() {
       if (editingSessionId === dialogSessionId) {
         cancelInlineRename();
       }
-      // If we're deleting the active session, navigate home
       if (activeId === dialogSessionId) {
         router.push("/");
       }
@@ -100,9 +127,19 @@ export default function Sidebar() {
     }
 
     closeDialog();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dialogSessionId, dialogAction, switchTargetId, activeId, editingSessionId]);
+  }, [
+    dialogSessionId,
+    dialogAction,
+    switchTargetId,
+    activeId,
+    editingSessionId,
+    deleteSession,
+    router,
+    cancelInlineRename,
+    closeDialog
+  ]);
 
+  // ── Navigation Helpers ──────────────────────────────────────────────────────
   const handleNewSession = () => {
     if (isActiveAnalyzing) {
       openDialog("leave", activeId);
@@ -114,24 +151,6 @@ export default function Sidebar() {
     }
 
     router.push(`/`);
-  };
-
-  const startInlineRename = (sessionId: string, currentTitle: string) => {
-    setEditingSessionId(sessionId);
-    setEditValue(currentTitle);
-  };
-
-  const cancelInlineRename = () => {
-    setEditingSessionId(null);
-    setEditValue("");
-  };
-
-  const saveInlineRename = (sessionId: string) => {
-    const trimmed = editValue.trim();
-    if (trimmed) {
-      renameSession(sessionId, trimmed);
-    }
-    cancelInlineRename();
   };
 
   const springConfig = { type: "spring" as const, stiffness: 450, damping: 40, mass: 0.8 };
@@ -263,6 +282,7 @@ export default function Sidebar() {
                      <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                        <button
                          onClick={() => saveInlineRename(session.id)}
+                         onMouseDown={(e) => e.preventDefault()}
                          disabled={!editValue.trim()}
                          className={`p-1 rounded-md transition-colors ${editValue.trim() ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-emerald-400/40 cursor-not-allowed'}`}
                          aria-label="Save rename"
@@ -271,6 +291,7 @@ export default function Sidebar() {
                        </button>
                        <button
                          onClick={cancelInlineRename}
+                         onMouseDown={(e) => e.preventDefault()}
                          className={`p-1 rounded-md transition-colors ${isDark ? 'text-jb-text/60 hover:text-jb-text hover:bg-black/20' : 'text-[#080808]/60 hover:text-[#080808] hover:bg-black/5'}`}
                          aria-label="Cancel rename"
                        >
@@ -296,8 +317,11 @@ export default function Sidebar() {
                            </DropdownMenuItem>
                            <DropdownMenuItem
                              className="gap-2 text-red-500 focus:text-red-500 cursor-pointer focus:bg-red-500/10"
-                             onClick={() => {
-                               openDialog("delete", session.id);
+                             onClick={(e) => {
+                               e.preventDefault();
+                               e.stopPropagation();
+                               // Small timeout to escape the dropdown's focus/unmount cycle
+                               setTimeout(() => openDialog("delete", session.id), 0);
                              }}
                            >
                              <Trash size={14} />
@@ -318,17 +342,31 @@ export default function Sidebar() {
       <div className="flex-1" />
 
       {/* Delete / Leave / Switch Confirmation Dialog */}
-      <DeleteSessionDialog
-        isOpen={dialogOpen}
-        sessionTitle={dialogSessionTitle}
-        isGenerating={
-          dialogAction === "leave" ||
-          dialogAction === "switch" ||
-          (dialogAction === "delete" && isActiveAnalyzing && dialogSessionId === activeId)
-        }
-        onCancel={closeDialog}
-        onConfirm={handleDialogConfirm}
-      />
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {dialogAction === "leave" || dialogAction === "switch" || (dialogAction === "delete" && isActiveAnalyzing && dialogSessionId === activeId) ? (
+                <>
+                  <span className="font-medium text-amber-400/90">&ldquo;{dialogSessionTitle}&rdquo;</span>{" "}
+                  is still generating. Deleting it will stop all active processes. This action cannot be undone.
+                </>
+              ) : (
+                <>
+                  This will permanently delete{" "}
+                  <span className="font-medium text-jb-text/80">&ldquo;{dialogSessionTitle}&rdquo;</span>{" "}
+                  and its outputs. This action cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeDialog}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDialogConfirm}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }
