@@ -9,7 +9,7 @@ export default function Navbar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 

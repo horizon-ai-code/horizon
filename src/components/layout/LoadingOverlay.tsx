@@ -15,7 +15,7 @@ export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
   const fullGreeting = "Welcome to Horizon AI";
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
     let i = 0;
     const typingInterval = setInterval(() => {
       setGreetingText(fullGreeting.slice(0, i + 1));

@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { Terminal as TerminalIcon, Cpu, AlertCircle, Layers, CheckCircle2, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Cpu, AlertCircle, Layers, CheckCircle2, ChevronDown, ChevronUp, X } from "lucide-react";
 import type { AppState } from "@/types/session";
 
 interface AgentTerminalLineProps {
   text: string;
   colorClass: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any;
+  icon: React.ElementType;
 }
 
 const AgentTerminalLine = ({ text, colorClass, icon: Icon }: AgentTerminalLineProps) => {
@@ -29,11 +28,11 @@ interface TerminalProps {
   isTerminalCollapsed: boolean;
   setIsTerminalCollapsed: (val: boolean) => void;
   terminalEndRef: React.RefObject<HTMLDivElement | null>;
-  terminalEntries?: {id: string, type: 'command' | 'log' | 'system' | 'error', text: string, colorClass?: string, icon?: any}[];
+  terminalEntries?: {id: string, type: 'command' | 'log' | 'system' | 'error', text: string, colorClass?: string, icon?: string}[];
   appState: AppState;
 }
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, React.ElementType> = {
   Cpu: Cpu,
   AlertCircle: AlertCircle,
   Layers: Layers,
@@ -52,7 +51,7 @@ export default function Terminal({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
@@ -125,10 +124,10 @@ export default function Terminal({
                  );
               } else if (entry.type === 'log') {
                  return (
-                    <div key={entry.id} className="mb-3">
-                       <AgentTerminalLine 
-                          icon={ICON_MAP[entry.icon] || Cpu} 
-                          colorClass={entry.colorClass || "text-jb-accent"} 
+                     <div key={entry.id} className="mb-3">
+                        <AgentTerminalLine 
+                           icon={(entry.icon ? ICON_MAP[entry.icon] : undefined) || Cpu} 
+                           colorClass={entry.colorClass || "text-jb-accent"} 
                           text={entry.text} 
                        />
                     </div>

@@ -36,6 +36,7 @@ export default function Sidebar() {
   const sessions = useChatStore((state) => state.sessions);
   const renameSession = useChatStore((state) => state.renameSession);
   const deleteSession = useChatStore((state) => state.deleteSession);
+  const fetchHistory = useChatStore((state) => state.fetchHistory);
 
   // ── Confirm Dialog State ──────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -54,8 +55,9 @@ export default function Sidebar() {
     : "this session";
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    requestAnimationFrame(() => setMounted(true));
+    fetchHistory();
+  }, [fetchHistory]);
 
   useEffect(() => {
     if (!editingSessionId) return;

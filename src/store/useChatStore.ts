@@ -4,10 +4,9 @@ import { create } from 'zustand';
 import type { AppState, SessionData, TerminalEntry, OrchestrationResult } from '@/types/session';
 import type { ReplayStep, InsightMetric } from '@/types/insights';
 import type {
-  RefactorRequest,
+  ConnectionIdMessage,
   StatusMessage,
   ResultMessage,
-  ComplexityResult,
   PydanticError,
   ValidationErrorMessage,
   MalformedJsonErrorMessage,
@@ -27,10 +26,9 @@ export type {
   OrchestrationResult,
   ReplayStep,
   InsightMetric,
-  RefactorRequest,
+  ConnectionIdMessage,
   StatusMessage,
   ResultMessage,
-  ComplexityResult,
   PydanticError,
   ValidationErrorMessage,
   MalformedJsonErrorMessage,
@@ -83,6 +81,9 @@ interface ChatStore {
   createSessionWithInitialPrompt: (prompt: string, initialData?: Partial<SessionData>) => string;
   renameSession: (id: string, title: string) => void;
   deleteSession: (id: string) => void;
+  migrateSessionId: (oldId: string, newId: string) => void;
+  fetchHistory: () => Promise<void>;
+  fetchSessionDetails: (id: string) => Promise<void>;
 }
 
 // ── Zustand Store ─────────────────────────────────────────────────────────────
@@ -185,10 +186,131 @@ export const useChatStore = create<ChatStore>((set) => ({
     set((state) => {
       if (!state.sessions[id]) return state;
 
-      const { [id]: _deleted, ...remaining } = state.sessions;
+      const remaining = { ...state.sessions };
+      delete remaining[id];
+      return { ...state, sessions: remaining };
+    }),
+
+  migrateSessionId: (oldId, newId) =>
+    set((state) => {
+      if (oldId === newId) return state;
+      const oldSession = state.sessions[oldId];
+      if (!oldSession) return state;
+
+      const remaining = { ...state.sessions };
+      delete remaining[oldId];
       return {
         ...state,
-        sessions: remaining,
+        sessions: {
+          ...remaining,
+          [newId]: {
+            ...oldSession,
+            id: newId,
+          },
+        },
       };
     }),
+
+  fetchHistory: async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/history");
+      if (!res.ok) return;
+      
+      const ids: string[] = await res.json();
+      
+      await Promise.all(
+        ids.map(async (idItem) => {
+           const id = String(typeof idItem === 'object' && idItem !== null ? (idItem as Record<string, unknown>).id || (idItem as Record<string, unknown>).item || idItem : idItem);
+           try {
+             await useChatStore.getState().fetchSessionDetails(id);
+           } catch(_) {}
+        })
+      );
+    } catch (e) {
+      console.error("[ChatStore] Error fetching history:", e);
+    }
+  },
+
+  fetchSessionDetails: async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/history/${id}`);
+      if (!res.ok) return;
+      
+      const detail = await res.json();
+      
+      set((state) => {
+        const existing = state.sessions[id] || { ...DEFAULT_SESSION, id };
+        
+        const ROLE_VISUALS: Record<string, { step: number; icon: string; colorClass: string }> = {
+            Planner:   { step: 2, icon: "Cpu",          colorClass: "text-[#56a8f5]" },
+            Generator: { step: 3, icon: "Layers",       colorClass: "text-[#2aacb8]" },
+            Validator: { step: 4, icon: "AlertCircle",   colorClass: "text-[#cf8e6d]" },
+            Judge:     { step: 4, icon: "CheckCircle2",  colorClass: "text-[#27c93f]" },
+        };
+        const DEFAULT_VISUALS = { step: 1, icon: "Cpu", colorClass: "text-jb-accent" };
+        
+        const terminalEntries: TerminalEntry[] = (detail.logs || []).map((log: Record<string, unknown>) => {
+            const role = log.role as string;
+            const visuals = ROLE_VISUALS[role] || DEFAULT_VISUALS;
+            return {
+                id: `p-${log.id}`,
+                type: "log",
+                text: `[${role}]: ${log.status}`,
+                icon: visuals.icon,
+                colorClass: visuals.colorClass
+            };
+        });
+
+        let activeStep = 0;
+        let appState: AppState = "idle";
+        const oResult = { ...EMPTY_ORCHESTRATION_RESULT };
+        
+        if (detail.refactored_code) {
+           activeStep = 5;
+           appState = "done";
+           oResult.summary = detail.insights || "";
+           oResult.insights = detail.insights || "";
+           if (typeof detail.complexity === "number") {
+                oResult.metrics = [{
+                    title: "Cyclomatic Complexity",
+                    before: "—",
+                    after: `${detail.complexity}`,
+                    direction: detail.complexity <= 5 ? "down" as const : "up" as const,
+                    iconKey: "CheckCircle",
+                }];
+           } else if (typeof detail.complexity === "object" && detail.complexity !== null) {
+                oResult.metrics = [];
+           }
+        } else if (detail.logs && detail.logs.length > 0) {
+           appState = "analyzing";
+           const lastLog = detail.logs[detail.logs.length - 1];
+           const visuals = ROLE_VISUALS[lastLog.role] || DEFAULT_VISUALS;
+           activeStep = visuals.step;
+        }
+        
+        const safeTitle = (detail.user_instruction || "").trim() || "Previous Session";
+
+        return {
+          ...state,
+          sessions: {
+            ...state.sessions,
+            [id]: {
+              ...existing,
+              title: safeTitle.length > 48 ? `${safeTitle.slice(0, 48)}...` : safeTitle,
+              createdAt: detail.created_at ? new Date(detail.created_at).getTime() : existing.createdAt,
+              sourceCode: detail.original_code || existing.sourceCode,
+              refactoredOutput: detail.refactored_code || existing.refactoredOutput,
+              inputInstruction: detail.user_instruction || existing.inputInstruction,
+              appState,
+              activeStep,
+              terminalEntries,
+              orchestrationResult: oResult
+            }
+          }
+        };
+      });
+    } catch(e) {
+      console.error("[ChatStore] Error fetching session details:", e);
+    }
+  },
 }));

@@ -22,7 +22,7 @@ export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;

@@ -11,16 +11,16 @@ export interface StatusMessage {
   content: string;
 }
 
-export interface ComplexityResult {
-  complexity_score: number | null;
-  structure_tier: string;
-  is_fallback: boolean | null;
+export interface ConnectionIdMessage {
+  type: "connection_id";
+  id: string;
 }
 
 export interface ResultMessage {
   type: "result";
+  id: string;
   code: string;
-  complexity: ComplexityResult;
+  complexity: number | null;
   insights: string;
 }
 
@@ -44,4 +44,4 @@ export interface MalformedJsonErrorMessage {
 }
 
 export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage;
-export type ServerMessage = StatusMessage | ResultMessage | ErrorMessage;
+export type ServerMessage = ConnectionIdMessage | StatusMessage | ResultMessage | ErrorMessage;

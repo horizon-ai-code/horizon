@@ -100,7 +100,7 @@ export default function CodeEditorPanel({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === 'dark' : true;

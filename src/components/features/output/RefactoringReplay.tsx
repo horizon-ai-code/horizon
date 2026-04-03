@@ -19,12 +19,12 @@ export default function RefactoringReplay({ replaySteps }: RefactoringReplayProp
   const [currentReplayStep, setCurrentReplayStep] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   useEffect(() => {
     if (currentReplayStep >= replaySteps.length) {
-      setCurrentReplayStep(0);
+      requestAnimationFrame(() => setCurrentReplayStep(0));
     }
   }, [currentReplayStep, replaySteps.length]);
 
@@ -75,7 +75,7 @@ export default function RefactoringReplay({ replaySteps }: RefactoringReplayProp
           showLineNumbers={true}
           lineNumberStyle={{ color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', minWidth: '2.5em', paddingRight: '1.5em', textAlign: 'right' }}
           lineProps={(lineNumber) => {
-            let style: React.CSSProperties = { 
+            const style: React.CSSProperties = { 
               display: 'block', 
               paddingLeft: '4px',
               backgroundColor: 'transparent',

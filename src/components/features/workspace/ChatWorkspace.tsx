@@ -30,7 +30,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     useOrchestrationSocket({ sessionId: id });
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   useEffect(() => {

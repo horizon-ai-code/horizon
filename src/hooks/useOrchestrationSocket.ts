@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useState, useEffect } from "react";
-import type { RefactorRequest, ServerMessage, StatusMessage, ResultMessage, ComplexityResult } from "@/types/websocket";
+import type { RefactorRequest, ServerMessage, StatusMessage, ResultMessage } from "@/types/websocket";
 import type { TerminalEntry, SessionData, OrchestrationResult } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
@@ -56,6 +56,7 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
 
   const updateSession = useChatStore((s) => s.updateSession);
+  const migrateSessionId = useChatStore((s) => s.migrateSessionId);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -167,7 +168,7 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
 
   // ── Connect ──────────────────────────────────────────────────────────────
 
-  const connect = useCallback(() => {
+  const connect = useCallback(function doConnect() {
     // Prevent duplicate connections
     if (
       wsRef.current &&
@@ -190,20 +191,24 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
     };
 
     ws.onmessage = (event) => {
-      // We need the sessionId at message-time, not closure-time.
-      // The latest session ID is captured via the ref pattern below.
-      const targetId = sessionIdRef.current;
-      if (!targetId) return;
-
       try {
         const msg: ServerMessage = JSON.parse(event.data);
+        const targetId = sessionIdRef.current;
+        if (!targetId) return;
 
         switch (msg.type) {
+          case "connection_id":
+            if (msg.id && msg.id !== targetId) {
+                migrateSessionId(targetId, msg.id);
+                sessionIdRef.current = msg.id;
+                window.history.replaceState(null, '', `/${msg.id}`);
+            }
+            break;
           case "status":
-            handleStatus(msg, targetId);
+            handleStatus(msg as StatusMessage, targetId);
             break;
           case "result":
-            handleResult(msg, targetId);
+            handleResult(msg as ResultMessage, targetId);
             break;
           case "error":
             handleError(msg as ServerMessage & { type: "error" }, targetId);
@@ -229,11 +234,11 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
         const delay = backoffRef.current;
         backoffRef.current = Math.min(delay * BACKOFF_MULTIPLIER, MAX_BACKOFF_MS);
         reconnectTimerRef.current = setTimeout(() => {
-          connect();
+          doConnect();
         }, delay);
       }
     };
-  }, [clearReconnectTimer, handleStatus, handleResult, handleError]);
+  }, [clearReconnectTimer, handleStatus, handleResult, handleError, migrateSessionId]);
 
   // ── Disconnect ───────────────────────────────────────────────────────────
 
@@ -262,8 +267,9 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
 
   // ── Keep sessionId available via ref for onmessage handler ───────────────
 
-  const sessionIdRef = useRef(sessionId);
+  const sessionIdRef = useRef<string | null>(null);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     sessionIdRef.current = sessionId;
   }, [sessionId]);
 
@@ -292,34 +298,16 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
 // The backend returns a flat complexity object rather than the array of metrics
 // the old mock used. We transform it into something the InsightsPanel can render.
 
-function buildMetricsFromComplexity(complexity: ComplexityResult) {
+function buildMetricsFromComplexity(complexity: number | null) {
   const metrics = [];
 
-  if (complexity.complexity_score !== null) {
+  if (complexity !== null) {
     metrics.push({
       title: "Cyclomatic Complexity",
       before: "—",
-      after: `${complexity.complexity_score}`,
-      direction: complexity.complexity_score <= 5 ? ("down" as const) : ("up" as const),
+      after: `${complexity}`,
+      direction: complexity <= 5 ? ("down" as const) : ("up" as const),
       iconKey: "CheckCircle",
-    });
-  }
-
-  metrics.push({
-    title: "Structure Tier",
-    before: "—",
-    after: complexity.structure_tier,
-    direction: "neutral" as const,
-    iconKey: "Layers",
-  });
-
-  if (complexity.is_fallback !== null) {
-    metrics.push({
-      title: "Analysis Mode",
-      before: "—",
-      after: complexity.is_fallback ? "Fallback (no functions detected)" : "Full analysis",
-      direction: complexity.is_fallback ? ("up" as const) : ("down" as const),
-      iconKey: "Sparkles",
     });
   }
 

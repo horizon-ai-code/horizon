@@ -53,7 +53,7 @@ export default function InputPanel({
   }, [sourceCode]);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
     
     // Function to check clipboard
     const checkClipboard = async () => {

@@ -85,7 +85,7 @@ export default function RefactoredOutput({
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'replay' | 'insights'>('output');
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
