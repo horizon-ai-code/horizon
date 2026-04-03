@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Plus, MessageSquare, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useChatStore } from "@/store/useChatStore";
+import DeleteSessionDialog from "@/components/ui/DeleteSessionDialog";
 
 import {
   DropdownMenu,
@@ -27,10 +28,21 @@ export default function Sidebar() {
   const renameSession = useChatStore((state) => state.renameSession);
   const deleteSession = useChatStore((state) => state.deleteSession);
 
+  // ── Confirm Dialog State ──────────────────────────────────────────────────
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogSessionId, setDialogSessionId] = useState<string | null>(null);
+  const [dialogAction, setDialogAction] = useState<"delete" | "leave" | "switch">("delete");
+  const [switchTargetId, setSwitchTargetId] = useState<string | null>(null);
+
   const recentSessions = Object.values(sessions).sort((a, b) => b.updatedAt - a.updatedAt);
   const activeId = typeof params.id === "string" ? params.id : "";
   const activeSession = activeId ? sessions[activeId] : undefined;
   const isActiveAnalyzing = activeSession?.appState === "analyzing";
+
+  // Resolve dialog session title for display
+  const dialogSessionTitle = dialogSessionId
+    ? sessions[dialogSessionId]?.title ?? "this session"
+    : "this session";
 
   useEffect(() => {
     setMounted(true);
@@ -49,10 +61,52 @@ export default function Sidebar() {
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
+  // ── Dialog Helpers ──────────────────────────────────────────────────────────
+  const openDialog = useCallback(
+    (action: "delete" | "leave" | "switch", sessionId: string, switchTo?: string) => {
+      setDialogAction(action);
+      setDialogSessionId(sessionId);
+      setSwitchTargetId(switchTo ?? null);
+      setDialogOpen(true);
+    },
+    []
+  );
+
+  const closeDialog = useCallback(() => {
+    setDialogOpen(false);
+    setDialogSessionId(null);
+    setSwitchTargetId(null);
+  }, []);
+
+  const handleDialogConfirm = useCallback(() => {
+    if (!dialogSessionId) return;
+
+    if (dialogAction === "delete") {
+      deleteSession(dialogSessionId);
+      if (editingSessionId === dialogSessionId) {
+        cancelInlineRename();
+      }
+      // If we're deleting the active session, navigate home
+      if (activeId === dialogSessionId) {
+        router.push("/");
+      }
+    } else if (dialogAction === "leave") {
+      if (editingSessionId) {
+        cancelInlineRename();
+      }
+      router.push("/");
+    } else if (dialogAction === "switch" && switchTargetId) {
+      router.push(`/${switchTargetId}`);
+    }
+
+    closeDialog();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dialogSessionId, dialogAction, switchTargetId, activeId, editingSessionId]);
+
   const handleNewSession = () => {
     if (isActiveAnalyzing) {
-      const shouldLeave = window.confirm("A refactor is currently running. Leave this session and stop generation?");
-      if (!shouldLeave) return;
+      openDialog("leave", activeId);
+      return;
     }
 
     if (editingSessionId) {
@@ -168,8 +222,8 @@ export default function Sidebar() {
                       }
 
                       if (isActiveAnalyzing && activeId && activeId !== session.id) {
-                        const shouldLeave = window.confirm("A refactor is currently running. Switch sessions and stop generation?");
-                        if (!shouldLeave) return;
+                        openDialog("switch", activeId, session.id);
+                        return;
                       }
 
                       router.push(`/${session.id}`);
@@ -243,18 +297,7 @@ export default function Sidebar() {
                            <DropdownMenuItem
                              className="gap-2 text-red-500 focus:text-red-500 cursor-pointer focus:bg-red-500/10"
                              onClick={() => {
-                               if (isActiveAnalyzing && activeId === session.id) {
-                                 const shouldDelete = window.confirm("This session is still generating. Delete it and stop generation?");
-                                 if (!shouldDelete) return;
-                               }
-
-                               deleteSession(session.id);
-                               if (editingSessionId === session.id) {
-                                 cancelInlineRename();
-                               }
-                               if (activeId === session.id) {
-                                 router.push("/");
-                               }
+                               openDialog("delete", session.id);
                              }}
                            >
                              <Trash size={14} />
@@ -273,6 +316,19 @@ export default function Sidebar() {
       </div>
 
       <div className="flex-1" />
+
+      {/* Delete / Leave / Switch Confirmation Dialog */}
+      <DeleteSessionDialog
+        isOpen={dialogOpen}
+        sessionTitle={dialogSessionTitle}
+        isGenerating={
+          dialogAction === "leave" ||
+          dialogAction === "switch" ||
+          (dialogAction === "delete" && isActiveAnalyzing && dialogSessionId === activeId)
+        }
+        onCancel={closeDialog}
+        onConfirm={handleDialogConfirm}
+      />
     </motion.div>
   );
 }
