@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { motion, AnimatePresence } from "framer-motion";
 
 // Sanitizes the themes to prevent React from crashing on shorthand properties
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -95,6 +96,7 @@ export default function CodeEditorPanel({
   const gutterRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null); // NEW: Controls background scroll
   const [isScrolling, setIsScrolling] = useState(false);
+  const [internalIsFocused, setInternalIsFocused] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -268,6 +270,44 @@ export default function CodeEditorPanel({
               </SyntaxHighlighter>
             </div>
           )}
+
+          {/* Premium Tab-to-Paste Hint */}
+          <AnimatePresence>
+            {ghostValue && !value && internalIsFocused && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="absolute top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+              >
+                <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300
+                  ${isDark 
+                    ? 'bg-jb-bg/40 border-white/10 ring-1 ring-white/[0.05]' 
+                    : 'bg-white/60 border-slate-200/50 shadow-slate-200/50 ring-1 ring-black/[0.02]'
+                  }`}
+                >
+                  <div className={`flex items-center gap-2 text-[12px] font-semibold tracking-tight
+                    ${isDark ? 'text-jb-text' : 'text-slate-900'}`}
+                  >
+                    <span className="opacity-70">Press</span>
+                    <kbd className={`inline-flex items-center justify-center min-w-[28px] h-6 px-1.5 rounded-md border font-sans text-[11px] font-bold shadow-sm transition-all
+                      ${isDark 
+                        ? 'bg-[#3e4045] border-[#4e5157] text-jb-text border-b-[2.5px]' 
+                        : 'bg-[#f7f8fa] border-[#d1d1d1] text-[#080808] border-b-[2.5px]'
+                      }`}
+                    >
+                      Tab
+                    </kbd>
+                    <span className="opacity-70">to paste copied code</span>
+                  </div>
+                  
+                  <div className={`w-1.5 h-1.5 rounded-full animate-pulse
+                    ${isDark ? 'bg-jb-accent' : 'bg-[#3574f0]'}`} 
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <textarea
@@ -276,8 +316,14 @@ export default function CodeEditorPanel({
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
           onKeyDown={onKeyDown}
-          onFocus={onFocus}
-          onBlur={onBlur}
+          onFocus={() => {
+            setInternalIsFocused(true);
+            onFocus?.();
+          }}
+          onBlur={() => {
+            setInternalIsFocused(false);
+            onBlur?.();
+          }}
           spellCheck="false"
           placeholder={placeholder}
           className={`absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-jb-accent overflow-auto text-transparent selection:bg-jb-accent/20 font-mono custom-chat-scrollbar ${isScrolling ? 'is-scrolling' : ''}`}

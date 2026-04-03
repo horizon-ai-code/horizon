@@ -167,16 +167,7 @@ export default function Input({
             bottomPadding="240px"
           />
           
-          {/* Ghost Text Hint */}
-          {isEditorFocused && clipboardPreview && !sourceCode && (
-            <div className="absolute bottom-4 left-14 z-20 pointer-events-none animate-pulse">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border backdrop-blur-md transition-all duration-300
-                ${isDark ? 'bg-jb-accent/10 border-jb-accent/20' : 'bg-[#3574f0]/5 border-[#3574f0]/15'}`}>
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-jb-accent' : 'text-[#3574f0]'}`}>Tip</span>
-                <span className={`text-[11px] font-medium ${isDark ? 'text-jb-accent/80' : 'text-[#3574f0]/80'}`}>Press <kbd className={`font-sans px-1.5 py-0.5 rounded border ${isDark ? 'border-jb-accent/30 bg-jb-accent/5' : 'border-[#3574f0]/20 bg-[#3574f0]/5'} text-[10px]`}>Tab</kbd> to paste copied code</span>
-              </div>
-            </div>
-          )}
+
           <RefactorInput 
             sessionId={sessionId}
             sourceCode={sourceCode}
