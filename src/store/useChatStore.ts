@@ -80,7 +80,7 @@ interface ChatStore {
   createSession: (id: string, initialData?: Partial<SessionData>) => void;
   createSessionWithInitialPrompt: (prompt: string, initialData?: Partial<SessionData>) => string;
   renameSession: (id: string, title: string) => void;
-  deleteSession: (id: string) => void;
+  deleteSession: (id: string) => Promise<void>;
   migrateSessionId: (oldId: string, newId: string) => void;
   fetchHistory: () => Promise<void>;
   fetchSessionDetails: (id: string) => Promise<void>;
@@ -182,14 +182,22 @@ export const useChatStore = create<ChatStore>((set) => ({
       };
     }),
 
-  deleteSession: (id) =>
+  deleteSession: async (id) => {
+    try {
+      await fetch(`http://localhost:8000/api/history/${id}`, {
+        method: "DELETE",
+      });
+    } catch(e) {
+      console.error("[ChatStore] Error deleting session from backend:", e);
+    }
     set((state) => {
       if (!state.sessions[id]) return state;
 
       const remaining = { ...state.sessions };
       delete remaining[id];
       return { ...state, sessions: remaining };
-    }),
+    });
+  },
 
   migrateSessionId: (oldId, newId) =>
     set((state) => {
