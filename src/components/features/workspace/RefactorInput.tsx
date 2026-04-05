@@ -34,9 +34,8 @@ export default function RefactorInput({
 }: RefactorInputProps) {
   const controls = useAnimation();
   const router = useRouter();
-  const createSessionWithInitialPrompt = useChatStore((state) => state.createSessionWithInitialPrompt);
   const draftSession = useChatStore((state) => state.draftSession);
-  const resetDraftSession = useChatStore((state) => state.resetDraftSession);
+  const updateDraftSession = useChatStore((state) => state.updateDraftSession);
   
   useEffect(() => {
     if (inputError) {
@@ -83,8 +82,8 @@ export default function RefactorInput({
 
     const commandId = Date.now().toString();
     const initialPrompt = inputInstruction;
-    const nextSessionId = createSessionWithInitialPrompt(initialPrompt, {
-      ...draftSession,
+    
+    updateDraftSession({
       sourceCode,
       inputInstruction: "",
       terminalEntries: [
@@ -97,9 +96,6 @@ export default function RefactorInput({
       activeStep: 1,
       refactoredOutput: "",
     });
-
-    resetDraftSession();
-    router.push(`/${nextSessionId}`);
   };
 
   const isChatExpanded = isChatFocused || inputInstruction.length > 0;

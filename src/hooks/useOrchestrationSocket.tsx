@@ -211,7 +211,16 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
         switch (msg.type) {
           case "connection_id":
-            if (msg.id && msg.id !== targetId) {
+            if (targetId === "draft" && msg.id) {
+                const store = useChatStore.getState();
+                store.createSession(msg.id, {
+                  ...store.draftSession,
+                  id: msg.id,
+                });
+                store.resetDraftSession();
+                sessionIdRef.current = msg.id;
+                router.replace(`/${msg.id}`);
+            } else if (msg.id && msg.id !== targetId) {
                 migrateSessionId(targetId, msg.id);
                 sessionIdRef.current = msg.id;
                 router.replace(`/${msg.id}`);

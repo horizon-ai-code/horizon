@@ -29,9 +29,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const { connectionStatus, connect, disconnect, sendRefactorRequest, setTargetSessionId } = useOrchestrationSocket();
 
   useEffect(() => {
-    if (id) {
-      setTargetSessionId(id);
-    }
+    const currentId = id || "draft";
+    setTargetSessionId(currentId);
   }, [id, setTargetSessionId]);
 
   const connectionStatusRef = useRef(connectionStatus);
@@ -160,12 +159,15 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   useEffect(() => {
     let sendInterval: ReturnType<typeof setInterval> | null = null;
     
-    if (appState === "analyzing" && activeStep === 1 && id && terminalEntries.length > 0) {
+    // Allows the frontend to start the draft session by waiting for connection_id
+    const currentId = id || "draft";
+
+    if (appState === "analyzing" && activeStep === 1 && terminalEntries.length > 0) {
       // The session was created with analyzing state from the draft flow, or explicitly started.
       const lastCommand = [...terminalEntries].reverse().find(e => e.type === 'command');
       if (!lastCommand) return;
 
-      connect(id);
+      connect(currentId);
       sendInterval = setInterval(() => {
         const sent = sendRefactorRequest({
           code: sourceCode,
