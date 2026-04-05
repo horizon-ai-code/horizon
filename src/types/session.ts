@@ -1,4 +1,4 @@
-import type { ComplexityResult } from "./websocket";
+
 import type { ReplayStep, InsightMetric } from "./insights";
 
 export type AppState = "idle" | "analyzing" | "done";
@@ -19,7 +19,7 @@ export interface OrchestrationResult {
     added: number[];
     removed: number[];
   };
-  complexity?: ComplexityResult;
+  complexity?: number | null;
   insights?: string;
 }
 

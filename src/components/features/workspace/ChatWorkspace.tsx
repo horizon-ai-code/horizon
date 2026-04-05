@@ -26,8 +26,18 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, disconnect, sendRefactorRequest } =
-    useOrchestrationSocket({ sessionId: id });
+  const { connectionStatus, connect, disconnect, sendRefactorRequest, setTargetSessionId } = useOrchestrationSocket();
+
+  useEffect(() => {
+    if (id) {
+      setTargetSessionId(id);
+    }
+  }, [id, setTargetSessionId]);
+
+  const connectionStatusRef = useRef(connectionStatus);
+  useEffect(() => {
+    connectionStatusRef.current = connectionStatus;
+  }, [connectionStatus]);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
@@ -141,51 +151,37 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     setLocalInputError(false);
     setLocalSourceError(false);
 
-    // Connect WebSocket and send the refactor request
-    connect();
-    // Small delay to ensure WS is open before sending
-    const sendInterval = setInterval(() => {
-      if (connectionStatus === 'connected') {
-        sendRefactorRequest({
-          code: currentSourceCode,
-          user_instruction: currentInstruction,
-        });
-        clearInterval(sendInterval);
-      }
-    }, 100);
-    // Safety: clear interval after 10s to prevent infinite loop
-    setTimeout(() => clearInterval(sendInterval), 10000);
+// Connect WebSocket and send the refactor request
+    // The useEffect will pick this up implicitly because appState changes to 'analyzing'
   };
 
   // If a session was loaded in analyzing state (due to lazy creation redirect),
   // ensure the WebSocket connection is established for it.
-  const hasResumedRef = useRef(false);
   useEffect(() => {
+    let sendInterval: ReturnType<typeof setInterval> | null = null;
+    
     if (appState === "analyzing" && activeStep === 1 && id && terminalEntries.length > 0) {
-      if (hasResumedRef.current) return;
-      hasResumedRef.current = true;
-
-      // The session was created with analyzing state from the draft flow.
-      // We need to connect and send the request that was captured in the
-      // terminal's first command entry.
+      // The session was created with analyzing state from the draft flow, or explicitly started.
       const lastCommand = [...terminalEntries].reverse().find(e => e.type === 'command');
       if (!lastCommand) return;
 
-      connect();
-      const sendInterval = setInterval(() => {
-        if (connectionStatus === 'connected') {
-          sendRefactorRequest({
-            code: sourceCode,
-            user_instruction: lastCommand.text,
-          });
+      connect(id);
+      sendInterval = setInterval(() => {
+        const sent = sendRefactorRequest({
+          code: sourceCode,
+          user_instruction: lastCommand.text,
+        });
+        if (sent && sendInterval) {
           clearInterval(sendInterval);
+          sendInterval = null;
         }
       }, 100);
-      setTimeout(() => clearInterval(sendInterval), 10000);
-    } else {
-      hasResumedRef.current = false;
     }
-  }, [appState, activeStep, id]); // eslint-disable-line
+    
+    return () => {
+      if (sendInterval) clearInterval(sendInterval);
+    };
+  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode, terminalEntries]); // eslint-disable-line
 
   const stopAnalysis = () => {
     disconnect();

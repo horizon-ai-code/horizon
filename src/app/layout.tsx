@@ -3,6 +3,7 @@ import { Inter, Fira_Code, Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ScrollHandler from "@/components/ui/ScrollHandler";
+import { OrchestrationProvider } from "@/hooks/useOrchestrationSocket";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -34,8 +35,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <ScrollHandler />
-          {children}
+          <OrchestrationProvider>
+            <ScrollHandler />
+            {children}
+          </OrchestrationProvider>
         </ThemeProvider>
       </body>
     </html>

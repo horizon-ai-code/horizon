@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useCallback, useState, useEffect } from "react";
+import { useRef, useCallback, useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import type { RefactorRequest, ServerMessage, StatusMessage, ResultMessage } from "@/types/websocket";
 import type { TerminalEntry, SessionData, OrchestrationResult } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
@@ -43,15 +44,23 @@ const BACKOFF_MULTIPLIER = 2;
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-interface UseOrchestrationSocketOptions {
-  sessionId: string | null;
+export interface OrchestrationContextValue {
+  connectionStatus: ConnectionStatus;
+  connect: (targetSessionId: string) => void;
+  disconnect: () => void;
+  sendRefactorRequest: (request: RefactorRequest) => boolean;
+  setTargetSessionId: (id: string) => void;
 }
 
-export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOptions) {
+const OrchestrationContext = createContext<OrchestrationContextValue | null>(null);
+
+export function OrchestrationProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backoffRef = useRef(INITIAL_BACKOFF_MS);
   const intentionalCloseRef = useRef(false);
+  const sessionIdRef = useRef<string | null>(null);
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
 
@@ -168,7 +177,11 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
 
   // ── Connect ──────────────────────────────────────────────────────────────
 
-  const connect = useCallback(function doConnect() {
+  const connect = useCallback(function doConnect(targetSessionId?: string) {
+    if (targetSessionId) {
+      sessionIdRef.current = targetSessionId;
+    }
+
     // Prevent duplicate connections
     if (
       wsRef.current &&
@@ -201,7 +214,7 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
             if (msg.id && msg.id !== targetId) {
                 migrateSessionId(targetId, msg.id);
                 sessionIdRef.current = msg.id;
-                window.history.replaceState(null, '', `/${msg.id}`);
+                router.replace(`/${msg.id}`);
             }
             break;
           case "status":
@@ -238,7 +251,7 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
         }, delay);
       }
     };
-  }, [clearReconnectTimer, handleStatus, handleResult, handleError, migrateSessionId]);
+  }, [clearReconnectTimer, handleStatus, handleResult, handleError, migrateSessionId, router]);
 
   // ── Disconnect ───────────────────────────────────────────────────────────
 
@@ -255,23 +268,22 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
   // ── Send a refactor request ──────────────────────────────────────────────
 
   const sendRefactorRequest = useCallback(
-    (request: RefactorRequest) => {
+    (request: RefactorRequest): boolean => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("[WS] Cannot send — WebSocket is not open.");
-        return;
+        return false;
       }
       wsRef.current.send(JSON.stringify(request));
+      return true;
     },
     []
   );
 
   // ── Keep sessionId available via ref for onmessage handler ───────────────
 
-  const sessionIdRef = useRef<string | null>(null);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/immutability
-    sessionIdRef.current = sessionId;
-  }, [sessionId]);
+  const setTargetSessionId = useCallback((id: string) => {
+    sessionIdRef.current = id;
+  }, []);
 
   // ── Cleanup on unmount ───────────────────────────────────────────────────
 
@@ -286,12 +298,27 @@ export function useOrchestrationSocket({ sessionId }: UseOrchestrationSocketOpti
     };
   }, [clearReconnectTimer]);
 
-  return {
-    connectionStatus,
-    connect,
-    disconnect,
-    sendRefactorRequest,
-  };
+  return (
+    <OrchestrationContext.Provider
+      value={{
+        connectionStatus,
+        connect,
+        disconnect,
+        sendRefactorRequest,
+        setTargetSessionId,
+      }}
+    >
+      {children}
+    </OrchestrationContext.Provider>
+  );
+}
+
+export function useOrchestrationSocket(): OrchestrationContextValue {
+  const ctx = useContext(OrchestrationContext);
+  if (!ctx) {
+    throw new Error("useOrchestrationSocket must be used within an OrchestrationProvider");
+  }
+  return ctx;
 }
 
 // ── Utility: Build InsightMetric[] from ComplexityResult ──────────────────────
