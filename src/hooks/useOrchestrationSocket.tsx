@@ -20,10 +20,10 @@ interface RoleVisuals {
 }
 
 const ROLE_VISUALS: Record<string, RoleVisuals> = {
-  Planner:   { step: 2, icon: "Cpu",          colorClass: "text-[#56a8f5]" },
-  Generator: { step: 3, icon: "Layers",       colorClass: "text-[#2aacb8]" },
-  Validator: { step: 4, icon: "AlertCircle",   colorClass: "text-[#cf8e6d]" },
-  Judge:     { step: 4, icon: "CheckCircle2",  colorClass: "text-[#27c93f]" },
+  Planner:   { step: 1, icon: "Cpu",          colorClass: "text-[#56a8f5]" },
+  Generator: { step: 2, icon: "Layers",       colorClass: "text-[#2aacb8]" },
+  Validator: { step: 3, icon: "FileCode2",    colorClass: "text-[#00e5ff]" },
+  Judge:     { step: 4, icon: "CheckCircle2", colorClass: "text-[#27c93f]" },
 };
 
 const DEFAULT_VISUALS: RoleVisuals = {

@@ -55,15 +55,13 @@ const FlowConnector = ({ isActive }: { isActive: boolean }) => (
 const OrchestrationFlowchart = ({ activeStep }: { activeStep: number }) => (
   <div className="flex flex-col items-center justify-center w-full h-full p-4 animate-in fade-in zoom-in-95 duration-500">
     <div className="flex flex-row items-center justify-center w-full max-w-4xl">
-      <FlowNode icon={FileCode2} title="AST Parser" desc="Reads abstract tree" status={activeStep === 1 ? 'active' : activeStep > 1 ? 'done' : 'waiting'} colorCode="#00e5ff" />
+      <FlowNode icon={Cpu} title="Planner" desc="Analyzing architecture" status={activeStep === 1 ? 'active' : activeStep > 1 ? 'done' : 'waiting'} colorCode="#56a8f5" />
       <FlowConnector isActive={activeStep > 1} />
-      <FlowNode icon={Cpu} title="Logical Prover" desc="Drafts optimizations" status={activeStep === 2 ? 'active' : activeStep > 2 ? 'done' : 'waiting'} colorCode="#3B82F6" />
+      <FlowNode icon={Layers} title="Generator" desc="Drafting optimizations" status={activeStep === 2 ? 'active' : activeStep > 2 ? 'done' : 'waiting'} colorCode="#2aacb8" />
       <FlowConnector isActive={activeStep > 2} />
-      <FlowNode icon={AlertCircle} title="Adversarial Critic" desc="Challenges logic" status={activeStep === 3 ? 'active' : activeStep > 3 ? 'done' : 'waiting'} colorCode="#8B5CF6" />
+      <FlowNode icon={FileCode2} title="AST Parser" desc="Structuring output" status={activeStep === 3 ? 'active' : activeStep > 3 ? 'done' : 'waiting'} colorCode="#00e5ff" />
       <FlowConnector isActive={activeStep > 3} />
-      <FlowNode icon={Layers} title="Consensus Judge" desc="Synthesizes code" status={activeStep === 4 ? 'active' : activeStep > 4 ? 'done' : 'waiting'} colorCode="#EC4899" />
-      <FlowConnector isActive={activeStep > 4} />
-      <FlowNode icon={CheckCircle2} title="Code Emitter" desc="Formats output" status={activeStep >= 5 ? 'active' : 'waiting'} colorCode="#10B981" />
+      <FlowNode icon={CheckCircle2} title="Judge" desc="Final validation" status={activeStep === 4 ? 'active' : activeStep > 4 ? 'done' : 'waiting'} colorCode="#27c93f" />
     </div>
   </div>
 );
