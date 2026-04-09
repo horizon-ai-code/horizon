@@ -164,7 +164,7 @@ export default function Sidebar() {
       initial={false}
       animate={{ width: isOpen ? 240 : 48 }}
       transition={springConfig}
-      className={`shrink-0 border-r flex flex-col z-20 overflow-hidden
+      className={`shrink-0 border-r flex flex-col z-20 h-full overflow-hidden
       ${isDark ? 'border-jb-border/40 bg-jb-panel' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
     >
       
@@ -179,7 +179,7 @@ export default function Sidebar() {
       </div>
 
       {/* Main Sidebar Area */}
-      <div className={`flex flex-col w-full px-2 py-4 gap-2 flex-grow overflow-y-auto overflow-x-hidden border-b
+      <div className={`flex flex-col w-full px-2 py-4 gap-2 flex-1 min-h-0 overflow-y-auto custom-chat-scrollbar overflow-x-hidden border-b
         ${isDark ? 'border-jb-border/20' : 'border-[#ebecf0]/60'}`}>
         
         {/* New Session Button */}
@@ -218,7 +218,7 @@ export default function Sidebar() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={springConfig}
-              className="flex flex-col gap-1 mt-2 overflow-hidden"
+              className="flex flex-col gap-1 mt-2"
             >
                <div className={`px-2 py-1 text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-jb-text/50' : 'text-[#818594]'}`}>
                  Recent
@@ -342,8 +342,6 @@ export default function Sidebar() {
           )}
         </AnimatePresence>
       </div>
-
-      <div className="flex-1" />
 
       {/* Delete / Leave / Switch Confirmation Dialog */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
