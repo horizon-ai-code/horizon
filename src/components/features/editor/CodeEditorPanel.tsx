@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { motion, AnimatePresence } from "framer-motion";
 
 // Sanitizes the themes to prevent React from crashing on shorthand properties
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,8 +19,42 @@ const sanitizeTheme = (theme: any) => {
   return cleanTheme;
 };
 
-const safeDarkTheme = sanitizeTheme(oneDark);
+const baseTheme = sanitizeTheme(oneDark);
+// Force transparent background for the base themes
+if (baseTheme['pre[class*="language-"]']) baseTheme['pre[class*="language-"]'].backgroundColor = 'transparent';
+if (baseTheme['code[class*="language-"]']) baseTheme['code[class*="language-"]'].backgroundColor = 'transparent';
+
+export const jetbrainsTheme = {
+  ...baseTheme,
+  'keyword': { ...baseTheme['keyword'], color: '#cf8e6d' },
+  'class-name': { ...baseTheme['class-name'], color: '#2aacb8' },
+  'string': { ...baseTheme['string'], color: '#56a8f5' },
+  'function': { ...baseTheme['function'], color: '#56a8f5' },
+  'comment': { ...baseTheme['comment'], color: '#6f737a', fontStyle: 'italic' },
+  'builtin': { ...baseTheme['builtin'], color: '#f4bf4f' },
+  'type': { ...baseTheme['type'], color: '#2aacb8' },
+  'number': { ...baseTheme['number'], color: '#56a8f5' },
+  'boolean': { ...baseTheme['boolean'], color: '#cf8e6d' },
+  'operator': { ...baseTheme['operator'], color: '#dfe1e5' },
+};
+
 const safeLightTheme = sanitizeTheme(oneLight);
+if (safeLightTheme['pre[class*="language-"]']) safeLightTheme['pre[class*="language-"]'].backgroundColor = 'transparent';
+if (safeLightTheme['code[class*="language-"]']) safeLightTheme['code[class*="language-"]'].backgroundColor = 'transparent';
+
+export const intellijLightTheme = {
+  ...safeLightTheme,
+  'keyword': { ...safeLightTheme['keyword'], color: '#0033b3', fontWeight: 'bold' },
+  'class-name': { ...safeLightTheme['class-name'], color: '#000000' },
+  'string': { ...safeLightTheme['string'], color: '#067d17' },
+  'function': { ...safeLightTheme['function'], color: '#067d17' },
+  'comment': { ...safeLightTheme['comment'], color: '#8c8c8c', fontStyle: 'italic' },
+  'builtin': { ...safeLightTheme['builtin'], color: '#000000' },
+  'type': { ...safeLightTheme['type'], color: '#000000' },
+  'number': { ...safeLightTheme['number'], color: '#1750eb' },
+  'boolean': { ...safeLightTheme['boolean'], color: '#1750eb' },
+  'operator': { ...safeLightTheme['operator'], color: '#080808' },
+};
 
 interface CodeEditorPanelProps {
   value: string;
@@ -60,9 +95,12 @@ export default function CodeEditorPanel({
   const preRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null); // NEW: Controls background scroll
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [internalIsFocused, setInternalIsFocused] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === 'dark' : true;
@@ -76,6 +114,13 @@ export default function CodeEditorPanel({
     }
     if (gutterRef.current) gutterRef.current.scrollTop = scrollTop;
     if (bgRef.current) bgRef.current.scrollTop = scrollTop;
+
+    // Manage scrollbar visibility
+    setIsScrolling(true);
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 1000);
   };
 
   const lines = value.split('\n');
@@ -84,7 +129,7 @@ export default function CodeEditorPanel({
 
   return (
     <div 
-      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden dark:bg-[#0D0D0F] dark:ring-1 dark:ring-white/[0.05]"
+      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden bg-jb-panel border-jb-border transition-colors duration-300"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -103,9 +148,9 @@ export default function CodeEditorPanel({
             const isIssue = showDiff && highlightLines.issue?.includes(i);
             
             const getBgStyle = () => {
-              if (isRemoved) return { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.8)' };
-              if (isAdded) return { backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(220, 252, 231, 0.8)' };
-              if (isIssue) return { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.15)' : 'rgba(255, 237, 213, 0.8)' };
+              if (isRemoved) return { backgroundColor: isDark ? 'rgba(249, 62, 62, 0.2)' : '#fef2f2' }; // Dark: red-500/20, Light: red-50
+              if (isAdded) return { backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : '#ecfdf5' }; // Dark: cyan-500/15, Light: emerald-50
+              if (isIssue) return { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' }; // Dark: amber-500/15, Light: amber-100
               return { backgroundColor: 'transparent' };
             };
 
@@ -128,10 +173,10 @@ export default function CodeEditorPanel({
           return (
             <div 
               key={i} 
-              className={`h-[24px] leading-[24px] flex items-center justify-center
-                ${isRemoved ? 'text-red-500 font-medium' : 
-                  isAdded ? 'text-cyan-500 font-medium' : 
-                  isIssue ? 'text-orange-500 font-medium' : ''}`}
+              className={`h-[24px] leading-[24px] flex items-center justify-center font-medium
+                ${isRemoved ? 'text-red-500' : 
+                  isAdded ? (isDark ? 'text-cyan-400' : 'text-emerald-600') : 
+                  isIssue ? 'text-amber-500' : 'text-jb-text-muted opacity-50'}`}
             >
               {i + 1}
             </div>
@@ -145,7 +190,7 @@ export default function CodeEditorPanel({
           {/* Main Content Layer */}
           <SyntaxHighlighter
             language="java"
-            style={isDark ? safeDarkTheme : safeLightTheme}
+            style={isDark ? jetbrainsTheme : intellijLightTheme}
             wrapLines={false}
             customStyle={{ 
               margin: 0, 
@@ -160,7 +205,8 @@ export default function CodeEditorPanel({
               wordSpacing: 'normal', 
               fontWeight: '500', 
               fontVariantLigatures: 'none', 
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              minWidth: 'max-content'
             }}
             codeTagProps={{
               style: {
@@ -173,6 +219,8 @@ export default function CodeEditorPanel({
                 wordSpacing: 'normal', 
                 fontWeight: 'normal', 
                 fontVariantLigatures: 'none',
+                minWidth: 'max-content',
+                display: 'inline-block'
               }
             }}
           >
@@ -184,7 +232,7 @@ export default function CodeEditorPanel({
             <div className="absolute inset-0 opacity-30 pointer-events-none">
               <SyntaxHighlighter
                 language="java"
-                style={isDark ? safeDarkTheme : safeLightTheme}
+                style={isDark ? jetbrainsTheme : intellijLightTheme}
                 wrapLines={false}
                 customStyle={{ 
                   margin: 0, 
@@ -199,7 +247,8 @@ export default function CodeEditorPanel({
                   wordSpacing: 'normal', 
                   fontWeight: '500', 
                   fontVariantLigatures: 'none', 
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  minWidth: 'max-content'
                 }}
                 codeTagProps={{
                   style: {
@@ -212,6 +261,8 @@ export default function CodeEditorPanel({
                     wordSpacing: 'normal', 
                     fontWeight: 'normal', 
                     fontVariantLigatures: 'none',
+                    minWidth: 'max-content',
+                    display: 'inline-block'
                   }
                 }}
               >
@@ -219,6 +270,44 @@ export default function CodeEditorPanel({
               </SyntaxHighlighter>
             </div>
           )}
+
+          {/* Premium Tab-to-Paste Hint */}
+          <AnimatePresence>
+            {ghostValue && !value && internalIsFocused && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="absolute top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+              >
+                <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300
+                  ${isDark 
+                    ? 'bg-jb-bg/40 border-white/10 ring-1 ring-white/[0.05]' 
+                    : 'bg-white/60 border-slate-200/50 shadow-slate-200/50 ring-1 ring-black/[0.02]'
+                  }`}
+                >
+                  <div className={`flex items-center gap-2 text-[12px] font-semibold tracking-tight
+                    ${isDark ? 'text-jb-text' : 'text-slate-900'}`}
+                  >
+                    <span className="opacity-70">Press</span>
+                    <kbd className={`inline-flex items-center justify-center min-w-[28px] h-6 px-1.5 rounded-md border font-sans text-[11px] font-bold shadow-sm transition-all
+                      ${isDark 
+                        ? 'bg-[#3e4045] border-[#4e5157] text-jb-text border-b-[2.5px]' 
+                        : 'bg-[#f7f8fa] border-[#d1d1d1] text-[#080808] border-b-[2.5px]'
+                      }`}
+                    >
+                      Tab
+                    </kbd>
+                    <span className="opacity-70">to paste copied code</span>
+                  </div>
+                  
+                  <div className={`w-1.5 h-1.5 rounded-full animate-pulse
+                    ${isDark ? 'bg-jb-accent' : 'bg-[#3574f0]'}`} 
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <textarea
@@ -227,11 +316,17 @@ export default function CodeEditorPanel({
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
           onKeyDown={onKeyDown}
-          onFocus={onFocus}
-          onBlur={onBlur}
+          onFocus={() => {
+            setInternalIsFocused(true);
+            onFocus?.();
+          }}
+          onBlur={() => {
+            setInternalIsFocused(false);
+            onBlur?.();
+          }}
           spellCheck="false"
           placeholder={placeholder}
-          className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-cyan-400 overflow-auto text-transparent selection:bg-cyan-500/20 font-mono"
+          className={`absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-jb-accent overflow-auto text-transparent selection:bg-jb-accent/20 font-mono custom-chat-scrollbar ${isScrolling ? 'is-scrolling' : ''}`}
           style={{ 
             color: 'transparent', 
             WebkitTextFillColor: 'transparent', 

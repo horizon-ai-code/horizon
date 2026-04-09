@@ -9,7 +9,7 @@ export default function HorizonLogo({ glowing = false }: { glowing?: boolean }) 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
