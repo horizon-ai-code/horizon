@@ -99,19 +99,22 @@ export default function RefactorInput({
   };
 
   const isChatExpanded = isChatFocused || inputInstruction.length > 0;
-  const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing";
+  const isHistorical = !!sessionId;
+  const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing" || isHistorical;
 
   return (
     <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
       <motion.div
         layout
         animate={controls}
-        onClick={() => chatInputRef.current?.focus()}
+        onClick={() => !isHistorical && chatInputRef.current?.focus()}
         className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl cursor-text transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
           ${isChatExpanded ? 'max-w-full w-full' : 'max-w-[420px]'}
-          ${inputError
-            ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
-            : 'bg-jb-panel/95 ring-jb-border/50 focus-within:ring-jb-accent/30 focus-within:shadow-[0_0_30px_rgba(53,116,240,0.1)] shadow-2xl'
+          ${isHistorical 
+            ? 'bg-jb-panel/50 ring-jb-border/30 cursor-not-allowed opacity-80' 
+            : inputError
+              ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
+              : 'bg-jb-panel/95 ring-jb-border/50 focus-within:ring-jb-accent/30 focus-within:shadow-[0_0_30px_rgba(53,116,240,0.1)] shadow-2xl'
           }`}
         style={{
           borderRadius: isChatExpanded ? '16px' : '28px',
@@ -123,18 +126,18 @@ export default function RefactorInput({
         }}
       >
         <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
-          <Command className={`${inputError ? 'text-destructive' : 'text-jb-accent'} opacity-90`} size={18} />
+          <Command className={`${inputError ? 'text-destructive' : isHistorical ? 'text-jb-text-muted' : 'text-jb-accent'} opacity-90`} size={18} />
         </div>
         <textarea
           ref={chatInputRef}
-          value={inputInstruction}
+          value={isHistorical ? "This is a archived session" : inputInstruction}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsChatFocused(true)}
+          onFocus={() => !isHistorical && setIsChatFocused(true)}
           onBlur={() => setIsChatFocused(false)}
-          placeholder="Ask the Swarm to refactor..."
-          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted caret-jb-accent ${appState === 'analyzing' ? 'text-jb-text-muted cursor-not-allowed' : 'text-jb-text'}`}
-          disabled={appState === 'analyzing'}
+          placeholder={isHistorical ? "Archived session" : "Ask the Swarm to refactor..."}
+          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted caret-jb-accent ${appState === 'analyzing' || isHistorical ? 'text-jb-text-muted cursor-not-allowed' : 'text-jb-text'}`}
+          disabled={appState === 'analyzing' || isHistorical}
           rows={1}
           style={{ minHeight: '40px', lineHeight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
         />
@@ -153,7 +156,7 @@ export default function RefactorInput({
                   : 'shadow-[0_4px_15px_rgba(53,116,240,0.25)] hover:shadow-[0_6px_20px_rgba(53,116,240,0.4)] hover:scale-105 active:scale-95 bg-jb-accent border-none'
                 }`}
             >
-              <Sparkles size={14} className={isSubmitDisabled ? "" : "fill-current"} /> Run
+              <Sparkles size={14} className={isSubmitDisabled ? "" : "fill-current"} /> {isHistorical ? "Locked" : "Run"}
             </button>
           )}
         </div>

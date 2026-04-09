@@ -7,7 +7,7 @@ export interface RefactorRequest {
 
 export interface StatusMessage {
   type: "status";
-  role: "Planner" | "Generator" | "Judge" | "Validator";
+  role: "Planner" | "Generator" | "Judge" | "Validator" | "System";
   content: string;
 }
 

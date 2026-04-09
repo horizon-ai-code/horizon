@@ -43,10 +43,14 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   }, []);
 
   useEffect(() => {
-    if (id && !store.sessions[id]) {
-      store.createSession(id);
+    if (id) {
+      if (!store.sessions[id]) {
+        store.createSession(id);
+      } else if (store.sessions[id].createdAt === 0) {
+        store.fetchSessionDetails(id);
+      }
     }
-  }, [id, store.sessions, store.createSession]); // eslint-disable-line
+  }, [id, store.sessions, store.createSession, store.fetchSessionDetails]); // eslint-disable-line
 
   const activeSession = id ? (store.sessions[id] || {
     id: id,
@@ -114,7 +118,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   }, [terminalEntries, activeStep, isTerminalCollapsed, appState]);
 
   useEffect(() => {
-    if (appState !== "analyzing") return;
+    if (appState !== "analyzing" && appState !== "waiting") return;
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -127,7 +131,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   const startAnalysis = () => {
     if (!validateBeforeSubmit()) return;
-    if (appState === 'analyzing') return;
+    if (appState === 'analyzing' || appState === 'waiting') return;
     if (!id) return;
 
     const commandId = Date.now().toString();
@@ -172,7 +176,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         const sent = sendRefactorRequest({
           code: sourceCode,
           user_instruction: lastCommand.text,
-        });
+        }, lastCommand.id);
         if (sent && sendInterval) {
           clearInterval(sendInterval);
           sendInterval = null;

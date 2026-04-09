@@ -108,6 +108,15 @@ export const useChatStore = create<ChatStore>((set) => ({
   updateSession: (id, arg) =>
     set((state) => {
       const now = Date.now();
+      
+      if (id === "draft" || !id) {
+        const data = typeof arg === "function" ? arg({ ...state.draftSession, id: "draft" } as SessionData) : arg;
+        return {
+          ...state,
+          draftSession: { ...state.draftSession, ...data, updatedAt: now },
+        };
+      }
+
       const existing = state.sessions[id] || { ...DEFAULT_SESSION, id, createdAt: now, updatedAt: now };
       const data = typeof arg === "function" ? arg(existing) : arg;
 
@@ -224,16 +233,37 @@ export const useChatStore = create<ChatStore>((set) => ({
       const res = await fetch("http://localhost:8000/api/history");
       if (!res.ok) return;
       
-      const ids: string[] = await res.json();
+      const items: Array<{ id?: string; user_instruction?: string }> = await res.json();
       
-      await Promise.all(
-        ids.map(async (idItem) => {
-           const id = String(typeof idItem === 'object' && idItem !== null ? (idItem as Record<string, unknown>).id || (idItem as Record<string, unknown>).item || idItem : idItem);
-           try {
-             await useChatStore.getState().fetchSessionDetails(id);
-           } catch(_) {}
-        })
-      );
+      set((state) => {
+        const newSessions = { ...state.sessions };
+        
+        items.forEach((item) => {
+            const id = item?.id;
+            if (!id) return;
+            
+            const instruction = item.user_instruction || "";
+            
+            if (!newSessions[id]) {
+                const title = instruction.trim().length > 0 
+                  ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
+                  : "New Session";
+
+                newSessions[id] = {
+                    ...DEFAULT_SESSION,
+                    id,
+                    title,
+                    updatedAt: Date.now(), // Ensure it has a timestamp for sorting
+                };
+            }
+        });
+
+        return {
+          ...state,
+          sessions: newSessions,
+          hasInitialLoaded: true,
+        };
+      });
     } catch (e) {
       console.error("[ChatStore] Error fetching history:", e);
     }
@@ -257,11 +287,11 @@ export const useChatStore = create<ChatStore>((set) => ({
         };
         const DEFAULT_VISUALS = { step: 1, icon: "Cpu", colorClass: "text-jb-accent" };
         
-        const terminalEntries: TerminalEntry[] = (detail.logs || []).map((log: Record<string, unknown>) => {
+        const terminalEntries: TerminalEntry[] = (detail.logs || []).map((log: Record<string, unknown>, index: number) => {
             const role = log.role as string;
             const visuals = ROLE_VISUALS[role] || DEFAULT_VISUALS;
             return {
-                id: `p-${log.id}`,
+                id: log.id ? `p-${log.id}` : `p-log-${index}`,
                 type: "log",
                 text: `[${role}]: ${log.status}`,
                 icon: visuals.icon,

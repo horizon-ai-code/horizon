@@ -1,7 +1,7 @@
 
 import type { ReplayStep, InsightMetric } from "./insights";
 
-export type AppState = "idle" | "analyzing" | "done";
+export type AppState = "idle" | "analyzing" | "waiting" | "done";
 
 export interface TerminalEntry {
   id: string;

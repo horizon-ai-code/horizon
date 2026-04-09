@@ -44,7 +44,9 @@ export default function Sidebar() {
   const [dialogAction, setDialogAction] = useState<"delete" | "leave" | "switch">("delete");
   const [switchTargetId, setSwitchTargetId] = useState<string | null>(null);
 
-  const recentSessions = Object.values(sessions).sort((a, b) => b.updatedAt - a.updatedAt);
+  const recentSessions = Object.values(sessions)
+    .filter(s => s && s.id && s.id !== 'draft')
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const activeId = typeof params.id === "string" ? params.id : "";
   const activeSession = activeId ? sessions[activeId] : undefined;
   const isActiveAnalyzing = activeSession?.appState === "analyzing";

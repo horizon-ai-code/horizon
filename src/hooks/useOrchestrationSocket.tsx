@@ -24,6 +24,7 @@ const ROLE_VISUALS: Record<string, RoleVisuals> = {
   Generator: { step: 2, icon: "Layers",       colorClass: "text-[#2aacb8]" },
   Validator: { step: 3, icon: "FileCode2",    colorClass: "text-[#00e5ff]" },
   Judge:     { step: 4, icon: "CheckCircle2", colorClass: "text-[#27c93f]" },
+  System:    { step: 1, icon: "Clock",        colorClass: "text-yellow-400" },
 };
 
 const DEFAULT_VISUALS: RoleVisuals = {
@@ -48,7 +49,7 @@ export interface OrchestrationContextValue {
   connectionStatus: ConnectionStatus;
   connect: (targetSessionId: string) => void;
   disconnect: () => void;
-  sendRefactorRequest: (request: RefactorRequest) => boolean;
+  sendRefactorRequest: (request: RefactorRequest, commandId?: string) => boolean;
   setTargetSessionId: (id: string) => void;
 }
 
@@ -61,6 +62,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const backoffRef = useRef(INITIAL_BACKOFF_MS);
   const intentionalCloseRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
+  const lastProcessedCommandIdRef = useRef<string | null>(null);
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
 
@@ -102,10 +104,20 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         visuals.colorClass
       );
 
-      updateSession(targetId, (prev: SessionData) => ({
-        activeStep: Math.max(prev.activeStep, visuals.step),
-        terminalEntries: [...prev.terminalEntries, entry],
-      }));
+      updateSession(targetId, (prev: SessionData) => {
+        let appState = prev.appState;
+        if (msg.role === "System") {
+          appState = "waiting";
+        } else if (appState === "waiting") {
+          appState = "analyzing";
+        }
+
+        return {
+          appState,
+          activeStep: Math.max(prev.activeStep, visuals.step),
+          terminalEntries: [...prev.terminalEntries, entry],
+        };
+      });
     },
     [updateSession]
   );
@@ -201,6 +213,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     ws.onopen = () => {
       setConnectionStatus("connected");
       backoffRef.current = INITIAL_BACKOFF_MS;
+      // Reset command tracking on fresh connection to allow re-sending if needed
+      lastProcessedCommandIdRef.current = null;
     };
 
     ws.onmessage = (event) => {
@@ -277,12 +291,21 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   // ── Send a refactor request ──────────────────────────────────────────────
 
   const sendRefactorRequest = useCallback(
-    (request: RefactorRequest): boolean => {
+    (request: RefactorRequest, commandId?: string): boolean => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("[WS] Cannot send — WebSocket is not open.");
         return false;
       }
+
+      // Prevent duplicate sends for the same logical command across route changes
+      if (commandId && lastProcessedCommandIdRef.current === commandId) {
+        return true; // Already sent/acknowledged
+      }
+
       wsRef.current.send(JSON.stringify(request));
+      if (commandId) {
+        lastProcessedCommandIdRef.current = commandId;
+      }
       return true;
     },
     []
