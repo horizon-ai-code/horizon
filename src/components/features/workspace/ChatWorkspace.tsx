@@ -7,6 +7,7 @@ import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "reac
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTheme } from "next-themes";
 import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
+import { useRouter } from "next/navigation";
 
 import InputPanel from "@/components/features/editor/InputPanel";
 import RefactoredOutput from "@/components/features/output/RefactoredOutput";
@@ -15,6 +16,7 @@ import Terminal from "@/components/features/terminal/Terminal";
 export default function ChatWorkspace({ sessionId }: { sessionId: string | null }) {
   const store = useChatStore();
   const id = sessionId;
+  const router = useRouter();
 
   const { resolvedTheme } = useTheme();
   
@@ -43,14 +45,23 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   }, []);
 
   useEffect(() => {
-    if (id) {
-      if (!store.sessions[id]) {
-        store.createSession(id);
-      } else if (store.sessions[id].createdAt === 0) {
-        store.fetchSessionDetails(id);
+    if (!id) return;
+    
+    // Avoid re-running on every store.sessions update to fix the infinite fetch loop.
+    const session = useChatStore.getState().sessions[id];
+    
+    const fetchAndHandle = async () => {
+      const success = await store.fetchSessionDetails(id);
+      if (!success) {
+        router.push('/');
       }
+    };
+    
+    if (!session || (session.createdAt === 0 && !session.isLoaded)) {
+      fetchAndHandle();
     }
-  }, [id, store.sessions, store.createSession, store.fetchSessionDetails]); // eslint-disable-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, router, store.fetchSessionDetails]);
 
   const activeSession = id ? (store.sessions[id] || {
     id: id,
@@ -137,9 +148,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: inputInstruction };
 
-    const currentInstruction = inputInstruction;
-    const currentSourceCode = sourceCode;
-
     // Set UI to analyzing state
     updateLocal({
       inputInstruction: "",
@@ -187,7 +195,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => {
       if (sendInterval) clearInterval(sendInterval);
     };
-  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode, terminalEntries]); // eslint-disable-line
+  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode, terminalEntries]);
 
   const stopAnalysis = () => {
     disconnect();

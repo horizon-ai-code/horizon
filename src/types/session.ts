@@ -37,5 +37,6 @@ export interface SessionData {
   appState: AppState;
   showFlowchartModal: boolean;
   orchestrationResult: OrchestrationResult;
+  isLoaded?: boolean;
   error?: string;
 }

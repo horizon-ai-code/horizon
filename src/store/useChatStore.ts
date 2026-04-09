@@ -83,7 +83,7 @@ interface ChatStore {
   deleteSession: (id: string) => Promise<void>;
   migrateSessionId: (oldId: string, newId: string) => void;
   fetchHistory: () => Promise<void>;
-  fetchSessionDetails: (id: string) => Promise<void>;
+  fetchSessionDetails: (id: string) => Promise<boolean>;
 }
 
 // ── Zustand Store ─────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ export const useChatStore = create<ChatStore>((set) => ({
         ...state,
         sessions: {
           ...state.sessions,
-          [id]: { ...DEFAULT_SESSION, id, createdAt: now, updatedAt: now, ...initialData },
+          [id]: { ...DEFAULT_SESSION, ...initialData, id, createdAt: now, updatedAt: now, isLoaded: true },
         },
       };
     }),
@@ -272,7 +272,20 @@ export const useChatStore = create<ChatStore>((set) => ({
   fetchSessionDetails: async (id) => {
     try {
       const res = await fetch(`http://localhost:8000/api/history/${id}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        set((state) => ({
+           ...state,
+           sessions: {
+             ...state.sessions,
+             [id]: {
+               ...(state.sessions[id] || { ...DEFAULT_SESSION, id }),
+               error: 'not_found',
+               isLoaded: true
+             }
+           }
+        }));
+        return false;
+      }
       
       const detail = await res.json();
       
@@ -342,13 +355,16 @@ export const useChatStore = create<ChatStore>((set) => ({
               appState,
               activeStep,
               terminalEntries,
-              orchestrationResult: oResult
+              orchestrationResult: oResult,
+              isLoaded: true
             }
           }
         };
       });
+      return true;
     } catch(e) {
       console.error("[ChatStore] Error fetching session details:", e);
+      return false;
     }
   },
 }));
