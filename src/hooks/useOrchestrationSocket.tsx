@@ -107,9 +107,15 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       updateSession(targetId, (prev: SessionData) => {
         let appState = prev.appState;
+        
         if (msg.role === "System") {
-          appState = "waiting";
-        } else if (appState === "waiting") {
+          if (msg.content.toLowerCase().includes("busy") || msg.content.toLowerCase().includes("queue")) {
+            appState = "waiting";
+          } else if (msg.content.toLowerCase().includes("halted")) {
+            appState = "idle";
+          }
+        } else if (appState === "waiting" || appState === "idle") {
+          // Transition to analyzing when we get the first agent message
           appState = "analyzing";
         }
 
