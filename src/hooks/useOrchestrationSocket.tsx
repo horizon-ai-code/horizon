@@ -403,7 +403,7 @@ function buildMetrics(complexity: number | null, performance?: ResultMessage["pe
     metrics.push({
       title: "Avg GPU Memory",
       before: "—",
-      after: `${performance.avg_gpu_memory}%`,
+      after: `${(performance.avg_gpu_memory_used / (1024 * 1024 * 1024)).toFixed(2)} GB (${performance.avg_gpu_memory}%)`,
       direction: "neutral" as const,
       iconKey: "Layers",
     });

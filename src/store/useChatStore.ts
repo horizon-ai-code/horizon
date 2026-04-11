@@ -324,6 +324,7 @@ export const useChatStore = create<ChatStore>((set) => ({
            oResult.performance = {
                 avg_gpu_utilization: detail.avg_gpu_utilization || 0,
                 avg_gpu_memory: detail.avg_gpu_memory || 0,
+                avg_gpu_memory_used: detail.avg_gpu_memory_used || 0,
                 inference_time: detail.inference_time || 0
            };
 
@@ -356,7 +357,7 @@ export const useChatStore = create<ChatStore>((set) => ({
                 oResult.metrics.push({
                     title: "Avg GPU Memory",
                     before: "—",
-                    after: `${detail.avg_gpu_memory}%`,
+                    after: `${(detail.avg_gpu_memory_used / (1024 * 1024 * 1024)).toFixed(2)} GB (${detail.avg_gpu_memory}%)`,
                     direction: "neutral" as const,
                     iconKey: "Layers",
                 });

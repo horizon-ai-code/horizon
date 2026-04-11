@@ -77,7 +77,7 @@ export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) 
                 : (isIncrease ? (isDark ? 'border-green-500/20' : 'border-green-500/10') : (isDecrease ? (isDark ? 'border-red-500/20' : 'border-red-500/10') : (isDark ? 'border-blue-500/20' : 'border-blue-500/10')));
 
             return (
-              <div key={`${m.title}-${i}`} className={`p-4 rounded-[16px] border ${border} ${bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300 ${(isComplexity || isPerformance) ? 'col-span-2' : ''}`}>
+              <div key={`${m.title}-${i}`} className={`p-4 rounded-[16px] border ${border} ${bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300`}>
                 <div className={`p-2.5 w-max rounded-[12px] border ${border} ${color} bg-background shadow-sm group-hover:scale-110 transition-transform flex items-center gap-2`}>
                   <MetricIcon size={18} />
                   {isIncrease ? <TrendingUp size={14} /> : isDecrease ? <TrendingDown size={14} /> : null}

@@ -19,6 +19,7 @@ export interface ConnectionIdMessage {
 export interface PerformanceMetrics {
   avg_gpu_utilization: number;
   avg_gpu_memory: number;
+  avg_gpu_memory_used: number;
   inference_time: number;
 }
 
