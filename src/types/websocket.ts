@@ -24,6 +24,10 @@ export interface ResultMessage {
   insights: string;
 }
 
+export interface HaltRequest {
+  type: "halt";
+}
+
 export interface PydanticError {
   type: string;
   loc: string[];

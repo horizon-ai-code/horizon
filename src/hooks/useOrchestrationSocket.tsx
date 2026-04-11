@@ -50,6 +50,7 @@ export interface OrchestrationContextValue {
   connect: (targetSessionId: string) => void;
   disconnect: () => void;
   sendRefactorRequest: (request: RefactorRequest, commandId?: string) => boolean;
+  sendHaltRequest: () => boolean;
   setTargetSessionId: (id: string) => void;
 }
 
@@ -311,6 +312,16 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const sendHaltRequest = useCallback((): boolean => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      console.error("[WS] Cannot halt — WebSocket is not open.");
+      return false;
+    }
+
+    wsRef.current.send(JSON.stringify({ type: "halt" }));
+    return true;
+  }, []);
+
   // ── Keep sessionId available via ref for onmessage handler ───────────────
 
   const setTargetSessionId = useCallback((id: string) => {
@@ -337,6 +348,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         connect,
         disconnect,
         sendRefactorRequest,
+        sendHaltRequest,
         setTargetSessionId,
       }}
     >

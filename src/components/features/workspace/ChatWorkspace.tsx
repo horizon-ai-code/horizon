@@ -28,7 +28,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, disconnect, sendRefactorRequest, setTargetSessionId } = useOrchestrationSocket();
+  const { connectionStatus, connect, disconnect, sendRefactorRequest, sendHaltRequest, setTargetSessionId } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
@@ -198,7 +198,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode, terminalEntries]);
 
   const stopAnalysis = () => {
-    disconnect();
+    sendHaltRequest();
     updateLocal({
       appState: 'idle',
       activeStep: 0,
