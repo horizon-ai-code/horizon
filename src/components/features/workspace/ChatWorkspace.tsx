@@ -150,7 +150,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
     // Set UI to analyzing state
     updateLocal({
-      inputInstruction: "",
       terminalEntries: [...terminalEntries, newEntry],
       appState: "analyzing" as const,
       isTerminalCollapsed: false,
