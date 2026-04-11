@@ -50,6 +50,7 @@ export interface OrchestrationContextValue {
   connect: (targetSessionId: string) => void;
   disconnect: () => void;
   sendRefactorRequest: (request: RefactorRequest, commandId?: string) => boolean;
+  sendHaltRequest: () => boolean;
   setTargetSessionId: (id: string) => void;
 }
 
@@ -106,15 +107,23 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       updateSession(targetId, (prev: SessionData) => {
         let appState = prev.appState;
+        
         if (msg.role === "System") {
-          appState = "waiting";
-        } else if (appState === "waiting") {
+          if (msg.content.toLowerCase().includes("busy") || msg.content.toLowerCase().includes("queue")) {
+            appState = "waiting";
+          } else if (msg.content.toLowerCase().includes("halted")) {
+            appState = "idle";
+          }
+        } else if (appState === "waiting" || appState === "idle") {
+          // Transition to analyzing when we get the first agent message
           appState = "analyzing";
         }
 
         return {
           appState,
-          activeStep: Math.max(prev.activeStep, visuals.step),
+          activeStep: msg.role === "System" 
+            ? Math.max(prev.activeStep, visuals.step) 
+            : visuals.step,
           terminalEntries: [...prev.terminalEntries, entry],
         };
       });
@@ -133,16 +142,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         "text-[#27c93f]"
       );
 
-      // Build orchestration result from backend payload.
-      // metrics and replaySteps are left empty — the backend doesn't provide
-      // them in the same shape as the old mock. The insights string and
-      // complexity object are stored for the InsightsPanel.
       const orchestrationResult: OrchestrationResult = {
         ...EMPTY_ORCHESTRATION_RESULT,
         summary: msg.insights,
-        complexity: msg.complexity,
+        original_complexity: msg.original_complexity,
+        refactored_complexity: msg.refactored_complexity,
         insights: msg.insights,
-        metrics: buildMetricsFromComplexity(msg.complexity),
+        performance: msg.performance,
+        metrics: buildMetrics(msg.original_complexity, msg.refactored_complexity, msg.performance),
       };
 
       updateSession(targetId, (prev: SessionData) => ({
@@ -311,6 +318,16 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const sendHaltRequest = useCallback((): boolean => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      console.error("[WS] Cannot halt — WebSocket is not open.");
+      return false;
+    }
+
+    wsRef.current.send(JSON.stringify({ type: "halt" }));
+    return true;
+  }, []);
+
   // ── Keep sessionId available via ref for onmessage handler ───────────────
 
   const setTargetSessionId = useCallback((id: string) => {
@@ -337,6 +354,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         connect,
         disconnect,
         sendRefactorRequest,
+        sendHaltRequest,
         setTargetSessionId,
       }}
     >
@@ -353,20 +371,62 @@ export function useOrchestrationSocket(): OrchestrationContextValue {
   return ctx;
 }
 
-// ── Utility: Build InsightMetric[] from ComplexityResult ──────────────────────
-// The backend returns a flat complexity object rather than the array of metrics
-// the old mock used. We transform it into something the InsightsPanel can render.
+// ── Utility: Build InsightMetric[] from Backend Stats ─────────────────────────
 
-function buildMetricsFromComplexity(complexity: number | null) {
+function buildMetrics(
+  original_complexity: number | null,
+  refactored_complexity: number | null,
+  performance?: ResultMessage["performance"]
+) {
   const metrics = [];
 
-  if (complexity !== null) {
+  if (refactored_complexity !== null) {
     metrics.push({
       title: "Cyclomatic Complexity",
-      before: "—",
-      after: `${complexity}`,
-      direction: complexity <= 5 ? ("down" as const) : ("up" as const),
+      before: original_complexity !== null ? `${original_complexity}` : "—",
+      after: `${refactored_complexity}`,
+      direction:
+        original_complexity !== null
+          ? refactored_complexity < original_complexity
+            ? ("down" as const)
+            : refactored_complexity > original_complexity
+            ? ("up" as const)
+            : ("neutral" as const)
+          : refactored_complexity <= 5
+          ? ("down" as const)
+          : ("up" as const),
       iconKey: "CheckCircle",
+    });
+  }
+
+  if (performance) {
+    const memUsed = performance.avg_gpu_memory_used ?? 0;
+    const memPercent = performance.avg_gpu_memory ?? 0;
+    const gpuUtil = performance.avg_gpu_utilization ?? 0;
+    const infTime = performance.inference_time ?? 0;
+
+    metrics.push({
+      title: "Inference Time",
+      before: "—",
+      after: `${infTime}s`,
+      direction: "neutral" as const,
+      iconKey: "Clock",
+    });
+
+    metrics.push({
+      title: "Avg GPU Utilization",
+      before: "—",
+      after: `${gpuUtil}%`,
+      direction: "neutral" as const,
+      iconKey: "Cpu",
+    });
+
+    metrics.push({
+      title: "Avg GPU Memory",
+      before: "—",
+      after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
+      direction: "neutral" as const,
+      iconKey: "Layers",
     });
   }
 

@@ -138,11 +138,22 @@ export const useChatStore = create<ChatStore>((set) => ({
       if (state.sessions[id]) return state;
 
       const now = Date.now();
+      const instruction = initialData?.inputInstruction || "";
+      const derivedTitle = instruction ? getSessionTitleFromPrompt(instruction) : "New Session";
+
       return {
         ...state,
         sessions: {
           ...state.sessions,
-          [id]: { ...DEFAULT_SESSION, ...initialData, id, createdAt: now, updatedAt: now, isLoaded: true },
+          [id]: { 
+            ...DEFAULT_SESSION, 
+            ...initialData, 
+            title: derivedTitle,
+            id, 
+            createdAt: now, 
+            updatedAt: now, 
+            isLoaded: true 
+          },
         },
       };
     }),
@@ -321,18 +332,60 @@ export const useChatStore = create<ChatStore>((set) => ({
            appState = "done";
            oResult.summary = detail.insights || "";
            oResult.insights = detail.insights || "";
-           if (typeof detail.complexity === "number") {
-                oResult.metrics = [{
+           oResult.original_complexity = detail.original_complexity;
+           oResult.refactored_complexity = detail.refactored_complexity;
+           oResult.performance = {
+                avg_gpu_utilization: detail.avg_gpu_utilization || 0,
+                avg_gpu_memory: detail.avg_gpu_memory || 0,
+                avg_gpu_memory_used: detail.avg_gpu_memory_used || 0,
+                inference_time: detail.inference_time || 0
+           };
+
+           oResult.metrics = [];
+           if (typeof detail.refactored_complexity === "number") {
+                const orig = detail.original_complexity;
+                const ref = detail.refactored_complexity;
+                oResult.metrics.push({
                     title: "Cyclomatic Complexity",
-                    before: "—",
-                    after: `${detail.complexity}`,
-                    direction: detail.complexity <= 5 ? "down" as const : "up" as const,
+                    before: typeof orig === "number" ? `${orig}` : "—",
+                    after: `${ref}`,
+                    direction: typeof orig === "number" 
+                        ? (ref < orig ? "down" as const : (ref > orig ? "up" as const : "neutral" as const))
+                        : (ref <= 5 ? "down" as const : "up" as const),
                     iconKey: "CheckCircle",
-                }];
-           } else if (typeof detail.complexity === "object" && detail.complexity !== null) {
-                oResult.metrics = [];
+                });
            }
-        } else if (detail.logs && detail.logs.length > 0) {
+
+           if (detail.avg_gpu_utilization !== undefined) {
+                const memUsed = detail.avg_gpu_memory_used ?? 0;
+                const memPercent = detail.avg_gpu_memory ?? 0;
+                const gpuUtil = detail.avg_gpu_utilization ?? 0;
+                const infTime = detail.inference_time ?? 0;
+
+                oResult.metrics.push({
+                    title: "Inference Time",
+                    before: "—",
+                    after: `${infTime}s`,
+                    direction: "neutral" as const,
+                    iconKey: "Clock",
+                });
+                oResult.metrics.push({
+                    title: "Avg GPU Utilization",
+                    before: "—",
+                    after: `${gpuUtil}%`,
+                    direction: "neutral" as const,
+                    iconKey: "Cpu",
+                });
+                oResult.metrics.push({
+                    title: "Avg GPU Memory",
+                    before: "—",
+                    after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
+                    direction: "neutral" as const,
+                    iconKey: "Layers",
+                });
+           }
+        }
+ else if (detail.logs && detail.logs.length > 0) {
            appState = "analyzing";
            const lastLog = detail.logs[detail.logs.length - 1];
            const visuals = ROLE_VISUALS[lastLog.role] || DEFAULT_VISUALS;

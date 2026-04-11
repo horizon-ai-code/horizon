@@ -16,12 +16,25 @@ export interface ConnectionIdMessage {
   id: string;
 }
 
+export interface PerformanceMetrics {
+  avg_gpu_utilization: number;
+  avg_gpu_memory: number;
+  avg_gpu_memory_used: number;
+  inference_time: number;
+}
+
 export interface ResultMessage {
   type: "result";
   id: string;
   code: string;
-  complexity: number | null;
+  original_complexity: number | null;
+  refactored_complexity: number | null;
   insights: string;
+  performance?: PerformanceMetrics;
+}
+
+export interface HaltRequest {
+  type: "halt";
 }
 
 export interface PydanticError {
