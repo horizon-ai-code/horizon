@@ -55,38 +55,58 @@ export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) 
             const isDecrease = m.direction === 'down';
             
             const isComplexity = displayTitle === 'Cyclomatic Complexity';
-            const isPerformance = ['Inference Time', 'Avg GPU Utilization', 'Avg GPU Memory'].includes(displayTitle);
             
-            // Performance metrics are neutral (grey), Complexity is always blue, others are dynamic.
-            const color = isPerformance
-              ? (isDark ? 'text-gray-400' : 'text-slate-500')
-              : isComplexity
-                ? (isDark ? 'text-blue-400' : 'text-blue-600')
-                : (isIncrease ? (isDark ? 'text-green-400' : 'text-green-600') : (isDecrease ? (isDark ? 'text-red-400' : 'text-red-600') : (isDark ? 'text-blue-400' : 'text-blue-600')));
+            // Custom colors for each card
+            const getCardTheme = () => {
+              if (displayTitle === 'Cyclomatic Complexity') return { 
+                base: 'blue', 
+                color: isDark ? 'text-blue-400' : 'text-blue-600',
+                bg: isDark ? 'bg-blue-500/10' : 'bg-blue-500/5',
+                border: isDark ? 'border-blue-500/20' : 'border-blue-500/10'
+              };
+              if (displayTitle === 'Inference Time') return { 
+                base: 'amber', 
+                color: isDark ? 'text-amber-400' : 'text-amber-600',
+                bg: isDark ? 'bg-amber-500/10' : 'bg-amber-500/5',
+                border: isDark ? 'border-amber-500/20' : 'border-amber-500/10'
+              };
+              if (displayTitle === 'Avg GPU Utilization') return { 
+                base: 'purple', 
+                color: isDark ? 'text-purple-400' : 'text-purple-600',
+                bg: isDark ? 'bg-purple-500/10' : 'bg-purple-500/5',
+                border: isDark ? 'border-purple-500/20' : 'border-purple-500/10'
+              };
+              if (displayTitle === 'Avg GPU Memory') return { 
+                base: 'cyan', 
+                color: isDark ? 'text-cyan-400' : 'text-cyan-600',
+                bg: isDark ? 'bg-cyan-500/10' : 'bg-cyan-500/5',
+                border: isDark ? 'border-cyan-500/20' : 'border-cyan-500/10'
+              };
+              
+              // Fallback dynamic colors
+              return {
+                base: 'emerald',
+                color: isIncrease ? (isDark ? 'text-green-400' : 'text-green-600') : (isDecrease ? (isDark ? 'text-red-400' : 'text-red-600') : (isDark ? 'text-blue-400' : 'text-blue-600')),
+                bg: isIncrease ? (isDark ? 'bg-green-500/10' : 'bg-green-500/5') : (isDecrease ? (isDark ? 'bg-red-500/10' : 'bg-red-500/5') : (isDark ? 'bg-blue-500/10' : 'bg-blue-500/5')),
+                border: isIncrease ? (isDark ? 'border-green-500/20' : 'border-green-500/10') : (isDecrease ? (isDark ? 'border-red-500/20' : 'border-red-500/10') : (isDark ? 'border-blue-500/20' : 'border-blue-500/10'))
+              };
+            };
 
-            const bg = isPerformance
-              ? (isDark ? 'bg-gray-500/10' : 'bg-gray-500/5')
-              : isComplexity
-                ? (isDark ? 'bg-blue-500/10' : 'bg-blue-500/5')
-                : (isIncrease ? (isDark ? 'bg-green-500/10' : 'bg-green-500/5') : (isDecrease ? (isDark ? 'bg-red-500/10' : 'bg-red-500/5') : (isDark ? 'bg-blue-500/10' : 'bg-blue-500/5')));
-
-            const border = isPerformance
-              ? (isDark ? 'border-gray-500/20' : 'border-gray-500/10')
-              : isComplexity
-                ? (isDark ? 'border-blue-500/20' : 'border-blue-500/10')
-                : (isIncrease ? (isDark ? 'border-green-500/20' : 'border-green-500/10') : (isDecrease ? (isDark ? 'border-red-500/20' : 'border-red-500/10') : (isDark ? 'border-blue-500/20' : 'border-blue-500/10')));
+            const theme = getCardTheme();
 
             return (
-              <div key={`${m.title}-${i}`} className={`p-4 rounded-[16px] border ${border} ${bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300`}>
-                <div className={`p-2.5 w-max rounded-[12px] border ${border} ${color} bg-background shadow-sm group-hover:scale-110 transition-transform flex items-center gap-2`}>
+              <div key={`${m.title}-${i}`} className={`p-4 rounded-[16px] border ${theme.border} ${theme.bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300`}>
+                <div className={`p-2.5 w-max rounded-[12px] border ${theme.border} ${theme.color} bg-background shadow-sm group-hover:scale-110 transition-transform flex items-center gap-2`}>
                   <MetricIcon size={18} />
-                  {isIncrease ? <TrendingUp size={14} /> : isDecrease ? <TrendingDown size={14} /> : null}
+                  {!isComplexity && (isIncrease ? <TrendingUp size={14} /> : isDecrease ? <TrendingDown size={14} /> : null)}
                 </div>
                 <div>
                   <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{displayTitle}</p>
                   <div className="flex items-baseline gap-2">
-                    <p className={`text-[16px] font-bold ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>{m.after}</p>
-                    {m.before && m.before !== '—' && (
+                    <p className={`text-[16px] font-bold ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>
+                      {isComplexity && m.before && m.before !== '—' ? `${m.before} → ${m.after}` : m.after}
+                    </p>
+                    {!isComplexity && m.before && m.before !== '—' && (
                       <p className={`text-[12px] font-medium line-through opacity-50 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
                         {m.before}
                       </p>
