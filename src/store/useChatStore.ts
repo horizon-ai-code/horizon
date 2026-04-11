@@ -340,24 +340,29 @@ export const useChatStore = create<ChatStore>((set) => ({
            }
 
            if (detail.avg_gpu_utilization !== undefined) {
+                const memUsed = detail.avg_gpu_memory_used ?? 0;
+                const memPercent = detail.avg_gpu_memory ?? 0;
+                const gpuUtil = detail.avg_gpu_utilization ?? 0;
+                const infTime = detail.inference_time ?? 0;
+
                 oResult.metrics.push({
                     title: "Inference Time",
                     before: "—",
-                    after: `${detail.inference_time}s`,
+                    after: `${infTime}s`,
                     direction: "neutral" as const,
                     iconKey: "Clock",
                 });
                 oResult.metrics.push({
                     title: "Avg GPU Utilization",
                     before: "—",
-                    after: `${detail.avg_gpu_utilization}%`,
+                    after: `${gpuUtil}%`,
                     direction: "neutral" as const,
                     iconKey: "Cpu",
                 });
                 oResult.metrics.push({
                     title: "Avg GPU Memory",
                     before: "—",
-                    after: `${(detail.avg_gpu_memory_used / (1024 * 1024 * 1024)).toFixed(2)} GB (${detail.avg_gpu_memory}%)`,
+                    after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
                     direction: "neutral" as const,
                     iconKey: "Layers",
                 });

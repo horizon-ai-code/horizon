@@ -384,10 +384,15 @@ function buildMetrics(complexity: number | null, performance?: ResultMessage["pe
   }
 
   if (performance) {
+    const memUsed = performance.avg_gpu_memory_used ?? 0;
+    const memPercent = performance.avg_gpu_memory ?? 0;
+    const gpuUtil = performance.avg_gpu_utilization ?? 0;
+    const infTime = performance.inference_time ?? 0;
+
     metrics.push({
       title: "Inference Time",
       before: "—",
-      after: `${performance.inference_time}s`,
+      after: `${infTime}s`,
       direction: "neutral" as const,
       iconKey: "Clock",
     });
@@ -395,7 +400,7 @@ function buildMetrics(complexity: number | null, performance?: ResultMessage["pe
     metrics.push({
       title: "Avg GPU Utilization",
       before: "—",
-      after: `${performance.avg_gpu_utilization}%`,
+      after: `${gpuUtil}%`,
       direction: "neutral" as const,
       iconKey: "Cpu",
     });
@@ -403,7 +408,7 @@ function buildMetrics(complexity: number | null, performance?: ResultMessage["pe
     metrics.push({
       title: "Avg GPU Memory",
       before: "—",
-      after: `${(performance.avg_gpu_memory_used / (1024 * 1024 * 1024)).toFixed(2)} GB (${performance.avg_gpu_memory}%)`,
+      after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
       direction: "neutral" as const,
       iconKey: "Layers",
     });
