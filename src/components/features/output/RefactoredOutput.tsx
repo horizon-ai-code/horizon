@@ -209,7 +209,13 @@ export default function RefactoredOutput({
           ) : rightPanelMode === 'replay' ? (
              <RefactoringReplay replaySteps={orchestrationResult.replaySteps} />
           ) : (
-             <InsightsPanel metrics={orchestrationResult.metrics} summary={orchestrationResult.summary} />
+             <InsightsPanel 
+               metrics={orchestrationResult.metrics} 
+               summary={orchestrationResult.summary} 
+               planner_model={orchestrationResult.planner_model}
+               generator_model={orchestrationResult.generator_model}
+               judge_model={orchestrationResult.judge_model}
+             />
           )
         )}
 

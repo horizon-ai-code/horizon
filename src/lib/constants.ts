@@ -12,4 +12,7 @@ export const EMPTY_ORCHESTRATION_RESULT: OrchestrationResult = {
     added: [],
     removed: [],
   },
+  planner_model: "",
+  generator_model: "",
+  judge_model: "",
 };

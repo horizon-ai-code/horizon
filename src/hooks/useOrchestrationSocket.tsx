@@ -149,6 +149,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         refactored_complexity: msg.refactored_complexity,
         insights: msg.insights,
         performance: msg.performance,
+        planner_model: msg.planner_model,
+        generator_model: msg.generator_model,
+        judge_model: msg.judge_model,
         metrics: buildMetrics(msg.original_complexity, msg.refactored_complexity, msg.performance),
       };
 

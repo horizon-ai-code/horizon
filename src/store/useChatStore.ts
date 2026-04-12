@@ -334,6 +334,9 @@ export const useChatStore = create<ChatStore>((set) => ({
            oResult.insights = detail.insights || "";
            oResult.original_complexity = detail.original_complexity;
            oResult.refactored_complexity = detail.refactored_complexity;
+           oResult.planner_model = detail.planner_model;
+           oResult.generator_model = detail.generator_model;
+           oResult.judge_model = detail.judge_model;
            oResult.performance = {
                 avg_gpu_utilization: detail.avg_gpu_utilization || 0,
                 avg_gpu_memory: detail.avg_gpu_memory || 0,
