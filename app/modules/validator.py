@@ -416,7 +416,7 @@ class Validator:
         )
 
     def verify_boundary(
-        self, orig_code: str, refac_code: str, target_scope: str
+        self, orig_code: str, refac_code: str, target_scopes: List[str]
     ) -> Optional[ValidationFinding]:
         """Phase 4, Tier 2-B: Ensure nodes outside scope are untouched."""
         orig_res = self.check_syntax(orig_code)
@@ -439,7 +439,7 @@ class Validator:
         }
 
         # Find classes/enums that existed in original but were changed in refactor
-        # We only care about modifications to EXISTING structures outside target_scope.
+        # We only care about modifications to EXISTING structures outside target_scopes.
         # NEW structures (enums/classes) are allowed as part of the refactoring strategy.
         orig_structs = {
             getattr(n, "name", "unknown"): ASTWalker.get_hash(
@@ -459,12 +459,12 @@ class Validator:
         }
 
         for name, h in orig_methods.items():
-            if name != target_scope and name in refac_methods:
+            if name not in target_scopes and name in refac_methods:
                 if h != refac_methods[name]:
                     return ValidationFinding(
                         failure_tier=FailureTier.TIER_2_B_BOUNDARY,
                         error_report=ErrorReport(
-                            message=f"Boundary Violation: Method '{name}' was modified but was outside target scope.",
+                            message=f"Boundary Violation: Method '{name}' was modified but was outside target scope(s).",
                             faulty_node=name,
                         ),
                         recovery_hint=f"Next plan must strictly preserve the body of '{name}'.",
@@ -472,8 +472,8 @@ class Validator:
 
         for name, h in orig_structs.items():
             if name in refac_structs and h != refac_structs[name]:
-                # If a class/enum is changed, we check if it was the target
-                if name != target_scope:
+                # If a class/enum is changed, we check if it was one of the targets
+                if name not in target_scopes:
                     # Check if the change is simply because a method inside the class was changed
                     # (which is already covered by the orig_methods loop)
                     # or because a new internal structure was added.

@@ -1,0 +1,50 @@
+# DEMO SCENARIO: FLATTENING NESTED BUSINESS LOGIC (REVISED)
+
+### 1. JAVA SOURCE CODE (Input)
+Paste this into the code input field:
+
+public class OrderProcessor {
+    public void processOrder(Order order, User user) {
+        if (user != null) {
+            if (user.isActive()) {
+                if (order != null) {
+                    if (!order.getItems().isEmpty()) {
+                        
+                        double total = order.getTotal();
+                        if (total > 1000) {
+                            if (user.isPremium()) {
+                                order.applyDiscount(0.15);
+                            } else {
+                                order.applyDiscount(0.05);
+                            }
+                        }
+                        
+                        System.out.println("Processing order for: " + user.getName());
+                    } else {
+                        throw new IllegalArgumentException("Order has no items.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Order cannot be null.");
+                }
+            } else {
+                throw new IllegalStateException("User account is inactive.");
+            }
+        } else {
+            throw new IllegalArgumentException("User cannot be null.");
+        }
+    }
+}
+
+
+### 2. USER INSTRUCTION
+Type this into the instruction box:
+
+Refactor the processOrder method to use guard clauses. Invert the nested if-statements to handle invalid states at the top with immediate exceptions. 
+STRICT REQUIREMENT: You MUST preserve every original exception type and error message string exactly. Create one guard clause for each validation check to maintain the original logic sequence.
+
+
+### 3. WHY THIS WORKS FOR THE DEMO
+- INTENT MATH: Uses 'FLATTEN_CONDITIONAL'. Success is based on reducing nesting depth (6 -> 1).
+- EXCEPTION PARITY: The "STRICT" instruction prevents the AI from merging checks, which was why the Judge rejected the previous attempt.
+- JUDGE ACCURACY: By forcing 1-to-1 guard clauses, the logic comparison for the Judge becomes a perfect "Identity Mapping," leading to an immediate ACCEPT.
+- VISUAL IMPACT: You will see the "Arrow Code" transform into a perfectly linear list of validations followed by the business logic.

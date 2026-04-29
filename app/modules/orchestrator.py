@@ -329,12 +329,29 @@ class Orchestrator:
             )
 
         # Check B: Boundary Verification
-        target_scope = ""
+        target_scopes = []
         if state.intent_packet and "scope_anchor" in state.intent_packet:
-            target_scope = state.intent_packet["scope_anchor"].get("member", "") or ""
+            member = state.intent_packet["scope_anchor"].get("member", "")
+            if member:
+                target_scopes.append(member)
+            target_class = state.intent_packet["scope_anchor"].get("class", "")
+            if target_class:
+                target_scopes.append(target_class)
+
+        if state.active_plan and "ast_mutations" in state.active_plan:
+            for mutation in state.active_plan["ast_mutations"]:
+                target = mutation.get("target", "")
+                # Extract method name if it has a signature
+                name = target.split("(")[0].strip()
+                if name and name not in target_scopes:
+                    target_scopes.append(name)
+        
+        if state.active_plan and "target_class" in state.active_plan:
+            if state.active_plan["target_class"] not in target_scopes:
+                target_scopes.append(state.active_plan["target_class"])
 
         boundary_finding = self.validator.verify_boundary(
-            state.base_code, state.working_code, target_scope
+            state.base_code, state.working_code, target_scopes
         )
         if boundary_finding:
             findings.append(boundary_finding)

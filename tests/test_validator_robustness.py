@@ -62,7 +62,7 @@ class TestValidatorRobustness(unittest.TestCase):
         }
         """
         # Manual boundary check simulation
-        finding = self.validator.verify_boundary(orig, refac, "getStatusMessage")
+        finding = self.validator.verify_boundary(orig, refac, ["getStatusMessage"])
         self.assertIsNone(finding, f"Expected no boundary violation for adding helper structures, got: {finding.error_report.message if finding else ''}")
 
     def test_extract_variable_multiple(self):

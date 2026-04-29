@@ -47,7 +47,7 @@ class TestValidatorNew(unittest.TestCase):
             "class A { void target() { \n // done \n } void other() { int y = 2; } }"
         )
 
-        finding = self.validator.verify_boundary(orig, refac, "target")
+        finding = self.validator.verify_boundary(orig, refac, ["target"])
         self.assertIsNotNone(finding)
         self.assertIn("Boundary Violation", finding.error_report.message)  # type: ignore
 
