@@ -169,7 +169,9 @@ class Orchestrator:
                 {"role": "user", "content": prompt},
             ]
 
-            raw = await self.agent_service.generate(messages, temp=0.1, max_tokens=500)
+            raw = await self.agent_service.generate(
+                messages, temp=0.1, max_tokens=500, response_model=IntentClassifierResponse
+            )
             response_text = raw["choices"][0]["message"].get("content") or ""
             print(
                 f"\n--- Planner Classifier Output ---\n{response_text}\n-------------------------------"
@@ -204,7 +206,9 @@ class Orchestrator:
             {"role": "user", "content": arch_prompt},
         ]
 
-        raw = await self.agent_service.generate(messages, temp=0.2, max_tokens=1000)
+        raw = await self.agent_service.generate(
+            messages, temp=0.2, max_tokens=2048, response_model=ASTArchitectResponse
+        )
         arch_text = raw["choices"][0]["message"].get("content") or ""
         print(
             f"\n--- Planner Architect Output ---\n{arch_text}\n------------------------------"
@@ -383,7 +387,9 @@ class Orchestrator:
             {"role": "user", "content": audit_prompt},
         ]
 
-        raw = await self.agent_service.generate(messages, temp=0.1, max_tokens=1000)
+        raw = await self.agent_service.generate(
+            messages, temp=0.1, max_tokens=1000, response_model=StructuralAuditorResponse
+        )
         audit_text = raw["choices"][0]["message"].get("content") or ""
         print(
             f"\n--- Judge Auditor Output ---\n{audit_text}\n--------------------------"
@@ -510,6 +516,7 @@ class Orchestrator:
             temp=0.1,
             max_tokens=1000,
             stream=False,
+            response_model=RefactorInsightsResponse,
         )
 
         text = raw_reponse["choices"][0]["message"].get("content") or ""

@@ -3,7 +3,15 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import UUID4, BaseModel, Field
 
-from .types import FailureTier, RefactorCategory, RefactorIntent, Role, StructureUnit
+from .types import (
+    ExitStatus,
+    FailureTier,
+    MutationAction,
+    RefactorCategory,
+    RefactorIntent,
+    Role,
+    StructureUnit,
+)
 
 
 class LogEntry(BaseModel):
@@ -83,7 +91,7 @@ class ASTMutationDetails(BaseModel):
 
 
 class ASTMutation(BaseModel):
-    action: str  # e.g., ADD_METHOD, REMOVE_METHOD
+    action: MutationAction  # e.g., ADD_METHOD, REMOVE_METHOD
     target: str
     details: ASTMutationDetails
 

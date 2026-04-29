@@ -1,6 +1,7 @@
 import asyncio
 import gc
-from typing import List, Literal, Optional, overload
+import json
+from typing import List, Literal, Optional, Type, TypeVar, overload
 
 from llama_cpp import Iterator, Llama
 from llama_cpp.llama_types import (
@@ -8,8 +9,11 @@ from llama_cpp.llama_types import (
     CreateChatCompletionResponse,
     CreateChatCompletionStreamResponse,
 )
+from pydantic import BaseModel
 
 from app.utils.paths import MODELS_DIR
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class AgentService:
@@ -109,6 +113,7 @@ class AgentService:
         temp: float,
         max_tokens: int,
         stream: Literal[False] = False,
+        response_model: Optional[Type[T]] = None,
     ) -> CreateChatCompletionResponse: ...
 
     @overload
@@ -118,6 +123,7 @@ class AgentService:
         temp: float,
         max_tokens: int,
         stream: Literal[True],
+        response_model: Optional[Type[T]] = None,
     ) -> Iterator[CreateChatCompletionStreamResponse]: ...
 
     async def generate(
@@ -126,10 +132,12 @@ class AgentService:
         temp: float,
         max_tokens: int,
         stream: bool = False,
+        response_model: Optional[Type[T]] = None,
     ) -> CreateChatCompletionResponse | Iterator[CreateChatCompletionStreamResponse]:
         """
         Generates completions with repetition penalty to prevent infinite loops.
         Uses internal streaming to allow safe interruption between tokens.
+        If response_model is provided, enforces GBNF grammar for strict JSON output.
         """
         async with self._model_lock:
             model = self.model
@@ -140,10 +148,25 @@ class AgentService:
 
             # Always use streaming internally to allow for mid-generation halting
             def create_generator():
+                if response_model:
+                    # Inject JSON schema grammar to force valid JSON output
+                    # We cast to Any to bypass strict/outdated type hints in llama-cpp-python
+                    return model.create_chat_completion(
+                        messages=messages,
+                        temperature=temp,
+                        repeat_penalty=1.2,
+                        stream=True,
+                        max_tokens=max_tokens,
+                        response_format={
+                            "type": "json_object",
+                            "schema": response_model.model_json_schema(),
+                        },  # type: ignore
+                    )
+
                 return model.create_chat_completion(
                     messages=messages,
                     temperature=temp,
-                    repeat_penalty=1.15,
+                    repeat_penalty=1.2,
                     stream=True,
                     max_tokens=max_tokens,
                 )

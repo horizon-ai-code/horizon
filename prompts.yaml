@@ -11,6 +11,7 @@ planner:
     ### RULES
     - Analyze the user instruction and code.
     - Identify the CLASS and METHOD/MEMBER being targeted.
+    - LOOP SAFETY: Never select REPLACE_LOOP_WITH_PIPELINE or SPLIT_LOOP if the source code does not contain a loop (for, while, do-while).
     - Output ONLY a JSON object. No preamble.
 
     ### OUTPUT FORMAT
@@ -33,11 +34,13 @@ planner:
 
     ### INSTRUCTIONS
     1. The ultimate goal is derive a plan to refactor a code using the intent packet and user instructions.
-    2. Design a sequence of mutations (ADD_METHOD, MODIFY_METHOD, etc.) based on the intent packet and the user instructions.
-    3. DATA PARITY: You MUST preserve all return values and error messages EXACTLY.
-    4. ELIMINATE MAGIC NUMBERS: When the intent is EXTRACT_CONSTANT or STATE_MANAGEMENT, you MUST map original numeric literals to the new constants/enums and use those names in the refactored logic.
-    5. PRESERVE BOUNDARIES: Changes must be localized to the 'target' node.
-    6. CC RULE: Complexity must decrease or stay equal (Exceptions: SPLIT_LOOP, INLINE_METHOD).
+    2. Design a sequence of mutations based on the intent packet and the user instructions.
+    3. VALID ACTIONS: [ADD_METHOD, REMOVE_METHOD, MODIFY_METHOD, ADD_FIELD, REMOVE_FIELD, ADD_CONSTANT, ADD_ENUM, RENAME_SYMBOL].
+    4. DATA PARITY: You MUST preserve all return strings and error messages EXACTLY.
+    5. ELIMINATE MAGIC NUMBERS: When the intent is EXTRACT_CONSTANT or STATE_MANAGEMENT, you MUST map original numeric literals to the new constants/enums and use those names in the refactored logic.
+    6. CONCISENESS: Do not repeat actions for the same target. Be efficient.
+    7. PRESERVE BOUNDARIES: Changes must be localized to the 'target' node.
+    8. CC RULE: Complexity must decrease or stay equal (Exceptions: SPLIT_LOOP, INLINE_METHOD).
 
     ### OUTPUT FORMAT
     {
@@ -52,7 +55,7 @@ planner:
               "modifiers": ["public", "static"],
               "type": "ReturnType",
               "parameters": [{"name": "n", "type": "t"}],
-              "logic_changes": ["Replace magic number 0 with Status.PLACED", "Return original string 'Order Placed'"],
+              "logic_changes": ["Intended logical changes to the code"],
               "body_abstract": "Logic summary ensuring no magic numbers remain"
             }
           }
