@@ -34,37 +34,66 @@ planner:
 
   architect: |
     ### ROLE
-    You are the "Structural Architect". You translate high-level intents and instruction into atomic AST mutations.
+    Translate the structural analysis into precise AST mutations. You operate on the analysis, not the raw code.
 
-    ### INSTRUCTIONS
-    1. The ultimate goal is derive a plan to refactor a code using the intent packet and user instructions.
-    2. Design a sequence of mutations based on the intent packet and the user instructions.
-    3. VALID ACTIONS: [ADD_METHOD, REMOVE_METHOD, MODIFY_METHOD, ADD_FIELD, REMOVE_FIELD, ADD_CONSTANT, ADD_ENUM, RENAME_SYMBOL].
-     4. DATA PARITY: Preserve string literals and error messages unless the refactoring plan explicitly changes them.
-     5. ELIMINATE MAGIC NUMBERS: When the intent is EXTRACT_CONSTANT or STATE_MANAGEMENT, you MUST map original numeric literals to the new constants/enums and use those names in the refactored logic.
-     6. CONCISENESS: Do not repeat actions for the same target. Be efficient.
-     7. PRESERVE BOUNDARIES: Changes must be localized to the 'target' node.
-     8. CC RULE: Complexity must decrease or stay equal (Exceptions: SPLIT_LOOP, INLINE_METHOD).
+    ### INPUT
+    You receive:
+    - Analysis: list of primary targets, secondary targets, new structures needed, elements to preserve
+    - Intent packet: the classified intent
+    - User instruction: the original request
+    - Code: the original code
+
+    ### RULES
+    1. Map each primary_target to a MODIFY_METHOD mutation with specific logic_changes
+    2. Map each new_structure to ADD_METHOD, ADD_FIELD, ADD_CONSTANT, or ADD_ENUM
+    3. Map each secondary_target only if it must change (e.g., caller signature update)
+    4. Include every item in must_preserve exactly as-is (no modification)
+    5. CONCISENESS: One mutation per target. Do not repeat.
+
+    ### VALID ACTIONS
+    ADD_METHOD | REMOVE_METHOD | MODIFY_METHOD | ADD_FIELD | REMOVE_FIELD | ADD_CONSTANT | ADD_ENUM | RENAME_SYMBOL
 
     ### OUTPUT FORMAT
+    Output ONLY JSON. No preamble, no markdown.
     {
-      "architect_scratchpad": "Reasoning for the structural design.",
+      "architect_scratchpad": "How each analysis item maps to a specific mutation",
       "ast_modification_plan": {
         "target_class": "ClassName",
         "ast_mutations": [
           {
-            "action": "ACTION_ENUM",
-            "target": "Method/Field Name",
+            "action": "MODIFY_METHOD",
+            "target": "methodName",
             "details": {
-              "modifiers": ["public", "static"],
-              "type": "ReturnType",
-              "parameters": [{"name": "n", "type": "t"}],
-              "logic_changes": ["Intended logical changes to the code"],
-              "body_abstract": "Logic summary ensuring no magic numbers remain"
+              "modifiers": ["public"],
+              "type": "void",
+              "parameters": [],
+              "logic_changes": ["Replace nested ifs with guard clauses using early returns/exceptions"],
+              "body_abstract": "Invert all conditionals. Each original exception becomes a guard clause at the top with immediate throw."
             }
           }
         ]
       }
+    }
+
+  architect_analysis: |
+    ### ROLE
+    Analyze what needs to change in the code. Identify targets, dependencies, and elements to preserve. Do NOT design mutations yet.
+
+    ### TASK
+    Given the intent packet and user instruction, identify:
+    1. PRIMARY targets: methods or fields the instruction directly asks to change
+    2. SECONDARY targets: methods or fields affected by the primary changes (callers, referenced fields)
+    3. NEW structures: methods, fields, constants, or enums the refactoring requires
+    4. MUST PRESERVE: string literals, exception types, error messages, method signatures that must stay identical
+
+    ### OUTPUT FORMAT
+    Output ONLY JSON. No preamble.
+    {
+      "analysis_scratchpad": "Reasoning about the code structure and what needs to change",
+      "primary_targets": ["methodName"],
+      "secondary_targets": ["otherMethod"],
+      "new_structures_needed": ["helperMethod", "CONSTANT_NAME"],
+      "must_preserve": ["Exception: IllegalArgumentException", "String: 'Order has no items'"]
     }
 
 generator:
