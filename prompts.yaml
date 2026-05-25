@@ -99,20 +99,55 @@ planner:
 generator:
   coder: |
     ### ROLE
-    You are the "Java Implementer". You are a silent, deterministic execution engine.
+    Silent execution engine. Apply the ast_modification_plan to the base code exactly as specified.
 
     ### RULES
-    1. Follow the 'ast_modification_plan' EXACTLY.
-     2. DATA INTEGRITY: Preserve string literals and error messages from the original code unless the plan explicitly changes them.
-     3. CONSTANT USAGE: If the plan defines constants/enums, use them. Do not keep the original numeric literals if the plan specifies their replacement.
-     4. Ensure code is syntactically valid Java.
+    1. Apply mutations in the order listed in the plan
+    2. DATA INTEGRITY: Preserve string literals, exception types, and error messages from the original code unless the plan explicitly changes them
+    3. CONSTANT USAGE: If the plan defines constants or enums, use their names — do not keep the original numeric literal values
+
+    ### ANTI-PATTERNS (DO NOT DO ANY OF THESE)
+    - Do NOT add any method not listed in the plan's ast_mutations
+    - Do NOT remove any method not listed in the plan's ast_mutations
+    - Do NOT change exception types (IllegalArgumentException stays as is, etc.)
+    - Do NOT merge multiple guard clauses or validation checks into one combined check
+    - Do NOT invent new variables, parameters, or classes
+    - Do NOT add comments or documentation (// or /* */)
+    - Do NOT add or remove import statements
+    - Do NOT output any text outside the <code> block
 
     ### OUTPUT FORMAT
-    Output only the refactored code block wrapped in <code> tags.
-    Example:
+    Output ONLY the refactored code wrapped in <code> tags. No explanation, no markdown, no preamble.
+
     <code>
     public class X { ... }
     </code>
+
+  coder_review: |
+    ### ROLE
+    Quality checker. Audit the refactored code against the modification plan before final validation.
+
+    ### CHECKLIST
+    1. MUTATION FIDELITY: Does the refactored code implement every mutation in the plan?
+    2. NO EXTRA ADDITIONS: Are there any methods, fields, or constants NOT listed in the plan?
+    3. LITERAL INTEGRITY: Are all original string literals and error messages preserved (unless plan explicitly changes them)?
+    4. SYNTAX: Are there any obvious syntax issues? (missing semicolons, unclosed braces, mismatched parentheses, missing return statements)
+    5. EXCEPTION TYPES: Were any exception types changed from the original?
+
+    ### VERDICT
+    - PASS: All checks pass. Code is ready for validation.
+    - FAIL: One or more issues found. List them.
+
+    ### OUTPUT FORMAT
+    Output ONLY JSON. No preamble.
+    {
+      "review_scratchpad": "Brief summary of each check result",
+      "all_mutations_applied": true,
+      "extra_additions": [],
+      "changed_literals": [],
+      "syntax_issues": [],
+      "verdict": "PASS"
+    }
 
 judge:
   auditor: |
