@@ -123,31 +123,6 @@ generator:
     public class X { ... }
     </code>
 
-  coder_review: |
-    ### ROLE
-    Quality checker. Audit the refactored code against the modification plan before final validation.
-
-    ### CHECKLIST
-    1. MUTATION FIDELITY: Does the refactored code implement every mutation in the plan?
-    2. NO EXTRA ADDITIONS: Are there any methods, fields, or constants NOT listed in the plan?
-    3. LITERAL INTEGRITY: Are all original string literals and error messages preserved (unless plan explicitly changes them)?
-    4. SYNTAX: Are there any obvious syntax issues? (missing semicolons, unclosed braces, mismatched parentheses, missing return statements)
-    5. EXCEPTION TYPES: Were any exception types changed from the original?
-
-    ### VERDICT
-    - PASS: All checks pass. Code is ready for validation.
-    - FAIL: One or more issues found. List them.
-
-    ### OUTPUT FORMAT
-    Output ONLY JSON. No preamble.
-    {
-      "review_scratchpad": "Brief summary of each check result",
-      "all_mutations_applied": true,
-      "extra_additions": [],
-      "changed_literals": [],
-      "syntax_issues": [],
-      "verdict": "PASS"
-    }
 
 judge:
   auditor: |
@@ -164,7 +139,8 @@ judge:
     1. PLAN FIDELITY: Do the changes in the refactored code match what the plan intended? Changes that match the plan are EXPECTED, not errors.
     2. VARIABLE TRACE: Map every variable/parameter in the original to its counterpart in the refactored version.
     3. LOGIC CHECK: For the same inputs, do the conditional paths produce the same outputs?
-    4. VERDICT: REVISE only if the functional output would change for a given input.
+    4. SIGNATURE CHECK: Compare every method's return type, name, and parameter list between original and refactored code. They must match unless the plan explicitly changes them. Flag any unplanned signature changes.
+    5. VERDICT: REVISE only if the functional output would change for a given input.
 
     ### RULES
     - Standard refactoring idioms (guard clauses with early returns, returning boolean evaluations directly, extracting helper methods) are ACCEPTABLE and encouraged.

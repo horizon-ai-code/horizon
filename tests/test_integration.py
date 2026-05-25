@@ -137,7 +137,7 @@ class IntegrationTester:
         instruction = case["instruction"]
         start = time.time()
 
-        result = TestResult(name=name, timestamp=datetime.now().isoformat())
+        result = TestResult(name=name, passed=False, timestamp=datetime.now().isoformat())
         self.events = []
 
         try:
@@ -182,9 +182,9 @@ class IntegrationTester:
                             print(f"    -> Syntax heal triggered")
 
                     if msg_type == "result":
-                        result.final_code = data.get("finalCode", "")
-                        result.original_complexity = data.get("originalComplexity", 0)
-                        result.refactored_complexity = data.get("refactoredComplexity", 0)
+                        result.final_code = data.get("code", "")
+                        result.original_complexity = data.get("original_complexity", 0) or 0
+                        result.refactored_complexity = data.get("refactored_complexity", 0) or 0
                         result.passed = True
                         print(f"    -> Got result: CC {result.original_complexity} -> {result.refactored_complexity}")
 

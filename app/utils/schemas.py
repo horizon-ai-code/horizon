@@ -150,10 +150,4 @@ class ArchitectAnalysisResponse(BaseModel):
     must_preserve: List[str] = []
 
 
-class CodeReviewResponse(BaseModel):
-    review_scratchpad: str
-    all_mutations_applied: bool = True
-    extra_additions: List[str] = []
-    changed_literals: List[str] = []
-    syntax_issues: List[str] = []
-    verdict: Literal["PASS", "FAIL"]
+

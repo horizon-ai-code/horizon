@@ -359,26 +359,12 @@ class RefactorVerifier:
 
     @staticmethod
     def verify_rename_symbol(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
-        # Implementation of Check C for Rename: Structural hashes must match if we ignore the name itself.
-        orig_serialized = ASTWalker.serialize_node(orig_ast)
-        refac_serialized = ASTWalker.serialize_node(refac_ast)
+        # Compare structural signatures (ignores variable names, formatting, imports, numeric literals).
+        # Only the node-type skeleton, operators, method invocations, and string literals are compared.
+        orig_sig = ASTWalker.get_structural_signature(orig_ast)
+        refac_sig = ASTWalker.get_structural_signature(refac_ast)
 
-        # Strip 'name' and 'identifier' from attrs recursively
-        def strip_names(obj):
-            if isinstance(obj, dict):
-                if "attrs" in obj:
-                    obj["attrs"].pop("name", None)
-                    obj["attrs"].pop("identifier", None)
-                for k, v in obj.items():
-                    strip_names(v)
-            elif isinstance(obj, list):
-                for item in obj:
-                    strip_names(item)
-
-        strip_names(orig_serialized)
-        strip_names(refac_serialized)
-
-        if ASTWalker.get_hash(orig_serialized) == ASTWalker.get_hash(refac_serialized):
+        if orig_sig == refac_sig:
             return True, "Structural integrity preserved after rename."
         return False, "Structural change detected beyond just name/symbol."
 
@@ -442,6 +428,10 @@ class Validator:
         max_cc = 1
         for template in self.templates:
             wrapped_code = template(clean_snippet)
+            try:
+                javalang.parse.parse(wrapped_code)
+            except (javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
+                continue
             analysis = lizard.analyze_file.analyze_source_code(
                 "mock.java", wrapped_code
             )

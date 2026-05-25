@@ -50,10 +50,6 @@ class OrchestrationState(BaseModel):
     # Sub-Step Decomposition
     architect_analysis: Optional[Dict] = None
 
-    # Generator Self-Review
-    generator_self_review: Optional[Dict] = None
-    self_review_attempts: int = 0
-
     # Lifecycle
     current_phase: int = 1
     exit_status: ExitStatus = ExitStatus.PROCESSING
@@ -344,52 +340,7 @@ class Orchestrator:
             )
             print(new_code)
 
-            # Step 6b: Generator Self-Review
-            if state.self_review_attempts == 0:
-                await self._notify(
-                    client, Role.Generator, "Ph3: Self-reviewing output..."
-                )
-            review_prompt = (
-                f"Plan: {json.dumps(state.active_plan)}\n"
-                f"Original: <code>{state.base_code}</code>\n"
-                f"Refactored: <code>{state.working_code}</code>"
-            )
-            review_messages: List[ChatCompletionRequestMessage] = [
-                {"role": "system", "content": self.prompts["generator"]["coder_review"]},
-                {"role": "user", "content": review_prompt},
-            ]
-            raw_review = await self.agent_service.generate(
-                review_messages, temp=0.1, max_tokens=512
-            )
-            review_text = raw_review["choices"][0]["message"].get("content") or ""
-            print(
-                f"\n--- Generator Self-Review Output ---\n{review_text}\n-------------------------------------"
-            )
-
-            try:
-                review = json.loads(ResponseParser.extract_json_text(review_text))
-            except (json.JSONDecodeError, ValueError):
-                review = {"verdict": "PASS"}
-
-            state.generator_self_review = review
-
-            if review.get("verdict") == "FAIL" and state.self_review_attempts < 2:
-                state.self_review_attempts += 1
-                issues = (
-                    review.get("syntax_issues", [])
-                    + review.get("extra_additions", [])
-                    + review.get("changed_literals", [])
-                )
-                state.syntax_error_context = {
-                    "attempt": state.self_review_attempts,
-                    "error": "; ".join(issues[:3]) if issues else "Review flagged issues.",
-                    "broken_code": state.working_code,
-                }
-                state.current_phase = 3
-                return
-            else:
-                state.self_review_attempts = 0
-                state.current_phase = 4
+            state.current_phase = 4
         else:
             # Syntax fail at the gate — no <code> block found
             state.syntax_iter += 1

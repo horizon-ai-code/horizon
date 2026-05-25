@@ -11,3 +11,5 @@ db/
 GEMINI.md
 
 .agents
+
+test_results/
