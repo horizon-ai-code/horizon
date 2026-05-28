@@ -174,8 +174,6 @@ class IntegrationTester:
                         role = data.get("role", "")
                         if "Ph6" in str(content):
                             print(f"    -> Reached Phase 6")
-                        if "Self-review" in str(content):
-                            print(f"    -> Self-review triggered")
                         if "Audit Finished" in str(content):
                             print(f"    -> Audit verdict received")
                         if "Syntax Fail" in str(content):
@@ -275,16 +273,13 @@ class IntegrationTester:
         lines.extend(["", "## Notable Events", ""])
         for r in self.results:
             syntax_retries = self._count_events(r, "Syntax Fail")
-            self_reviews = self._count_events(r, "Self-review")
             audits = self._count_events(r, "Audit Finished")
             outer_loops = self._count_events_by_role(r, "Planner", "Strategy Iter")
 
-            if any([syntax_retries, self_reviews, audits > 1]):
+            if any([syntax_retries, audits > 1]):
                 parts = []
                 if syntax_retries:
                     parts.append(f"syntax retries={syntax_retries}")
-                if self_reviews:
-                    parts.append(f"self-reviews={self_reviews}")
                 if audits > 1:
                     parts.append(f"audit cycles={audits}")
                 if outer_loops > 1:
