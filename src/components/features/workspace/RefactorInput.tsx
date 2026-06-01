@@ -3,9 +3,10 @@
 import { Command, Sparkles, Square } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { useRouter } from "next/navigation";
 import type { AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
+
+const SPRING_TRANSITION = { type: "spring" as const, stiffness: 450, damping: 40 };
 
 interface RefactorInputProps {
   sessionId: string | null;
@@ -33,7 +34,6 @@ export default function RefactorInput({
   appState
 }: RefactorInputProps) {
   const controls = useAnimation();
-  const router = useRouter();
   const draftSession = useChatStore((state) => state.draftSession);
   const updateDraftSession = useChatStore((state) => state.updateDraftSession);
   
@@ -116,11 +116,7 @@ export default function RefactorInput({
         style={{
           borderRadius: isChatExpanded ? '16px' : '28px',
         }}
-        transition={{
-          type: "spring",
-          stiffness: 450,
-          damping: 40
-        }}
+        transition={SPRING_TRANSITION}
       >
         <div className="h-[40px] w-[32px] flex items-center justify-center shrink-0">
           <Command className={`${inputError ? 'text-destructive' : 'text-jb-accent'} opacity-90`} size={18} />

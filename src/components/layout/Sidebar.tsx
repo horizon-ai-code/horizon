@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Plus, MessageSquare, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
@@ -24,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const SPRING_CONFIG = { type: "spring" as const, stiffness: 450, damping: 40, mass: 0.8 };
+
 export default function Sidebar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -44,9 +46,9 @@ export default function Sidebar() {
   const [dialogAction, setDialogAction] = useState<"delete" | "leave" | "switch">("delete");
   const [switchTargetId, setSwitchTargetId] = useState<string | null>(null);
 
-  const recentSessions = Object.values(sessions)
+  const recentSessions = useMemo(() => Object.values(sessions)
     .filter(s => s && s.id && s.id !== 'draft')
-    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)), [sessions]);
   const activeId = typeof params.id === "string" ? params.id : "";
   const activeSession = activeId ? sessions[activeId] : undefined;
   const isActiveAnalyzing = activeSession?.appState === "analyzing";
@@ -157,13 +159,11 @@ export default function Sidebar() {
     router.push(`/`);
   };
 
-  const springConfig = { type: "spring" as const, stiffness: 450, damping: 40, mass: 0.8 };
-
   return (
     <motion.div 
       initial={false}
       animate={{ width: isOpen ? 240 : 48 }}
-      transition={springConfig}
+      transition={SPRING_CONFIG}
       className={`shrink-0 border-r flex flex-col z-20 h-full overflow-hidden
       ${isDark ? 'border-jb-border/40 bg-jb-panel' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
     >
@@ -172,6 +172,7 @@ export default function Sidebar() {
       <div className={`h-[44px] w-full flex items-center justify-start px-2 shrink-0 transition-colors duration-300 cursor-pointer`}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
           className={`p-2 rounded-md transition-colors cursor-pointer shrink-0
           ${isDark ? 'text-jb-text opacity-80 hover:bg-[#3e4045] hover:opacity-100' : 'text-[#080808] opacity-70 hover:bg-[#ebecf0] hover:opacity-100'}`}>
           <Menu size={18} strokeWidth={1.5} />
@@ -185,6 +186,7 @@ export default function Sidebar() {
         {/* New Session Button */}
         <button 
           onClick={handleNewSession}
+          aria-label="New Session"
           className={`w-full flex items-center gap-3 p-2 rounded-md transition-all duration-200 active:scale-[0.98]
             justify-start
             ${isDark 
@@ -201,7 +203,7 @@ export default function Sidebar() {
                  initial={{ opacity: 0, filter: "blur(4px)" }}
                  animate={{ opacity: 1, filter: "blur(0px)" }}
                  exit={{ opacity: 0, filter: "blur(4px)" }}
-                 transition={springConfig}
+                 transition={SPRING_CONFIG}
                  className="text-[13px] font-medium whitespace-nowrap"
                >
                  New Session
@@ -217,7 +219,7 @@ export default function Sidebar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              transition={springConfig}
+              transition={SPRING_CONFIG}
               className="flex flex-col gap-1 mt-2"
             >
                <div className={`px-2 py-1 text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-jb-text/50' : 'text-[#818594]'}`}>
@@ -228,29 +230,46 @@ export default function Sidebar() {
                   const isEditing = editingSessionId === session.id;
 
                   return (
-                 <div 
-                    key={session.id}
-                    className={`group w-full flex items-center gap-3 p-2 rounded-md transition-all duration-200 cursor-pointer active:scale-[0.98] relative
-                      justify-start
-                      ${activeId === session.id ? (isDark ? 'bg-[#3e4045] text-jb-text ring-1 ring-white/[0.05]' : 'bg-[#ebecf0] text-[#080808] ring-1 ring-black/[0.05]') : ''}
-                      ${isDark 
-                        ? 'text-jb-text/70 hover:bg-[#3e4045] hover:text-jb-text hover:ring-1 hover:ring-white/[0.05]' 
-                        : 'text-[#080808]/70 hover:bg-[#ebecf0] hover:text-[#080808] hover:ring-1 hover:ring-black/[0.05]'
-                      }`}
-                    onClick={() => {
-                      if (isEditing) return;
+                  <div 
+                     key={session.id}
+                     role="button"
+                     tabIndex={0}
+                     aria-label={`Session: ${session.title}`}
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter' || e.key === ' ') {
+                         e.preventDefault();
+                         if (isEditing) return;
+                         if (isActiveAnalyzing && activeId === session.id) {
+                           return;
+                         }
+                         if (isActiveAnalyzing && activeId && activeId !== session.id) {
+                           openDialog("switch", activeId, session.id);
+                           return;
+                         }
+                         router.push(`/${session.id}`);
+                       }
+                     }}
+                     className={`group w-full flex items-center gap-3 p-2 rounded-md transition-all duration-200 cursor-pointer active:scale-[0.98] relative
+                       justify-start
+                       ${activeId === session.id ? (isDark ? 'bg-[#3e4045] text-jb-text ring-1 ring-white/[0.05]' : 'bg-[#ebecf0] text-[#080808] ring-1 ring-black/[0.05]') : ''}
+                       ${isDark 
+                         ? 'text-jb-text/70 hover:bg-[#3e4045] hover:text-jb-text hover:ring-1 hover:ring-white/[0.05]' 
+                         : 'text-[#080808]/70 hover:bg-[#ebecf0] hover:text-[#080808] hover:ring-1 hover:ring-black/[0.05]'
+                       }`}
+                     onClick={() => {
+                       if (isEditing) return;
 
-                      if (isActiveAnalyzing && activeId === session.id) {
-                        return;
-                      }
+                       if (isActiveAnalyzing && activeId === session.id) {
+                         return;
+                       }
 
-                      if (isActiveAnalyzing && activeId && activeId !== session.id) {
-                        openDialog("switch", activeId, session.id);
-                        return;
-                      }
+                       if (isActiveAnalyzing && activeId && activeId !== session.id) {
+                         openDialog("switch", activeId, session.id);
+                         return;
+                       }
 
-                      router.push(`/${session.id}`);
-                    }}
+                       router.push(`/${session.id}`);
+                     }}
                   >
                    <MessageSquare size={18} strokeWidth={1.5} className="shrink-0" />
                    <div className="flex items-center gap-2 min-w-0 flex-1">

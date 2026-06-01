@@ -1,12 +1,17 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
+import type { CSSProperties } from "react";
 import { useTheme } from "next-themes";
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus, oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import dynamic from "next/dynamic";
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { motion, AnimatePresence } from "framer-motion";
 
-// Sanitizes the themes to prevent React from crashing on shorthand properties
+const SyntaxHighlighter = dynamic(
+  () => import('react-syntax-highlighter').then((mod) => mod.Prism),
+  { ssr: false }
+);
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sanitizeTheme = (theme: any) => {
   const cleanTheme = JSON.parse(JSON.stringify(theme));
@@ -20,7 +25,6 @@ const sanitizeTheme = (theme: any) => {
 };
 
 const baseTheme = sanitizeTheme(oneDark);
-// Force transparent background for the base themes
 if (baseTheme['pre[class*="language-"]']) baseTheme['pre[class*="language-"]'].backgroundColor = 'transparent';
 if (baseTheme['code[class*="language-"]']) baseTheme['code[class*="language-"]'].backgroundColor = 'transparent';
 
@@ -94,7 +98,7 @@ export default function CodeEditorPanel({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null); // NEW: Controls background scroll
+  const bgRef = useRef<HTMLDivElement>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [internalIsFocused, setInternalIsFocused] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -105,7 +109,6 @@ export default function CodeEditorPanel({
 
   const isDark = mounted ? resolvedTheme === 'dark' : true;
 
-  // Sync scrolling across the Text, Gutter, and Background layers simultaneously
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     const { scrollTop, scrollLeft } = e.currentTarget;
     if (preRef.current) {
@@ -115,7 +118,6 @@ export default function CodeEditorPanel({
     if (gutterRef.current) gutterRef.current.scrollTop = scrollTop;
     if (bgRef.current) bgRef.current.scrollTop = scrollTop;
 
-    // Manage scrollbar visibility
     setIsScrolling(true);
     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     scrollTimeoutRef.current = setTimeout(() => {
@@ -123,7 +125,55 @@ export default function CodeEditorPanel({
     }, 1000);
   };
 
-  const lines = value.split('\n');
+  const lines = useMemo(() => value.split('\n'), [value]);
+
+  const syntaxCustomStyle = useMemo<CSSProperties>(() => ({ 
+    margin: 0, 
+    border: "none", 
+    boxShadow: "none", 
+    backgroundImage: "none",
+    padding: `24px 24px ${bottomPadding} 24px`, 
+    backgroundColor: "transparent", 
+    fontSize: '13px', 
+    lineHeight: '24px', 
+    letterSpacing: 'normal', 
+    wordSpacing: 'normal', 
+    fontWeight: '500', 
+    fontVariantLigatures: 'none', 
+    boxSizing: 'border-box',
+    minWidth: 'max-content'
+  }), [bottomPadding]);
+
+  const codeTagStyle = useMemo<CSSProperties>(() => ({
+    fontFamily: 'var(--font-fira-code), monospace', 
+    fontSize: '13px', 
+    lineHeight: '24px', 
+    tabSize: 4,
+    backgroundColor: "transparent", 
+    letterSpacing: 'normal', 
+    wordSpacing: 'normal', 
+    fontWeight: 'normal', 
+    fontVariantLigatures: 'none',
+    minWidth: 'max-content',
+    display: 'inline-block'
+  }), []);
+
+  const textareaStyle = useMemo<CSSProperties>(() => ({ 
+    color: 'transparent', 
+    WebkitTextFillColor: 'transparent', 
+    whiteSpace: 'pre', 
+    wordSpacing: 'normal', 
+    boxSizing: 'border-box',
+    fontFamily: 'var(--font-fira-code), monospace', 
+    fontSize: "13px", 
+    tabSize: 4, 
+    lineHeight: '24px', 
+    letterSpacing: 'normal',
+    display: 'block', 
+    padding: `24px 24px ${bottomPadding} 24px`, 
+    fontWeight: 'normal', 
+    fontVariantLigatures: 'none',
+  }), [bottomPadding]);
 
   if (!mounted) return null;
 
@@ -134,9 +184,7 @@ export default function CodeEditorPanel({
       onMouseLeave={onMouseLeave}
     >
       
-      {/* 1. BACKGROUND LAYER (The Magic Fix)
-          This layer sits completely behind everything and draws full-width colored 
-          rectangles that perfectly span from the gutter to the far right edge. */}
+      {/* 1. BACKGROUND LAYER */}
       <div 
         ref={bgRef} 
         className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
@@ -148,9 +196,9 @@ export default function CodeEditorPanel({
             const isIssue = showDiff && highlightLines.issue?.includes(i);
             
             const getBgStyle = () => {
-              if (isRemoved) return { backgroundColor: isDark ? 'rgba(249, 62, 62, 0.2)' : '#fef2f2' }; // Dark: red-500/20, Light: red-50
-              if (isAdded) return { backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : '#ecfdf5' }; // Dark: cyan-500/15, Light: emerald-50
-              if (isIssue) return { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' }; // Dark: amber-500/15, Light: amber-100
+              if (isRemoved) return { backgroundColor: isDark ? 'rgba(249, 62, 62, 0.2)' : '#fef2f2' };
+              if (isAdded) return { backgroundColor: isDark ? 'rgba(6, 182, 212, 0.15)' : '#ecfdf5' };
+              if (isIssue) return { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb' };
               return { backgroundColor: 'transparent' };
             };
 
@@ -159,7 +207,7 @@ export default function CodeEditorPanel({
         </div>
       </div>
 
-      {/* 2. GUTTER LAYER (Now transparent, only colors the numbers) */}
+      {/* 2. GUTTER LAYER */}
       <div 
         ref={gutterRef}
         className="w-14 z-10 select-none flex flex-col overflow-hidden shrink-0 bg-transparent text-muted-foreground"
@@ -184,7 +232,7 @@ export default function CodeEditorPanel({
         })}
       </div>
 
-      {/* 3. CODE LAYER (Cleaned up, perfectly aligned to text area) */}
+      {/* 3. CODE LAYER */}
       <div className="relative flex-1 overflow-hidden h-full z-10 no-transition">
         <div ref={preRef} className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
           {/* Main Content Layer */}
@@ -192,79 +240,21 @@ export default function CodeEditorPanel({
             language="java"
             style={isDark ? jetbrainsTheme : intellijLightTheme}
             wrapLines={false}
-            customStyle={{ 
-              margin: 0, 
-              border: "none", 
-              boxShadow: "none", 
-              backgroundImage: "none",
-              padding: `24px 24px ${bottomPadding} 24px`, 
-              backgroundColor: "transparent", 
-              fontSize: '13px', 
-              lineHeight: '24px', 
-              letterSpacing: 'normal', 
-              wordSpacing: 'normal', 
-              fontWeight: '500', 
-              fontVariantLigatures: 'none', 
-              boxSizing: 'border-box',
-              minWidth: 'max-content'
-            }}
-            codeTagProps={{
-              style: {
-                fontFamily: 'var(--font-fira-code), monospace', 
-                fontSize: '13px', 
-                lineHeight: '24px', 
-                tabSize: 4,
-                backgroundColor: "transparent", 
-                letterSpacing: 'normal', 
-                wordSpacing: 'normal', 
-                fontWeight: 'normal', 
-                fontVariantLigatures: 'none',
-                minWidth: 'max-content',
-                display: 'inline-block'
-              }
-            }}
+            customStyle={syntaxCustomStyle}
+            codeTagProps={{ style: codeTagStyle }}
           >
             {value || ' '}
           </SyntaxHighlighter>
 
           {/* Ghost Preview Layer */}
-          {ghostValue && !value && (
+          {!!ghostValue && !value && (
             <div className="absolute inset-0 opacity-30 pointer-events-none">
               <SyntaxHighlighter
                 language="java"
                 style={isDark ? jetbrainsTheme : intellijLightTheme}
                 wrapLines={false}
-                customStyle={{ 
-                  margin: 0, 
-                  border: "none", 
-                  boxShadow: "none", 
-                  backgroundImage: "none",
-                  padding: `24px 24px ${bottomPadding} 24px`, 
-                  backgroundColor: "transparent", 
-                  fontSize: '13px', 
-                  lineHeight: '24px', 
-                  letterSpacing: 'normal', 
-                  wordSpacing: 'normal', 
-                  fontWeight: '500', 
-                  fontVariantLigatures: 'none', 
-                  boxSizing: 'border-box',
-                  minWidth: 'max-content'
-                }}
-                codeTagProps={{
-                  style: {
-                    fontFamily: 'var(--font-fira-code), monospace', 
-                    fontSize: '13px', 
-                    lineHeight: '24px', 
-                    tabSize: 4,
-                    backgroundColor: "transparent", 
-                    letterSpacing: 'normal', 
-                    wordSpacing: 'normal', 
-                    fontWeight: 'normal', 
-                    fontVariantLigatures: 'none',
-                    minWidth: 'max-content',
-                    display: 'inline-block'
-                  }
-                }}
+                customStyle={syntaxCustomStyle}
+                codeTagProps={{ style: codeTagStyle }}
               >
                 {ghostValue}
               </SyntaxHighlighter>
@@ -273,7 +263,7 @@ export default function CodeEditorPanel({
 
           {/* Premium Tab-to-Paste Hint */}
           <AnimatePresence>
-            {ghostValue && !value && internalIsFocused && (
+            {!!ghostValue && !value && internalIsFocused && (
               <motion.div
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -327,22 +317,7 @@ export default function CodeEditorPanel({
           spellCheck="false"
           placeholder={placeholder}
           className={`absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-jb-accent overflow-auto text-transparent selection:bg-jb-accent/20 font-mono custom-chat-scrollbar ${isScrolling ? 'is-scrolling' : ''}`}
-          style={{ 
-            color: 'transparent', 
-            WebkitTextFillColor: 'transparent', 
-            whiteSpace: 'pre', 
-            wordSpacing: 'normal', 
-            boxSizing: 'border-box',
-            fontFamily: 'var(--font-fira-code), monospace', 
-            fontSize: "13px", 
-            tabSize: 4, 
-            lineHeight: '24px', 
-            letterSpacing: 'normal',
-            display: 'block', 
-            padding: `24px 24px ${bottomPadding} 24px`, 
-            fontWeight: 'normal', 
-            fontVariantLigatures: 'none',
-          }}
+          style={textareaStyle}
         />
       </div>
     </div>

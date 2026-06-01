@@ -5,33 +5,7 @@ import { useRouter } from "next/navigation";
 import type { RefactorRequest, ServerMessage, StatusMessage, ResultMessage } from "@/types/websocket";
 import type { TerminalEntry, SessionData, OrchestrationResult } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
-import { EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
-
-// ── Role → Terminal Display Mapping ──────────────────────────────────────────
-// Maps backend agent roles to the flowchart step index and terminal styling.
-// The flowchart has 5 visual nodes, but the backend has 4 roles that produce
-// 11+ status messages. We map roles to flowchart "regions" to keep the UI
-// pipeline visualization meaningful.
-
-interface RoleVisuals {
-  step: number;
-  icon: string;
-  colorClass: string;
-}
-
-const ROLE_VISUALS: Record<string, RoleVisuals> = {
-  Planner:   { step: 1, icon: "Cpu",          colorClass: "text-[#56a8f5]" },
-  Generator: { step: 2, icon: "Layers",       colorClass: "text-[#2aacb8]" },
-  Validator: { step: 3, icon: "FileCode2",    colorClass: "text-[#00e5ff]" },
-  Judge:     { step: 4, icon: "CheckCircle2", colorClass: "text-[#27c93f]" },
-  System:    { step: 1, icon: "Clock",        colorClass: "text-yellow-400" },
-};
-
-const DEFAULT_VISUALS: RoleVisuals = {
-  step: 1,
-  icon: "Cpu",
-  colorClass: "text-jb-accent",
-};
+import { EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from "@/lib/constants";
 
 // ── Connection Status ────────────────────────────────────────────────────────
 
@@ -96,7 +70,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   const handleStatus = useCallback(
     (msg: StatusMessage, targetId: string) => {
-      const visuals = ROLE_VISUALS[msg.role] || DEFAULT_VISUALS;
+      const visuals = ROLE_VISUALS[msg.role] || DEFAULT_ROLE_VISUALS;
 
       const entry = makeTerminalEntry(
         "log",
@@ -149,6 +123,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         refactored_complexity: msg.refactored_complexity,
         insights: msg.insights,
         performance: msg.performance,
+        planner_model: msg.planner_model,
+        generator_model: msg.generator_model,
+        judge_model: msg.judge_model,
         metrics: buildMetrics(msg.original_complexity, msg.refactored_complexity, msg.performance),
       };
 
@@ -214,7 +191,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     intentionalCloseRef.current = false;
     setConnectionStatus("connecting");
 
-    const ws = new WebSocket("ws://localhost:8000/ws");
+    const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws");
     wsRef.current = ws;
 
     ws.onopen = () => {

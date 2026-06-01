@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { Sparkles, Layers, CheckCircle, TrendingUp, TrendingDown, Clock, Cpu } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -9,6 +9,9 @@ import type { InsightMetric } from '@/types/insights';
 interface InsightsPanelProps {
   metrics: InsightMetric[];
   summary: string;
+  planner_model?: string;
+  generator_model?: string;
+  judge_model?: string;
 }
 
 const metricIconMap: Record<string, LucideIcon> = {
@@ -19,7 +22,7 @@ const metricIconMap: Record<string, LucideIcon> = {
   Cpu,
 };
 
-export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) {
+export default function InsightsPanel({ metrics, summary, planner_model, generator_model, judge_model }: InsightsPanelProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -43,6 +46,46 @@ export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) 
 
   return (
     <div className="h-full p-6 animate-in fade-in duration-500 overflow-y-auto">
+      {(planner_model || generator_model || judge_model) && (
+        <div className={`mb-8 p-5 rounded-[20px] border relative overflow-hidden group shadow-sm transition-all duration-300
+          ${isDark ? 'bg-jb-panel border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
+          
+          <h3 className={`text-[11px] font-bold mb-5 uppercase tracking-[0.1em] flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+            <Cpu size={14} className="text-jb-accent" /> Agents
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            {planner_model && (
+              <div className="flex flex-col gap-2 group/node">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#56a8f5] shadow-[0_0_8px_#56a8f5]" />
+                  <span className={`text-[10px] font-extrabold uppercase tracking-widest opacity-60 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Planner</span>
+                </div>
+                <span className={`text-[13px] font-semibold truncate leading-tight transition-colors duration-300 ${isDark ? 'text-gray-100' : 'text-slate-800'}`} title={planner_model}>{planner_model}</span>
+              </div>
+            )}
+            {generator_model && (
+              <div className="flex flex-col gap-2 group/node">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#2aacb8] shadow-[0_0_8px_#2aacb8]" />
+                  <span className={`text-[10px] font-extrabold uppercase tracking-widest opacity-60 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Generator</span>
+                </div>
+                <span className={`text-[13px] font-semibold truncate leading-tight transition-colors duration-300 ${isDark ? 'text-gray-100' : 'text-slate-800'}`} title={generator_model}>{generator_model}</span>
+              </div>
+            )}
+            {judge_model && (
+              <div className="flex flex-col gap-2 group/node">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#27c93f] shadow-[0_0_8px_#27c93f]" />
+                  <span className={`text-[10px] font-extrabold uppercase tracking-widest opacity-60 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Judge</span>
+                </div>
+                <span className={`text-[13px] font-semibold truncate leading-tight transition-colors duration-300 ${isDark ? 'text-gray-100' : 'text-slate-800'}`} title={judge_model}>{judge_model}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <h3 className={`text-sm font-semibold mb-6 flex items-center gap-2 ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>
         <Sparkles size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} /> Target Segment Insights
       </h3>
@@ -126,7 +169,7 @@ export default function InsightsPanel({ metrics, summary }: InsightsPanelProps) 
               {summary.split(/(?:\r?\n)?\s*-\s+/).filter(p => p.trim()).map((point, index) => {
                 const trimmedPoint = point.trim();
                 return (
-                  <div key={index} className="flex gap-3 items-start">
+                  <div key={`summary-${index}-${trimmedPoint.slice(0, 20)}`} className="flex gap-3 items-start">
                     <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-500 shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
                     <p className={`text-[13px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
                       {trimmedPoint}

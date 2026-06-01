@@ -88,14 +88,18 @@ export default function RefactoredOutput({
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     const textToCopy = refactoredOutput || "// Awaiting code generation...";
-    const textArea = document.createElement("textarea");
-    textArea.value = textToCopy;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch {
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
   };
 
   if (!mounted) return null;
@@ -113,6 +117,8 @@ export default function RefactoredOutput({
           
           <button 
             onClick={() => setRightPanelMode('insights')}
+            role="tab"
+            aria-selected={rightPanelMode === 'insights'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
               ${rightPanelMode === 'insights' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
@@ -123,6 +129,8 @@ export default function RefactoredOutput({
           
           <button 
             onClick={() => setRightPanelMode('output')}
+            role="tab"
+            aria-selected={rightPanelMode === 'output'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
               ${rightPanelMode === 'output' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
@@ -209,7 +217,13 @@ export default function RefactoredOutput({
           ) : rightPanelMode === 'replay' ? (
              <RefactoringReplay replaySteps={orchestrationResult.replaySteps} />
           ) : (
-             <InsightsPanel metrics={orchestrationResult.metrics} summary={orchestrationResult.summary} />
+             <InsightsPanel 
+               metrics={orchestrationResult.metrics} 
+               summary={orchestrationResult.summary} 
+               planner_model={orchestrationResult.planner_model}
+               generator_model={orchestrationResult.generator_model}
+               judge_model={orchestrationResult.judge_model}
+             />
           )
         )}
 

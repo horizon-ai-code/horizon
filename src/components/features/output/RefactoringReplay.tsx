@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTheme } from "next-themes";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { ChevronLeft, ChevronRight, FastForward } from 'lucide-react';
@@ -12,6 +12,14 @@ import type { ReplayStep } from '@/types/insights';
 interface RefactoringReplayProps {
   replaySteps: ReplayStep[];
 }
+
+const REPLAY_SYNTAX_STYLE = { 
+  margin: 0, 
+  border: "none", 
+  boxShadow: "none", 
+  padding: '1.5rem', 
+  backgroundColor: 'transparent' 
+} as const;
 
 export default function RefactoringReplay({ replaySteps }: RefactoringReplayProps) {
   const { resolvedTheme } = useTheme();
@@ -30,6 +38,12 @@ export default function RefactoringReplay({ replaySteps }: RefactoringReplayProp
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
   const hasReplayData = replaySteps.length > 0;
+  const lineNumberStyle = useMemo(() => ({ 
+    color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', 
+    minWidth: '2.5em', 
+    paddingRight: '1.5em', 
+    textAlign: 'right' as const 
+  }), [isDark]);
 
   if (!mounted) return null;
   if (!hasReplayData) {
@@ -64,16 +78,10 @@ export default function RefactoringReplay({ replaySteps }: RefactoringReplayProp
         <SyntaxHighlighter
           language="java"
           style={isDark ? jetbrainsTheme : intellijLightTheme}
-          customStyle={{ 
-            margin: 0, 
-            border: "none", 
-            boxShadow: "none", 
-            padding: '1.5rem', 
-            backgroundColor: 'transparent' 
-          }}
+          customStyle={REPLAY_SYNTAX_STYLE}
           wrapLines={true}
           showLineNumbers={true}
-          lineNumberStyle={{ color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', minWidth: '2.5em', paddingRight: '1.5em', textAlign: 'right' }}
+          lineNumberStyle={lineNumberStyle}
           lineProps={(lineNumber) => {
             const style: React.CSSProperties = { 
               display: 'block', 

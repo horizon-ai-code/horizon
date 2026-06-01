@@ -24,7 +24,6 @@ const AgentTerminalLine = ({ text, colorClass, icon: Icon }: AgentTerminalLinePr
 };
 
 interface TerminalProps {
-  activeStep: number;
   isTerminalCollapsed: boolean;
   setIsTerminalCollapsed: (val: boolean) => void;
   terminalEndRef: React.RefObject<HTMLDivElement | null>;
@@ -42,7 +41,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 export default function Terminal({
-  activeStep,
   isTerminalCollapsed,
   setIsTerminalCollapsed,
   terminalEndRef,
@@ -65,7 +63,17 @@ export default function Terminal({
       bg-jb-panel relative h-full w-full`}>
       
       <div 
+        role="button"
+        tabIndex={0}
+        aria-expanded={!isTerminalCollapsed}
+        aria-label={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
         onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsTerminalCollapsed(!isTerminalCollapsed);
+          }
+        }}
         draggable={false}
         className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none transition-colors duration-300 pr-4
           ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}
@@ -97,7 +105,7 @@ export default function Terminal({
              <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm transition-colors duration-300
                ${isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50' : 'bg-white text-[#080808] border-[#dfdfdf]'}`}>
                 Local
-                <button className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
+                <button aria-label="Close terminal tab" className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
                   ${isDark ? 'hover:bg-jb-border' : 'hover:bg-[#ebecf0]'}`} onClick={(e) => e.stopPropagation()}>
                    <X size={10} />
                 </button>

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useChatStore, INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/store/useChatStore";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
@@ -28,7 +28,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, disconnect, sendRefactorRequest, sendHaltRequest, setTargetSessionId } = useOrchestrationSocket();
+  const { connectionStatus, connect, sendRefactorRequest, sendHaltRequest, setTargetSessionId } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
@@ -63,25 +63,33 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router, store.fetchSessionDetails]);
 
-  const activeSession = id ? (store.sessions[id] || {
-    id: id,
-    sourceCode: INITIAL_SOURCE,
-    refactoredOutput: "",
-    activeStep: 0,
-    inputInstruction: "",
-    terminalEntries: [],
-    isTerminalCollapsed: false,
-    appState: "idle",
-    showFlowchartModal: false,
-    orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
-  }) : { ...store.draftSession, id: "draft" };
+  const activeSession = useMemo(() => {
+    if (!id) return { ...store.draftSession, id: "draft" };
+    return store.sessions[id] || {
+      id: id,
+      sourceCode: INITIAL_SOURCE,
+      refactoredOutput: "",
+      activeStep: 0,
+      inputInstruction: "",
+      terminalEntries: [],
+      isTerminalCollapsed: false,
+      appState: "idle" as const,
+      showFlowchartModal: false,
+      orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
+    };
+  }, [id, store.sessions, store.draftSession]);
 
   const {
     sourceCode, refactoredOutput, activeStep, inputInstruction,
     terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, orchestrationResult
   } = activeSession;
 
-  const validateBeforeSubmit = () => {
+  const terminalEntriesRef = useRef(terminalEntries);
+  useEffect(() => {
+    terminalEntriesRef.current = terminalEntries;
+  }, [terminalEntries]);
+
+  const validateBeforeSubmit = useCallback(() => {
     let hasError = false;
 
     if (!sourceCode.trim()) {
@@ -99,16 +107,15 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }
 
     return !hasError;
-  };
+  }, [sourceCode, inputInstruction]);
 
-  // Local helper to update the correct slice
-  const updateLocal = (data: Partial<SessionData>) => {
+  const updateLocal = useCallback((data: Partial<SessionData>) => {
     if (id) {
       store.updateSession(id, data);
     } else {
       store.updateDraftSession(data);
     }
-  };
+  }, [id, store]);
 
   useEffect(() => {
     if (terminalPanelRef.current) {
@@ -140,7 +147,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [appState]);
 
-  const startAnalysis = () => {
+  const startAnalysis = useCallback(() => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting') return;
     if (!id) return;
@@ -148,7 +155,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: inputInstruction };
 
-    // Set UI to analyzing state
     updateLocal({
       terminalEntries: [...terminalEntries, newEntry],
       appState: "analyzing" as const,
@@ -160,10 +166,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     });
     setLocalInputError(false);
     setLocalSourceError(false);
-
-// Connect WebSocket and send the refactor request
-    // The useEffect will pick this up implicitly because appState changes to 'analyzing'
-  };
+  }, [validateBeforeSubmit, appState, id, inputInstruction, updateLocal, terminalEntries]);
 
   // If a session was loaded in analyzing state (due to lazy creation redirect),
   // ensure the WebSocket connection is established for it.
@@ -173,9 +176,9 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     // Allows the frontend to start the draft session by waiting for connection_id
     const currentId = id || "draft";
 
-    if (appState === "analyzing" && activeStep === 1 && terminalEntries.length > 0) {
+    if (appState === "analyzing" && activeStep === 1 && terminalEntriesRef.current.length > 0) {
       // The session was created with analyzing state from the draft flow, or explicitly started.
-      const lastCommand = [...terminalEntries].reverse().find(e => e.type === 'command');
+      const lastCommand = [...terminalEntriesRef.current].reverse().find(e => e.type === 'command');
       if (!lastCommand) return;
 
       connect(currentId);
@@ -194,16 +197,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => {
       if (sendInterval) clearInterval(sendInterval);
     };
-  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode, terminalEntries]);
+  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode]);
 
-  const stopAnalysis = () => {
+  const stopAnalysis = useCallback(() => {
     sendHaltRequest();
     updateLocal({
       appState: 'idle',
       activeStep: 0,
       showFlowchartModal: false
     });
-  };
+  }, [sendHaltRequest, updateLocal]);
 
   if (!mounted) return null;
 
@@ -274,7 +277,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         id="terminal-panel"
       >
         <Terminal 
-          activeStep={activeStep} 
           isTerminalCollapsed={isTerminalCollapsed} 
           setIsTerminalCollapsed={(val) => updateLocal({ isTerminalCollapsed: val })}
           terminalEndRef={terminalEndRef} 

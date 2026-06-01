@@ -15,7 +15,7 @@ import type {
 } from '@/types/websocket';
 
 // ── Import constants ──────────────────────────────────────────────────────────
-import { INITIAL_SOURCE, INITIAL_REFACTORED, EMPTY_ORCHESTRATION_RESULT } from '@/lib/constants';
+import { INITIAL_SOURCE, INITIAL_REFACTORED, EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from '@/lib/constants';
 
 // ── Re-export everything for backward compatibility ───────────────────────────
 // Consumers that already import from '@/store/useChatStore' will continue to work.
@@ -204,7 +204,7 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   deleteSession: async (id) => {
     try {
-      await fetch(`http://localhost:8000/api/history/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history/${id}`, {
         method: "DELETE",
       });
     } catch(e) {
@@ -241,7 +241,7 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   fetchHistory: async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/history");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history`);
       if (!res.ok) return;
       
       const items: Array<{ id?: string; user_instruction?: string }> = await res.json();
@@ -282,7 +282,7 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   fetchSessionDetails: async (id) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/history/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history/${id}`);
       if (!res.ok) {
         set((state) => ({
            ...state,
@@ -303,17 +303,11 @@ export const useChatStore = create<ChatStore>((set) => ({
       set((state) => {
         const existing = state.sessions[id] || { ...DEFAULT_SESSION, id };
         
-        const ROLE_VISUALS: Record<string, { step: number; icon: string; colorClass: string }> = {
-            Planner:   { step: 1, icon: "Cpu",          colorClass: "text-[#56a8f5]" },
-            Generator: { step: 2, icon: "Layers",       colorClass: "text-[#2aacb8]" },
-            Validator: { step: 3, icon: "FileCode2",    colorClass: "text-[#00e5ff]" },
-            Judge:     { step: 4, icon: "CheckCircle2", colorClass: "text-[#27c93f]" },
-        };
-        const DEFAULT_VISUALS = { step: 1, icon: "Cpu", colorClass: "text-jb-accent" };
+
         
         const terminalEntries: TerminalEntry[] = (detail.logs || []).map((log: Record<string, unknown>, index: number) => {
             const role = log.role as string;
-            const visuals = ROLE_VISUALS[role] || DEFAULT_VISUALS;
+            const visuals = ROLE_VISUALS[role] || DEFAULT_ROLE_VISUALS;
             return {
                 id: log.id ? `p-${log.id}` : `p-log-${index}`,
                 type: "log",
@@ -334,6 +328,9 @@ export const useChatStore = create<ChatStore>((set) => ({
            oResult.insights = detail.insights || "";
            oResult.original_complexity = detail.original_complexity;
            oResult.refactored_complexity = detail.refactored_complexity;
+           oResult.planner_model = detail.planner_model;
+           oResult.generator_model = detail.generator_model;
+           oResult.judge_model = detail.judge_model;
            oResult.performance = {
                 avg_gpu_utilization: detail.avg_gpu_utilization || 0,
                 avg_gpu_memory: detail.avg_gpu_memory || 0,
@@ -388,7 +385,7 @@ export const useChatStore = create<ChatStore>((set) => ({
  else if (detail.logs && detail.logs.length > 0) {
            appState = "analyzing";
            const lastLog = detail.logs[detail.logs.length - 1];
-           const visuals = ROLE_VISUALS[lastLog.role] || DEFAULT_VISUALS;
+           const visuals = ROLE_VISUALS[lastLog.role] || DEFAULT_ROLE_VISUALS;
            activeStep = visuals.step;
         }
         

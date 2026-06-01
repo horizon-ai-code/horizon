@@ -24,6 +24,9 @@ export interface OrchestrationResult {
   refactored_complexity?: number | null;
   insights?: string;
   performance?: PerformanceMetrics;
+  planner_model?: string;
+  generator_model?: string;
+  judge_model?: string;
 }
 
 export interface SessionData {

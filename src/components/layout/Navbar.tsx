@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu } from "lucide-react";
+import Image from "next/image";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -22,9 +22,11 @@ export default function Navbar() {
         {/* Corner Logo */}
         <div className={`h-full px-4 flex items-center justify-center shrink-0 border-r transition-colors duration-300
           ${isDark ? 'border-jb-border/30' : 'border-[#ebecf0]'}`}>
-           <img 
+           <Image 
              src={isDark ? "/logo-dark.png" : "/logo-light.png"} 
              alt="Logo" 
+             width={20}
+             height={20}
              className="h-[20px] w-auto transition-opacity duration-300 opacity-90 hover:opacity-100"
            />
         </div>

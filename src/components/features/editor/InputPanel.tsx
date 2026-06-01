@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useTheme } from "next-themes";
 import { FileCode2, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -89,7 +89,7 @@ export default function InputPanel({
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  const lineCount = sourceCode ? sourceCode.split('\n').length : 0;
+  const lineCount = useMemo(() => sourceCode ? sourceCode.split('\n').length : 0, [sourceCode]);
 
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab' && clipboardPreview) {
