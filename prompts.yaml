@@ -708,6 +708,35 @@ judge:
       "issues": []
     }
 
+  auditor_guidance:
+    FLATTEN_CONDITIONAL: |
+      ### JUDGING FLATTEN_CONDITIONAL
+      Guard clauses with early return/throw are EXPECTED. The code should look
+      completely different — that is what flatten does.
+
+      ACCEPT example:
+        Original:  void f(String s) { if(s!=null){ if(s.length()>0){ work(s); }
+          } else { throw new IllegalArgumentException("null"); } }
+        Refactored: void f(String s) { if(s==null) throw new IllegalArgumentException("null");
+          work(s); }
+        ✓ Guard clause at top. ✓ Exception type matches. ✓ Message "null" matches.
+        ✓ Logic: null→throw, "abc"→work in both.
+
+      REVISE example — merged guards:
+        Original:  void f(String s) { if(s!=null){ if(s.length()>0){ work(s); }
+          } else { throw new IllegalArgumentException("null"); } }
+        Refactored: void f(String s) { if(s==null||s.length()==0) throw new
+          IllegalArgumentException("invalid"); work(s); }
+        ✗ Guards merged with ||. ✗ Messages combined to "invalid".
+
+      REVISE example — logic lost:
+        Original:  void f(int x){ if(x>0){ bonus(); discount(); } }
+        Refactored: void f(int x){ if(x<=0) return; bonus(); }
+        ✗ discount() never called. Logic not preserved.
+
+      CHECK: Every original throw → separate guard? Same types and messages?
+        Pick concrete inputs. Same action for each? → ACCEPT. Else → REVISE.
+
   insights: |
     ### ROLE
     You are a Senior Technical Lead evaluating a completed code refactor.

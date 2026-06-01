@@ -632,8 +632,15 @@ class Orchestrator:
             f"Refactored: <code>{state.working_code}</code>\n"
             f"Intent: {json.dumps(state.intent_packet)}"
         )
+        system_content = self.prompts["judge"]["auditor"]
+        if state.intent_packet:
+            intent_key = state.intent_packet.get("specific_intent", "")
+            guidance = self.prompts["judge"].get("auditor_guidance", {}).get(intent_key, "")
+            if guidance:
+                system_content += "\n" + guidance
+
         messages: List[ChatCompletionRequestMessage] = [
-            {"role": "system", "content": self.prompts["judge"]["auditor"]},
+            {"role": "system", "content": system_content},
             {"role": "user", "content": audit_prompt},
         ]
 

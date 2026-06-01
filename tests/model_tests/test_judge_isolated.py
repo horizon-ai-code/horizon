@@ -258,8 +258,16 @@ async def run_judge_run(
         f"Intent: {json.dumps({'specific_intent': case.get('expected_verdict', '')})}"
     )
 
+    system_content = harness.prompts["judge"]["auditor"]
+    guidance_dict = harness.prompts["judge"].get("auditor_guidance", {})
+    for intent_key in guidance_dict:
+        if intent_key in case.get("plan_summary", ""):
+            guidance = guidance_dict[intent_key]
+            system_content += "\n" + guidance
+            break
+
     result = await harness.generate(
-        system_prompt=harness.prompts["judge"]["auditor"],
+        system_prompt=system_content,
         user_prompt=user_prompt,
         temp=0.1,
         max_tokens=1000,
