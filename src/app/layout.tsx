@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ScrollHandler from "@/components/ui/ScrollHandler";
 import { OrchestrationProvider } from "@/hooks/useOrchestrationSocket";
+import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -36,8 +37,10 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <OrchestrationProvider>
-            <ScrollHandler />
-            {children}
+              <ScrollHandler />
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </OrchestrationProvider>
         </ThemeProvider>
       </body>
