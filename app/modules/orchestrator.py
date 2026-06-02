@@ -353,25 +353,83 @@ class Orchestrator:
         heal_temp = 0.3 if state.syntax_error_context else 0.1
         retry_temp = 0.3 if state.strategy_iter > 1 else heal_temp
         gen_max_tokens = 3072
-        raw = await self.agent_service.generate(
-            messages, temp=retry_temp, max_tokens=gen_max_tokens
-        )
-        coder_text = raw["choices"][0]["message"].get("content") or ""
-        print(
-            f"\n--- Generator Coder Output ---\n{coder_text}\n----------------------------"
-        )
 
-        new_code = ResponseParser.extract_xml(coder_text, "code")
-        if new_code:
-            state.working_code = new_code
-            state.syntax_iter = 0
-            state.syntax_error_context = None
-            await self._notify(
-                client, Role.Generator, "Code refactored.", content=new_code
+        # Multi-sample generation — try 3 temperatures, pick best
+        samples = []
+        for sample_temp in (retry_temp, 0.3, 0.5) if not state.syntax_error_context else (retry_temp,):
+            raw = await self.agent_service.generate(
+                messages, temp=sample_temp, max_tokens=gen_max_tokens
             )
-            print(new_code)
+            coder_text = raw["choices"][0]["message"].get("content") or ""
+            sample_code = ResponseParser.extract_xml(coder_text, "code")
+            if sample_code:
+                # Apply repair
+                sample_code = self._repair_generator_output(state.base_code, sample_code)
+                # Quick syntax check
+                syntax_ok = False
+                try:
+                    import javalang
+                    wrapped = f"class _W_ {{ {sample_code} }}" if "class" not in sample_code else sample_code
+                    javalang.parse.parse(wrapped)
+                    syntax_ok = True
+                except Exception:
+                    pass
+                cc = self.validator.get_complexity(sample_code) if syntax_ok else 999
+                samples.append({
+                    "code": sample_code,
+                    "syntax_ok": syntax_ok,
+                    "cc": cc,
+                    "temp": sample_temp,
+                })
 
-            state.current_phase = 4
+        if samples:
+            # Pick best: prefer syntax valid, then lowest CC increase
+            def sample_score(s):
+                if not s["syntax_ok"]:
+                    return (-1000, 0)
+                cc_delta = s["cc"] - state.original_complexity
+                return (0, -cc_delta)  # higher score = better
+            best = max(samples, key=sample_score)
+
+            print(
+                f"\n--- Generator Multi-Sample ---\n"
+                f"Tried {len(samples)} temps. Best: temp={best['temp']} CC={best['cc']} syntax={'OK' if best['syntax_ok'] else 'FAIL'}\n"
+                f"----------------------------"
+            )
+
+            if best["syntax_ok"]:
+                state.working_code = best["code"]
+                state.syntax_iter = 0
+                state.syntax_error_context = None
+                await self._notify(
+                    client, Role.Generator, "Code refactored.", content=best["code"]
+                )
+                print(best["code"])
+                state.current_phase = 4
+                return
+            else:
+                # All samples failed syntax — try normal single-shot for healing
+                state.syntax_iter += 1
+                if state.syntax_iter <= 3:
+                    state.syntax_error_context = {
+                        "attempt": state.syntax_iter,
+                        "error": "Multi-sample: all outputs had syntax errors.",
+                        "broken_code": state.working_code or state.base_code,
+                    }
+                    state.current_phase = 3
+                    return
+                state.add_feedback({
+                    "failure_tier": FailureTier.TIER_1_SYNTAX,
+                    "error": "Multi-sample: no valid code after multiple attempts.",
+                })
+                if not state.strategy_iter_incremented:
+                    state.strategy_iter += 1
+                    state.strategy_iter_incremented = True
+                state.syntax_iter = 0
+                state.current_phase = 2
+                return
+
+        # Fallback: no code blocks at all
         else:
             # Syntax fail at the gate — no <code> block found
             state.syntax_iter += 1
@@ -810,6 +868,57 @@ class Orchestrator:
             RefactorIntent.RENAME_SYMBOL: "STRICT",
         }
         return rules.get(intent, "STRICT")
+
+    @staticmethod
+    def _repair_generator_output(original: str, generated: str) -> str:
+        """Strip common defensive additions from Generator output."""
+        import re as _re
+
+        result = generated
+
+        # 1. Strip throws declarations added to method signatures
+        orig_throws = set(_re.findall(r'throws\s+(\w+Exception)', original))
+        gen_throws = set(_re.findall(r'throws\s+(\w+Exception)', result))
+        for exc in gen_throws - orig_throws:
+            result = _re.sub(
+                r'\s*throws\s+' + _re.escape(exc) + r'(?=\s*\{)',
+                '', result
+            )
+
+        # 2. Remove null checks not in original
+        orig_null_count = len(_re.findall(r'if\s*\(\s*\w+\s*==\s*null\s*\)', original))
+        gen_null_checks = list(_re.finditer(r'if\s*\(\s*\w+\s*==\s*null\s*\)\s*\{?', result))
+        extra_nulls = len(gen_null_checks) - orig_null_count
+        if extra_nulls > 0:
+            # Remove the last N null checks from the generated code
+            for match in reversed(gen_null_checks[-extra_nulls:]):
+                start = match.start()
+                # Find matching closing brace
+                depth = 0
+                end = start
+                in_block = False
+                for i in range(start, len(result)):
+                    if result[i] == '{':
+                        depth += 1
+                        in_block = True
+                    elif result[i] == '}':
+                        depth -= 1
+                        if in_block and depth == 0:
+                            end = i + 1
+                            break
+                result = result[:start] + result[end:]
+
+        # 3. Strip 'public' modifier from bare methods that weren't public
+        org_pub_methods = set(_re.findall(r'public\s+\w+\s+(\w+)\s*\(', original))
+        gen_pub_methods = set(_re.findall(r'public\s+\w+\s+(\w+)\s*\(', result))
+        for method in gen_pub_methods - org_pub_methods:
+            result = _re.sub(
+                r'\bpublic\s+(' + _re.escape(method) + r')\s*\(',
+                r'\1(',
+                result
+            )
+
+        return result
 
     async def _notify(
         self,
