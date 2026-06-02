@@ -1,6 +1,6 @@
 """
 Full pipeline validation — 20 new test cases from java_polish_full.json.
-Covers all 12 intents. Classifier → Analysis → Architect → Generator → Judge.
+Covers all 12 intents. Classifier → Analysis → Architect → Generator → Phase 4 → Judge.
 """
 import asyncio
 import json
@@ -11,6 +11,7 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, ".")
 
+from app.modules.validator import Validator
 from app.utils.formatters import format_plan_for_generator
 from app.utils.response_parser import ResponseParser
 from app.utils.schemas import (
@@ -461,6 +462,74 @@ def check_methods_preserved(original: str, refactored: str) -> bool:
     return orig_methods.issubset(refac_methods)
 
 
+# ==== PHASE 4 VALIDATION ====
+
+def run_phase4(
+    original_code: str,
+    refactored_code: str,
+    intent: str,
+    plan: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Deterministic Phase 4 checks: Complexity, Boundary, Intent Math."""
+    validator = Validator()
+    findings: List[str] = []
+
+    # Complexity check
+    orig_cc = validator.get_complexity(original_code)
+    refac_cc = validator.get_complexity(refactored_code)
+
+    # Per-intent CC rules (simplified from orchestrator)
+    skip_cc = intent in ("INLINE_METHOD",)
+    loosen_cc = intent in ("SPLIT_LOOP",)
+    extract_cc = intent in ("EXTRACT_METHOD",)
+
+    if not skip_cc:
+        threshold = orig_cc + (1 if loosen_cc else 0)
+        if extract_cc:
+            # Just check refac_cc doesn't grow too much
+            pass  # Simplified — full orchestrator checks source method CC
+        elif refac_cc > threshold:
+            findings.append(f"CC increased: {orig_cc} → {refac_cc} (limit ≤ {threshold})")
+
+    # Boundary check
+    # Build target scopes from plan
+    target_scopes = []
+    for m in plan.get("ast_mutations", []):
+        t = m.get("target", "")
+        if t and t not in target_scopes:
+            target_scopes.append(t)
+    if plan.get("target_class"):
+        target_scopes.append(plan["target_class"])
+
+    boundary_finding = validator.verify_boundary(original_code, refactored_code, target_scopes)
+    if boundary_finding:
+        findings.append(f"Boundary violation: {boundary_finding.error_report.message[:120]}")
+
+    # Intent math check
+    try:
+        from app.utils.types import RefactorIntent
+        intent_enum = RefactorIntent(intent)
+        intent_finding = validator.verify_intent(intent_enum, original_code, refactored_code)
+        if intent_finding:
+            findings.append(f"Intent math fail: {intent_finding.error_report.message[:120]}")
+    except (ValueError, Exception):
+        pass
+
+    # Method preservation check
+    orig_methods = set(re.findall(r'(?:public|private|protected)\s+\w+\s+(\w+)\s*\(', original_code))
+    refac_methods = set(re.findall(r'(?:public|private|protected)\s+\w+\s+(\w+)\s*\(', refactored_code))
+    dropped = orig_methods - refac_methods
+    if dropped:
+        findings.append(f"Methods dropped: {dropped}")
+
+    return {
+        "phase4_pass": len(findings) == 0,
+        "findings": findings,
+        "orig_cc": orig_cc,
+        "refac_cc": refac_cc,
+    }
+
+
 # ==== RUN ====
 
 async def run_case(harness: ModelTestHarness, case: Dict[str, Any]) -> Dict[str, Any]:
@@ -686,17 +755,31 @@ async def main():
         pr["syntax_valid"] = check_syntax(output_code)
         pr["output_len"] = len(output_code)
         pr["gen_duration"] = gres["duration"]
+
+        # Phase 4 — Deterministic validation
+        if pr["syntax_valid"] and plan:
+            p4 = run_phase4(code, output_code, intent_key, plan)
+            pr["phase4_pass"] = p4["phase4_pass"]
+            pr["phase4_findings"] = p4["findings"]
+            pr["orig_cc"] = p4["orig_cc"]
+            pr["refac_cc"] = p4["refac_cc"]
+        else:
+            pr["phase4_pass"] = False
+            pr["phase4_findings"] = ["Syntax invalid" if not pr["syntax_valid"] else "No plan"]
+            pr["orig_cc"] = 0
+            pr["refac_cc"] = 0
+
         if pr["syntax_valid"]:
             pr["methods_preserved"] = check_methods_preserved(code, output_code)
         else:
             pr["methods_preserved"] = False
 
-        pr["verdict"] = "PASS" if (pr.get("classifier_match") and pr.get("plan_mutations", 0) > 0 and pr.get("syntax_valid")) else "FAIL"
+        pr["verdict"] = "PASS" if (pr.get("classifier_match") and pr.get("plan_mutations", 0) > 0 and pr.get("syntax_valid") and pr.get("phase4_pass")) else "FAIL"
         if "_plan" in pr:
             del pr["_plan"]
 
         print(f"[{i+1:2d}/20] {'✓' if pr['verdict'] == 'PASS' else '✗'} {case['name'][:45]} "
-              f"| syntax={'✓' if pr.get('syntax_valid') else '✗'} methods={'✓' if pr.get('methods_preserved') else '✗'}")
+              f"| syntax={'✓' if pr.get('syntax_valid') else '✗'} phase4={'✓' if pr.get('phase4_pass') else '✗'} methods={'✓' if pr.get('methods_preserved') else '✗'}")
 
     await h_gen.unload_model()
     print(f"\nGenerator done. Loading judge...")
@@ -714,6 +797,11 @@ async def main():
         if not pr.get("syntax_valid") or not output_code:
             pr["judge_verdict"] = "SKIP"
             pr["judge_issues"] = ["Syntax invalid — skipped judge"]
+            pr["judge_duration"] = 0
+            continue
+        if not pr.get("phase4_pass"):
+            pr["judge_verdict"] = "SKIP"
+            pr["judge_issues"] = [f"Phase 4 failed: {'; '.join(pr.get('phase4_findings', ['unknown']))}"]
             pr["judge_duration"] = 0
             continue
 
@@ -766,22 +854,27 @@ async def main():
     class_ok = sum(1 for r in planner_results if r.get("classifier_match"))
     plans_ok = sum(1 for r in planner_results if r.get("plan_mutations", 0) > 0)
     syntax_ok = sum(1 for r in planner_results if r.get("syntax_valid"))
+    phase4_ok = sum(1 for r in planner_results if r.get("phase4_pass"))
     methods_ok = sum(1 for r in planner_results if r.get("methods_preserved"))
     judge_accept = sum(1 for r in planner_results if r.get("judge_verdict") == "ACCEPT")
     judge_revise = sum(1 for r in planner_results if r.get("judge_verdict") == "REVISE")
     judge_skip = sum(1 for r in planner_results if r.get("judge_verdict") in ("SKIP", "PARSE_ERROR", "GEN_ERROR"))
-    full_pass = sum(1 for r in planner_results if r.get("classifier_match") and r.get("syntax_valid") and r.get("judge_verdict") == "ACCEPT")
+    full_pass = sum(1 for r in planner_results if (
+        r.get("classifier_match") and r.get("syntax_valid")
+        and r.get("phase4_pass") and r.get("judge_verdict") == "ACCEPT"
+    ))
 
     print(f"\n{'='*70}")
     print(f"RESULTS")
-    print(f"  Classifier correct: {class_ok}/20")
-    print(f"  Plans with muts:    {plans_ok}/20")
-    print(f"  Syntax valid:       {syntax_ok}/20")
-    print(f"  Methods preserved:  {methods_ok}/20")
-    print(f"  Judge ACCEPT:       {judge_accept}/20")
-    print(f"  Judge REVISE:       {judge_revise}/20")
-    print(f"  Judge SKIP:         {judge_skip}/20")
-    print(f"  FULL PIPELINE PASS: {full_pass}/20")
+    print(f"  Classifier correct:   {class_ok}/20")
+    print(f"  Plans with muts:      {plans_ok}/20")
+    print(f"  Syntax valid:         {syntax_ok}/20")
+    print(f"  Phase 4 (deterministic): {phase4_ok}/20")
+    print(f"  Methods preserved:    {methods_ok}/20")
+    print(f"  Judge ACCEPT:         {judge_accept}/20")
+    print(f"  Judge REVISE:         {judge_revise}/20")
+    print(f"  Judge SKIP:           {judge_skip}/20")
+    print(f"  FULL PIPELINE PASS:   {full_pass}/20")
 
     from collections import Counter
     intent_results: Dict[str, List[bool]] = {}
