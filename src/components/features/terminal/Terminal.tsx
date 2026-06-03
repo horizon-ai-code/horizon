@@ -136,10 +136,9 @@ export default function Terminal({
         <div className={`pt-4 px-4 pb-4 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono transition-colors duration-300
           ${isDark ? "bg-jb-panel" : "bg-white"}`}>
 
-          {/* Boot header — paddingLeft 64px aligns with message column (54px timestamp + 10px gap) */}
+          {/* Boot header */}
           <div
             className={`text-[12px] font-mono mb-4 leading-relaxed shrink-0 transition-colors ${isDark ? "text-[#a8b0bd]" : "text-jb-text-muted"}`}
-            style={{ paddingLeft: "64px" }}
           >
             Horizon AI [Version 10.0.26100]<br />
             (c) Horizon Corporation. All rights reserved.
