@@ -138,7 +138,7 @@ export default function Terminal({
 
           {/* Boot header — paddingLeft 64px aligns with message column (54px timestamp + 10px gap) */}
           <div
-            className="text-[12px] font-mono text-jb-text-muted mb-4 leading-relaxed shrink-0 transition-colors"
+            className={`text-[12px] font-mono mb-4 leading-relaxed shrink-0 transition-colors ${isDark ? "text-[#a8b0bd]" : "text-jb-text-muted"}`}
             style={{ paddingLeft: "64px" }}
           >
             Horizon AI [Version 10.0.26100]<br />
@@ -152,7 +152,7 @@ export default function Terminal({
                 <hr
                   key={entry.id}
                   className="shrink-0 border-none my-2"
-                  style={{ borderTop: "1px solid #2a2d35" }}
+                  style={{ borderTop: isDark ? "1px solid #3f4552" : "1px solid #d6d9df" }}
                 />
               );
             }
@@ -163,7 +163,7 @@ export default function Terminal({
                   {/* Timestamp */}
                   <span
                     className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
-                    style={{ minWidth: "54px", color: "#444" }}
+                    style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
                   >
                     {entry.timestamp ?? ""}
                   </span>
@@ -173,13 +173,13 @@ export default function Terminal({
                       ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
                       user
                     </span>
-                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#444]" : "text-[#aaa]"}`}>@</span>
+                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#8d95a5]" : "text-[#8a8f99]"}`}>@</span>
                     <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px] transition-colors
                       ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
                       horizon
                     </span>
                     <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#4ec97e]" : "text-[#2a8a5e]"}`}>&nbsp;~</span>
-                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#666]" : "text-[#aaa]"}`}>&nbsp;&gt;</span>
+                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#9aa3b3]" : "text-[#8a8f99]"}`}>&nbsp;&gt;</span>
                     <span className={`text-[13px] font-semibold break-all transition-colors
                       ${isDark ? "text-[#e2e4ea]" : "text-[#080808]"}`}>
                       &nbsp;{entry.text}
@@ -198,7 +198,7 @@ export default function Terminal({
                   {/* Timestamp */}
                   <span
                     className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
-                    style={{ minWidth: "54px", color: "#444" }}
+                    style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
                   >
                     {entry.timestamp ?? ""}
                   </span>
@@ -215,7 +215,7 @@ export default function Terminal({
                       {label}
                     </span>
                     <span className={`text-[12px] leading-relaxed break-words flex-1
-                      ${entry.colorClass ?? (isDark ? "text-jb-text opacity-90" : "text-[#333]")}`}>
+                      ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
                       {entry.text}
                     </span>
                   </div>
@@ -229,7 +229,7 @@ export default function Terminal({
                   {/* Timestamp */}
                   <span
                     className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
-                    style={{ minWidth: "54px", color: "#444" }}
+                    style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
                   >
                     {entry.timestamp ?? ""}
                   </span>
@@ -239,7 +239,7 @@ export default function Terminal({
                       SYSTEM
                     </span>
                     <span className={`text-[12px] leading-relaxed break-words flex-1
-                      ${isDark ? "text-jb-text/75" : "text-[#5d6672]"}`}>
+                      ${isDark ? "text-[#c1c8d6]" : "text-[#5d6672]"}`}>
                       {entry.text}
                     </span>
                   </div>
