@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTheme } from "next-themes";
-import { AlertCircle, ChevronDown, ChevronUp, X } from "lucide-react";
+import { AlertCircle, ChevronDown, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { AppState } from "@/types/session";
 
 const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
@@ -39,6 +41,140 @@ interface TerminalProps {
   appState: AppState;
 }
 
+interface EntryProps {
+  entry: TerminalEntry;
+  isDark: boolean;
+}
+
+// Sub-components defined outside for Rule 4 compliance
+function DividerEntry({ isDark }: { isDark: boolean }) {
+  return (
+    <hr
+      className="shrink-0 border-none my-2"
+      style={{ borderTop: isDark ? "1px solid #3f4552" : "1px solid #d6d9df" }}
+    />
+  );
+}
+
+function CommandEntry({ entry, isDark }: EntryProps) {
+  return (
+    <div className="flex items-start gap-0 w-full max-w-6xl mb-3 mt-1 text-[12px] font-mono leading-relaxed shrink-0">
+      <span
+        className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
+        style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
+      >
+        {entry.timestamp ?? ""}
+      </span>
+      <div className="flex items-start flex-wrap gap-0 flex-1">
+        <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px]
+          ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
+          user
+        </span>
+        <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#8d95a5]" : "text-[#8a8f99]"}`}>@</span>
+        <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px]
+          ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
+          horizon
+        </span>
+        <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#4ec97e]" : "text-[#2a8a5e]"}`}>&nbsp;~</span>
+        <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#9aa3b3]" : "text-[#8a8f99]"}`}>&nbsp;&gt;</span>
+        <span className={`text-[13px] font-semibold break-all
+          ${isDark ? "text-[#e2e4ea]" : "text-[#080808]"}`}>
+          &nbsp;{entry.text}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function LogEntry({ entry, isDark }: EntryProps) {
+  const iconKey = entry.icon ?? "Cpu";
+  const badge = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
+  const label = AGENT_LABEL[iconKey] ?? "AGENT";
+
+  return (
+    <div className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
+      <span
+        className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
+        style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
+      >
+        {entry.timestamp ?? ""}
+      </span>
+      <div className="flex items-start gap-2 flex-1 overflow-hidden">
+        <span
+          className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap"
+          style={{
+            backgroundColor: badge.bg,
+            color:           badge.text,
+            borderColor:     `${badge.text}33`,
+          }}
+        >
+          {label}
+        </span>
+        <span className={`text-[12px] leading-relaxed break-words flex-1
+          ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
+          {entry.text}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function SystemEntry({ entry, isDark }: EntryProps) {
+  return (
+    <div className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
+      <span
+        className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
+        style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
+      >
+        {entry.timestamp ?? ""}
+      </span>
+      <div className="flex items-start gap-2 flex-1 overflow-hidden">
+        <span className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap bg-[#2a2030] text-[#a78bfa] border-[#a78bfa33]">
+          SYSTEM
+        </span>
+        <span className={`text-[12px] leading-relaxed break-words flex-1
+          ${isDark ? "text-[#c1c8d6]" : "text-[#5d6672]"}`}>
+          {entry.text}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ErrorEntry({ entry, isDark }: EntryProps) {
+  return (
+    <div className={`mb-3 p-3 rounded-lg border flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300
+      ${isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-200"}`}>
+      <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
+          Execution Error
+        </span>
+        <span className={`text-[12px] leading-relaxed ${isDark ? "text-red-200/80" : "text-red-700"}`}>
+          {entry.text}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function EntryRouter({ entry, isDark }: EntryProps) {
+  switch (entry.type) {
+    case "divider":
+      return <DividerEntry isDark={isDark} />;
+    case "command":
+      return <CommandEntry entry={entry} isDark={isDark} />;
+    case "log":
+      return <LogEntry entry={entry} isDark={isDark} />;
+    case "system":
+      return <SystemEntry entry={entry} isDark={isDark} />;
+    case "error":
+      return <ErrorEntry entry={entry} isDark={isDark} />;
+    default:
+      return null;
+  }
+}
+
 export default function Terminal({
   isTerminalCollapsed,
   setIsTerminalCollapsed,
@@ -47,59 +183,72 @@ export default function Terminal({
   appState,
 }: TerminalProps) {
   const { resolvedTheme } = useTheme();
-
   const isDark = resolvedTheme !== "light";
 
-  return (
-    <div className="flex flex-col min-h-0 overflow-hidden transition-all duration-300 bg-jb-panel relative h-full w-full">
+  // Rule 23: Narrow auto-scroll effect dependency to primitives (.length)
+  useEffect(() => {
+    if (!isTerminalCollapsed && terminalEndRef.current && typeof terminalEndRef.current.scrollIntoView === "function") {
+      terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [terminalEntries.length, isTerminalCollapsed, appState, terminalEndRef]);
 
+  // Cleaned layout update: extracted toggle handlers
+  const handleToggleCollapse = () => {
+    setIsTerminalCollapsed(!isTerminalCollapsed);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleToggleCollapse();
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-0 overflow-hidden bg-jb-panel relative h-full w-full ring-1 ring-white/[0.05]">
+      {/* Header Container */}
       <div
         role="button"
         tabIndex={0}
         aria-expanded={!isTerminalCollapsed}
         aria-label={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
-        onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setIsTerminalCollapsed(!isTerminalCollapsed);
-          }
-        }}
+        onClick={handleToggleCollapse}
+        onKeyDown={handleKeyDown}
         draggable={false}
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
-        className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none transition-colors duration-300
-          ${isDark ? "bg-jb-bg border-jb-border" : "bg-[#f7f8fa] border-[#ebecf0]"}`}
+        className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset
+          ${isDark ? "bg-jb-panel border-jb-border" : "bg-[#f7f8fa] border-[#ebecf0]"}`}
       >
         <div className="flex items-center h-full gap-4">
-          <h3 className={`text-[12px] font-semibold tracking-wide flex items-center gap-2 transition-colors duration-300
+          <h3 className={`text-[12px] font-semibold tracking-wide flex items-center gap-2
             ${isDark ? "text-jb-text opacity-90" : "text-[#080808] opacity-80"}`}>
             Terminal
           </h3>
 
           {appState === "waiting" ? (
-            <div className={`px-2 py-0.5 rounded text-[10px] font-bold border animate-pulse transition-colors
+            <div className={`px-2 py-0.5 rounded text-[10px] font-bold border animate-pulse
               ${isDark ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
               BUSY
             </div>
           ) : null}
 
           {appState === "analyzing" ? (
-            <div className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors
+            <div className={`px-2 py-0.5 rounded text-[10px] font-bold border
               ${isDark ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-cyan-50 text-cyan-600 border-cyan-200"}`}>
               ANALYZING
             </div>
           ) : null}
 
-          <div className={`h-[20px] w-[1px] ${isDark ? "bg-[#393b40]/60" : "bg-[#ebecf0]"}`} />
+          <div className={`h-[20px] w-[1px] ${isDark ? "bg-jb-border/60" : "bg-[#ebecf0]"}`} />
 
           <div className="flex items-center h-full pt-1.5 pb-1">
-            <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm transition-colors duration-300
-              ${isDark ? "bg-jb-panel text-jb-text border-[#393b40]/50" : "bg-white text-[#080808] border-[#dfdfdf]"}`}>
+            <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm
+              ${isDark ? "bg-jb-panel text-jb-text border-jb-border/50" : "bg-white text-[#080808] border-[#dfdfdf]"}`}>
               Local
               <button
                 aria-label="Close terminal tab"
                 onClick={(e) => e.stopPropagation()}
-                className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
+                className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded ml-1 w-4 h-4 flex items-center justify-center
                   ${isDark ? "hover:bg-jb-border" : "hover:bg-[#ebecf0]"}`}
               >
                 <X size={10} />
@@ -109,7 +258,6 @@ export default function Terminal({
         </div>
 
         <div className="flex items-center gap-4">
-          {/* ✅ Rule 21: explicit ternary */}
           {(appState === "analyzing" || appState === "waiting") ? (
             <span className="flex h-2.5 w-2.5 relative">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -125,151 +273,45 @@ export default function Terminal({
             </span>
           ) : null}
 
-          {isTerminalCollapsed
-            ? <ChevronUp   size={18} className={isDark ? "text-gray-500" : "text-slate-400"} />
-            : <ChevronDown size={18} className={isDark ? "text-gray-500" : "text-slate-400"} />
-          }
+          <motion.div
+            animate={{ rotate: isTerminalCollapsed ? 180 : 0 }}
+            transition={{ type: "spring", stiffness: 450, damping: 40 }}
+          >
+            <ChevronDown size={18} className={isDark ? "text-gray-500" : "text-slate-400"} />
+          </motion.div>
         </div>
       </div>
 
-      {!isTerminalCollapsed ? (
-        <div className={`pt-4 px-4 pb-4 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono transition-colors duration-300
-          ${isDark ? "bg-jb-panel" : "bg-white"}`}>
-
-          {/* Boot header */}
-          <div
-            className={`text-[12px] font-mono mb-4 leading-relaxed shrink-0 transition-colors ${isDark ? "text-[#a8b0bd]" : "text-jb-text-muted"}`}
+      {/* Terminal Body Container */}
+      <AnimatePresence initial={false}>
+        {!isTerminalCollapsed && (
+          <motion.div
+            key="terminal-body"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ type: "spring", stiffness: 450, damping: 40 }}
+            className={`pt-4 px-4 pb-4 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono
+              ${isDark ? "bg-jb-panel" : "bg-white"}`}
           >
-            Welcome to Horizon AI [Version 2.0.0]<br />
-            (c) Horizon Corporation. All rights reserved.
-          </div>
+            {/* Boot header */}
+            <div
+              className={`text-[12px] font-mono mb-4 leading-relaxed shrink-0 ${isDark ? "text-[#a8b0bd]" : "text-jb-text-muted"}`}
+            >
+              Welcome to Horizon AI [Version 2.0.0]<br />
+              (c) Horizon Corporation. All rights reserved.
+            </div>
 
-          {terminalEntries.map((entry) => {
+            {/* Entries list */}
+            {terminalEntries.map((entry) => (
+              <EntryRouter key={entry.id} entry={entry} isDark={isDark} />
+            ))}
 
-            if (entry.type === "divider") {
-              return (
-                <hr
-                  key={entry.id}
-                  className="shrink-0 border-none my-2"
-                  style={{ borderTop: isDark ? "1px solid #3f4552" : "1px solid #d6d9df" }}
-                />
-              );
-            }
-
-            if (entry.type === "command") {
-              return (
-                <div key={entry.id} className="flex items-start gap-0 w-full max-w-6xl mb-3 mt-1 text-[12px] font-mono leading-relaxed shrink-0">
-                  {/* Timestamp */}
-                  <span
-                    className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
-                    style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
-                  >
-                    {entry.timestamp ?? ""}
-                  </span>
-                  {/* Prompt */}
-                  <div className="flex items-start flex-wrap gap-0 flex-1">
-                    <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px] transition-colors
-                      ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
-                      user
-                    </span>
-                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#8d95a5]" : "text-[#8a8f99]"}`}>@</span>
-                    <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px] transition-colors
-                      ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
-                      horizon
-                    </span>
-                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#4ec97e]" : "text-[#2a8a5e]"}`}>&nbsp;~</span>
-                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#9aa3b3]" : "text-[#8a8f99]"}`}>&nbsp;&gt;</span>
-                    <span className={`text-[13px] font-semibold break-all transition-colors
-                      ${isDark ? "text-[#e2e4ea]" : "text-[#080808]"}`}>
-                      &nbsp;{entry.text}
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-
-            if (entry.type === "log") {
-              const iconKey = entry.icon ?? "Cpu";
-              const badge   = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
-              const label   = AGENT_LABEL[iconKey] ?? "AGENT";
-              return (
-                <div key={entry.id} className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
-                  {/* Timestamp */}
-                  <span
-                    className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
-                    style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
-                  >
-                    {entry.timestamp ?? ""}
-                  </span>
-                  {/* Badge + message */}
-                  <div className="flex items-start gap-2 flex-1 overflow-hidden">
-                    <span
-                      className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap"
-                      style={{
-                        backgroundColor: badge.bg,
-                        color:           badge.text,
-                        borderColor:     `${badge.text}33`,
-                      }}
-                    >
-                      {label}
-                    </span>
-                    <span className={`text-[12px] leading-relaxed break-words flex-1
-                      ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
-                      {entry.text}
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-
-            if (entry.type === "system") {
-              return (
-                <div key={entry.id} className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
-                  {/* Timestamp */}
-                  <span
-                    className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
-                    style={{ minWidth: "54px", color: isDark ? "#7d8594" : "#666" }}
-                  >
-                    {entry.timestamp ?? ""}
-                  </span>
-                  {/* Badge + message */}
-                  <div className="flex items-start gap-2 flex-1 overflow-hidden">
-                    <span className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap bg-[#2a2030] text-[#a78bfa] border-[#a78bfa33]">
-                      SYSTEM
-                    </span>
-                    <span className={`text-[12px] leading-relaxed break-words flex-1
-                      ${isDark ? "text-[#c1c8d6]" : "text-[#5d6672]"}`}>
-                      {entry.text}
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-
-            if (entry.type === "error") {
-              return (
-                <div key={entry.id} className={`mb-3 p-3 rounded-lg border flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300
-                  ${isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-200"}`}>
-                  <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
-                      Execution Error
-                    </span>
-                    <span className={`text-[12px] leading-relaxed ${isDark ? "text-red-200/80" : "text-red-700"}`}>
-                      {entry.text}
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-
-            return null;
-          })}
-
-          {/* Scroll anchor */}
-          <div ref={terminalEndRef} className="h-4 shrink-0" />
-        </div>
-      ) : null}
+            {/* Scroll anchor */}
+            <div ref={terminalEndRef} className="h-4 shrink-0" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

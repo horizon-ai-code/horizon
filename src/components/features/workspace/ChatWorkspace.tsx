@@ -130,12 +130,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   useEffect(() => {
-    if (!isTerminalCollapsed) {
-      terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [terminalEntries, activeStep, isTerminalCollapsed, appState]);
-
-  useEffect(() => {
     if (appState !== "analyzing" && appState !== "waiting") return;
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
