@@ -1,189 +1,276 @@
-import { useState, useEffect } from "react";
+"use client";
+
 import { useTheme } from "next-themes";
-import { Cpu, AlertCircle, Layers, CheckCircle2, ChevronDown, ChevronUp, X, Clock, FileCode2 } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronUp, X } from "lucide-react";
 import type { AppState } from "@/types/session";
 
-interface AgentTerminalLineProps {
-  text: string;
-  colorClass: string;
-  icon: React.ElementType;
-}
-
-const AgentTerminalLine = ({ text, colorClass, icon: Icon }: AgentTerminalLineProps) => {
-  return (
-    <div className="flex items-start gap-3 text-[12px] font-mono leading-relaxed shrink-0 transition-opacity">
-      <div className={`mt-0.5 ${colorClass}`}><Icon size={14} /></div>
-      <div className="flex-1">
-        <span className={colorClass}>&gt; </span>
-        <span className="text-jb-text transition-colors opacity-90">
-          {text}
-        </span>
-      </div>
-    </div>
-  );
+const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
+  Cpu:          { bg: "#1a2f4a", text: "#5a8cf8" },
+  Layers:       { bg: "#1c2e2e", text: "#3dd6c8" },
+  FileCode2:    { bg: "#2e2218", text: "#e09c3b" },
+  CheckCircle2: { bg: "#1a2e1a", text: "#4ec97e" },
+  Clock:        { bg: "#2a2030", text: "#a78bfa" },
+  AlertCircle:  { bg: "#3c1a1a", text: "#e06c75" },
 };
+
+const AGENT_LABEL: Record<string, string> = {
+  Cpu:          "PLANNER",
+  Layers:       "GENERATOR",
+  FileCode2:    "AST PARSER",
+  CheckCircle2: "JUDGE",
+  Clock:        "SYSTEM",
+  AlertCircle:  "ERROR",
+};
+
+interface TerminalEntry {
+  id: string;
+  type: "command" | "log" | "system" | "error" | "divider";
+  text: string;
+  colorClass?: string;
+  icon?: string;
+  timestamp?: string;
+}
 
 interface TerminalProps {
   isTerminalCollapsed: boolean;
   setIsTerminalCollapsed: (val: boolean) => void;
   terminalEndRef: React.RefObject<HTMLDivElement | null>;
-  terminalEntries?: {id: string, type: 'command' | 'log' | 'system' | 'error', text: string, colorClass?: string, icon?: string}[];
+  terminalEntries?: TerminalEntry[];
   appState: AppState;
 }
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  Cpu: Cpu,
-  AlertCircle: AlertCircle,
-  Layers: Layers,
-  CheckCircle2: CheckCircle2,
-  Clock: Clock,
-  FileCode2: FileCode2
-};
 
 export default function Terminal({
   isTerminalCollapsed,
   setIsTerminalCollapsed,
   terminalEndRef,
   terminalEntries = [],
-  appState
+  appState,
 }: TerminalProps) {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
-
-  if (!mounted) return null;
+  const isDark = resolvedTheme !== "light";
 
   return (
-    <div className={`flex flex-col min-h-0 overflow-hidden transition-all duration-300
-      bg-jb-panel relative h-full w-full`}>
-      
-      <div 
+    <div className="flex flex-col min-h-0 overflow-hidden transition-all duration-300 bg-jb-panel relative h-full w-full">
+
+      <div
         role="button"
         tabIndex={0}
         aria-expanded={!isTerminalCollapsed}
         aria-label={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
         onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             setIsTerminalCollapsed(!isTerminalCollapsed);
           }
         }}
         draggable={false}
-        className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none transition-colors duration-300 pr-4
-          ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
+        className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none transition-colors duration-300
+          ${isDark ? "bg-jb-bg border-jb-border" : "bg-[#f7f8fa] border-[#ebecf0]"}`}
       >
         <div className="flex items-center h-full gap-4">
           <h3 className={`text-[12px] font-semibold tracking-wide flex items-center gap-2 transition-colors duration-300
-            ${isDark ? 'text-jb-text opacity-90' : 'text-[#080808] opacity-80'}`}>
-             Terminal
+            ${isDark ? "text-jb-text opacity-90" : "text-[#080808] opacity-80"}`}>
+            Terminal
           </h3>
 
-          {appState === 'waiting' && (
+          {appState === "waiting" ? (
             <div className={`px-2 py-0.5 rounded text-[10px] font-bold border animate-pulse transition-colors
-              ${isDark ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-yellow-50 text-yellow-600 border-yellow-200'}`}>
+              ${isDark ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
               BUSY
             </div>
-          )}
+          ) : null}
 
-          {appState === 'analyzing' && (
+          {appState === "analyzing" ? (
             <div className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors
-              ${isDark ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-cyan-50 text-cyan-600 border-cyan-200'}`}>
+              ${isDark ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-cyan-50 text-cyan-600 border-cyan-200"}`}>
               ANALYZING
             </div>
-          )}
+          ) : null}
 
-          <div className={`h-[20px] w-[1px] ${isDark ? 'bg-[#393b40]/60' : 'bg-[#ebecf0]'}`}></div>
-          
+          <div className={`h-[20px] w-[1px] ${isDark ? "bg-[#393b40]/60" : "bg-[#ebecf0]"}`} />
+
           <div className="flex items-center h-full pt-1.5 pb-1">
-             <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm transition-colors duration-300
-               ${isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50' : 'bg-white text-[#080808] border-[#dfdfdf]'}`}>
-                Local
-                <button aria-label="Close terminal tab" className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
-                  ${isDark ? 'hover:bg-jb-border' : 'hover:bg-[#ebecf0]'}`} onClick={(e) => e.stopPropagation()}>
-                   <X size={10} />
-                </button>
-             </div>
+            <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm transition-colors duration-300
+              ${isDark ? "bg-jb-panel text-jb-text border-[#393b40]/50" : "bg-white text-[#080808] border-[#dfdfdf]"}`}>
+              Local
+              <button
+                aria-label="Close terminal tab"
+                onClick={(e) => e.stopPropagation()}
+                className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
+                  ${isDark ? "hover:bg-jb-border" : "hover:bg-[#ebecf0]"}`}
+              >
+                <X size={10} />
+              </button>
+            </div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          {(appState === 'analyzing' || appState === 'waiting') && (
+          {/* ✅ Rule 21: explicit ternary */}
+          {(appState === "analyzing" || appState === "waiting") ? (
             <span className="flex h-2.5 w-2.5 relative">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                appState === 'waiting' 
-                  ? (isDark ? 'bg-yellow-400' : 'bg-yellow-500') 
-                  : (isDark ? 'bg-cyan-400' : 'bg-cyan-500')
-              }`}></span>
+                appState === "waiting"
+                  ? (isDark ? "bg-yellow-400" : "bg-yellow-500")
+                  : (isDark ? "bg-cyan-400"   : "bg-cyan-500")
+              }`} />
               <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                appState === 'waiting'
-                  ? (isDark ? 'bg-yellow-400' : 'bg-yellow-500')
-                  : (isDark ? 'bg-cyan-400' : 'bg-cyan-500')
-              }`}></span>
+                appState === "waiting"
+                  ? (isDark ? "bg-yellow-400" : "bg-yellow-500")
+                  : (isDark ? "bg-cyan-400"   : "bg-cyan-500")
+              }`} />
             </span>
-          )}
-          {isTerminalCollapsed ? <ChevronUp size={18} className={isDark ? 'text-gray-500' : 'text-slate-400'}/> : <ChevronDown size={18} className={isDark ? 'text-gray-500' : 'text-slate-400'}/>}
+          ) : null}
+
+          {isTerminalCollapsed
+            ? <ChevronUp   size={18} className={isDark ? "text-gray-500" : "text-slate-400"} />
+            : <ChevronDown size={18} className={isDark ? "text-gray-500" : "text-slate-400"} />
+          }
         </div>
       </div>
 
-      {!isTerminalCollapsed && (
-        <div className={`p-6 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono transition-colors duration-300
-          ${isDark ? 'bg-jb-panel' : 'bg-white'}`}>
-           <div className="text-[13px] text-jb-text-muted mb-4 leading-relaxed shrink-0 transition-colors">
-              Welcom to Horizon AI [Version 2.0.0]<br/>
-              (c) Horizon Corporation. All rights reserved.<br/>
-           </div>
+      {!isTerminalCollapsed ? (
+        <div className={`pt-4 px-4 pb-4 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono transition-colors duration-300
+          ${isDark ? "bg-jb-panel" : "bg-white"}`}>
 
-           {/* TERMINAL ENTRIES (History) */}
-           {terminalEntries.map((entry) => {
-              if (entry.type === 'command') {
-                 return (
-                    <div key={entry.id} className="flex items-start gap-1 w-full max-w-6xl mb-0.5">
-                       <span className={`text-[14px] whitespace-nowrap pt-[2px] font-semibold transition-colors duration-300
-                         ${isDark ? 'text-jb-text opacity-70' : 'text-[#818594]'}`}>
-                         user@horizon ~ {'>'}
-                       </span>
-                       <div className={`text-[14px] font-medium py-[2px] overflow-hidden break-all transition-colors duration-300
-                         ${isDark ? 'text-jb-text opacity-90' : 'text-[#080808]'}`}>
-                         {entry.text}
-                       </div>
-                    </div>
-                 );
-              } else if (entry.type === 'log') {
-                 return (
-                     <div key={entry.id} className="mb-3">
-                        <AgentTerminalLine 
-                           icon={(entry.icon ? ICON_MAP[entry.icon] : undefined) || Cpu} 
-                           colorClass={entry.colorClass || "text-jb-accent"} 
-                          text={entry.text} 
-                       />
-                    </div>
-                 );
-              } else if (entry.type === 'error') {
-                  return (
-                    <div key={entry.id} className={`mb-3 p-3 rounded-lg border flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300
-                      ${isDark ? 'bg-red-500/5 border-red-500/20' : 'bg-red-50 border-red-200'}`}>
-                       <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
-                       <div className="flex flex-col gap-1">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">Execution Error</span>
-                          <span className={`text-[12px] leading-relaxed ${isDark ? 'text-red-200/80' : 'text-red-700'}`}>{entry.text}</span>
-                       </div>
-                    </div>
-                  );
-               }
-               return null;
-           })}
+          {/* Boot header — paddingLeft 64px aligns with message column (54px timestamp + 10px gap) */}
+          <div
+            className="text-[12px] font-mono text-jb-text-muted mb-4 leading-relaxed shrink-0 transition-colors"
+            style={{ paddingLeft: "64px" }}
+          >
+            Horizon AI [Version 10.0.26100]<br />
+            (c) Horizon Corporation. All rights reserved.
+          </div>
 
+          {terminalEntries.map((entry) => {
 
-           <div ref={terminalEndRef} className="h-6 shrink-0" />
+            if (entry.type === "divider") {
+              return (
+                <hr
+                  key={entry.id}
+                  className="shrink-0 border-none my-2"
+                  style={{ borderTop: "1px solid #2a2d35" }}
+                />
+              );
+            }
+
+            if (entry.type === "command") {
+              return (
+                <div key={entry.id} className="flex items-start gap-0 w-full max-w-6xl mb-3 mt-1 text-[12px] font-mono leading-relaxed shrink-0">
+                  {/* Timestamp */}
+                  <span
+                    className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
+                    style={{ minWidth: "54px", color: "#444" }}
+                  >
+                    {entry.timestamp ?? ""}
+                  </span>
+                  {/* Prompt */}
+                  <div className="flex items-start flex-wrap gap-0 flex-1">
+                    <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px] transition-colors
+                      ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
+                      user
+                    </span>
+                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#444]" : "text-[#aaa]"}`}>@</span>
+                    <span className={`text-[13px] font-semibold whitespace-nowrap pt-[1px] transition-colors
+                      ${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"}`}>
+                      horizon
+                    </span>
+                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#4ec97e]" : "text-[#2a8a5e]"}`}>&nbsp;~</span>
+                    <span className={`text-[13px] pt-[1px] ${isDark ? "text-[#666]" : "text-[#aaa]"}`}>&nbsp;&gt;</span>
+                    <span className={`text-[13px] font-semibold break-all transition-colors
+                      ${isDark ? "text-[#e2e4ea]" : "text-[#080808]"}`}>
+                      &nbsp;{entry.text}
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
+            if (entry.type === "log") {
+              const iconKey = entry.icon ?? "Cpu";
+              const badge   = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
+              const label   = AGENT_LABEL[iconKey] ?? "AGENT";
+              return (
+                <div key={entry.id} className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
+                  {/* Timestamp */}
+                  <span
+                    className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
+                    style={{ minWidth: "54px", color: "#444" }}
+                  >
+                    {entry.timestamp ?? ""}
+                  </span>
+                  {/* Badge + message */}
+                  <div className="flex items-start gap-2 flex-1 overflow-hidden">
+                    <span
+                      className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap"
+                      style={{
+                        backgroundColor: badge.bg,
+                        color:           badge.text,
+                        borderColor:     `${badge.text}33`,
+                      }}
+                    >
+                      {label}
+                    </span>
+                    <span className={`text-[12px] leading-relaxed break-words flex-1
+                      ${entry.colorClass ?? (isDark ? "text-jb-text opacity-90" : "text-[#333]")}`}>
+                      {entry.text}
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
+            if (entry.type === "system") {
+              return (
+                <div key={entry.id} className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
+                  {/* Timestamp */}
+                  <span
+                    className="shrink-0 select-none whitespace-nowrap pt-[2px] pr-[10px]"
+                    style={{ minWidth: "54px", color: "#444" }}
+                  >
+                    {entry.timestamp ?? ""}
+                  </span>
+                  {/* Badge + message */}
+                  <div className="flex items-start gap-2 flex-1 overflow-hidden">
+                    <span className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap bg-[#2a2030] text-[#a78bfa] border-[#a78bfa33]">
+                      SYSTEM
+                    </span>
+                    <span className={`text-[12px] leading-relaxed break-words flex-1
+                      ${isDark ? "text-jb-text/75" : "text-[#5d6672]"}`}>
+                      {entry.text}
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
+            if (entry.type === "error") {
+              return (
+                <div key={entry.id} className={`mb-3 p-3 rounded-lg border flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300
+                  ${isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-200"}`}>
+                  <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
+                      Execution Error
+                    </span>
+                    <span className={`text-[12px] leading-relaxed ${isDark ? "text-red-200/80" : "text-red-700"}`}>
+                      {entry.text}
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
+            return null;
+          })}
+
+          {/* Scroll anchor */}
+          <div ref={terminalEndRef} className="h-4 shrink-0" />
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
