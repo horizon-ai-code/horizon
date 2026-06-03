@@ -136,7 +136,7 @@ export default function Terminal({
         <div className={`p-6 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono transition-colors duration-300
           ${isDark ? 'bg-jb-panel' : 'bg-white'}`}>
            <div className="text-[13px] text-jb-text-muted mb-4 leading-relaxed shrink-0 transition-colors">
-              Horizon AI [Version 10.0.26100]<br/>
+              Welcom to Horizon AI [Version 2.0.0]<br/>
               (c) Horizon Corporation. All rights reserved.<br/>
            </div>
 
