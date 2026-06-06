@@ -30,6 +30,8 @@ interface SessionDetailResponse {
     id?: string;
     role?: string;
     status?: string;
+    content?: string | null;
+    created_at?: string;
   }>;
   insights?: string;
   original_complexity?: number;
@@ -315,13 +317,14 @@ export const useChatStore = create<ChatStore>((set) => ({
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history/${id}`);
       if (!res.ok) {
+        const errorType = res.status === 404 ? "not_found" : res.status === 409 ? "system_busy" : "unknown";
         set((state) => ({
            ...state,
            sessions: {
              ...state.sessions,
              [id]: {
                ...(state.sessions[id] || { ...DEFAULT_SESSION, id }),
-               error: 'not_found',
+               error: errorType,
                isLoaded: true
              }
            }
@@ -339,12 +342,16 @@ export const useChatStore = create<ChatStore>((set) => ({
         const terminalEntries: TerminalEntry[] = (detail.logs || []).map((log: Record<string, unknown>, index: number) => {
             const role = log.role as string;
             const visuals = ROLE_VISUALS[role] || DEFAULT_ROLE_VISUALS;
+            const timestamp = log.created_at
+              ? new Date(log.created_at as string).toLocaleTimeString("en-US", { hour12: false })
+              : undefined;
             return {
                 id: log.id ? `p-${log.id}` : `p-log-${index}`,
                 type: "log",
                 text: `[${role}]: ${log.status}`,
                 icon: visuals.icon,
-                colorClass: visuals.colorClass
+                colorClass: visuals.colorClass,
+                timestamp,
             };
         });
 
@@ -355,8 +362,22 @@ export const useChatStore = create<ChatStore>((set) => ({
         if (detail.refactored_code) {
            activeStep = 5;
            appState = "done";
-           oResult.summary = detail.insights || "";
-           oResult.insights = detail.insights || "";
+           // Parse insights JSON string
+           let parsedInsights = detail.insights || "";
+           if (typeof parsedInsights === "string" && parsedInsights.startsWith("[")) {
+             try {
+               const parsed = JSON.parse(parsedInsights);
+               if (Array.isArray(parsed)) {
+                 parsedInsights = parsed.map((i: { title?: string; details?: string }) =>
+                   `${i.title || ""}: ${i.details || ""}`
+                 ).join("\n");
+               }
+             } catch {
+               // Not valid JSON, use as-is
+             }
+           }
+           oResult.summary = parsedInsights;
+           oResult.insights = parsedInsights;
            oResult.original_complexity = detail.original_complexity;
            oResult.refactored_complexity = detail.refactored_complexity;
            oResult.planner_model = detail.planner_model;
