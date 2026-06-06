@@ -16,6 +16,7 @@ import type {
 
 // ── Import constants ──────────────────────────────────────────────────────────
 import { INITIAL_SOURCE, INITIAL_REFACTORED, EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from '@/lib/constants';
+import { buildMetrics } from '@/lib/utils/buildMetrics';
 
 // ── Re-export everything for backward compatibility ───────────────────────────
 // Consumers that already import from '@/store/useChatStore' will continue to work.
@@ -338,49 +339,16 @@ export const useChatStore = create<ChatStore>((set) => ({
                 inference_time: detail.inference_time || 0
            };
 
-           oResult.metrics = [];
-           if (typeof detail.refactored_complexity === "number") {
-                const orig = detail.original_complexity;
-                const ref = detail.refactored_complexity;
-                oResult.metrics.push({
-                    title: "Cyclomatic Complexity",
-                    before: typeof orig === "number" ? `${orig}` : "—",
-                    after: `${ref}`,
-                    direction: typeof orig === "number" 
-                        ? (ref < orig ? "down" as const : (ref > orig ? "up" as const : "neutral" as const))
-                        : (ref <= 5 ? "down" as const : "up" as const),
-                    iconKey: "CheckCircle",
-                });
-           }
-
-           if (detail.avg_gpu_utilization !== undefined) {
-                const memUsed = detail.avg_gpu_memory_used ?? 0;
-                const memPercent = detail.avg_gpu_memory ?? 0;
-                const gpuUtil = detail.avg_gpu_utilization ?? 0;
-                const infTime = detail.inference_time ?? 0;
-
-                oResult.metrics.push({
-                    title: "Inference Time",
-                    before: "—",
-                    after: `${infTime}s`,
-                    direction: "neutral" as const,
-                    iconKey: "Clock",
-                });
-                oResult.metrics.push({
-                    title: "Avg GPU Utilization",
-                    before: "—",
-                    after: `${gpuUtil}%`,
-                    direction: "neutral" as const,
-                    iconKey: "Cpu",
-                });
-                oResult.metrics.push({
-                    title: "Avg GPU Memory",
-                    before: "—",
-                    after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
-                    direction: "neutral" as const,
-                    iconKey: "Layers",
-                });
-           }
+           oResult.metrics = buildMetrics(
+              detail.original_complexity ?? null,
+              detail.refactored_complexity ?? null,
+              detail.avg_gpu_utilization !== undefined ? {
+                avg_gpu_utilization: detail.avg_gpu_utilization,
+                avg_gpu_memory: detail.avg_gpu_memory,
+                avg_gpu_memory_used: detail.avg_gpu_memory_used,
+                inference_time: detail.inference_time,
+              } : undefined
+           );
         }
  else if (detail.logs && detail.logs.length > 0) {
            appState = "analyzing";
