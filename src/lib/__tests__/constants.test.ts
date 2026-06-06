@@ -22,6 +22,9 @@ describe('constants', () => {
       metrics: [],
       summary: '',
       diffHighlights: { added: [], removed: [] },
+      planner_model: "",
+      generator_model: "",
+      judge_model: "",
     });
   });
 

@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { motion, AnimatePresence } from "framer-motion";
+import { formatJavaCode } from "@/lib/utils/javaFormatter";
 
 const SyntaxHighlighter = dynamic(
   () => import('react-syntax-highlighter').then((mod) => mod.Prism),
@@ -123,6 +124,26 @@ export default function CodeEditorPanel({
     scrollTimeoutRef.current = setTimeout(() => {
       setIsScrolling(false);
     }, 1000);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    const formattedText = formatJavaCode(pastedText);
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const newValue = text.substring(0, start) + formattedText + text.substring(end);
+      onChange(newValue);
+
+      // Reposition cursor after the inserted text (in next tick)
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + formattedText.length;
+      }, 0);
+    }
   };
 
   const lines = useMemo(() => value.split('\n'), [value]);
@@ -306,6 +327,7 @@ export default function CodeEditorPanel({
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
           onKeyDown={onKeyDown}
+          onPaste={handlePaste}
           onFocus={() => {
             setInternalIsFocused(true);
             onFocus?.();
