@@ -172,6 +172,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     [updateSession]
   );
 
+  const handleStatusRef = useRef(handleStatus);
+  const handleResultRef = useRef(handleResult);
+  const handleErrorRef = useRef(handleError);
+
+  useEffect(() => { handleStatusRef.current = handleStatus; }, [handleStatus]);
+  useEffect(() => { handleResultRef.current = handleResult; }, [handleResult]);
+  useEffect(() => { handleErrorRef.current = handleError; }, [handleError]);
+
   // ── Connect ──────────────────────────────────────────────────────────────
 
   const connect = useCallback(function doConnect(targetSessionId?: string) {
@@ -226,13 +234,13 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             }
             break;
           case "status":
-            handleStatus(msg as StatusMessage, targetId);
+            handleStatusRef.current(msg, targetId);
             break;
           case "result":
-            handleResult(msg as ResultMessage, targetId);
+            handleResultRef.current(msg, targetId);
             break;
           case "error":
-            handleError(msg as ServerMessage & { type: "error" }, targetId);
+            handleErrorRef.current(msg, targetId);
             break;
           default:
             console.warn("[WS] Unknown message type:", msg);
@@ -287,7 +295,12 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         return true; // Already sent/acknowledged
       }
 
-      wsRef.current.send(JSON.stringify(request));
+      try {
+        wsRef.current.send(JSON.stringify(request));
+      } catch (err) {
+        console.error("[WS] Failed to serialize request:", err);
+        return false;
+      }
       if (commandId) {
         lastProcessedCommandIdRef.current = commandId;
       }
@@ -302,7 +315,12 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    wsRef.current.send(JSON.stringify({ type: "halt" }));
+    try {
+      wsRef.current.send(JSON.stringify({ type: "halt" }));
+    } catch (err) {
+      console.error("[WS] Failed to serialize halt request:", err);
+      return false;
+    }
     return true;
   }, []);
 
