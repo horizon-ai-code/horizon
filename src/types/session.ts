@@ -6,10 +6,11 @@ export type AppState = "idle" | "analyzing" | "waiting" | "done";
 
 export interface TerminalEntry {
   id: string;
-  type: 'command' | 'log' | 'system' | 'error';
+  type: 'command' | 'log' | 'system' | 'error' | 'divider';
   text: string;
   colorClass?: string;
   icon?: string;
+  timestamp?: string;
 }
 
 export interface OrchestrationResult {

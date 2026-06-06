@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTheme } from "next-themes";
 import { AlertCircle, ChevronDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { AppState } from "@/types/session";
+import type { AppState, TerminalEntry } from "@/types/session";
 
 const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
   Cpu:          { bg: "#1a2f4a", text: "#5a8cf8" },
@@ -23,15 +23,6 @@ const AGENT_LABEL: Record<string, string> = {
   Clock:        "SYSTEM",
   AlertCircle:  "ERROR",
 };
-
-interface TerminalEntry {
-  id: string;
-  type: "command" | "log" | "system" | "error" | "divider";
-  text: string;
-  colorClass?: string;
-  icon?: string;
-  timestamp?: string;
-}
 
 interface TerminalProps {
   isTerminalCollapsed: boolean;

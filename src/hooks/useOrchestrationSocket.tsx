@@ -65,6 +65,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     text,
     icon,
     colorClass,
+    timestamp: new Date().toLocaleTimeString("en-US", { hour12: false }),
   });
 
   // ── Handle incoming status message ───────────────────────────────────────
