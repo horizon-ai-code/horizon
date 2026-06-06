@@ -152,6 +152,7 @@ export default function RefactoredOutput({
             className={`p-1.5 rounded-md transition-all ring-1 cursor-pointer hover:scale-110 active:scale-90 ring-transparent
               ${isDark ? 'text-jb-text-muted hover:text-jb-text hover:bg-jb-border/40 hover:ring-jb-border' : 'text-[#818594] hover:text-[#080808] hover:bg-[#ebecf0] hover:ring-[#dbdbdb]'}`}
             title="Copy Code"
+            aria-label="Copy Code"
           >
             <Copy size={16} />
           </button>

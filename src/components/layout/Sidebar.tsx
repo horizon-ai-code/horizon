@@ -160,7 +160,7 @@ export default function Sidebar() {
   };
 
   return (
-    <motion.div 
+    <motion.aside 
       initial={false}
       animate={{ width: isOpen ? 240 : 48 }}
       transition={SPRING_CONFIG}
@@ -388,6 +388,6 @@ export default function Sidebar() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </motion.div>
+    </motion.aside>
   );
 }

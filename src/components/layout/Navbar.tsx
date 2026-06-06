@@ -31,11 +31,11 @@ export default function Navbar() {
            />
         </div>
 
-        <button className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-semibold tracking-wide transition-colors cursor-default
+        <button aria-label="Horizon AI" className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-semibold tracking-wide transition-colors cursor-default
           ${isDark ? 'text-jb-text hover:bg-jb-panel' : 'text-[#080808] hover:bg-[#ebecf0]'}`}>
           Horizon AI
         </button>
-        <button className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-default
+        <button aria-label="Refactoring Studio" className={`h-full px-3 flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-default
           ${isDark ? 'text-jb-text opacity-80 hover:bg-jb-panel hover:opacity-100' : 'text-[#080808] opacity-60 hover:bg-[#ebecf0] hover:opacity-100'}`}>
           Refactoring Studio
         </button>
