@@ -1130,18 +1130,31 @@ class Orchestrator:
             {"role": "user", "content": audit_prompt},
         ]
 
-        raw = await self.agent_service.generate(
-            messages,
-            temp=0.1,
-            max_tokens=1500,
-            response_model=StructuralAuditorResponse,
-        )
-        audit_text = raw["choices"][0]["message"].get("content") or ""
-        print(
-            f"\n--- Judge Auditor Output ---\n{audit_text}\n--------------------------"
-        )
-
-        audit_res = ResponseParser.extract_json(audit_text, StructuralAuditorResponse)
+        for _jattempt in range(2):
+            jtemp = 0.1 if _jattempt == 0 else 0.3
+            jmax = 1500 if _jattempt == 0 else 2048
+            try:
+                raw = await self.agent_service.generate(
+                    messages,
+                    temp=jtemp,
+                    max_tokens=jmax,
+                    response_model=StructuralAuditorResponse,
+                )
+                audit_text = raw["choices"][0]["message"].get("content") or ""
+                jheader = f"--- Judge Auditor Output ---"
+                if _jattempt > 0:
+                    jheader = f"--- Judge Auditor Output (Retry {_jattempt}) ---"
+                print(
+                    f"\n{jheader}\n{audit_text}\n--------------------------"
+                )
+                audit_res = ResponseParser.extract_json(audit_text, StructuralAuditorResponse)
+                break
+            except (ValidationError, ValueError) as e:
+                if _jattempt == 0:
+                    print(f"  Judge attempt 1 failed (truncated). Retrying with temp=0.3, max_tokens=2048...")
+                    await self.agent_service.clear_context()
+                else:
+                    raise
 
         # Override: judge hallucinated IDENTICAL_CODE but code clearly changed
         if (audit_res.verdict == "REVISE"
