@@ -373,17 +373,17 @@ export const useChatStore = create<ChatStore>((set) => ({
               detail.original_complexity ?? null,
               detail.refactored_complexity ?? null,
               detail.avg_gpu_utilization !== undefined ? {
-                avg_gpu_utilization: detail.avg_gpu_utilization,
-                avg_gpu_memory: detail.avg_gpu_memory,
-                avg_gpu_memory_used: detail.avg_gpu_memory_used,
-                inference_time: detail.inference_time,
+                avg_gpu_utilization: detail.avg_gpu_utilization ?? 0,
+                avg_gpu_memory: detail.avg_gpu_memory ?? 0,
+                avg_gpu_memory_used: detail.avg_gpu_memory_used ?? 0,
+                inference_time: detail.inference_time ?? 0,
               } : undefined
            );
         }
  else if (detail.logs && detail.logs.length > 0) {
            appState = "analyzing";
            const lastLog = detail.logs[detail.logs.length - 1];
-           const visuals = ROLE_VISUALS[lastLog.role] || DEFAULT_ROLE_VISUALS;
+           const visuals = ROLE_VISUALS[lastLog.role ?? ''] || DEFAULT_ROLE_VISUALS;
            activeStep = visuals.step;
         }
         
