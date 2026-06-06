@@ -267,7 +267,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         }, delay);
       }
     };
-  }, [clearReconnectTimer, handleStatus, handleResult, handleError, migrateSessionId, router]);
+  }, [clearReconnectTimer, migrateSessionId, router]);
 
   // ── Disconnect ───────────────────────────────────────────────────────────
 
