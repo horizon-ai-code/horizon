@@ -148,7 +148,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   const startAnalysis = useCallback(() => {
     if (!validateBeforeSubmit()) return;
-    if (appState === 'analyzing' || appState === 'waiting') return;
+    if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
     if (!id) return;
 
     const commandId = Date.now().toString();
