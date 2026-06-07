@@ -76,7 +76,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       const entry = makeTerminalEntry(
         "log",
-        `[${msg.role}]: ${msg.content}`,
+        msg.content,
         visuals.icon,
         visuals.colorClass
       );

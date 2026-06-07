@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { AlertCircle, ChevronDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
+import { formatStatusContent } from "@/lib/formatStatusContent";
 
 const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
   Cpu:          { bg: "#1a2f4a", text: "#5a8cf8" },
@@ -81,6 +82,12 @@ function LogEntry({ entry, isDark }: EntryProps) {
   const iconKey = entry.icon ?? "Cpu";
   const badge = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
   const label = AGENT_LABEL[iconKey] ?? "AGENT";
+  const { summary, tags, details } = formatStatusContent(entry.text);
+  const [showDetails, setShowDetails] = useState(false);
+
+  const tagLine = tags
+    .map((t) => (t.label ? `${t.label}: ${t.value}` : t.value))
+    .join(" · ");
 
   return (
     <div className="flex items-start gap-0 w-full max-w-6xl mb-0.5 text-[12px] font-mono leading-relaxed shrink-0">
@@ -90,7 +97,7 @@ function LogEntry({ entry, isDark }: EntryProps) {
       >
         {entry.timestamp ?? ""}
       </span>
-      <div className="flex items-start gap-2 flex-1 overflow-hidden">
+      <div className="flex items-start gap-2 flex-1 min-w-0">
         <span
           className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap"
           style={{
@@ -101,10 +108,32 @@ function LogEntry({ entry, isDark }: EntryProps) {
         >
           {label}
         </span>
-        <span className={`text-[12px] leading-relaxed break-words flex-1
-          ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
-          {entry.text}
-        </span>
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className={`text-[12px] leading-relaxed break-words
+            ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
+            {summary}
+          </span>
+          {(tagLine || details) && (
+            <span className={`text-[11px] leading-relaxed ${isDark ? "text-[#8d95a5]" : "text-[#888]"}`}>
+              └{" "}{tagLine}{tagLine && details ? " · " : ""}
+              {details && (
+                <button
+                  onClick={() => setShowDetails(!showDetails)}
+                  className={`inline cursor-pointer border-0 p-0 bg-transparent font-mono text-[11px] leading-relaxed
+                    ${isDark ? "text-[#5a8cf8]/70 hover:text-[#5a8cf8]" : "text-[#3574f0]/70 hover:text-[#3574f0]"}`}
+                >
+                  {showDetails ? "▾ Hide analysis data" : "▸ View analysis data"}
+                </button>
+              )}
+            </span>
+          )}
+          {showDetails && details && (
+            <pre className={`mt-1 p-2 rounded text-[10px] leading-relaxed overflow-x-auto
+              ${isDark ? "bg-[#1e1f22] text-[#a8b0bd]" : "bg-[#f2f2f2] text-[#555]"}`}>
+              {details}
+            </pre>
+          )}
+        </div>
       </div>
     </div>
   );
