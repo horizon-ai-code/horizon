@@ -84,9 +84,12 @@ export function formatStatusContent(raw: string): FormattedContent {
     }
   }
 
-  // If content is source code, return as-is without tag splitting
+  // If content is source code, show as collapsible details
   if (text.trim().match(/^(public|private|protected|class|void|int|boolean|String|if|for|while|try|return|import|package)\b/)) {
-    return { summary: text.trim(), tags: [], details };
+    const code = text.trim();
+    const methodMatch = code.match(/(?:public|private|protected)\s+\w+\s+(\w+)\s*\(/);
+    const summary = methodMatch ? `Code generated — ${methodMatch[1]}` : "Code generated";
+    return { summary, tags: [], details: code };
   }
 
   // 2. Extract **Key:** `Value` or **Key:** Value pairs as tags (from structured content)
