@@ -46,9 +46,9 @@ class TestResponseParser(unittest.TestCase):
         """Unbalanced brace inside a string must not break depth counting."""
         text = '{"key": "just {opening", "other": true}'
         result = ResponseParser._extract_json_braces(text)
-        assert result is not None
+        self.assertIsNotNone(result)
         parsed = json.loads(result)
-        assert parsed == {"key": "just {opening", "other": True}
+        self.assertEqual(parsed, {"key": "just {opening", "other": True})
 
     def test_extract_json_trailing_comma_in_string(self):
         """Trailing comma regex must not corrupt strings containing ,} or ,]."""
@@ -60,8 +60,8 @@ class TestResponseParser(unittest.TestCase):
 
         text = '{"msg": "ends with,}", "list": [1, 2,],}'
         result = ResponseParser.extract_json(text, _JsonModel)
-        assert result.msg == "ends with,}"
-        assert result.list == [1, 2]
+        self.assertEqual(result.msg, "ends with,}")
+        self.assertEqual(result.list, [1, 2])
 
     def test_extract_json_python_keywords(self):
         # JSON containing None instead of null

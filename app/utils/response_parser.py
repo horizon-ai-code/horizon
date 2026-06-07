@@ -44,6 +44,25 @@ class ResponseParser:
         return True  # Accept if javalang fails — the gates below catch syntax
 
     @staticmethod
+    def _iter_string_aware(text: str, start: int = 0):
+        """Yield (index, char, in_string) for each char, tracking string context."""
+        in_string = False
+        escape = False
+        for i in range(start, len(text)):
+            c = text[i]
+            if escape:
+                escape = False
+                yield i, c, in_string
+                continue
+            if c == '\\':
+                escape = True
+                yield i, c, in_string
+                continue
+            if c == '"':
+                in_string = not in_string
+            yield i, c, in_string
+
+    @staticmethod
     def _extract_json_braces(text: str) -> str | None:
         """Extract outermost JSON object using brace-depth counting.
 
@@ -54,20 +73,8 @@ class ResponseParser:
         if start == -1:
             return None
         depth = 0
-        in_string = False
-        escape = False
-        for i in range(start, len(text)):
-            c = text[i]
-            if escape:
-                escape = False
-                continue
-            if c == "\\":
-                escape = True
-                continue
-            if c == '"' and not escape:
-                in_string = not in_string
-                continue
-            if in_string:
+        for i, c, in_str in ResponseParser._iter_string_aware(text, start):
+            if in_str:
                 continue
             if c == "{":
                 depth += 1
@@ -143,41 +150,22 @@ class ResponseParser:
     def _remove_trailing_commas(json_str: str) -> str:
         """Remove trailing commas before ] or } but not inside strings."""
         result = []
-        in_string = False
-        escape = False
-        i = 0
-        while i < len(json_str):
-            c = json_str[i]
-            if escape:
-                escape = False
-                result.append(c)
-                i += 1
+        skip_until = -1
+        for i, c, in_str in ResponseParser._iter_string_aware(json_str):
+            if i <= skip_until:
                 continue
-            if c == '\\':
-                escape = True
+            if in_str:
                 result.append(c)
-                i += 1
-                continue
-            if c == '"':
-                in_string = not in_string
-                result.append(c)
-                i += 1
-                continue
-            if in_string:
-                result.append(c)
-                i += 1
                 continue
             if c == ',':
                 j = i + 1
                 while j < len(json_str) and json_str[j] in ' \t\n\r':
                     j += 1
                 if j < len(json_str) and json_str[j] in ']}':
-                    i = j
-                    result.append(json_str[i])
-                    i += 1
+                    skip_until = j
+                    result.append(json_str[j])
                     continue
             result.append(c)
-            i += 1
         return ''.join(result)
 
     @staticmethod
