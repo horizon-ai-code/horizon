@@ -7,6 +7,14 @@ import type { TerminalEntry, SessionData, OrchestrationResult, AppState } from "
 import { useChatStore } from "@/store/useChatStore";
 import { EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from "@/lib/constants";
 import { buildMetrics } from "@/lib/utils/buildMetrics";
+import type { GlassboxState } from "@/types/glassbox";
+import {
+  parsePhaseNumber,
+  parseStrategyIteration,
+  parseRetryInfo,
+  parseValidationFaults,
+  parseJudgeDecision,
+} from "@/lib/parseStatusInfo";
 
 // ── Connection Status ────────────────────────────────────────────────────────
 
@@ -27,6 +35,7 @@ export interface OrchestrationContextValue {
   sendRefactorRequest: (request: RefactorRequest, commandId?: string) => boolean;
   sendHaltRequest: () => boolean;
   setTargetSessionId: (id: string) => void;
+  glassboxState: GlassboxState;
 }
 
 const OrchestrationContext = createContext<OrchestrationContextValue | null>(null);
@@ -39,6 +48,19 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const intentionalCloseRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
   const lastProcessedCommandIdRef = useRef<string | null>(null);
+
+  const [glassboxState, setGlassboxState] = useState<GlassboxState>({
+    currentPhase: 0,
+    currentAgent: "System",
+    strategyIteration: 1,
+    maxStrategyIterations: 3,
+    syntaxHealAttempt: 0,
+    maxSyntaxHealAttempts: 3,
+    sequentialMutationRetry: 0,
+    maxSequentialMutationRetries: 3,
+    validationFaultCount: null,
+    judgeDecision: null,
+  });
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
 
@@ -73,6 +95,27 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleStatus = useCallback(
     (msg: StatusMessage, targetId: string) => {
       const visuals = ROLE_VISUALS[msg.role] || DEFAULT_ROLE_VISUALS;
+
+      // Parse glassbox data
+      const parsedPhase = parsePhaseNumber(msg.content);
+      const phase = parsedPhase !== null ? parsedPhase : (msg.role === "System" ? 6 : undefined);
+      const strategyIter = parseStrategyIteration(msg.content);
+      const retry = parseRetryInfo(msg.content);
+      const faults = parseValidationFaults(msg.content);
+      const decision = parseJudgeDecision(msg.content);
+
+      setGlassboxState((prev) => {
+        const next = { ...prev, currentAgent: msg.role as GlassboxState["currentAgent"] };
+        if (phase !== undefined && phase !== null) next.currentPhase = phase;
+        if (strategyIter !== null) next.strategyIteration = strategyIter;
+        if (retry !== null) {
+          if (retry.type === "syntax_heal") next.syntaxHealAttempt = retry.current;
+          if (retry.type === "sequential_mutation") next.sequentialMutationRetry = retry.current;
+        }
+        if (faults !== null) next.validationFaultCount = faults;
+        if (decision !== null) next.judgeDecision = decision;
+        return next;
+      });
 
       const entry = makeTerminalEntry(
         "log",
@@ -283,11 +326,35 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   id: msg.id,
                 });
                 store.resetDraftSession();
+                setGlassboxState({
+                  currentPhase: 0,
+                  currentAgent: "System",
+                  strategyIteration: 1,
+                  maxStrategyIterations: 3,
+                  syntaxHealAttempt: 0,
+                  maxSyntaxHealAttempts: 3,
+                  sequentialMutationRetry: 0,
+                  maxSequentialMutationRetries: 3,
+                  validationFaultCount: null,
+                  judgeDecision: null,
+                });
                 sessionIdRef.current = msg.id;
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
                 router.replace(`/${msg.id}`);
             } else if (msg.id && msg.id !== targetId) {
                 migrateSessionId(targetId, msg.id);
+                setGlassboxState({
+                  currentPhase: 0,
+                  currentAgent: "System",
+                  strategyIteration: 1,
+                  maxStrategyIterations: 3,
+                  syntaxHealAttempt: 0,
+                  maxSyntaxHealAttempts: 3,
+                  sequentialMutationRetry: 0,
+                  maxSequentialMutationRetries: 3,
+                  validationFaultCount: null,
+                  judgeDecision: null,
+                });
                 sessionIdRef.current = msg.id;
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
                 router.replace(`/${msg.id}`);
@@ -423,6 +490,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         sendRefactorRequest,
         sendHaltRequest,
         setTargetSessionId,
+        glassboxState,
       }}
     >
       {children}
