@@ -42,6 +42,53 @@ export function formatStatusContent(raw: string): FormattedContent {
     details = parsedBlocks.join("\n\n");
   }
 
+  // 1b. Extract standalone JSON objects (not in code blocks) — common in past session data
+  const trimmed = text.trim();
+  if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      const lines: string[] = [];
+      let nestedDetails: string[] = [];
+      const entries = Array.isArray(parsed) ? parsed : [parsed];
+      for (const obj of entries) {
+        for (const [key, val] of Object.entries(obj)) {
+          const label = key.replace(/_/g, " ");
+          if (typeof val === "object" && val !== null && !Array.isArray(val)) {
+            const nested = JSON.stringify(val, null, 2);
+            nestedDetails.push(`${label}:\n${nested}`);
+          } else if (Array.isArray(val)) {
+            if (val.length > 0) {
+              const items = val.map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v))).join(", ");
+              lines.push(`${label}: ${items}`);
+            }
+          } else if (typeof val === "string" && val.length > 0) {
+            lines.push(`${label}: ${val}`);
+          } else if (val !== null && val !== undefined) {
+            lines.push(`${label}: ${val}`);
+          }
+        }
+      }
+      if (lines.length > 0) {
+        const joined = lines.join("\n");
+        if (nestedDetails.length > 0) {
+          details = joined + "\n\n" + nestedDetails.join("\n\n");
+        } else {
+          details = joined;
+        }
+      } else if (nestedDetails.length > 0) {
+        details = nestedDetails.join("\n\n");
+      }
+      text = "";
+    } catch {
+      // Not valid JSON, fall through
+    }
+  }
+
+  // If content is source code, return as-is without tag splitting
+  if (text.trim().match(/^(public|private|protected|class|void|int|boolean|String|if|for|while|try|return|import|package)\b/)) {
+    return { summary: text.trim(), tags: [], details };
+  }
+
   // 2. Extract **Key:** `Value` or **Key:** Value pairs as tags (from structured content)
   const tags: ContentTag[] = [];
   const tagRegex = /\*\*([^*]+)\*:\*?\s*`([^`]+)`/g;
