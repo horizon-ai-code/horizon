@@ -60,6 +60,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     maxSequentialMutationRetries: 3,
     validationFaultCount: null,
     judgeDecision: null,
+    currentDetail: null,
+    phaseSummaries: {},
   });
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
@@ -337,6 +339,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   maxSequentialMutationRetries: 3,
                   validationFaultCount: null,
                   judgeDecision: null,
+                  currentDetail: null,
+                  phaseSummaries: {},
                 });
                 sessionIdRef.current = msg.id;
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
@@ -354,6 +358,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   maxSequentialMutationRetries: 3,
                   validationFaultCount: null,
                   judgeDecision: null,
+                  currentDetail: null,
+                  phaseSummaries: {},
                 });
                 sessionIdRef.current = msg.id;
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
