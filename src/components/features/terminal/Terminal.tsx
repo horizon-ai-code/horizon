@@ -114,7 +114,14 @@ function LogEntry({ entry, isDark }: EntryProps) {
         <div className="flex flex-col min-w-0 flex-1">
           <span className={`text-[12px] leading-relaxed break-words
             ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
-            {summary}
+            {summary.split(/(`[^`]+`)/).map((part, i) =>
+              part.startsWith("`") && part.endsWith("`")
+                ? <code key={i} className="text-[11px] px-1 rounded" style={{
+                    backgroundColor: isDark ? "#2b2d30" : "#f2f2f2",
+                    color: isDark ? "#56a8f5" : "#3574f0",
+                  }}>{part.slice(1, -1)}</code>
+                : <span key={i}>{part}</span>
+            )}
           </span>
           {(tagLine || details) && (
             <span className={`text-[11px] leading-relaxed ${isDark ? "text-[#8d95a5]" : "text-[#888]"}`}>
