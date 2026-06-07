@@ -33,7 +33,7 @@ interface TerminalProps {
   terminalEndRef: React.RefObject<HTMLDivElement | null>;
   terminalEntries?: TerminalEntry[];
   appState: AppState;
-  glassboxState: GlassboxState;
+  glassboxState?: GlassboxState;
 }
 
 interface EntryProps {
@@ -263,9 +263,9 @@ export default function Terminal({
             </div>
           ) : null}
 
-          {appState === "analyzing" && (
-            <GlassboxBar state={glassboxState} isDark={isDark} />
-          )}
+{appState === "analyzing" && glassboxState && (
+  <GlassboxBar state={glassboxState} isDark={isDark} />
+)}
 
           <span className={`mx-1 ${isDark ? "text-jb-border/60" : "text-[#ebecf0]"}`}>|</span>
 
