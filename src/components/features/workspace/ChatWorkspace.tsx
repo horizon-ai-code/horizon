@@ -32,7 +32,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, sendRefactorRequest, sendHaltRequest, setTargetSessionId } = useOrchestrationSocket();
+  const { connectionStatus, connect, sendRefactorRequest, sendHaltRequest, setTargetSessionId, glassboxState } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
@@ -289,6 +289,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
           terminalEndRef={terminalEndRef} 
           terminalEntries={terminalEntries}
           appState={appState}
+          glassboxState={glassboxState}
         />
       </Panel>
     </PanelGroup>

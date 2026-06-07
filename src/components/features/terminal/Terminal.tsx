@@ -6,6 +6,8 @@ import { AlertCircle, ChevronDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
 import { formatStatusContent } from "@/lib/formatStatusContent";
+import GlassboxBar from "@/components/features/terminal/GlassboxBar";
+import type { GlassboxState } from "@/types/glassbox";
 
 const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
   Cpu:          { bg: "#1a2f4a", text: "#5a8cf8" },
@@ -31,6 +33,7 @@ interface TerminalProps {
   terminalEndRef: React.RefObject<HTMLDivElement | null>;
   terminalEntries?: TerminalEntry[];
   appState: AppState;
+  glassboxState: GlassboxState;
 }
 
 interface EntryProps {
@@ -201,6 +204,7 @@ export default function Terminal({
   terminalEndRef,
   terminalEntries = [],
   appState,
+  glassboxState,
 }: TerminalProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme !== "light";
@@ -258,6 +262,12 @@ export default function Terminal({
               ANALYZING
             </div>
           ) : null}
+
+          {appState === "analyzing" && (
+            <GlassboxBar state={glassboxState} isDark={isDark} />
+          )}
+
+          <span className={`mx-1 ${isDark ? "text-jb-border/60" : "text-[#ebecf0]"}`}>|</span>
 
           <div className={`h-[20px] w-[1px] ${isDark ? "bg-jb-border/60" : "bg-[#ebecf0]"}`} />
 
