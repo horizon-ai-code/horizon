@@ -2,7 +2,12 @@
 
 import { useRef, useCallback, useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import type { RefactorRequest, ServerMessage, StatusMessage, ResultMessage, InsightsMessage } from "@/types/websocket";
+import type {
+  RefactorRequest, ServerMessage, StatusMessage, ResultMessage, InsightsMessage,
+  PhaseStartedMessage, PhaseCompletedMessage, MutationPlanMessage, MutationStatusMessage,
+  ValidationResultMessage, IntentClassifiedMessage, ArchitectureAnalysisMessage,
+  AuditResultMessage, GeneratorProgressMessage, PhaseTimingSummaryMessage,
+} from "@/types/websocket";
 import type { TerminalEntry, SessionData, OrchestrationResult, AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from "@/lib/constants";
@@ -67,6 +72,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     judgeDecision: null,
     currentDetail: null,
     phaseSummaries: {},
+    phaseDurations: [],
+    totalDurationMs: null,
   });
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
@@ -268,6 +275,179 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     [updateSession]
   );
 
+  // ── Handle structured glassbox messages ───────────────────────────────────
+
+  const handlePhaseStarted = useCallback(
+    (msg: PhaseStartedMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        currentPhase: msg.phase,
+        currentAgent: msg.agent as GlassboxState["currentAgent"],
+        strategyIteration: msg.strategy_iteration,
+        currentDetail: {
+          ...prev.currentDetail,
+          phaseName: msg.name,
+          phaseAction: undefined,
+        },
+      }));
+    },
+    []
+  );
+
+  const handlePhaseCompleted = useCallback(
+    (msg: PhaseCompletedMessage) => {
+      setGlassboxState((prev) => {
+        const durations = [...(prev.phaseDurations || [])];
+        const existing = durations.findIndex((d) => d.phase === msg.phase);
+        const entry = { phase: msg.phase, durationMs: msg.duration_ms };
+        if (existing >= 0) durations[existing] = entry;
+        else durations.push(entry);
+        return { ...prev, phaseDurations: durations };
+      });
+    },
+    []
+  );
+
+  const handleMutationPlan = useCallback(
+    (msg: MutationPlanMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        currentDetail: {
+          ...prev.currentDetail,
+          mutations: msg.mutations.map((m) => ({
+            action: m.action,
+            target: m.target,
+            description: m.description,
+            status: m.status,
+          })),
+        },
+      }));
+    },
+    []
+  );
+
+  const handleMutationStatus = useCallback(
+    (msg: MutationStatusMessage) => {
+      setGlassboxState((prev) => {
+        const mutations = prev.currentDetail?.mutations
+          ? prev.currentDetail.mutations.map((m) =>
+              m.action === msg.action && m.target === msg.target
+                ? { ...m, status: msg.status }
+                : m
+            )
+          : undefined;
+        return {
+          ...prev,
+          syntaxHealAttempt: msg.status === "retrying" ? msg.attempt : prev.syntaxHealAttempt,
+          currentDetail: { ...prev.currentDetail, mutations },
+        };
+      });
+    },
+    []
+  );
+
+  const handleValidationResult = useCallback(
+    (msg: ValidationResultMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        validationFaultCount: msg.total_failed,
+        currentDetail: {
+          ...prev.currentDetail,
+          checks: msg.checks.map((c) => ({
+            tier: c.tier,
+            name: c.name,
+            passed: c.passed,
+            details: c.details,
+            before_value: c.before_value,
+            after_value: c.after_value,
+          })),
+          totalFaults: msg.total_failed,
+        },
+      }));
+    },
+    []
+  );
+
+  const handleIntentClassified = useCallback(
+    (msg: IntentClassifiedMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        currentDetail: {
+          ...prev.currentDetail,
+          intent: {
+            category: msg.category,
+            intent: msg.intent,
+            targetUnit: msg.target_unit,
+            targetClass: msg.target_class,
+            targetMember: msg.target_member,
+          },
+        },
+      }));
+    },
+    []
+  );
+
+  const handleArchitectureAnalysis = useCallback(
+    (msg: ArchitectureAnalysisMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        currentDetail: {
+          ...prev.currentDetail,
+          architecture: {
+            primaryTargets: msg.primary_targets,
+            secondaryTargets: msg.secondary_targets,
+            newStructures: msg.new_structures,
+            mustPreserve: msg.must_preserve,
+          },
+        },
+      }));
+    },
+    []
+  );
+
+  const handleAuditResult = useCallback(
+    (msg: AuditResultMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        judgeDecision: msg.verdict,
+        currentDetail: {
+          ...prev.currentDetail,
+          judgeVerdict: msg.verdict,
+          judgeIssues: (msg.issues || []).map((i) => ({
+            issueType: i.issue_type,
+            description: i.description,
+          })),
+        },
+      }));
+    },
+    []
+  );
+
+  const handleGeneratorProgress = useCallback(
+    (msg: GeneratorProgressMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        currentDetail: {
+          ...prev.currentDetail,
+          generatorProgress: { completed: msg.mutations_completed, total: msg.mutations_total },
+          generatorTemperature: msg.temperature,
+        },
+      }));
+    },
+    []
+  );
+
+  const handlePhaseTimingSummary = useCallback(
+    (msg: PhaseTimingSummaryMessage) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        totalDurationMs: msg.total_duration_ms,
+        phaseDurations: msg.phases.map((p) => ({ phase: p.phase, durationMs: p.duration_ms })),
+      }));
+    },
+    []
+  );
+
   // ── Handle incoming error message ────────────────────────────────────────
 
   const handleError = useCallback(
@@ -303,12 +483,32 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleInsightsRef = useRef(handleInsights);
   const handleHaltAckRef = useRef(handleHaltAck);
   const handleErrorRef = useRef(handleError);
+  const handlePhaseStartedRef = useRef(handlePhaseStarted);
+  const handlePhaseCompletedRef = useRef(handlePhaseCompleted);
+  const handleMutationPlanRef = useRef(handleMutationPlan);
+  const handleMutationStatusRef = useRef(handleMutationStatus);
+  const handleValidationResultRef = useRef(handleValidationResult);
+  const handleIntentClassifiedRef = useRef(handleIntentClassified);
+  const handleArchitectureAnalysisRef = useRef(handleArchitectureAnalysis);
+  const handleAuditResultRef = useRef(handleAuditResult);
+  const handleGeneratorProgressRef = useRef(handleGeneratorProgress);
+  const handlePhaseTimingSummaryRef = useRef(handlePhaseTimingSummary);
 
   useEffect(() => { handleStatusRef.current = handleStatus; }, [handleStatus]);
   useEffect(() => { handleResultRef.current = handleResult; }, [handleResult]);
   useEffect(() => { handleInsightsRef.current = handleInsights; }, [handleInsights]);
   useEffect(() => { handleHaltAckRef.current = handleHaltAck; }, [handleHaltAck]);
   useEffect(() => { handleErrorRef.current = handleError; }, [handleError]);
+  useEffect(() => { handlePhaseStartedRef.current = handlePhaseStarted; }, [handlePhaseStarted]);
+  useEffect(() => { handlePhaseCompletedRef.current = handlePhaseCompleted; }, [handlePhaseCompleted]);
+  useEffect(() => { handleMutationPlanRef.current = handleMutationPlan; }, [handleMutationPlan]);
+  useEffect(() => { handleMutationStatusRef.current = handleMutationStatus; }, [handleMutationStatus]);
+  useEffect(() => { handleValidationResultRef.current = handleValidationResult; }, [handleValidationResult]);
+  useEffect(() => { handleIntentClassifiedRef.current = handleIntentClassified; }, [handleIntentClassified]);
+  useEffect(() => { handleArchitectureAnalysisRef.current = handleArchitectureAnalysis; }, [handleArchitectureAnalysis]);
+  useEffect(() => { handleAuditResultRef.current = handleAuditResult; }, [handleAuditResult]);
+  useEffect(() => { handleGeneratorProgressRef.current = handleGeneratorProgress; }, [handleGeneratorProgress]);
+  useEffect(() => { handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary; }, [handlePhaseTimingSummary]);
 
   // ── Connect ──────────────────────────────────────────────────────────────
 
@@ -381,6 +581,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   judgeDecision: null,
                   currentDetail: null,
                   phaseSummaries: {},
+                  phaseDurations: [],
+                  totalDurationMs: null,
                 });
                 sessionIdRef.current = msg.id;
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
@@ -400,6 +602,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   judgeDecision: null,
                   currentDetail: null,
                   phaseSummaries: {},
+                  phaseDurations: [],
+                  totalDurationMs: null,
                 });
                 sessionIdRef.current = msg.id;
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
@@ -425,6 +629,36 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             break;
           case "error":
             handleErrorRef.current(msg, targetId);
+            break;
+          case "phase_started":
+            handlePhaseStartedRef.current(msg);
+            break;
+          case "phase_completed":
+            handlePhaseCompletedRef.current(msg);
+            break;
+          case "mutation_plan":
+            handleMutationPlanRef.current(msg);
+            break;
+          case "mutation_status":
+            handleMutationStatusRef.current(msg);
+            break;
+          case "validation_result":
+            handleValidationResultRef.current(msg);
+            break;
+          case "intent_classified":
+            handleIntentClassifiedRef.current(msg);
+            break;
+          case "architecture_analysis":
+            handleArchitectureAnalysisRef.current(msg);
+            break;
+          case "audit_result":
+            handleAuditResultRef.current(msg);
+            break;
+          case "generator_progress":
+            handleGeneratorProgressRef.current(msg);
+            break;
+          case "phase_timing_summary":
+            handlePhaseTimingSummaryRef.current(msg);
             break;
           default:
             console.warn("[WS] Unknown message type:", (msg as { type: string }).type);

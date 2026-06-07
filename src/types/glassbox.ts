@@ -18,11 +18,34 @@ export interface MutationItem {
   action: string;
   target: string;
   description?: string;
+  status?: "pending" | "in_progress" | "completed" | "failed" | "retrying";
 }
 
 export interface ValidationFinding {
   tier: string;
   description: string;
+}
+
+export interface ValidationCheck {
+  tier: string;
+  name: string;
+  passed: boolean;
+  details?: string | null;
+  before_value?: number;
+  after_value?: number;
+}
+
+export interface ArchitectureTarget {
+  name: string;
+  kind: string;
+  purpose?: string;
+}
+
+export interface ArchitectureData {
+  primaryTargets: ArchitectureTarget[];
+  secondaryTargets: ArchitectureTarget[];
+  newStructures: ArchitectureTarget[];
+  mustPreserve: ArchitectureTarget[];
 }
 
 export interface JudgeIssue {
@@ -36,16 +59,25 @@ export interface CurrentStatusDetail {
   analysisSummary?: string;
   totalFaults?: number;
   findings?: ValidationFinding[];
+  checks?: ValidationCheck[];
   judgeVerdict?: "ACCEPT" | "REVISE";
   judgeIssues?: JudgeIssue[];
   phaseName?: string;
   phaseAction?: string;
+  architecture?: ArchitectureData;
+  generatorProgress?: { completed: number; total: number };
+  generatorTemperature?: number;
 }
 
 export interface PhaseSummary {
   summary: string;
   detail: CurrentStatusDetail | null;
   timestamp: number;
+}
+
+export interface PhaseDuration {
+  phase: number;
+  durationMs: number;
 }
 
 export interface GlassboxState {
@@ -61,4 +93,6 @@ export interface GlassboxState {
   judgeDecision: "ACCEPT" | "REVISE" | null;
   currentDetail: CurrentStatusDetail | null;
   phaseSummaries: Record<number, PhaseSummary>;
+  phaseDurations: PhaseDuration[];
+  totalDurationMs: number | null;
 }

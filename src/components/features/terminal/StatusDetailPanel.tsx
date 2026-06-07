@@ -25,7 +25,7 @@ const MUTATION_LABELS: Record<string, string> = {
 };
 
 export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelProps) {
-  const { intent, mutations, findings, judgeVerdict, judgeIssues, totalFaults, phaseAction } = detail;
+  const { intent, mutations, findings, checks, judgeVerdict, judgeIssues, totalFaults, phaseAction, architecture, generatorProgress, generatorTemperature } = detail;
   const muted = isDark ? "text-[#8d95a5]" : "text-[#888]";
   const border = isDark ? "border-[#393b40]" : "border-[#ddd]";
   const bg = isDark ? "bg-[#1e1f22]" : "bg-[#f2f2f2]";
@@ -43,35 +43,121 @@ export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelP
         </div>
       )}
 
-      {/* Mutation plan */}
+      {/* Architecture analysis */}
+      {architecture && (
+        <div className="mb-1">
+          <span className={`text-[10px] font-bold tracking-wide ${muted}`}>Analysis:</span>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+            {architecture.primaryTargets.length > 0 && (
+              <TargetGroup label="Targets" targets={architecture.primaryTargets} color="#5a8cf8" muted={muted} />
+            )}
+            {architecture.newStructures.length > 0 && (
+              <TargetGroup label="New" targets={architecture.newStructures} color="#3dd6c8" muted={muted} />
+            )}
+            {architecture.mustPreserve.length > 0 && (
+              <TargetGroup label="Preserve" targets={architecture.mustPreserve} color="#e09c3b" muted={muted} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Mutation plan with live status */}
       {mutations && mutations.length > 0 && (
         <div className="mb-1">
           <span className={`text-[10px] font-bold tracking-wide ${muted}`}>Mutations:</span>
           <div className="flex flex-wrap gap-1.5 mt-0.5">
-            {mutations.map((m, i) => (
-              <span key={i}
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border"
-                style={{
-                  backgroundColor: isDark ? "#2b2d30" : "#fff",
-                  borderColor: isDark ? "#393b40" : "#ddd",
-                  color: isDark ? "#d9dee7" : "#333",
-                }}
-              >
-                <span className="font-bold" style={{ color: "#3dd6c8" }}>
-                  {MUTATION_LABELS[m.action] ?? m.action}
+            {mutations.map((m, i) => {
+              const statusColor = m.status === "completed" ? "#27c93f"
+                : m.status === "in_progress" ? "#56a8f5"
+                : m.status === "retrying" ? "#f4bf4f"
+                : m.status === "failed" ? "#f93e3e"
+                : "#888";
+              const statusIcon = m.status === "completed" ? "✅"
+                : m.status === "in_progress" ? "◉"
+                : m.status === "retrying" ? "⟳"
+                : m.status === "failed" ? "✗"
+                : "○";
+              return (
+                <span key={i}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border"
+                  style={{
+                    backgroundColor: isDark ? "#2b2d30" : "#fff",
+                    borderColor: m.status === "in_progress" ? `${statusColor}66` : (isDark ? "#393b40" : "#ddd"),
+                  }}
+                >
+                  <span style={{ color: statusColor }}>{statusIcon}</span>
+                  <span className="font-bold" style={{ color: "#3dd6c8" }}>
+                    {MUTATION_LABELS[m.action] ?? m.action}
+                  </span>
+                  <span className={muted}>on</span>
+                  <code className={`text-[10px] ${isDark ? "text-[#56a8f5]" : "text-[#3574f0]"}`}>
+                    {m.target}
+                  </code>
                 </span>
-                <span className={muted}>on</span>
-                <code className={`text-[10px] ${isDark ? "text-[#56a8f5]" : "text-[#3574f0]"}`}>
-                  {m.target}
-                </code>
-              </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Generator progress */}
+      {generatorProgress && (
+        <div className="flex items-center gap-2 mb-1">
+          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: isDark ? "#333" : "#ddd" }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.round((generatorProgress.completed / generatorProgress.total) * 100)}%`,
+                backgroundColor: "#3dd6c8",
+              }}
+            />
+          </div>
+          <span className={`text-[10px] font-medium ${muted}`}>
+            {generatorProgress.completed}/{generatorProgress.total}
+          </span>
+          {generatorTemperature !== undefined && (
+            <span className={`text-[9px] font-medium ${muted}`}>
+              temp {generatorTemperature}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Validation checks — structured pass/fail */}
+      {checks && checks.length > 0 && (
+        <div className="mb-1">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className={`text-[10px] font-bold tracking-wide ${muted}`}>
+              Checks: {checks.filter((c) => c.passed).length}/{checks.length} passed
+              {checks.some((c) => !c.passed) && ` · ${checks.filter((c) => !c.passed).length} failed`}
+            </span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {checks.map((c, i) => (
+              <div key={i} className="flex items-start gap-1.5">
+                <span style={{ color: c.passed ? "#27c93f" : "#f93e3e" }}>
+                  {c.passed ? "✅" : "✗"}
+                </span>
+                <span className={`text-[10px] font-medium ${c.passed ? "" : "font-bold"}`}
+                  style={{ color: c.passed ? (isDark ? "#aaa" : "#666") : "#f93e3e" }}>
+                  {c.name}
+                </span>
+                {!c.passed && c.details && (
+                  <span className={`text-[10px] ${muted}`}>— {c.details}</span>
+                )}
+                {!c.passed && c.before_value !== undefined && c.after_value !== undefined && (
+                  <span className={`text-[10px] ${muted}`}>
+                    ({c.before_value} → {c.after_value})
+                  </span>
+                )}
+              </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Validation findings */}
-      {findings && findings.length > 0 && (
+      {/* Validation findings (legacy, from text parsing) */}
+      {!checks && findings && findings.length > 0 && (
         <div className="mb-1">
           <span className={`text-[10px] font-bold tracking-wide ${muted}`}>
             {totalFaults ? `${totalFaults} Faults` : "Findings"}:
@@ -122,10 +208,24 @@ export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelP
       )}
 
       {/* Fallback */}
-      {!intent && !mutations && (!findings || findings.length === 0) && !judgeVerdict && (
+      {!intent && !architecture && !mutations && !checks && (!findings || findings.length === 0) && !judgeVerdict && (
         <span className={muted}>{phaseAction ?? "Processing..."}</span>
       )}
     </div>
+  );
+}
+
+function TargetGroup({ label, targets, color, muted }: { label: string; targets: { name: string; kind?: string; purpose?: string }[]; color: string; muted: string }) {
+  return (
+    <span className="inline-flex items-center gap-1" style={{ color }}>
+      <span className={`text-[9px] font-bold tracking-wide`}>{label}:</span>
+      {targets.map((t, i) => (
+        <code key={i} className="text-[10px] px-1 rounded"
+          style={{ backgroundColor: `${color}18`, color }}>
+          {t.name}{t.kind && ` (${t.kind})`}
+        </code>
+      ))}
+    </span>
   );
 }
 

@@ -99,6 +99,137 @@ export interface MalformedJsonErrorMessage {
 
 export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage;
 
+// ── Structured Glassbox Messages ───────────────────────────────────────────
+
+export interface PhaseStartedMessage {
+  type: "phase_started";
+  phase: number;
+  name: string;
+  agent: string;
+  strategy_iteration: number;
+  max_strategy_iterations: number;
+  timestamp: string;
+}
+
+export interface PhaseCompletedMessage {
+  type: "phase_completed";
+  phase: number;
+  name: string;
+  duration_ms: number;
+  status: "success" | "retrying" | "failed";
+  timestamp: string;
+}
+
+export interface MutationItemPayload {
+  action: string;
+  target: string;
+  description?: string;
+  status: "pending" | "in_progress" | "completed" | "failed";
+}
+
+export interface MutationPlanMessage {
+  type: "mutation_plan";
+  target_class?: string;
+  mutations: MutationItemPayload[];
+}
+
+export interface MutationStatusMessage {
+  type: "mutation_status";
+  action: string;
+  target: string;
+  attempt: number;
+  max_attempts: number;
+  status: "in_progress" | "completed" | "retrying" | "failed";
+  error?: string;
+}
+
+export interface ValidationCheckPayload {
+  tier: string;
+  name: string;
+  passed: boolean;
+  details?: string | null;
+  before_value?: number;
+  after_value?: number;
+}
+
+export interface ValidationResultMessage {
+  type: "validation_result";
+  strategy_iteration: number;
+  checks: ValidationCheckPayload[];
+  total_passed: number;
+  total_failed: number;
+}
+
+export interface IntentClassifiedMessage {
+  type: "intent_classified";
+  category: string;
+  intent: string;
+  target_unit?: string;
+  target_class?: string;
+  target_member?: string;
+  confidence?: number;
+}
+
+export interface ArchitectureTargetPayload {
+  name: string;
+  kind: string;
+  purpose?: string;
+}
+
+export interface ArchitectureAnalysisMessage {
+  type: "architecture_analysis";
+  primary_targets: ArchitectureTargetPayload[];
+  secondary_targets: ArchitectureTargetPayload[];
+  new_structures: ArchitectureTargetPayload[];
+  must_preserve: ArchitectureTargetPayload[];
+}
+
+export interface JudgeIssuePayload {
+  issue_type: string;
+  description: string;
+  severity?: "low" | "medium" | "high";
+}
+
+export interface AuditResultMessage {
+  type: "audit_result";
+  verdict: "ACCEPT" | "REVISE";
+  issues?: JudgeIssuePayload[];
+  attempt: number;
+  max_attempts: number;
+}
+
+export interface GeneratorProgressMessage {
+  type: "generator_progress";
+  mutations_completed: number;
+  mutations_total: number;
+  temperature?: number;
+  sample_index?: number;
+  total_samples?: number;
+}
+
+export interface PhaseTimingPayload {
+  phase: number;
+  duration_ms: number;
+}
+
+export interface PhaseTimingSummaryMessage {
+  type: "phase_timing_summary";
+  total_duration_ms: number;
+  phases: PhaseTimingPayload[];
+}
+
+export type StructuredMessage =
+  | PhaseStartedMessage
+  | PhaseCompletedMessage
+  | MutationPlanMessage
+  | MutationStatusMessage
+  | ValidationResultMessage
+  | IntentClassifiedMessage
+  | ArchitectureAnalysisMessage
+  | AuditResultMessage
+  | GeneratorProgressMessage
+  | PhaseTimingSummaryMessage;
+
 export type ServerMessage =
   | ConnectionIdMessage
   | PingMessage
@@ -106,4 +237,5 @@ export type ServerMessage =
   | ResultMessage
   | InsightsMessage
   | HaltAcknowledgedMessage
-  | ErrorMessage;
+  | ErrorMessage
+  | StructuredMessage;

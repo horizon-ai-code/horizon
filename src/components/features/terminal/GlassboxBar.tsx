@@ -29,10 +29,17 @@ const AGENT_COLORS: Record<string, string> = {
 
 export default function GlassboxBar({ state, isDark }: GlassboxBarProps) {
   const [showDetail, setShowDetail] = useState(false);
-  const { currentPhase, currentAgent, strategyIteration, syntaxHealAttempt, maxStrategyIterations, maxSyntaxHealAttempts, validationFaultCount, judgeDecision, phaseSummaries, currentDetail } = state;
+  const { currentPhase, currentAgent, strategyIteration, syntaxHealAttempt, maxStrategyIterations, maxSyntaxHealAttempts, validationFaultCount, judgeDecision, phaseSummaries, currentDetail, phaseDurations, totalDurationMs } = state;
 
   const hasRetries = syntaxHealAttempt > 0 || strategyIteration > 1;
   const agentColor = AGENT_COLORS[currentAgent] ?? "#888";
+
+  const currentPhaseDuration = phaseDurations?.find((d) => d.phase === currentPhase);
+  const totalDuration = totalDurationMs
+    ? `${(totalDurationMs / 1000).toFixed(1)}s`
+    : currentPhaseDuration
+      ? `${(currentPhaseDuration.durationMs / 1000).toFixed(1)}s`
+      : undefined;
 
   return (
     <div className="flex flex-col">
@@ -82,6 +89,20 @@ export default function GlassboxBar({ state, isDark }: GlassboxBarProps) {
           </span>
           {currentAgent}
         </button>
+
+        {/* Phase timing */}
+        {totalDuration && (
+          <span className={`text-[10px] font-medium ${isDark ? "text-[#8d95a5]" : "text-[#888]"}`}>
+            {totalDuration}
+          </span>
+        )}
+
+        {/* Generator progress inline */}
+        {currentDetail?.generatorProgress && (
+          <span className={`text-[10px] font-medium ${isDark ? "text-[#8d95a5]" : "text-[#888]"}`}>
+            {currentDetail.generatorProgress.completed}/{currentDetail.generatorProgress.total}
+          </span>
+        )}
 
         {/* Retry counter */}
         {hasRetries && (
