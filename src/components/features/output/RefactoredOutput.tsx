@@ -5,6 +5,7 @@ import { Copy, Layers, X, FileCode2, Cpu, CheckCircle2, Loader2, Clock } from "l
 import type { LucideIcon } from "lucide-react";
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
 import type { AppState, OrchestrationResult } from "@/types/session";
+import type { GlassboxState } from "@/types/glassbox";
 import { useState, useEffect } from "react";
 import RefactoringReplay from "@/components/features/output/RefactoringReplay";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
@@ -18,6 +19,7 @@ interface RefactoredOutputProps {
   isTerminalCollapsed: boolean;
   appState: AppState;
   orchestrationResult: OrchestrationResult;
+  glassboxState?: GlassboxState;
 }
 
 type NodeStatus = 'active' | 'done' | 'waiting';
@@ -52,19 +54,44 @@ const FlowConnector = ({ isActive }: { isActive: boolean }) => (
   </div>
 );
 
-const OrchestrationFlowchart = ({ activeStep }: { activeStep: number }) => (
-  <div className="flex flex-col items-center justify-center w-full h-full p-4 animate-in fade-in zoom-in-95 duration-500">
-    <div className="flex flex-row items-center justify-center w-full max-w-4xl">
-      <FlowNode icon={Cpu} title="Planner" desc="Analyzing architecture" status={activeStep === 1 ? 'active' : activeStep > 1 ? 'done' : 'waiting'} colorCode="#56a8f5" />
-      <FlowConnector isActive={activeStep > 1} />
-      <FlowNode icon={Layers} title="Generator" desc="Drafting optimizations" status={activeStep === 2 ? 'active' : activeStep > 2 ? 'done' : 'waiting'} colorCode="#2aacb8" />
-      <FlowConnector isActive={activeStep > 2} />
-      <FlowNode icon={FileCode2} title="AST Parser" desc="Structuring output" status={activeStep === 3 ? 'active' : activeStep > 3 ? 'done' : 'waiting'} colorCode="#00e5ff" />
-      <FlowConnector isActive={activeStep > 3} />
-      <FlowNode icon={CheckCircle2} title="Judge" desc="Final validation" status={activeStep === 4 ? 'active' : activeStep > 4 ? 'done' : 'waiting'} colorCode="#27c93f" />
+const AGENT_PHASE_MAP: Record<string, { node: number }> = {
+  Validator: { node: 1 },
+  Planner:   { node: 2 },
+  Generator: { node: 3 },
+  Judge:     { node: 4 },
+};
+
+const OrchestrationFlowchart = ({ activeStep, glassboxState }: { activeStep: number; glassboxState?: GlassboxState }) => {
+  const currentAgent = glassboxState?.currentAgent;
+  const liveNode = currentAgent ? (AGENT_PHASE_MAP[currentAgent]?.node ?? activeStep) : activeStep;
+  const strategyIter = glassboxState?.strategyIteration ?? 1;
+  const hasRetry = strategyIter > 1;
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full p-4 animate-in fade-in zoom-in-95 duration-500">
+      <div className="flex flex-row items-center justify-center w-full max-w-4xl relative">
+        {hasRetry && (
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">
+              Strategy Iteration {strategyIter}/{glassboxState?.maxStrategyIterations ?? 3}
+            </span>
+          </div>
+        )}
+        <FlowNode icon={Cpu} title="Planner" desc="Analyzing architecture"
+          status={liveNode === 2 ? 'active' : activeStep > 2 ? 'done' : 'waiting'} colorCode="#56a8f5" />
+        <FlowConnector isActive={activeStep > 2} />
+        <FlowNode icon={Layers} title="Generator" desc="Drafting optimizations"
+          status={liveNode === 3 ? 'active' : activeStep > 3 ? 'done' : 'waiting'} colorCode="#2aacb8" />
+        <FlowConnector isActive={activeStep > 3} />
+        <FlowNode icon={FileCode2} title="AST Parser" desc="Structuring output"
+          status={liveNode === 4 ? 'active' : activeStep > 4 ? 'done' : 'waiting'} colorCode="#00e5ff" />
+        <FlowConnector isActive={activeStep > 4} />
+        <FlowNode icon={CheckCircle2} title="Judge" desc="Final validation"
+          status={liveNode === 5 ? 'active' : activeStep > 5 ? 'done' : 'waiting'} colorCode="#27c93f" />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function RefactoredOutput({
   refactoredOutput,
@@ -75,6 +102,7 @@ export default function RefactoredOutput({
   isTerminalCollapsed,
   appState,
   orchestrationResult,
+  glassboxState,
 }: RefactoredOutputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -234,7 +262,7 @@ export default function RefactoredOutput({
                 {appState === 'done' && <button onClick={() => setShowFlowchartModal(false)} className="p-2 rounded-full ring-1 transition-transform cursor-pointer bg-secondary hover:bg-secondary/80 ring-border text-foreground"><X size={18} /></button>}
              </div>
              
-             <OrchestrationFlowchart activeStep={activeStep} />
+             <OrchestrationFlowchart activeStep={activeStep} glassboxState={glassboxState} />
           </div>
         )}
       </div>
