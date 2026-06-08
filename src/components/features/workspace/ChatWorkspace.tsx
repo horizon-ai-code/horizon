@@ -48,11 +48,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     prevIdRef.current = id;
   }, [id, disconnect]);
 
-  const connectionStatusRef = useRef(connectionStatus);
-  useEffect(() => {
-    connectionStatusRef.current = connectionStatus;
-  }, [connectionStatus]);
-
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);

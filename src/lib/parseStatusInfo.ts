@@ -42,8 +42,9 @@ export function parseValidationFaults(content: string): number | null {
 }
 
 export function parseJudgeDecision(content: string): "ACCEPT" | "REVISE" | null {
-  if (content.includes("ACCEPT")) return "ACCEPT";
-  if (content.includes("REVISE")) return "REVISE";
+  const upper = content.toUpperCase();
+  if (upper.includes("REVISE")) return "REVISE";
+  if (upper.includes("ACCEPT")) return "ACCEPT";
   return null;
 }
 

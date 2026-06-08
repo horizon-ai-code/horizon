@@ -31,7 +31,7 @@ export default function RefactoringReplay({ replaySteps }: RefactoringReplayProp
   }, []);
 
   useEffect(() => {
-    setCurrentReplayStep(0);
+    requestAnimationFrame(() => setCurrentReplayStep(0));
   }, [replaySteps]);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;

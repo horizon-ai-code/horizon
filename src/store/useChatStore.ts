@@ -316,6 +316,8 @@ export const useChatStore = create<ChatStore>((set) => ({
       });
     } catch (e) {
       console.error("[ChatStore] Error fetching history:", e);
+    } finally {
+      set((state) => ({ ...state, hasInitialLoaded: true }));
     }
   },
 

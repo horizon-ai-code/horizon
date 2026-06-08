@@ -207,7 +207,7 @@ const OrchestrationFlowchart = ({ activeStep, glassboxState }: { activeStep: num
   const isDark = resolvedTheme === "dark";
 
   return (
-    <div className="flex flex-col items-center w-full h-full p-6 animate-in fade-in zoom-in-95 duration-500">
+    <div className="flex flex-col items-center w-full p-6 animate-in fade-in zoom-in-95 duration-500">
       {/* Top: Compact pipeline dots */}
       <div className="flex items-center justify-center w-full max-w-2xl mb-6 relative">
         {hasRetry && (
@@ -267,7 +267,7 @@ const OrchestrationFlowchart = ({ activeStep, glassboxState }: { activeStep: num
       </div>
 
       {/* Bottom: Detail card for active phase */}
-      <div className="w-full max-w-2xl flex-1 flex flex-col">
+      <div className="w-full max-w-2xl flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={activePhase.num}
@@ -275,7 +275,6 @@ const OrchestrationFlowchart = ({ activeStep, glassboxState }: { activeStep: num
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="flex-1"
           >
             <PhaseDetailCard phase={activePhase} gs={gs ?? {
               currentPhase: 0, currentAgent: "System", strategyIteration: 1,

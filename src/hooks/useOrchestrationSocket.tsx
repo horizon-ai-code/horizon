@@ -59,6 +59,11 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const intentionalCloseRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
   const lastProcessedCommandIdRef = useRef<string | null>(null);
+  const messageBufferRef = useRef<any[]>([]);
+  const routerRef = useRef(router);
+  routerRef.current = router;
+  const migrateSessionIdRef = useRef(migrateSessionId);
+  migrateSessionIdRef.current = migrateSessionId;
 
   const [glassboxState, setGlassboxState] = useState<GlassboxState>({
     currentPhase: 0,
@@ -560,7 +565,10 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       try {
         const msg: ServerMessage = JSON.parse(event.data);
         const targetId = sessionIdRef.current;
-        if (!targetId) return;
+        if (!targetId) {
+          messageBufferRef.current.push(msg);
+          return;
+        }
 
         switch (msg.type) {
           case "connection_id":
@@ -588,8 +596,33 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   totalDurationMs: null,
                 });
                 sessionIdRef.current = msg.id;
+                // replay buffered messages
+                (() => {
+                  const buf = messageBufferRef.current;
+                  messageBufferRef.current = [];
+                  const tid = sessionIdRef.current!;
+                  buf.forEach((bmsg: ServerMessage) => {
+                    switch (bmsg.type) {
+                      case "status": handleStatusRef.current(bmsg, tid); break;
+                      case "result": handleResultRef.current(bmsg, tid); break;
+                      case "insights": handleInsightsRef.current(bmsg, tid); break;
+                      case "halt_acknowledged": handleHaltAckRef.current(tid); break;
+                      case "error": handleErrorRef.current(bmsg, tid); break;
+                      case "phase_started": handlePhaseStartedRef.current(bmsg); break;
+                      case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
+                      case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
+                      case "mutation_status": handleMutationStatusRef.current(bmsg); break;
+                      case "validation_result": handleValidationResultRef.current(bmsg); break;
+                      case "intent_classified": handleIntentClassifiedRef.current(bmsg); break;
+                      case "architecture_analysis": handleArchitectureAnalysisRef.current(bmsg); break;
+                      case "audit_result": handleAuditResultRef.current(bmsg); break;
+                      case "generator_progress": handleGeneratorProgressRef.current(bmsg); break;
+                      case "phase_timing_summary": handlePhaseTimingSummaryRef.current(bmsg); break;
+                    }
+                  });
+                })();
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
-                router.replace(`/${msg.id}`);
+                routerRef.current.replace(`/${msg.id}`);
             } else if (msg.id && msg.id !== targetId) {
                 // If this is a new connection_id during reconnect, previous session is lost
                 const prevId = typeof window !== "undefined" ? localStorage.getItem("lastSessionId") : null;
@@ -598,7 +631,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                     terminalEntries: [...prev.terminalEntries, makeTerminalEntry("system", "Previous session lost. Starting new refactor session.")],
                   }));
                 }
-                migrateSessionId(targetId, msg.id);
+                migrateSessionIdRef.current(targetId, msg.id);
                 setGlassboxState({
                   currentPhase: 0,
                   currentAgent: "System",
@@ -616,8 +649,33 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   totalDurationMs: null,
                 });
                 sessionIdRef.current = msg.id;
+                // replay buffered messages
+                (() => {
+                  const buf = messageBufferRef.current;
+                  messageBufferRef.current = [];
+                  const tid = sessionIdRef.current!;
+                  buf.forEach((bmsg: ServerMessage) => {
+                    switch (bmsg.type) {
+                      case "status": handleStatusRef.current(bmsg, tid); break;
+                      case "result": handleResultRef.current(bmsg, tid); break;
+                      case "insights": handleInsightsRef.current(bmsg, tid); break;
+                      case "halt_acknowledged": handleHaltAckRef.current(tid); break;
+                      case "error": handleErrorRef.current(bmsg, tid); break;
+                      case "phase_started": handlePhaseStartedRef.current(bmsg); break;
+                      case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
+                      case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
+                      case "mutation_status": handleMutationStatusRef.current(bmsg); break;
+                      case "validation_result": handleValidationResultRef.current(bmsg); break;
+                      case "intent_classified": handleIntentClassifiedRef.current(bmsg); break;
+                      case "architecture_analysis": handleArchitectureAnalysisRef.current(bmsg); break;
+                      case "audit_result": handleAuditResultRef.current(bmsg); break;
+                      case "generator_progress": handleGeneratorProgressRef.current(bmsg); break;
+                      case "phase_timing_summary": handlePhaseTimingSummaryRef.current(bmsg); break;
+                    }
+                  });
+                })();
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
-                router.replace(`/${msg.id}`);
+                routerRef.current.replace(`/${msg.id}`);
             }
             break;
           case "ping":
@@ -697,7 +755,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         }, delay);
       }
     };
-  }, [clearReconnectTimer, migrateSessionId, router]);
+  }, [clearReconnectTimer]);
 
   // ── Disconnect ───────────────────────────────────────────────────────────
 
