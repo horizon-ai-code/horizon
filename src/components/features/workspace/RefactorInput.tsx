@@ -17,6 +17,7 @@ interface RefactorInputProps {
   setInputError: (val: boolean) => void;
   validateBeforeSubmit: () => boolean;
   startAnalysis: () => void;
+  startSingleRefactor: () => void;
   stopAnalysis: () => void;
   appState: AppState;
 }
@@ -30,6 +31,7 @@ export default function RefactorInput({
   setInputError,
   validateBeforeSubmit,
   startAnalysis,
+  startSingleRefactor,
   stopAnalysis,
   appState
 }: RefactorInputProps) {
@@ -140,6 +142,7 @@ export default function RefactorInput({
               <Square size={12} className="fill-current" /> Stop
             </button>
           ) : (
+            <>
             <button 
               onClick={handleSubmit}
               disabled={isSubmitDisabled}
@@ -151,6 +154,19 @@ export default function RefactorInput({
             >
               <Sparkles size={14} className={isSubmitDisabled ? "" : "fill-current"} /> Run
             </button>
+            <button
+              onClick={startSingleRefactor}
+              disabled={isSubmitDisabled}
+              className={`h-[34px] px-4 rounded-full text-[13px] font-bold flex items-center gap-2 transition-all cursor-pointer border
+                ${isSubmitDisabled
+                  ? 'opacity-40 cursor-not-allowed bg-jb-text-muted/10 text-jb-text-muted shadow-none border-jb-text-muted/20'
+                  : 'hover:scale-105 active:scale-95 bg-transparent text-jb-accent border-jb-accent/40 hover:border-jb-accent hover:bg-jb-accent/10'
+                }`}
+              title="Single-pass refactor with 7B model (no orchestration)"
+            >
+              Single (7B)
+            </button>
+            </>
           )}
         </div>
       </motion.div>

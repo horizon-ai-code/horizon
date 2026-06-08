@@ -33,7 +33,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, disconnect, sendRefactorRequest, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
+  const { connectionStatus, connect, disconnect, sendRefactorRequest, sendSingleRefactor, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
@@ -200,6 +200,49 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     });
   }, [sendHaltRequest, updateLocal]);
 
+  const startSingleRefactor = useCallback(async () => {
+    if (!validateBeforeSubmit()) return;
+    if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
+    if (!id) return;
+
+    const instruction = inputInstruction.trim();
+    const code = sourceCode.trim();
+    if (!code || !instruction) return;
+
+    const commandId = Date.now().toString();
+    const newEntry = { id: commandId, type: 'command' as const, text: instruction };
+
+    updateLocal({
+      terminalEntries: [...terminalEntries, newEntry],
+      appState: "analyzing" as const,
+      isTerminalCollapsed: false,
+      showFlowchartModal: true,
+      activeStep: 1,
+      refactoredOutput: "",
+      orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
+    });
+    setLocalInputError(false);
+    setLocalSourceError(false);
+
+    connect(id);
+
+    const connected = await waitForOpen();
+    if (!connected) {
+      const currentEntries = useChatStore.getState().sessions[id]?.terminalEntries ?? [];
+      updateLocal({
+        terminalEntries: [
+          ...currentEntries,
+          { id: crypto.randomUUID(), type: 'log' as const, text: "Failed to connect to orchestrator. Check if the backend is running.", timestamp: Date.now() },
+        ],
+        appState: "idle" as const,
+        showFlowchartModal: false,
+      });
+      return;
+    }
+
+    sendSingleRefactor(code, instruction);
+  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendSingleRefactor]);
+
   const handleSourceChange = useCallback((val: string) => updateLocal({ sourceCode: val }), [updateLocal]);
   const handleInputChange = useCallback((val: string) => updateLocal({ inputInstruction: val }), [updateLocal]);
   const handleOutputChange = useCallback((val: string) => updateLocal({ refactoredOutput: val }), [updateLocal]);
@@ -252,6 +295,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               setInputError={handleInputErrorChange}
               validateBeforeSubmit={validateBeforeSubmit}
               startAnalysis={startAnalysis}
+              startSingleRefactor={startSingleRefactor}
               stopAnalysis={stopAnalysis}
               appState={appState}
               orchestrationResult={orchestrationResult}

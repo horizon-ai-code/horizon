@@ -65,6 +65,12 @@ export interface ResultMessage {
   judge_model: string | null;
 }
 
+export interface SingleRequest {
+  type: "single";
+  code: string;
+  user_instruction: string;
+}
+
 export interface HaltRequest {
   type: "halt";
 }

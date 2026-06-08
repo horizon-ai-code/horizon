@@ -22,6 +22,7 @@ interface InputProps {
   setInputError: (val: boolean) => void;
   validateBeforeSubmit: () => boolean;
   startAnalysis: () => void;
+  startSingleRefactor: () => void;
   stopAnalysis: () => void;
   appState: AppState;
   orchestrationResult: OrchestrationResult;
@@ -39,6 +40,7 @@ export default function InputPanel({
   setInputError,
   validateBeforeSubmit,
   startAnalysis,
+  startSingleRefactor,
   stopAnalysis,
   appState,
   orchestrationResult,
@@ -181,6 +183,7 @@ export default function InputPanel({
             setInputError={setInputError}
             validateBeforeSubmit={validateBeforeSubmit}
             startAnalysis={startAnalysis}
+            startSingleRefactor={startSingleRefactor}
             stopAnalysis={stopAnalysis}
             appState={appState}
           />

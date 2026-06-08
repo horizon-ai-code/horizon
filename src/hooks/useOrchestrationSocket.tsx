@@ -3,7 +3,7 @@
 import { useRef, useCallback, useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type {
-  RefactorRequest, ServerMessage, StatusMessage, ResultMessage, InsightsMessage,
+  RefactorRequest, SingleRequest, ServerMessage, StatusMessage, ResultMessage, InsightsMessage,
   PhaseStartedMessage, PhaseCompletedMessage, MutationPlanMessage, MutationStatusMessage,
   ValidationResultMessage, IntentClassifiedMessage, ArchitectureAnalysisMessage,
   AuditResultMessage, GeneratorProgressMessage, PhaseTimingSummaryMessage,
@@ -43,6 +43,7 @@ export interface OrchestrationContextValue {
   connect: (targetSessionId: string) => void;
   disconnect: () => void;
   sendRefactorRequest: (request: RefactorRequest, commandId?: string) => boolean;
+  sendSingleRefactor: (code: string, instruction: string) => boolean;
   sendHaltRequest: () => boolean;
   setTargetSessionId: (id: string) => void;
   glassboxState: GlassboxState;
@@ -62,6 +63,10 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const messageBufferRef = useRef<any[]>([]);
   const routerRef = useRef(router);
   routerRef.current = router;
+
+  const updateSession = useChatStore((s) => s.updateSession);
+  const migrateSessionId = useChatStore((s) => s.migrateSessionId);
+
   const migrateSessionIdRef = useRef(migrateSessionId);
   migrateSessionIdRef.current = migrateSessionId;
 
@@ -83,9 +88,6 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   });
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
-
-  const updateSession = useChatStore((s) => s.updateSession);
-  const migrateSessionId = useChatStore((s) => s.migrateSessionId);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -813,6 +815,27 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     return true;
   }, []);
 
+  const sendSingleRefactor = useCallback(
+    (code: string, instruction: string): boolean => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        console.error("[WS] Cannot send — WebSocket is not open.");
+        return false;
+      }
+      try {
+        wsRef.current.send(JSON.stringify({
+          type: "single",
+          code,
+          user_instruction: instruction,
+        }));
+        return true;
+      } catch (err) {
+        console.error("[WS] Failed to send single refactor:", err);
+        return false;
+      }
+    },
+    []
+  );
+
   // ── Keep sessionId available via ref for onmessage handler ───────────────
 
   const setTargetSessionId = useCallback((id: string) => {
@@ -854,6 +877,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         connect,
         disconnect,
         sendRefactorRequest,
+        sendSingleRefactor,
         sendHaltRequest,
         setTargetSessionId,
         glassboxState,
