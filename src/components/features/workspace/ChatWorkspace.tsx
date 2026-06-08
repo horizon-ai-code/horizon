@@ -33,12 +33,20 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, sendRefactorRequest, sendHaltRequest, setTargetSessionId, glassboxState } = useOrchestrationSocket();
+  const { connectionStatus, connect, disconnect, sendRefactorRequest, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
     setTargetSessionId(currentId);
   }, [id, setTargetSessionId]);
+
+  const prevIdRef = useRef(id);
+  useEffect(() => {
+    if (prevIdRef.current && prevIdRef.current !== id && id) {
+      disconnect();
+    }
+    prevIdRef.current = id;
+  }, [id, disconnect]);
 
   const connectionStatusRef = useRef(connectionStatus);
   useEffect(() => {
@@ -89,11 +97,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     sourceCode, refactoredOutput, activeStep, inputInstruction,
     terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, orchestrationResult
   } = activeSession;
-
-  const terminalEntriesRef = useRef(terminalEntries);
-  useEffect(() => {
-    terminalEntriesRef.current = terminalEntries;
-  }, [terminalEntries]);
 
   const validateBeforeSubmit = useCallback(() => {
     let hasError = false;
@@ -147,13 +150,17 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [appState]);
 
-  const startAnalysis = useCallback(() => {
+  const startAnalysis = useCallback(async () => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
     if (!id) return;
 
+    const instruction = inputInstruction.trim();
+    const code = sourceCode.trim();
+    if (!code || !instruction) return;
+
     const commandId = Date.now().toString();
-    const newEntry = { id: commandId, type: 'command' as const, text: inputInstruction };
+    const newEntry = { id: commandId, type: 'command' as const, text: instruction };
 
     updateLocal({
       terminalEntries: [...terminalEntries, newEntry],
@@ -166,38 +173,28 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     });
     setLocalInputError(false);
     setLocalSourceError(false);
-  }, [validateBeforeSubmit, appState, id, inputInstruction, updateLocal, terminalEntries]);
 
-  // If a session was loaded in analyzing state (due to lazy creation redirect),
-  // ensure the WebSocket connection is established for it.
-  useEffect(() => {
-    let sendInterval: ReturnType<typeof setInterval> | null = null;
-    
-    // Allows the frontend to start the draft session by waiting for connection_id
-    const currentId = id || "draft";
+    connect(id);
 
-    if (appState === "analyzing" && activeStep === 1 && terminalEntriesRef.current.length > 0) {
-      // The session was created with analyzing state from the draft flow, or explicitly started.
-      const lastCommand = [...terminalEntriesRef.current].reverse().find(e => e.type === 'command');
-      if (!lastCommand) return;
-
-      connect(currentId);
-      sendInterval = setInterval(() => {
-        const sent = sendRefactorRequest({
-          code: sourceCode,
-          user_instruction: lastCommand.text,
-        }, lastCommand.id);
-        if (sent && sendInterval) {
-          clearInterval(sendInterval);
-          sendInterval = null;
-        }
-      }, 100);
+    const connected = await waitForOpen();
+    if (!connected) {
+      const currentEntries = useChatStore.getState().sessions[id]?.terminalEntries ?? [];
+      updateLocal({
+        terminalEntries: [
+          ...currentEntries,
+          { id: crypto.randomUUID(), type: 'log' as const, text: "Failed to connect to orchestrator. Check if the backend is running.", timestamp: Date.now() },
+        ],
+        appState: "idle" as const,
+        showFlowchartModal: false,
+      });
+      return;
     }
-    
-    return () => {
-      if (sendInterval) clearInterval(sendInterval);
-    };
-  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode]);
+
+    sendRefactorRequest({
+      code,
+      user_instruction: instruction,
+    }, commandId);
+  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendRefactorRequest]);
 
   const stopAnalysis = useCallback(() => {
     sendHaltRequest();

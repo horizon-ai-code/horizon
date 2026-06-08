@@ -46,6 +46,7 @@ export interface OrchestrationContextValue {
   sendHaltRequest: () => boolean;
   setTargetSessionId: (id: string) => void;
   glassboxState: GlassboxState;
+  waitForOpen: () => Promise<boolean>;
 }
 
 const OrchestrationContext = createContext<OrchestrationContextValue | null>(null);
@@ -760,6 +761,21 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     sessionIdRef.current = id;
   }, []);
 
+  // ── Wait for WebSocket to open ───────────────────────────────────────────
+
+  const waitForOpen = useCallback(async (): Promise<boolean> => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) return true;
+    return new Promise((resolve) => {
+      const check = setInterval(() => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          clearInterval(check);
+          resolve(true);
+        }
+      }, 50);
+      setTimeout(() => { clearInterval(check); resolve(false); }, 8000);
+    });
+  }, []);
+
   // ── Cleanup on unmount ───────────────────────────────────────────────────
 
   useEffect(() => {
@@ -783,6 +799,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         sendHaltRequest,
         setTargetSessionId,
         glassboxState,
+        waitForOpen,
       }}
     >
       {children}
