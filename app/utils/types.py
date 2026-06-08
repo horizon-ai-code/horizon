@@ -4,9 +4,15 @@ from typing import Literal
 from pydantic import BaseModel, field_validator
 
 
+class OrchestrationMode(str, Enum):
+    SINGLE = "single"
+    MULTI = "multi"
+
+
 class RefactorRequest(BaseModel):
     code: str
     user_instruction: str
+    mode: OrchestrationMode = OrchestrationMode.MULTI
 
     @field_validator("code")
     @classmethod

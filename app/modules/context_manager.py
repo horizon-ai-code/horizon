@@ -10,7 +10,7 @@ from app.utils.paths import DB_PATH
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 class SchemaVersion(peewee.Model):
@@ -36,6 +36,7 @@ class RefactorHistory(peewee.Model):
     total_inner_loops = peewee.IntegerField(default=0)
     original_complexity = peewee.IntegerField(null=True)
     refactored_complexity = peewee.IntegerField(null=True)
+    mode = peewee.CharField(default="multi")
     planner_model = peewee.CharField(null=True)
     generator_model = peewee.CharField(null=True)
     judge_model = peewee.CharField(null=True)
@@ -97,6 +98,13 @@ class DatabaseManager:
                         else:
                             db.execute_sql(f'ALTER TABLE {table} ADD COLUMN {col} TEXT')
 
+        # Migration v2 -> v3: add mode column
+        if current_version < 3:
+            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
+            if "mode" not in existing_cols:
+                print("DB Migration: Adding column mode to refactorhistory...")
+                db.execute_sql('ALTER TABLE refactorhistory ADD COLUMN mode TEXT DEFAULT "multi"')
+
         self._set_schema_version(SCHEMA_VERSION)
         db.close()
 
@@ -111,13 +119,14 @@ class DatabaseManager:
         SchemaVersion.delete().execute()
         SchemaVersion.create(version=version)
 
-    def create_session(self, id: str, instruction: str, original_code: str) -> None:
+    def create_session(self, id: str, instruction: str, original_code: str, mode: str = "multi") -> None:
         """Initializes a refactoring session in the database."""
         with db.atomic():
             RefactorHistory.create(
                 id=id,
                 user_instruction=instruction,
                 original_code=original_code,
+                mode=mode,
             )
 
     def log_status(
@@ -165,6 +174,7 @@ class DatabaseManager:
         planner_model: str | None = None,
         generator_model: str | None = None,
         judge_model: str | None = None,
+        mode: str = "multi",
     ) -> None:
         """Updates an existing session record with final results."""
         with db.atomic():
@@ -186,6 +196,7 @@ class DatabaseManager:
                 avg_gpu_memory=performance_metrics.get("avg_gpu_memory"),
                 avg_gpu_memory_used=performance_metrics.get("avg_gpu_memory_used"),
                 inference_time=performance_metrics.get("inference_time"),
+                mode=mode,
             ).where(RefactorHistory.id == id)
             query.execute()
 
