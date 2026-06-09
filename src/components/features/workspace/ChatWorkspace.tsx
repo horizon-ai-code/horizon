@@ -256,10 +256,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   if (!mounted) return null;
 
+  const showConnectionBanner = (connectionStatus === "disconnected" || connectionStatus === "connecting")
+    && (appState === "analyzing" || appState === "waiting");
+
   return (
     <>
-    {/* Connection status banner */}
-    {(connectionStatus === "disconnected" || connectionStatus === "connecting") && (
+    {showConnectionBanner && (
       <div
         className={cn(
           "absolute top-0 left-0 right-0 z-50 px-4 py-2 text-center text-sm font-medium transition-all",
