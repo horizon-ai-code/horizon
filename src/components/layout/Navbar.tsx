@@ -2,14 +2,65 @@
 
 import Image from "next/image";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-import { useChatStore } from "@/store/useChatStore";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function Navbar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const orchestratorStatus = useChatStore((s) => s.orchestratorStatus);
+  const [serverOnline, setServerOnline] = useState<boolean | null>(null);
+  const failCountRef = useRef(0);
+
+  useEffect(() => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    let interval: ReturnType<typeof setInterval>;
+
+    const check = async (): Promise<boolean> => {
+      try {
+        const res = await fetch(`${API_URL}/health`);
+        if (res.ok) {
+          setServerOnline(true);
+          failCountRef.current = 0;
+          return true;
+        }
+      } catch {}
+      return false;
+    };
+
+    const startInterval = () => {
+      interval = setInterval(async () => {
+        const ok = await check();
+        if (!ok) {
+          failCountRef.current++;
+          if (failCountRef.current >= 5) {
+            setServerOnline(false);
+            clearInterval(interval);
+          }
+        }
+      }, 10000);
+    };
+
+    const startRetries = async () => {
+      for (let i = 0; i < 5; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        if (await check()) {
+          startInterval();
+          return;
+        }
+      }
+      setServerOnline(false);
+    };
+
+    check().then(ok => {
+      if (ok) {
+        startInterval();
+      } else {
+        startRetries();
+      }
+    });
+
+    return () => { clearInterval(interval); };
+  }, []);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
@@ -52,8 +103,8 @@ export default function Navbar() {
           {/* Orchestrator Connection Status */}
           <div className="group relative flex items-center">
             <div className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${
-              orchestratorStatus === "connected" ? "bg-emerald-500" :
-              orchestratorStatus === "connecting" ? "bg-amber-500 animate-pulse" :
+              serverOnline === null ? "bg-gray-400 animate-pulse" :
+              serverOnline ? "bg-emerald-500" :
               "bg-red-500"
             }`} />
             <div className={`
@@ -63,9 +114,9 @@ export default function Navbar() {
               ${isDark ? 'bg-jb-panel border-jb-border/50 text-jb-text' : 'bg-white border-[#ebecf0] text-[#080808]'}
             `}>
               Orchestrator: {
-                orchestratorStatus === "connected" ? "Connected" :
-                orchestratorStatus === "connecting" ? "Reconnecting..." :
-                "Disconnected"
+                serverOnline === null ? "Checking..." :
+                serverOnline ? "Online" :
+                "Unreachable"
               }
             </div>
           </div>
