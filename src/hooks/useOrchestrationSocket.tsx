@@ -577,9 +577,13 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           case "connection_id":
             if (targetId === "draft" && msg.id) {
                 const store = useChatStore.getState();
+                const createdAt = (msg as any).created_at
+                  ? new Date((msg as any).created_at).getTime()
+                  : Date.now();
                 store.createSession(msg.id, {
                   ...store.draftSession,
                   id: msg.id,
+                  createdAt,
                 });
                 store.resetDraftSession();
                 setGlassboxState({
@@ -635,6 +639,12 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   }));
                 }
                 migrateSessionIdRef.current(targetId, msg.id);
+                const createdAt = (msg as any).created_at
+                  ? new Date((msg as any).created_at).getTime()
+                  : undefined;
+                if (createdAt) {
+                  updateSession(msg.id, { createdAt });
+                }
                 setGlassboxState({
                   currentPhase: 0,
                   currentAgent: "System",

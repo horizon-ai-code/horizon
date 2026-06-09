@@ -188,11 +188,11 @@ export const useChatStore = create<ChatStore>((set) => ({
           ...state.sessions,
           [id]: { 
             ...DEFAULT_SESSION, 
-            ...initialData, 
-            title: derivedTitle,
             id, 
             createdAt: now, 
             updatedAt: now, 
+            ...initialData, 
+            title: derivedTitle,
             isLoaded: true 
           },
         },
@@ -298,24 +298,23 @@ export const useChatStore = create<ChatStore>((set) => ({
         items.forEach((item) => {
             const id = item?.id;
             if (!id) return;
-            
+
             const instruction = item.user_instruction || "";
-            
-            if (!newSessions[id]) {
-                const title = instruction.trim().length > 0
-                  ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
-                  : "New Session";
+            const title = instruction.trim().length > 0
+              ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
+              : "New Session";
 
-                const createdAt = item.created_at ? new Date(item.created_at).getTime() : Date.now();
+            const createdAt = item.created_at
+              ? new Date(item.created_at).getTime()
+              : (newSessions[id]?.createdAt || Date.now());
 
-                newSessions[id] = {
-                    ...DEFAULT_SESSION,
-                    id,
-                    title,
-                    createdAt,
-                    updatedAt: createdAt,
-                };
-            }
+            newSessions[id] = {
+                ...(newSessions[id] || DEFAULT_SESSION),
+                id,
+                title,
+                createdAt,
+                updatedAt: createdAt,
+            };
         });
 
         return {
