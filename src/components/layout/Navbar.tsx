@@ -9,57 +9,47 @@ export default function Navbar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-  const failCountRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout | typeof setInterval> | null>(null);
 
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    let interval: ReturnType<typeof setInterval>;
 
-    const check = async (): Promise<boolean> => {
+    const check = async () => {
       try {
         const res = await fetch(`${API_URL}/health`);
         if (res.ok) {
           setServerOnline(true);
-          failCountRef.current = 0;
           return true;
         }
       } catch {}
+      setServerOnline(false);
       return false;
     };
 
-    const startInterval = () => {
-      interval = setInterval(async () => {
-        const ok = await check();
-        if (!ok) {
-          failCountRef.current++;
-          if (failCountRef.current >= 5) {
-            setServerOnline(false);
-            clearInterval(interval);
-          }
-        }
-      }, 10000);
+    const scheduleNext = (ok: boolean) => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        clearInterval(timerRef.current as unknown as number);
+      }
+      timerRef.current = ok
+        ? setInterval(async () => {
+            const alive = await check();
+            if (!alive) scheduleNext(false);
+          }, 10000)
+        : setTimeout(async () => {
+            const alive = await check();
+            scheduleNext(alive);
+          }, 2000);
     };
 
-    const startRetries = async () => {
-      for (let i = 0; i < 5; i++) {
-        await new Promise(r => setTimeout(r, 2000));
-        if (await check()) {
-          startInterval();
-          return;
-        }
+    check().then(ok => scheduleNext(ok));
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        clearInterval(timerRef.current as unknown as number);
       }
-      setServerOnline(false);
     };
-
-    check().then(ok => {
-      if (ok) {
-        startInterval();
-      } else {
-        startRetries();
-      }
-    });
-
-    return () => { clearInterval(interval); };
   }, []);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
@@ -112,9 +102,9 @@ export default function Navbar() {
               serverOnline ? "text-emerald-500" :
               "text-red-500"
             }`}>
-              {serverOnline === null ? "Checking..." :
-               serverOnline ? "Online" :
-               "Unreachable"}
+               {serverOnline === null ? "Checking..." :
+               serverOnline ? "Connected" :
+               "Disconnected"}
             </span>
           </div>
           <ThemeToggle />
