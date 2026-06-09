@@ -251,7 +251,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleInsights = useCallback(
     (msg: InsightsMessage, targetId: string) => {
       const insightsStr = Array.isArray(msg.insights)
-        ? msg.insights.map((i) => `${i.title}: ${i.details}`).join("\n")
+        ? msg.insights.map((i) => `• **${i.title}**: ${i.details}`).join("\n")
         : msg.insights;
 
       updateSession(targetId, (prev: SessionData) => ({

@@ -166,13 +166,17 @@ export default function InsightsPanel({ metrics, summary, planner_model, generat
         <div className="mt-6 p-4 rounded-[16px] border border-border bg-secondary/30">
            <h4 className={`text-[12px] font-bold mb-4 uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Summary</h4>
            <div className="space-y-4">
-              {summary.split(/(?:\r?\n)?\s*-\s+/).filter(p => p.trim()).map((point, index) => {
-                const trimmedPoint = point.trim();
+               {summary.split("\n").filter(p => p.trim()).map((point, index) => {
+                const trimmedPoint = point.trim().replace(/^[•\-]\s*/, "");
                 return (
                   <div key={`summary-${index}-${trimmedPoint.slice(0, 20)}`} className="flex gap-3 items-start">
                     <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-500 shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
                     <p className={`text-[13px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
-                      {trimmedPoint}
+                      {trimmedPoint.split(/(\*\*.*?\*\*)/).map((part, i) =>
+                        part.startsWith("**") && part.endsWith("**")
+                          ? <strong key={i}>{part.slice(2, -2)}</strong>
+                          : part
+                      )}
                     </p>
                   </div>
                 );
