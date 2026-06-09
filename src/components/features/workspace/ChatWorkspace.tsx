@@ -148,11 +148,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const startAnalysis = useCallback(async () => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
-    if (!id) return;
 
     const instruction = inputInstruction.trim();
     const code = sourceCode.trim();
     if (!code || !instruction) return;
+
+    const sessionTarget = id || "draft";
 
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: instruction };
@@ -169,11 +170,11 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     setLocalInputError(false);
     setLocalSourceError(false);
 
-    connect(id);
+    connect(sessionTarget);
 
     const connected = await waitForOpen();
     if (!connected) {
-      const currentEntries = useChatStore.getState().sessions[id]?.terminalEntries ?? [];
+      const currentEntries = useChatStore.getState().sessions[sessionTarget]?.terminalEntries ?? [];
       updateLocal({
         terminalEntries: [
           ...currentEntries,
@@ -204,11 +205,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const startSingleRefactor = useCallback(async () => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
-    if (!id) return;
 
     const instruction = inputInstruction.trim();
     const code = sourceCode.trim();
     if (!code || !instruction) return;
+
+    const sessionTarget = id || "draft";
 
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: instruction };
@@ -225,11 +227,11 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     setLocalInputError(false);
     setLocalSourceError(false);
 
-    connect(id);
+    connect(sessionTarget);
 
     const connected = await waitForOpen();
     if (!connected) {
-      const currentEntries = useChatStore.getState().sessions[id]?.terminalEntries ?? [];
+      const currentEntries = useChatStore.getState().sessions[sessionTarget]?.terminalEntries ?? [];
       updateLocal({
         terminalEntries: [
           ...currentEntries,
