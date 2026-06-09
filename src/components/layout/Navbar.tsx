@@ -101,24 +101,21 @@ export default function Navbar() {
       <div className="flex items-center h-full">
         <div className="flex items-center px-4 h-full gap-3">
           {/* Orchestrator Connection Status */}
-          <div className="group relative flex items-center">
-            <div className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${
+          <div className="flex items-center gap-1.5">
+            <div className={`h-2 w-2 rounded-full transition-colors duration-300 ${
               serverOnline === null ? "bg-gray-400 animate-pulse" :
               serverOnline ? "bg-emerald-500" :
               "bg-red-500"
             }`} />
-            <div className={`
-              absolute right-0 top-full mt-2 px-2.5 py-1.5 text-[11px] font-medium
-              whitespace-nowrap rounded border opacity-0 group-hover:opacity-100
-              transition-opacity pointer-events-none z-50
-              ${isDark ? 'bg-jb-panel border-jb-border/50 text-jb-text' : 'bg-white border-[#ebecf0] text-[#080808]'}
-            `}>
-              Orchestrator: {
-                serverOnline === null ? "Checking..." :
-                serverOnline ? "Online" :
-                "Unreachable"
-              }
-            </div>
+            <span className={`text-[11px] font-medium transition-colors duration-300 ${
+              serverOnline === null ? "text-gray-400" :
+              serverOnline ? "text-emerald-500" :
+              "text-red-500"
+            }`}>
+              {serverOnline === null ? "Checking..." :
+               serverOnline ? "Online" :
+               "Unreachable"}
+            </span>
           </div>
           <ThemeToggle />
         </div>

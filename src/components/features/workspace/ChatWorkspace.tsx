@@ -8,7 +8,6 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTheme } from "next-themes";
 import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 import InputPanel from "@/components/features/editor/InputPanel";
 import RefactoredOutput from "@/components/features/output/RefactoredOutput";
@@ -33,7 +32,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, disconnect, sendRefactorRequest, sendSingleRefactor, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
+  const { connect, disconnect, sendRefactorRequest, sendSingleRefactor, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
@@ -256,33 +255,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   if (!mounted) return null;
 
-  const showConnectionBanner = (connectionStatus === "disconnected" || connectionStatus === "connecting")
-    && (appState === "analyzing" || appState === "waiting");
-
   return (
     <>
-    {showConnectionBanner && (
-      <div
-        className={cn(
-          "absolute top-0 left-0 right-0 z-50 px-4 py-2 text-center text-sm font-medium transition-all",
-          connectionStatus === "connecting"
-            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-            : "bg-red-500/10 text-red-600 dark:text-red-400",
-        )}
-      >
-        {connectionStatus === "connecting" ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-            Connection lost. Reconnecting...
-          </span>
-        ) : (
-          <span className="flex items-center justify-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-red-500" />
-            Disconnected. Please wait...
-          </span>
-        )}
-      </div>
-    )}
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">
