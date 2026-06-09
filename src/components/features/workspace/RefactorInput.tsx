@@ -89,27 +89,7 @@ export default function RefactorInput({
       return;
     }
 
-    if (sessionId) {
-      startAnalysis();
-      return;
-    }
-
-    const commandId = Date.now().toString();
-    const initialPrompt = inputInstruction;
-    
-    updateDraftSession({
-      sourceCode,
-      inputInstruction,
-      terminalEntries: [
-        ...draftSession.terminalEntries,
-        { id: commandId, type: "command", text: initialPrompt },
-      ],
-      appState: "analyzing",
-      isTerminalCollapsed: false,
-      showFlowchartModal: true,
-      activeStep: 1,
-      refactoredOutput: "",
-    });
+    startAnalysis();
   };
 
   const isChatExpanded = isChatFocused || inputInstruction.length > 0;
