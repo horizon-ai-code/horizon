@@ -64,7 +64,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       }
     };
     
-    if (!session || (session.createdAt === 0 && !session.isLoaded)) {
+    if (!session || !session.isLoaded) {
       fetchAndHandle();
     }
   }, [id, router, fetchSessionDetails]);

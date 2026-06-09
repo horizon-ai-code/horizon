@@ -314,6 +314,7 @@ export const useChatStore = create<ChatStore>((set) => ({
                 title,
                 createdAt,
                 updatedAt: createdAt,
+                isLoaded: false,
             };
         });
 
