@@ -24,8 +24,8 @@ describe('constants', () => {
   });
 
   describe('ROLE_VISUALS', () => {
-    it('has entries for all 5 roles', () => {
-      expect(Object.keys(ROLE_VISUALS)).toHaveLength(5);
+    it('has entries for all roles', () => {
+      expect(Object.keys(ROLE_VISUALS)).toHaveLength(6);
     });
 
     it('each role has step, icon, and colorClass', () => {

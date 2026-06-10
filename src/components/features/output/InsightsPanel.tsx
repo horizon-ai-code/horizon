@@ -113,19 +113,19 @@ export default function InsightsPanel({ metrics, summary, planner_model, generat
                 bg: isDark ? 'bg-amber-500/10' : 'bg-amber-500/5',
                 border: isDark ? 'border-amber-500/20' : 'border-amber-500/10'
               };
-              if (displayTitle === 'Avg GPU Utilization') return { 
+              if (displayTitle === 'GPU Utilization') return { 
                 base: 'purple', 
                 color: isDark ? 'text-purple-400' : 'text-purple-600',
                 bg: isDark ? 'bg-purple-500/10' : 'bg-purple-500/5',
                 border: isDark ? 'border-purple-500/20' : 'border-purple-500/10'
               };
-              if (displayTitle === 'Avg GPU Memory') return { 
+              if (displayTitle === 'GPU Memory') return { 
                 base: 'cyan', 
                 color: isDark ? 'text-cyan-400' : 'text-cyan-600',
                 bg: isDark ? 'bg-cyan-500/10' : 'bg-cyan-500/5',
                 border: isDark ? 'border-cyan-500/20' : 'border-cyan-500/10'
               };
-              
+
               // Fallback dynamic colors
               return {
                 base: 'emerald',

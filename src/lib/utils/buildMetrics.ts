@@ -31,6 +31,8 @@ export function buildMetrics(
     const memUsed = performance.avg_gpu_memory_used ?? 0;
     const memPercent = performance.avg_gpu_memory ?? 0;
     const gpuUtil = performance.avg_gpu_utilization ?? 0;
+    const peakUtil = performance.peak_gpu_utilization ?? 0;
+    const peakMemUsed = performance.peak_gpu_memory_used ?? 0;
     const infTime = performance.inference_time ?? 0;
 
     metrics.push({
@@ -42,17 +44,17 @@ export function buildMetrics(
     });
 
     metrics.push({
-      title: "Avg GPU Utilization",
+      title: "GPU Utilization",
       before: "—",
-      after: `${gpuUtil}%`,
+      after: `${gpuUtil}% avg · ${peakUtil}% peak`,
       direction: "neutral" as const,
       iconKey: "Cpu",
     });
 
     metrics.push({
-      title: "Avg GPU Memory",
+      title: "GPU Memory",
       before: "—",
-      after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
+      after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%) avg · ${(peakMemUsed / (1024 * 1024 * 1024)).toFixed(2)} GB peak`,
       direction: "neutral" as const,
       iconKey: "Layers",
     });

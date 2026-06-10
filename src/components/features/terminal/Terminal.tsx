@@ -16,6 +16,7 @@ const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
   CheckCircle2: { bg: "#1a2e1a", text: "#4ec97e" },
   Clock:        { bg: "#2a2030", text: "#a78bfa" },
   AlertCircle:  { bg: "#3c1a1a", text: "#e06c75" },
+  Monolith:     { bg: "#1a2f4a", text: "#548af7" },
 };
 
 const AGENT_LABEL: Record<string, string> = {
@@ -25,6 +26,7 @@ const AGENT_LABEL: Record<string, string> = {
   CheckCircle2: "JUDGE",
   Clock:        "SYSTEM",
   AlertCircle:  "ERROR",
+  Monolith:     "MONOLITH",
 };
 
 interface TerminalProps {
