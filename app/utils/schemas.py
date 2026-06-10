@@ -24,6 +24,7 @@ class HistoryStub(BaseModel):
     id: UUID4
     user_instruction: str
     created_at: datetime
+    status: str | None = None
 
 
 class HistoryDetail(BaseModel):
@@ -32,6 +33,8 @@ class HistoryDetail(BaseModel):
     original_code: str
     refactored_code: str | None = None
     insights: str | None = None
+    status: str | None = None
+    exit_status: str | None = None
     original_complexity: int | None = None
     refactored_complexity: int | None = None
     planner_model: str | None = None
@@ -40,6 +43,8 @@ class HistoryDetail(BaseModel):
     avg_gpu_utilization: float | None = None
     avg_gpu_memory: float | None = None
     avg_gpu_memory_used: float | None = None
+    peak_gpu_utilization: float | None = None
+    peak_gpu_memory_used: float | None = None
     inference_time: float | None = None
     created_at: datetime
     logs: list[LogEntry]

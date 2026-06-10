@@ -10,7 +10,7 @@ from app.utils.paths import DB_PATH
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
 
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 
 class SchemaVersion(peewee.Model):
@@ -43,6 +43,8 @@ class RefactorHistory(peewee.Model):
     avg_gpu_utilization = peewee.FloatField(null=True)
     avg_gpu_memory = peewee.FloatField(null=True)
     avg_gpu_memory_used = peewee.FloatField(null=True)
+    peak_gpu_utilization = peewee.FloatField(null=True)
+    peak_gpu_memory_used = peewee.FloatField(null=True)
     inference_time = peewee.FloatField(null=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
@@ -104,6 +106,14 @@ class DatabaseManager:
             if "mode" not in existing_cols:
                 print("DB Migration: Adding column mode to refactorhistory...")
                 db.execute_sql('ALTER TABLE refactorhistory ADD COLUMN mode TEXT DEFAULT "multi"')
+
+        # Migration v3 -> v4: add peak GPU columns
+        if current_version < 4:
+            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
+            for col in ["peak_gpu_utilization", "peak_gpu_memory_used"]:
+                if col not in existing_cols:
+                    print(f"DB Migration: Adding column {col} to refactorhistory...")
+                    db.execute_sql(f'ALTER TABLE refactorhistory ADD COLUMN {col} REAL')
 
         self._set_schema_version(SCHEMA_VERSION)
         db.close()
@@ -195,6 +205,8 @@ class DatabaseManager:
                 avg_gpu_utilization=performance_metrics.get("avg_gpu_utilization"),
                 avg_gpu_memory=performance_metrics.get("avg_gpu_memory"),
                 avg_gpu_memory_used=performance_metrics.get("avg_gpu_memory_used"),
+                peak_gpu_utilization=performance_metrics.get("peak_gpu_utilization"),
+                peak_gpu_memory_used=performance_metrics.get("peak_gpu_memory_used"),
                 inference_time=performance_metrics.get("inference_time"),
                 mode=mode,
             ).where(RefactorHistory.id == id)

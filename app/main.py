@@ -124,6 +124,7 @@ async def entrypoint(websocket: WebSocket) -> None:
             finally:
                 orchestration_lock.release()
         except asyncio.CancelledError:
+            connection.db.mark_as_halted(client_conn.id)
             await client_conn.send_halt_notification()
             raise
         except Exception as e:
@@ -305,6 +306,7 @@ async def run_single_refactor(
             await orchestrator.run_single_refactor(client, user_code, user_instruction)
 
     except asyncio.CancelledError:
+        connection.db.mark_as_halted(client.id)
         await client.send_halt_notification()
         raise
     except Exception as e:
