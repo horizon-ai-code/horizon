@@ -46,7 +46,7 @@ export function buildMetrics(
     metrics.push({
       title: "GPU Utilization",
       before: "—",
-      after: `${gpuUtil}% avg · ${peakUtil}% peak`,
+      after: `${gpuUtil}% avg\n${peakUtil}% peak`,
       direction: "neutral" as const,
       iconKey: "Cpu",
     });
@@ -54,7 +54,7 @@ export function buildMetrics(
     metrics.push({
       title: "GPU Memory",
       before: "—",
-      after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%) avg · ${(peakMemUsed / (1024 * 1024 * 1024)).toFixed(2)} GB peak`,
+      after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%) avg\n${(peakMemUsed / (1024 * 1024 * 1024)).toFixed(2)} GB peak`,
       direction: "neutral" as const,
       iconKey: "Layers",
     });

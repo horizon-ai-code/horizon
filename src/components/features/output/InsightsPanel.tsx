@@ -146,7 +146,7 @@ export default function InsightsPanel({ metrics, summary, planner_model, generat
                 <div>
                   <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{displayTitle}</p>
                   <div className="flex items-baseline gap-2">
-                    <p className={`text-[16px] font-bold ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>
+                    <p className={`text-[16px] font-bold whitespace-pre-line ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>
                       {isComplexity && m.before && m.before !== '—' ? `${m.before} → ${m.after}` : m.after}
                     </p>
                     {!isComplexity && m.before && m.before !== '—' && (
