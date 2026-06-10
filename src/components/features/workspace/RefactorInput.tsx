@@ -134,11 +134,11 @@ export default function RefactorInput({
               <Square size={12} className="fill-current" /> Stop
             </button>
           ) : (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
-                className={`h-[34px] px-6 text-white rounded-l-full text-[13px] font-bold flex items-center gap-2 transition-all cursor-pointer
+                className={`h-[34px] px-5 rounded-full text-white text-[13px] font-bold flex items-center gap-2 transition-all cursor-pointer
                   ${isSubmitDisabled
                     ? 'opacity-40 cursor-not-allowed bg-jb-text-muted/20 text-jb-text-muted shadow-none'
                     : 'shadow-[0_4px_15px_rgba(53,116,240,0.25)] hover:shadow-[0_6px_20px_rgba(53,116,240,0.4)] hover:scale-105 active:scale-95 bg-jb-accent border-none'
@@ -149,36 +149,42 @@ export default function RefactorInput({
               <DropdownMenu>
                 <DropdownMenuTrigger
                   disabled={isSubmitDisabled}
-                  className={`h-[34px] px-3 rounded-r-full text-white text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer
+                  className={`h-[28px] px-2.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer border
                     ${isSubmitDisabled
-                      ? 'opacity-40 cursor-not-allowed bg-jb-text-muted/20'
-                      : 'hover:scale-105 active:scale-95 bg-jb-accent border-none'
+                      ? 'opacity-40 cursor-not-allowed text-jb-text-muted border-jb-text-muted/20 bg-transparent'
+                      : refactorMode === "multi"
+                        ? 'text-[#5a8cf8] border-[#5a8cf8]/30 hover:border-[#5a8cf8]/60 hover:bg-[#5a8cf8]/10'
+                        : 'text-[#a855f7] border-[#a855f7]/30 hover:border-[#a855f7]/60 hover:bg-[#a855f7]/10'
                     }`}
                   aria-label="Select mode"
                 >
-                  {refactorMode === "multi" ? "Multi-Agent" : "Single (7B)"}
-                  <ChevronDown size={12} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${refactorMode === "multi" ? "bg-[#5a8cf8]" : "bg-[#a855f7]"}`} />
+                  {refactorMode === "multi" ? "Multi" : "7B"}
+                  <ChevronDown size={10} />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[160px]">
+                <DropdownMenuContent align="end" className="min-w-[170px] p-1.5">
                   <DropdownMenuItem
                     onClick={() => setRefactorMode("multi")}
-                    className={`flex items-center gap-3 cursor-pointer ${refactorMode === "multi" ? "font-bold" : ""}`}
+                    className={`flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 text-[13px] ${refactorMode === "multi" ? "font-bold bg-accent/50" : ""}`}
                   >
-                    <div className={`h-2 w-2 rounded-full ${refactorMode === "multi" ? "bg-jb-accent" : "bg-transparent border border-jb-text-muted"}`} />
+                    <div className={`h-2.5 w-2.5 rounded-full ${refactorMode === "multi" ? "bg-[#5a8cf8] shadow-[0_0_8px_#5a8cf8]" : "bg-transparent border-2 border-jb-text-muted"}`} />
                     <div className="flex flex-col">
                       <span>Multi-Agent</span>
-                      <span className="text-[11px] text-jb-text-muted font-normal">Full 6-phase pipeline</span>
+                      <span className="text-[10px] text-jb-text-muted font-normal">Full 6-phase pipeline</span>
                     </div>
+                    {refactorMode === "multi" && <span className="ml-auto text-[10px] text-jb-accent">✓</span>}
                   </DropdownMenuItem>
+                  <div className="h-px bg-border mx-2 my-1" />
                   <DropdownMenuItem
                     onClick={() => setRefactorMode("single")}
-                    className={`flex items-center gap-3 cursor-pointer ${refactorMode === "single" ? "font-bold" : ""}`}
+                    className={`flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 text-[13px] ${refactorMode === "single" ? "font-bold bg-accent/50" : ""}`}
                   >
-                    <div className={`h-2 w-2 rounded-full ${refactorMode === "single" ? "bg-jb-accent" : "bg-transparent border border-jb-text-muted"}`} />
+                    <div className={`h-2.5 w-2.5 rounded-full ${refactorMode === "single" ? "bg-[#a855f7] shadow-[0_0_8px_#a855f7]" : "bg-transparent border-2 border-jb-text-muted"}`} />
                     <div className="flex flex-col">
                       <span>Single (7B)</span>
-                      <span className="text-[11px] text-jb-text-muted font-normal">Single-pass refactor</span>
+                      <span className="text-[10px] text-jb-text-muted font-normal">Single-pass refactor</span>
                     </div>
+                    {refactorMode === "single" && <span className="ml-auto text-[10px] text-jb-accent">✓</span>}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
