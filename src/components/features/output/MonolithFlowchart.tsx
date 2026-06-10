@@ -42,17 +42,17 @@ export default function MonolithFlowchart({
             return (
               <React.Fragment key={p.num}>
                 <div className="flex flex-col items-center gap-1 flex-1">
-                  <div className={`w-3 h-3 rounded-full transition-all duration-500 ${isActive ? "animate-pulse" : ""}`}
+                  <div className={`w-4 h-4 rounded-full transition-all duration-500 ${isActive ? "animate-pulse" : ""}`}
                     style={{
                       backgroundColor: isDone ? "#27c93f" : (isActive ? p.color : (isDark ? "#555" : "#ccc")),
-                      boxShadow: isActive ? `0 0 10px ${p.color}` : "none",
+                      boxShadow: isActive ? `0 0 12px ${p.color}, 0 0 24px ${p.color}40` : "none",
                     }} />
-                  <span className="text-[11px] font-bold"
+                  <span className="text-[13px] font-bold mt-1"
                     style={{ color: isActive ? p.color : (isDark ? "#888" : "#999") }}>{p.name}</span>
                 </div>
                 {i < MONOLITH_PHASES.length - 1 && (
-                  <div className="flex-1 h-[2px] mx-[-2px] self-start mt-[6px]"
-                    style={{ backgroundColor: isDark ? "#333" : "#ddd" }} />
+                  <div className="flex-1 h-[3px] mx-[-2px] self-start mt-[7px] rounded-full"
+                    style={{ backgroundColor: isDark ? "#444" : "#ccc" }} />
                 )}
               </React.Fragment>
             );
@@ -62,9 +62,9 @@ export default function MonolithFlowchart({
       <div className="flex items-center justify-center w-full max-w-md mt-4">
         <div className="flex items-center gap-0 w-full text-center">
           <div className="flex-1 flex flex-col items-center gap-1">
-            {elapsed && <span className="text-[11px] text-jb-text-muted">⏱ {elapsed}</span>}
+            {elapsed && <span className="text-[12px] text-jb-text-muted">⏱ {elapsed}</span>}
             {ccLabel && (
-              <span className="text-[11px] font-medium" style={{ color: ccImprovement ? "#27c93f" : (isDark ? "#bbb" : "#666") }}>
+              <span className="text-[12px] font-medium" style={{ color: ccImprovement ? "#27c93f" : (isDark ? "#bbb" : "#666") }}>
                 CC {ccLabel}
               </span>
             )}
@@ -73,7 +73,7 @@ export default function MonolithFlowchart({
         </div>
       </div>
       {currentPhase > 2 && (
-        <div className="flex items-center gap-2 mt-6 px-4 py-2 rounded-full text-[12px] font-medium bg-emerald-500/10 text-emerald-500">
+        <div className="flex items-center gap-2 mt-6 px-5 py-2.5 rounded-full text-[13px] font-medium bg-emerald-500/10 text-emerald-500">
           <span>✓ Single-pass refactoring complete</span>
         </div>
       )}
