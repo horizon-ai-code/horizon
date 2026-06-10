@@ -74,9 +74,14 @@ class PerformanceTracker:
         avg_mem_percent = sum(self._gpu_memory_usage_percent) / len(self._gpu_memory_usage_percent) if self._gpu_memory_usage_percent else 0
         avg_mem_used = sum(self._gpu_memory_usage_used) / len(self._gpu_memory_usage_used) if self._gpu_memory_usage_used else 0
 
+        peak_util = max(self._gpu_utilizations) if self._gpu_utilizations else 0
+        peak_mem_used = max(self._gpu_memory_usage_used) if self._gpu_memory_usage_used else 0
+
         return {
             "avg_gpu_utilization": round(avg_util, 2),
             "avg_gpu_memory": round(avg_mem_percent, 2),
             "avg_gpu_memory_used": round(avg_mem_used, 2),
+            "peak_gpu_utilization": round(peak_util, 2),
+            "peak_gpu_memory_used": round(peak_mem_used, 2),
             "inference_time": round(self._total_inference_time, 2)
         }
