@@ -1,7 +1,7 @@
 "use client"
 
 import { useTheme } from "next-themes";
-import { Copy, Layers, X, Loader2, Clock } from "lucide-react";
+import { Copy, Layers, X, Loader2, Clock, AlertCircle } from "lucide-react";
 
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
 import type { AppState, OrchestrationResult } from "@/types/session";
@@ -202,7 +202,20 @@ export default function RefactoredOutput({
                   refactoredComplexity={orchestrationResult.refactored_complexity}
                   inferenceTime={orchestrationResult.performance?.inference_time}
                 />
-              ) : (
+        ) : appState === 'done' && !refactoredOutput.trim() ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
+            <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
+              ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
+              <AlertCircle size={36} className="text-yellow-400" strokeWidth={1.5} />
+            </div>
+            <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
+              Refactoring Interrupted
+            </p>
+            <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+              The session was interrupted before completion. Please start a new refactor.
+            </p>
+          </div>
+        ) : (
                 <OrchestrationFlowchart glassboxState={glassboxState} />
               )}
            </div>
