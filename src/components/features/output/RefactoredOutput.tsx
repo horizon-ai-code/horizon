@@ -196,7 +196,12 @@ export default function RefactoredOutput({
               </div>
               
               {isMonolith ? (
-                <MonolithFlowchart glassboxState={glassboxState} />
+                <MonolithFlowchart
+                  glassboxState={glassboxState}
+                  originalComplexity={orchestrationResult.original_complexity}
+                  refactoredComplexity={orchestrationResult.refactored_complexity}
+                  inferenceTime={orchestrationResult.performance?.inference_time}
+                />
               ) : (
                 <OrchestrationFlowchart glassboxState={glassboxState} />
               )}
