@@ -27,6 +27,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const [mounted, setMounted] = useState(false);
   const [localSourceError, setLocalSourceError] = useState(false);
   const [localInputError, setLocalInputError] = useState(false);
+  const [isMonolith, setIsMonolith] = useState(false);
   
   const terminalPanelRef = useRef<PanelImperativeHandle | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -147,6 +148,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const startAnalysis = useCallback(async () => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
+    setIsMonolith(false);
 
     const instruction = inputInstruction.trim();
     const code = sourceCode.trim();
@@ -204,6 +206,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const startSingleRefactor = useCallback(async () => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
+    setIsMonolith(true);
 
     const instruction = inputInstruction.trim();
     const code = sourceCode.trim();
@@ -298,6 +301,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               appState={appState}
               orchestrationResult={orchestrationResult}
               glassboxState={glassboxState}
+              isMonolith={isMonolith}
             />
           </Panel>
         </PanelGroup>
