@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ruff mypy pytest pytest-cov pytest-asyncio httpx pynvml
-          pip install fastapi uvicorn pydantic peewee pyyaml javalang lizard websockets
+          pip install llama-cpp-python fastapi uvicorn pydantic peewee pyyaml javalang lizard websockets
       - name: Lint
         run: ruff check app/
       - name: Type check
