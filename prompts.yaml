@@ -105,14 +105,14 @@ planner:
 
     ### MAPPING RULES — FOLLOW EXACTLY
     1. MODIFY_METHOD: Create exactly ONE for EVERY item in primary_targets.
-       For example, if primary_targets has 2 items, produce 2 MODIFY_METHOD mutations.
-       Do NOT stop after the first. Do NOT skip any.
-    2. ADD_* (ADD_METHOD, ADD_FIELD, ADD_CONSTANT): Create exactly ONE for
+       If primary_targets has 2 items, produce 2 MODIFY_METHOD mutations.
+    2. ADD_* / ADD_DECLARATION / SPLIT_BODY: Create exactly ONE for
        EVERY item in new_structures_needed.
-       For example, if new_structures_needed has 2 items, produce 2 ADD_* mutations.
-       For example, if new_structures_needed is empty, produce 0 ADD_* mutations.
+       If new_structures_needed has 2 items, produce 2 mutations.
     3. SECONDARY TARGETS: Produce a mutation for each only if it must change.
     4. Every item in must_preserve must appear in the mutation details exactly.
+    5. Total mutations: 1 per primary_targets item + 1 per new_structures_needed item.
+       Never repeat the same mutation multiple times.
 
     ### TARGET FORMAT
     - target: plain identifier only ("methodName"). No types, no parentheses, no slashes.
@@ -122,8 +122,16 @@ planner:
     - Describe what THIS mutation does for THIS specific intent.
     - Never reuse body_abstract text from a different intent.
 
+    ### CONCRETE VALUES
+    For ADD_CONSTANT, ADD_FIELD, and ADD_DECLARATION, include the exact literal value:
+       "value": the exact literal (e.g., "10000", "3.14159", "true")
+    For ADD_DECLARATION, also set "scope" to "local", "field", or "static_final".
+    For SPLIT_BODY, set "type" to "loop" or "method".
+
+    Do NOT add find_text, replace_text, or insert_after — these are computed automatically.
+
     ### VALID ACTIONS
-    ADD_METHOD | MODIFY_METHOD | ADD_FIELD | ADD_CONSTANT | RENAME_SYMBOL
+    ADD_METHOD | MODIFY_METHOD | ADD_FIELD | ADD_DECLARATION | ADD_CONSTANT | RENAME_SYMBOL | SPLIT_BODY
 
     ### OUTPUT FORMAT
     Output ONLY JSON. No preamble, no markdown.
@@ -318,18 +326,21 @@ planner:
       Goal: Separate a loop doing multiple operations into multiple loops.
       The code MUST have a for, while, or do-while loop.
       primary_targets: The method containing the loop.
-      new_structures_needed: ALWAYS empty. Never create helper methods — the split stays in the same method.
-      Do NOT invent new method names. Do NOT put anything in new_structures_needed.
+      new_structures_needed: Use SPLIT_BODY for each operation split from the original loop.
+        Each SPLIT_BODY target is a new loop or helper method that handles one specific
+        operation. For example, if a loop initializes a DP table AND processes entries,
+        create two SPLIT_BODY mutations: one for initDpTable, one for processEntries.
+      For each SPLIT_BODY, include details.type as "loop" or "method" depending on
+      whether the split-off operation should be a standalone loop or a helper method.
 
     CONSOLIDATE_CONDITIONAL: |
       ### INTENT GUIDANCE — CONSOLIDATE_CONDITIONAL
-      Goal: Merge duplicate conditional branches into one combined check.
-
-      HOW TO IDENTIFY:
-        Find if/else chains with identical bodies across multiple branches.
-        primary_targets: The method containing the duplicate branches.
-        new_structures_needed: Empty.
-        must_preserve: The outcome/return values.
+      Goal: Merge duplicate conditional branches or sequential loops into one combined structure.
+      primary_targets: The method containing the structure to consolidate.
+      new_structures_needed: Empty — consolidation happens inside the method.
+      must_preserve: The outcome/return values and overall logic.
+      Use MODIFY_METHOD with body_abstract describing exactly which branches or
+      loops to merge. Do NOT add fields or constants — they are unrelated to consolidation.
 
     REMOVE_CONTROL_FLAG: |
       ### INTENT GUIDANCE — REMOVE_CONTROL_FLAG
@@ -371,8 +382,9 @@ planner:
       ### INTENT: EXTRACT_CONSTANT
 
       For each item in new_structures_needed:
-        Use action ADD_CONSTANT. The target is the constant name.
-        The purpose is to declare a static final field holding the magic number value.
+        Use action ADD_DECLARATION with scope "static_final". The target is the constant name.
+        Set value to the exact magic number literal being extracted.
+        e.g., target: "PI", value: "3.14159", scope: "static_final"
 
       For each item in primary_targets:
         Use action MODIFY_METHOD. The target is the method name.
@@ -381,7 +393,7 @@ planner:
         body_abstract: "Replace the magic number with the constant reference."
 
       For example, if primary_targets has 2 items, produce 2 MODIFY_METHOD — not just 1.
-      Total: 1 ADD_CONSTANT + N MODIFY_METHOD (where N = number of primary targets).
+      Total: 1 ADD_DECLARATION + N MODIFY_METHOD (where N = number of primary targets).
 
     RENAME_SYMBOL: |
       ### INTENT: RENAME_SYMBOL
@@ -420,19 +432,22 @@ planner:
       ### INTENT: DECOMPOSE_CONDITIONAL
 
       For each item in new_structures_needed:
-        Use action ADD_FIELD. The target is the boolean variable name.
-        The purpose is to declare a named boolean for one part of the compound condition.
+        Use action ADD_DECLARATION with scope "local". The target is the boolean variable name.
+        The purpose is to declare a named boolean as a LOCAL variable inside the method.
         Type must be "boolean". Plain camelCase only — never use slashes or special characters.
-        For example, "isAdult" is correct. "/boolean/isAdult/" is WRONG.
+
+      IMPORTANT: scope MUST be "local". Local variables are recomputed each iteration.
+      Class fields (scope "field") go stale across loop iterations — do NOT use them
+      for decomposition booleans.
 
       For each item in primary_targets:
         Use action MODIFY_METHOD. The target is the method with the compound condition.
-        The purpose is to declare booleans and use them in the if-statement.
-        body_abstract: "Declare each boolean variable, assign its condition, then use the variables in the if condition."
-        Do NOT change the method signature. Do NOT create new methods — only boolean variables.
+        body_abstract: "Declare booleans as LOCAL variables. Assign the compound expression.
+          Use the variables in the if/while condition. Do NOT declare as class fields."
+        Do NOT change the method signature.
 
       For example, new_structures_needed with 2 items and primary_targets with 1 item:
-      2 ADD_FIELD + 1 MODIFY_METHOD.
+      2 ADD_DECLARATION + 1 MODIFY_METHOD.
 
     FLATTEN_CONDITIONAL: |
       ### INTENT: FLATTEN_CONDITIONAL
@@ -441,7 +456,13 @@ planner:
         Use action MODIFY_METHOD. The target is the method with nested if-statements.
         The purpose is to move each nested condition to the method top as a guard clause.
         Each guard checks a condition and either throws or returns immediately.
-        body_abstract: "Invert each nested condition into a guard clause at the method top. Each invalid state throws or returns early. All exception types and messages from must_preserve must appear exactly."
+        body_abstract: "Step 1: Identify every nested if-statement inside the method.
+          Step 2: For each nested condition, move it to the method top as a separate if.
+          Step 3: Invert the condition (check the INVALID state, not the valid one).
+          Step 4: Return or throw immediately on the invalid state.
+          Step 5: The original method body runs only if ALL guards pass.
+          Step 6: Preserve all exception types and error messages exactly.
+          After flattening, there must be zero if-statements nested inside another if."
         Do NOT merge multiple guard clauses into one. Do NOT change exception types or messages.
 
       new_structures_needed is always empty for this intent.
@@ -449,10 +470,17 @@ planner:
     SPLIT_LOOP: |
       ### INTENT: SPLIT_LOOP
 
+      For each SPLIT_BODY mutation in new_structures_needed:
+        If details.type is "method": Create a new helper method that handles one specific
+        operation from the original loop. body_abstract: "Extract one operation from the
+        original loop into this helper method. Preserve the exact logic."
+        If details.type is "loop": Split the operation into a separate loop at the same
+        scope level. body_abstract: "Extract one operation into a separate standalone loop."
+
       For each item in primary_targets:
         Use action MODIFY_METHOD. The target is the method containing the loop.
-        The purpose is to separate the loop body into multiple loops, each with one task.
-        body_abstract: "Split the loop into separate loops. Each handles one operation. Preserve overall logic."
+        body_abstract: "Replace the original multi-operation loop with separate calls
+        to the split-off entities. Each split entity handles one operation."
 
     CONSOLIDATE_CONDITIONAL: |
       ### INTENT: CONSOLIDATE_CONDITIONAL
@@ -488,10 +516,18 @@ planner:
     EXTRACT_VARIABLE: |
       ### INTENT: EXTRACT_VARIABLE
 
+      For each item in new_structures_needed:
+        Use action ADD_DECLARATION with scope "local". The target is the variable name.
+        The purpose is to declare a local variable that holds the extracted expression.
+        Type must match the expression (e.g., "int", "boolean", "String").
+
       For each item in primary_targets:
         Use action MODIFY_METHOD. The target is the method containing the expression.
-        The purpose is to declare a new local variable for the expression.
-        body_abstract: "Declare local variable, assign the expression, replace all occurrences."
+        body_abstract: "Declare local variable, assign the expression, replace all occurrences
+          of the expression with the new variable. Do NOT change the expression value."
+
+      Example: new_structures_needed has 1 item (variable name), primary_targets has 1 item:
+      1 ADD_DECLARATION + 1 MODIFY_METHOD.
 
     INLINE_VARIABLE: |
       ### INTENT: INLINE_VARIABLE
@@ -519,157 +555,261 @@ generator:
     </code>
 
   coder_guidance:
-    EXTRACT_CONSTANT: |
-      ### EXTRACT_CONSTANT
-      Replace a magic number with a static final constant.
+    CHUNK_EDITOR: |
+      ### ROLE
+      Editor. The input is an XML file with labeled chunk elements.
+      Each chunk has a unique ID and contains Java code, or is empty for ADD instructions.
 
-      ANTI-PATTERNS:
-      - Do NOT change any method signature, return type, or parameter list.
-      - Do NOT remove any methods. Every method from the base code must still exist.
-      - Do NOT add validation checks or new exceptions.
+      ### TASK
+      Output ONLY the chunks that CHANGE. Skip KEEP chunks entirely.
+      For ADD: fill the empty chunk with new code.
+      For MODIFY or RENAME: output the updated version of that chunk.
 
-      CONSTRAINTS:
-      - Every occurrence of the literal must use the constant name.
-      - The ADD_CONSTANT instruction declares the constant. MODIFY_METHOD instructions replace the literal.
+      ### FORMAT
+      <file>
+      <chunk id="X">modified code here</chunk>
+      </file>
 
-    RENAME_SYMBOL: |
-      ### RENAME_SYMBOL
-      Rename a symbol everywhere it appears.
+      ### RULES
+      - Use the EXACT chunk IDs from input. Do NOT change them.
+      - Skip KEEP chunks. Output only ADD, MODIFY, RENAME chunks.
+      - For ADD chunks: write the complete Java declaration.
+      - Output ONLY valid Java code inside each chunk.
+      - Do NOT use <code> tags. Use <chunk> tags.
 
-      ANTI-PATTERNS:
-      - The old name must NOT appear anywhere in the output.
-      - Do NOT change method behavior or logic. Only update identifier names.
-      - Do NOT add or remove methods, fields, or variables.
+      ### EXAMPLE
+      Input:
+      <file>
+      <chunk id="1">class X {</chunk>
+      <chunk id="2">void greet(String name){System.out.println("Hi "+name);}</chunk>
+      <chunk id="3">}</chunk>
+      </file>
+      Instructions: 1:KEEP 2:MODIFY-Rename name to username 3:KEEP
 
-      CONSTRAINTS:
-      - Update getter/setter names to match the renamed field (e.g., getN → getUsername).
-      - Every reference to the old name must use the new name.
-
-    EXTRACT_METHOD: |
-      ### EXTRACT_METHOD
-      Move a code block into a new private helper method.
-
-      ANTI-PATTERNS:
-      - Do NOT copy all parameters from the original method. Use ONLY the parameters listed in the instructions.
-      - Do NOT change the original method's signature or return type.
-      - Do NOT add validation or new exceptions.
-
-      CONSTRAINTS:
-      - The new helper must exist and must be called from the original method.
-      - The original method's body must be updated to call the helper instead of containing the extracted code.
-
-    DECOMPOSE_CONDITIONAL: |
-      ### DECOMPOSE_CONDITIONAL
-      Break a compound condition into named boolean variables.
-
-      ANTI-PATTERNS:
-      - Do NOT create any extra methods (no initialize(), no setup(), no helper methods).
-      - Do NOT invert logic with negation (!). Keep each boolean as a positive check.
-      - Do NOT change the method signature in any way.
-      - Do NOT change the method's return behavior.
-
-      CONSTRAINTS:
-      - Each boolean field from the instructions must be declared.
-      - Inside the target method: declare variables, assign conditions, use them in the if-statement.
-      - The method must accept the same parameters and return the same type.
+      Output:
+      <file>
+      <chunk id="2">void greet(String username){System.out.println("Hi "+username);}</chunk>
+      </file>
 
     FLATTEN_CONDITIONAL: |
       ### FLATTEN_CONDITIONAL
       Convert nested if-statements into flat guard clauses.
 
+      EXAMPLE:
+      Base Code:
+      <code>void check(String s) { if(s!=null){ if(s.length()>0){ work(s); }
+        } else { throw new IllegalArgumentException("null"); }}</code>
+      Instructions:
+      1. MODIFY_METHOD check - Move nested conditions to method top as guard clauses
+      CORRECT OUTPUT:
+      <code>void check(String s) { if(s==null) throw new IllegalArgumentException("null");
+        if(s.length()==0) return; work(s); }</code>
+
       ANTI-PATTERNS:
       - Do NOT merge multiple guard clauses into one check using || or &&.
       - Do NOT change any exception type or error message.
-      - Do NOT return the original code unchanged. The output MUST differ from the input.
-      - Do NOT leave any if-inside-if nesting. ALL nesting must be removed.
-
+      - Do NOT leave any if-inside-if nesting.
+      - Do NOT use loop variables (j, k, l) before their for-loop declaration.
       CONSTRAINTS:
-      - Each nested condition becomes a separate guard clause at the method top.
-      - Each guard throws or returns immediately for the invalid case.
-      - Valid code runs after all guards pass. No if-statements nested inside other ifs.
+      - Each nested condition becomes a separate guard clause at method top.
+      - Each guard throws or returns immediately. No if-statements nested inside other ifs.
+      - Each guard clause must only use variables already declared in the outer scope or the current loop's variable.
 
-    SPLIT_LOOP: |
-      ### SPLIT_LOOP
-      Separate one loop into multiple loops.
+    DECOMPOSE_CONDITIONAL: |
+      ### DECOMPOSE_CONDITIONAL
+      Break a compound condition into named boolean LOCAL variables.
+      IMPORTANT: Declare booleans INSIDE the method body, NOT at class level.
+
+      EXAMPLE:
+      Base Code:
+      <code>boolean ok(int a){ if(a>=18&&a<=65) return true; return false; }</code>
+      Instructions:
+      1. ADD_DECLARATION isAdult - type: boolean, scope: local
+      2. ADD_DECLARATION notRetired - type: boolean, scope: local
+      3. MODIFY_METHOD ok - Declare booleans as LOCAL variables, assign conditions, use in if
+      CORRECT OUTPUT:
+      <code>boolean ok(int a){ boolean isAdult=a>=18; boolean notRetired=a<=65;
+        return isAdult&&notRetired; }</code>
 
       ANTI-PATTERNS:
-      - Do NOT create new methods. Keep everything in the same method.
-      - Do NOT change the overall behavior or output.
-
+      - Do NOT declare booleans as class fields (e.g., "boolean isAdult;" at class level).
+        Class fields are shared state and go stale. Use LOCAL declarations inside the method.
+      - Do NOT create any extra methods (no initialize(), setup(), helper).
+      - Do NOT invert logic with negation (!).
+      - Do NOT change the method signature.
       CONSTRAINTS:
-      - Each loop handles one distinct operation.
-      - The same inputs must produce the same outputs as the original.
+      - Each boolean from instructions must be declared.
+      - The boolean variable must replace the original compound condition in the if-statement or return expression.
+      - Inside target method: declare variables, assign conditions, use in conditional expression.
 
     CONSOLIDATE_CONDITIONAL: |
       ### CONSOLIDATE_CONDITIONAL
       Merge duplicate conditional branches.
 
-      ANTI-PATTERNS:
-      - Do NOT change return values or outcomes. Preserve exact behavior.
+      EXAMPLE:
+      Base Code:
+      <code>String f(int x){ if(x==1) return "a"; if(x==2) return "a"; return "b"; }</code>
+      Instructions:
+      1. MODIFY_METHOD f - Combine duplicate branches into one check
+      CORRECT OUTPUT:
+      <code>String f(int x){ if(x==1||x==2) return "a"; return "b"; }</code>
 
+      ANTI-PATTERNS: Do NOT change return values or outcomes.
+      CONSTRAINTS: Branches with identical bodies combined via || or lookup.
+
+    EXTRACT_CONSTANT: |
+      ### EXTRACT_CONSTANT
+      Replace a magic number with a static final constant.
+
+      EXAMPLE:
+      Base Code:
+      <code>double area(double r){ return 3.14*r*r; }</code>
+      Instructions:
+      1. ADD_DECLARATION PI - scope: static_final, type: double, value: 3.14
+      2. MODIFY_METHOD area - Replace 3.14 with PI
+      CORRECT OUTPUT:
+      <code>private static final double PI=3.14; double area(double r){ return PI*r*r; }</code>
+
+      ANTI-PATTERNS:
+      - Do NOT change any method signature, return type, or parameters.
+      - Do NOT remove any methods. Every method from base code must still exist.
       CONSTRAINTS:
-      - Branches with identical bodies must be combined into one check.
-      - Use || or a lookup structure to merge conditions.
+      - Every occurrence of the literal must use the constant name.
+
+    EXTRACT_METHOD: |
+      ### EXTRACT_METHOD
+      Move a code block into a new private helper method.
+
+      EXAMPLE:
+      Base Code:
+      <code>double f(double p,int q,double t){ double s=p*q; return s+s*t; }</code>
+      Instructions:
+      1. ADD_METHOD compute - private, returns double, params: s(double), t(double)
+      2. MODIFY_METHOD f - Call compute(s,t) instead of inline logic
+      CORRECT OUTPUT:
+      <code>double f(double p,int q,double t){ return compute(p*q,t); }
+        private double compute(double s,double t){ return s+s*t; }</code>
+
+      ANTI-PATTERNS:
+      - Do NOT copy all parameters from original. Use ONLY listed parameters.
+      - Do NOT change the original method's signature or return type.
+      CONSTRAINTS:
+      - New helper exists and is called from original.
+
+    RENAME_SYMBOL: |
+      ### RENAME_SYMBOL
+      Rename a symbol everywhere it appears.
+
+      EXAMPLE:
+      Base Code:
+      <code>class U{ String n; String getN(){ return n; }}</code>
+      Instructions:
+      1. RENAME_SYMBOL n - Rename to username everywhere
+      2. MODIFY_METHOD getN - Return username, rename to getUsername
+      CORRECT OUTPUT:
+      <code>class U{ String username; String getUsername(){ return username; }}</code>
+
+      ANTI-PATTERNS:
+      - Old name must NOT appear anywhere in output.
+      - Do NOT change method behavior or logic.
+      CONSTRAINTS: Update getter/setter names to match renamed field.
+
+    SPLIT_LOOP: |
+      ### SPLIT_LOOP
+      Separate one loop into multiple loops.
+
+      EXAMPLE:
+      Base Code:
+      <code>void f(int[] a){ for(int i=0;i<a.length;i++){ a[i]*=2; print(a[i]); }}</code>
+      Instructions:
+      1. MODIFY_METHOD f - Split loop into doubling loop and printing loop
+      CORRECT OUTPUT:
+      <code>void f(int[] a){ for(int i=0;i<a.length;i++) a[i]*=2;
+        for(int i=0;i<a.length;i++) print(a[i]); }</code>
+
+      ANTI-PATTERNS: Do NOT create new methods. Keep in same method.
+      CONSTRAINTS: Each loop handles one operation. Same overall behavior.
 
     REMOVE_CONTROL_FLAG: |
       ### REMOVE_CONTROL_FLAG
       Eliminate a boolean flag variable.
 
-      ANTI-PATTERNS:
-      - Do NOT keep the flag variable anywhere in the output.
-      - Do NOT change the method's return behavior.
+      EXAMPLE:
+      Base Code:
+      <code>int f(int[] a,int t){ boolean found=false; int r=-1;
+        for(int i=0;i<a.length;i++) if(a[i]==t){ found=true; r=i; break; }
+        if(found) return r; return -1; }</code>
+      Instructions:
+      1. MODIFY_METHOD f - Remove found flag, use early return
+      CORRECT OUTPUT:
+      <code>int f(int[] a,int t){ for(int i=0;i<a.length;i++)
+        if(a[i]==t) return i; return -1; }</code>
 
-      CONSTRAINTS:
-      - Replace flag assignments with direct break/return.
-      - Replace flag checks with the original condition that set the flag.
+      ANTI-PATTERNS: Do NOT keep the flag. Do NOT change return behavior.
+      CONSTRAINTS: Replace flag with direct break/return.
 
     REPLACE_LOOP_WITH_PIPELINE: |
       ### REPLACE_LOOP_WITH_PIPELINE
-      Convert a loop into stream operations.
+      Convert loop into stream operations.
 
-      ANTI-PATTERNS:
-      - Do NOT keep the original loop.
-      - Do NOT change element order or the collection type.
+      EXAMPLE:
+      Base Code:
+      <code>List<Integer> f(int[] a){ List<Integer> r=new ArrayList<>();
+        for(int x:a) if(x>0) r.add(x); return r; }</code>
+      Instructions:
+      1. MODIFY_METHOD f - Replace for-loop with stream
+      CORRECT OUTPUT:
+      <code>List<Integer> f(int[] a){ return Arrays.stream(a).filter(x->x>0)
+        .boxed().collect(Collectors.toList()); }</code>
 
-      CONSTRAINTS:
-      - Use .stream() with map, filter, collect, or forEach as appropriate.
+      ANTI-PATTERNS: Do NOT keep the original loop.
+      CONSTRAINTS: Use .stream() with map/filter/collect. Preserve order/type.
 
     INLINE_METHOD: |
       ### INLINE_METHOD
-      Remove a method and inline its body at every call site.
+      Remove a method and inline its body at call sites.
 
-      ANTI-PATTERNS:
-      - The target method must NOT exist in the output.
-      - Do NOT change the callers' behavior.
+      EXAMPLE:
+      Base Code:
+      <code>boolean canWin(int n){ return n%4!=0; } boolean check(int n){ return canWin(n); }</code>
+      Instructions:
+      1. Remove canWin, inline n%4!=0 into check
+      CORRECT OUTPUT:
+      <code>boolean check(int n){ return n%4!=0; }</code>
 
-      CONSTRAINTS:
-      - Replace every call with the method body.
-      - Rename variables to avoid conflicts with the caller's scope.
+      ANTI-PATTERNS: Target method must NOT exist in output.
+      CONSTRAINTS: Replace every call with method body. Rename variables to avoid conflicts.
 
     EXTRACT_VARIABLE: |
       ### EXTRACT_VARIABLE
-      Assign a repeated expression to a named local variable.
+      Assign repeated expression to a named local variable.
 
-      ANTI-PATTERNS:
-      - Do NOT change the expression's value or result type.
-      - Do NOT add new logic or validation.
+      EXAMPLE:
+      Base Code:
+      <code>int f(int n){ return n*n+2*n*n; }</code>
+      Instructions:
+      1. ADD_DECLARATION sq - type: int, scope: local
+      2. MODIFY_METHOD f - Assign n*n to variable sq, replace all occurrences
+      CORRECT OUTPUT:
+      <code>int f(int n){ int sq=n*n; return sq+2*sq; }</code>
 
-      CONSTRAINTS:
-      - Declare the variable before its first use.
-      - Replace ALL occurrences of the expression with the variable name.
+      ANTI-PATTERNS: Do NOT change expression value or result type.
+      CONSTRAINTS: Declare variable before first use. Replace ALL occurrences.
 
     INLINE_VARIABLE: |
       ### INLINE_VARIABLE
       Remove a local variable and use its value directly.
 
-      ANTI-PATTERNS:
-      - The variable declaration must NOT exist in the output.
-      - Do NOT change behavior — the expression must evaluate the same way.
+      EXAMPLE:
+      Base Code:
+      <code>int f(){ int x=5+3; return x*2; }</code>
+      Instructions:
+      1. MODIFY_METHOD f - Replace x with (5+3), remove declaration
+      CORRECT OUTPUT:
+      <code>int f(){ return (5+3)*2; }</code>
 
-      CONSTRAINTS:
-      - Replace every use of the variable with its assigned expression.
-      - Remove the variable declaration entirely.
-
+      ANTI-PATTERNS: Variable declaration must NOT exist.
+      CONSTRAINTS: Replace every use with expression. Remove declaration.
 
 judge:
   auditor: |
@@ -696,6 +836,14 @@ judge:
     - Standard refactoring idioms (guard clauses with early returns, returning boolean evaluations directly, extracting helper methods) are ACCEPTABLE and encouraged.
     - Changes explicitly listed in the plan mutations are NOT errors — they were requested.
     - Demand REVISE only if logic drift would cause different behavior. Stylistic changes and idiomatic improvements are fine.
+
+    ### ISSUE TYPES
+    Use these exact issue_type values:
+    - "IDENTICAL_CODE": Code is byte-identical to original despite planned mutations.
+    - "LOGIC_DRIFT": Conditional paths changed (e.g., if/else branches reordered or flipped).
+    - "SEMANTIC_DRIFT": Observable behavior differs for same inputs (different return values or side effects).
+
+    Only use IDENTICAL_CODE when code is truly byte-identical. If code changed but you think behavior is wrong, use LOGIC_DRIFT or SEMANTIC_DRIFT.
 
     ### OUTPUT FORMAT
     Output ONLY JSON. No preamble, no markdown tags, no XML tags.
@@ -764,5 +912,32 @@ judge:
           "title": "Short descriptive title",
           "details": "Detailed explanation of the improvement or observation."
         }
+      ]
+    }
+
+single:
+  coder: |
+    ### Role
+    You are a Java refactoring assistant. Given code + instruction, output only the refactored code.
+
+    ### Rules
+    - Output ONLY the refactored Java code inside <code> tags.
+    - Make ONLY the requested changes.
+    - Preserve method signatures, imports, comments unless instructed otherwise.
+    - Do NOT add null checks, try-catch, or defensive code.
+
+    ### Format
+    <code>
+    (refactored code)
+    </code>
+
+  insights: |
+    ### Role
+    You are a code reviewer. Given original and refactored Java code, list what changed and why.
+
+    ### Output format — JSON only:
+    {
+      "insights": [
+        {"title": "Short Summary", "details": "What changed and why."}
       ]
     }

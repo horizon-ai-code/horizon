@@ -4,9 +4,16 @@ from typing import Literal
 from pydantic import BaseModel, field_validator
 
 
+class OrchestrationMode(str, Enum):
+    SINGLE = "single"
+    MULTI = "multi"
+
+
 class RefactorRequest(BaseModel):
+    type: Literal["multi"] = "multi"  # type: ignore[assignment]
     code: str
     user_instruction: str
+    mode: OrchestrationMode = OrchestrationMode.MULTI
 
     @field_validator("code")
     @classmethod
@@ -38,6 +45,7 @@ class Role(str, Enum):
     Judge = "Judge"
     Validator = "Validator"
     System = "System"
+    Monolith = "Monolith"
 
 
 class RefactorCategory(str, Enum):
@@ -54,11 +62,11 @@ class RefactorIntent(str, Enum):
     REMOVE_CONTROL_FLAG = "REMOVE_CONTROL_FLAG"
     REPLACE_LOOP_WITH_PIPELINE = "REPLACE_LOOP_WITH_PIPELINE"
     SPLIT_LOOP = "SPLIT_LOOP"
-    
+
     # METHOD_MOVEMENT
     EXTRACT_METHOD = "EXTRACT_METHOD"
     INLINE_METHOD = "INLINE_METHOD"
-    
+
     # STATE_MANAGEMENT
     EXTRACT_VARIABLE = "EXTRACT_VARIABLE"
     INLINE_VARIABLE = "INLINE_VARIABLE"
@@ -88,12 +96,20 @@ class FailureTier(str, Enum):
     TIER_3_JUDGE = "TIER_3_JUDGE"
 
 
+class DeclarationScope(str, Enum):
+    LOCAL = "local"
+    FIELD = "field"
+    STATIC_FINAL = "static_final"
+
+
 class MutationAction(str, Enum):
     ADD_METHOD = "ADD_METHOD"
     REMOVE_METHOD = "REMOVE_METHOD"
     MODIFY_METHOD = "MODIFY_METHOD"
     ADD_FIELD = "ADD_FIELD"
+    ADD_DECLARATION = "ADD_DECLARATION"
     REMOVE_FIELD = "REMOVE_FIELD"
     ADD_CONSTANT = "ADD_CONSTANT"
     ADD_ENUM = "ADD_ENUM"
     RENAME_SYMBOL = "RENAME_SYMBOL"
+    SPLIT_BODY = "SPLIT_BODY"

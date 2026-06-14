@@ -21,3 +21,11 @@ judge:
   context_size: 6144
   layers: 28
   filename: "llama_engine.gguf"
+
+single:
+  name: "Qwen2.5-Coder-7B-Instruct"
+  temperature: 0.1
+  max_tokens: 4096
+  context_size: 4096
+  layers: 20
+  filename: "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"

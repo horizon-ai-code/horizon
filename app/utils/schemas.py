@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, BaseModel, ConfigDict, Field
 
 from .types import (
-    ExitStatus,
+    DeclarationScope,
     FailureTier,
     MutationAction,
     RefactorCategory,
@@ -17,32 +17,38 @@ from .types import (
 class LogEntry(BaseModel):
     role: Role
     status: str
-    content: Optional[str] = None
+    content: str | None = None
     created_at: datetime
 
 
 class HistoryStub(BaseModel):
     id: UUID4
     user_instruction: str
+    created_at: datetime
+    status: str | None = None
 
 
 class HistoryDetail(BaseModel):
     id: UUID4
     user_instruction: str
     original_code: str
-    refactored_code: Optional[str] = None
-    insights: Optional[Any] = None
-    original_complexity: Optional[int] = None
-    refactored_complexity: Optional[int] = None
-    planner_model: Optional[str] = None
-    generator_model: Optional[str] = None
-    judge_model: Optional[str] = None
-    avg_gpu_utilization: Optional[float] = None
-    avg_gpu_memory: Optional[float] = None
-    avg_gpu_memory_used: Optional[float] = None
-    inference_time: Optional[float] = None
+    refactored_code: str | None = None
+    insights: str | None = None
+    status: str | None = None
+    exit_status: str | None = None
+    original_complexity: int | None = None
+    refactored_complexity: int | None = None
+    planner_model: str | None = None
+    generator_model: str | None = None
+    judge_model: str | None = None
+    avg_gpu_utilization: float | None = None
+    avg_gpu_memory: float | None = None
+    avg_gpu_memory_used: float | None = None
+    peak_gpu_utilization: float | None = None
+    peak_gpu_memory_used: float | None = None
+    inference_time: float | None = None
     created_at: datetime
-    logs: List[LogEntry]
+    logs: list[LogEntry]
 
 
 class DeleteResponse(BaseModel):
@@ -59,16 +65,15 @@ class RefactorInsight(BaseModel):
 
 
 class RefactorInsightsResponse(BaseModel):
-    insights: List[RefactorInsight]
+    insights: list[RefactorInsight]
 
 
 class ScopeAnchor(BaseModel):
-    target_class: Optional[str] = Field(default=None, alias="class")
-    member: Optional[str] = None
+    target_class: str | None = Field(default=None, alias="class")
+    member: str | None = None
     unit_type: StructureUnit
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class IntentPacket(BaseModel):
@@ -83,11 +88,15 @@ class IntentClassifierResponse(BaseModel):
 
 
 class ASTMutationDetails(BaseModel):
-    modifiers: List[str] = []
-    type: Optional[str] = None
-    parameters: List[Dict[str, str]] = []
-    logic_changes: List[str] = []
-    body_abstract: Optional[str] = None
+    modifiers: list[str] = []
+    type: str | None = None
+    scope: DeclarationScope | None = None
+    parameters: list[dict[str, str]] = []
+    logic_changes: list[str] = []
+    body_abstract: str | None = None
+
+    # Atomic value for ADD_CONSTANT / ADD_FIELD / ADD_DECLARATION
+    value: str | None = None           # e.g., "10000", "3.14159", "true"
 
 
 class ASTMutation(BaseModel):
@@ -98,7 +107,7 @@ class ASTMutation(BaseModel):
 
 class ASTModificationPlan(BaseModel):
     target_class: str
-    ast_mutations: List[ASTMutation]
+    ast_mutations: list[ASTMutation] = Field(max_length=5)
 
 
 class ASTArchitectResponse(BaseModel):
@@ -108,25 +117,30 @@ class ASTArchitectResponse(BaseModel):
 class AuditTrace(BaseModel):
     original: str
     refactored: str
-    mapping: Optional[str] = None
+    mapping: str | None = None
 
 
 class AuditScratchpad(BaseModel):
-    variable_trace: List[AuditTrace] = []
+    variable_trace: list[AuditTrace] = []
     logic_comparison: str = ""
+
+
+class AuditIssue(BaseModel):
+    issue_type: Literal["IDENTICAL_CODE", "LOGIC_DRIFT", "SEMANTIC_DRIFT"]
+    description: str = Field(max_length=100)
 
 
 class StructuralAuditorResponse(BaseModel):
     audit_scratchpad: AuditScratchpad
     verdict: Literal["ACCEPT", "REVISE"]
-    issues: List[str]
+    issues: list[AuditIssue]
 
 
 class ErrorReport(BaseModel):
     message: str
-    faulty_node: Optional[str] = None
-    actual_value: Optional[Any] = None
-    required_value: Optional[Any] = None
+    faulty_node: str | None = None
+    actual_value: Any | None = None
+    required_value: Any | None = None
 
 
 class ValidationFinding(BaseModel):
@@ -138,15 +152,15 @@ class ValidationFinding(BaseModel):
 class ValidationFeedback(BaseModel):
     total_faults: int
     is_recoverable: bool
-    findings: List[ValidationFinding]
+    findings: list[ValidationFinding]
 
 
 class ArchitectAnalysisResponse(BaseModel):
     analysis_scratchpad: str
-    primary_targets: List[str] = []
-    secondary_targets: List[str] = []
-    new_structures_needed: List[str] = []
-    must_preserve: List[str] = []
+    primary_targets: list[str] = []
+    secondary_targets: list[str] = []
+    new_structures_needed: list[str] = []
+    must_preserve: list[str] = []
 
 
 

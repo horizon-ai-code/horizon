@@ -1,16 +1,16 @@
 import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import peewee
 from playhouse.shortcuts import model_to_dict
 
-from app.utils.paths import DB_DIR, DB_PATH
+from app.utils.paths import DB_PATH
 
 # 1. Initialize the SQLite database connection
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 4
 
 
 class SchemaVersion(peewee.Model):
@@ -36,12 +36,15 @@ class RefactorHistory(peewee.Model):
     total_inner_loops = peewee.IntegerField(default=0)
     original_complexity = peewee.IntegerField(null=True)
     refactored_complexity = peewee.IntegerField(null=True)
+    mode = peewee.CharField(default="multi")
     planner_model = peewee.CharField(null=True)
     generator_model = peewee.CharField(null=True)
     judge_model = peewee.CharField(null=True)
     avg_gpu_utilization = peewee.FloatField(null=True)
     avg_gpu_memory = peewee.FloatField(null=True)
     avg_gpu_memory_used = peewee.FloatField(null=True)
+    peak_gpu_utilization = peewee.FloatField(null=True)
+    peak_gpu_memory_used = peewee.FloatField(null=True)
     inference_time = peewee.FloatField(null=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
@@ -97,6 +100,21 @@ class DatabaseManager:
                         else:
                             db.execute_sql(f'ALTER TABLE {table} ADD COLUMN {col} TEXT')
 
+        # Migration v2 -> v3: add mode column
+        if current_version < 3:
+            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
+            if "mode" not in existing_cols:
+                print("DB Migration: Adding column mode to refactorhistory...")
+                db.execute_sql('ALTER TABLE refactorhistory ADD COLUMN mode TEXT DEFAULT "multi"')
+
+        # Migration v3 -> v4: add peak GPU columns
+        if current_version < 4:
+            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
+            for col in ["peak_gpu_utilization", "peak_gpu_memory_used"]:
+                if col not in existing_cols:
+                    print(f"DB Migration: Adding column {col} to refactorhistory...")
+                    db.execute_sql(f'ALTER TABLE refactorhistory ADD COLUMN {col} REAL')
+
         self._set_schema_version(SCHEMA_VERSION)
         db.close()
 
@@ -111,22 +129,23 @@ class DatabaseManager:
         SchemaVersion.delete().execute()
         SchemaVersion.create(version=version)
 
-    def create_session(self, id: str, instruction: str, original_code: str) -> None:
+    def create_session(self, id: str, instruction: str, original_code: str, mode: str = "multi") -> None:
         """Initializes a refactoring session in the database."""
         with db.atomic():
             RefactorHistory.create(
                 id=id,
                 user_instruction=instruction,
                 original_code=original_code,
+                mode=mode,
             )
 
     def log_status(
-        self, 
-        session_id: str, 
-        role: str, 
-        status: str, 
-        content: Optional[str] = None,
-        phase: Optional[int] = None,
+        self,
+        session_id: str,
+        role: str,
+        status: str,
+        content: str | None = None,
+        phase: int | None = None,
         outer_loop: int = 0,
         inner_loop: int = 0
     ) -> None:
@@ -154,17 +173,18 @@ class DatabaseManager:
         id: str,
         refactored_code: str,
         insights: str,
-        original_complexity: Optional[int],
-        refactored_complexity: Optional[int],
-        performance_metrics: Dict[str, float],
+        original_complexity: int | None,
+        refactored_complexity: int | None,
+        performance_metrics: dict[str, float],
         exit_status: str = "SUCCESS",
-        final_intent: Optional[str] = None,
-        final_plan: Optional[str] = None,
+        final_intent: str | None = None,
+        final_plan: str | None = None,
         outer_loops: int = 0,
         inner_loops: int = 0,
-        planner_model: Optional[str] = None,
-        generator_model: Optional[str] = None,
-        judge_model: Optional[str] = None,
+        planner_model: str | None = None,
+        generator_model: str | None = None,
+        judge_model: str | None = None,
+        mode: str = "multi",
     ) -> None:
         """Updates an existing session record with final results."""
         with db.atomic():
@@ -185,22 +205,49 @@ class DatabaseManager:
                 avg_gpu_utilization=performance_metrics.get("avg_gpu_utilization"),
                 avg_gpu_memory=performance_metrics.get("avg_gpu_memory"),
                 avg_gpu_memory_used=performance_metrics.get("avg_gpu_memory_used"),
+                peak_gpu_utilization=performance_metrics.get("peak_gpu_utilization"),
+                peak_gpu_memory_used=performance_metrics.get("peak_gpu_memory_used"),
                 inference_time=performance_metrics.get("inference_time"),
+                mode=mode,
             ).where(RefactorHistory.id == id)
             query.execute()
 
-    def get_history(self) -> List[Dict[str, Any]]:
+    def get_history(self) -> list[dict[str, Any]]:
         """Fetches all history stubs."""
         query = RefactorHistory.select().order_by(RefactorHistory.created_at.desc())
         return [model_to_dict(h) for h in query]
 
-    def get_history_by_id(self, id: str) -> Optional[Dict[str, Any]]:
+    def get_history_by_id(self, id: str) -> dict[str, Any] | None:
         """Fetches detailed history for a session."""
         try:
             h = RefactorHistory.get(RefactorHistory.id == id)
             return model_to_dict(h, backrefs=True)
         except RefactorHistory.DoesNotExist:
             return None
+
+    def cleanup_zombie_sessions(self, max_age_hours: int = 1) -> int:
+        """Marks sessions stuck in 'Processing' for >max_age_hours as 'Zombie'."""
+        cutoff = datetime.datetime.now() - datetime.timedelta(hours=max_age_hours)
+        with db.atomic():
+            query = (
+                RefactorHistory
+                .update(status="Zombie", exit_status="ABORT_SYSTEM")
+                .where(
+                    (RefactorHistory.status == "Processing") &
+                    (RefactorHistory.created_at < cutoff)
+                )
+            )
+            return query.execute()
+
+    def cleanup_halted_sessions(self, max_age_hours: int = 5) -> int:
+        """Deletes halted/interrupted sessions older than max_age_hours."""
+        cutoff = datetime.datetime.now() - datetime.timedelta(hours=max_age_hours)
+        with db.atomic():
+            query = RefactorHistory.delete().where(
+                (RefactorHistory.status == "Halted") &
+                (RefactorHistory.created_at < cutoff)
+            )
+            return query.execute()
 
     def delete_history_by_id(self, id: str) -> bool:
         """

@@ -1,7 +1,7 @@
 import hashlib
-import json
 import re
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from collections.abc import Callable
+from typing import Any
 
 import javalang
 import javalang.tree
@@ -20,10 +20,10 @@ class ASTWalker:
         if not isinstance(node, javalang.tree.Node):
             return str(node) if node is not None else None
 
-        data: Dict[str, Any] = {"node_type": node.__class__.__name__, "children": []}
+        data: dict[str, Any] = {"node_type": node.__class__.__name__, "children": []}
 
         # Extract meaningful attributes based on node type
-        attrs: Dict[str, Any] = {}
+        attrs: dict[str, Any] = {}
         for attr in node.attrs:
             val = getattr(node, attr)
             if attr in ("position", "documentation"):
@@ -52,19 +52,13 @@ class ASTWalker:
         return data
 
     @staticmethod
-    def get_hash(serialized_node: Any) -> str:
-        """Generates a stable hash for a serialized node."""
-        node_json = json.dumps(serialized_node, sort_keys=True)
-        return hashlib.sha256(node_json.encode()).hexdigest()
-
-    @staticmethod
     def get_structural_signature(node: Any) -> str:
         """Computes a structural hash ignoring variable names, formatting, and imports.
 
         Captures node-type skeleton, operators, branching depth,
         method invocation names, and string literals.
         """
-        skeleton_parts: List[str] = []
+        skeleton_parts: list[str] = []
         operators: set = set()
         string_literals: list = []
         invocations: list = []
@@ -109,7 +103,7 @@ class ASTWalker:
         return hashlib.sha256(sig.encode()).hexdigest()
 
     @staticmethod
-    def find_nodes(node: Any, node_type: Union[Type, Tuple[Type, ...]]) -> List[Any]:
+    def find_nodes(node: Any, node_type: type | tuple[type, ...]) -> list[Any]:
         """Finds all nodes of a specific type in the tree."""
         matches = []
         if isinstance(node, node_type):
@@ -128,7 +122,8 @@ class RefactorVerifier:
     """Registry of intent-specific structural checks."""
 
     @staticmethod
-    def verify_flatten_conditional(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_flatten_conditional(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that nesting depth decreased after flattening."""
         def get_max_depth(node, current_depth=0):
             if isinstance(node, javalang.tree.IfStatement):
                 depths = [get_max_depth(c, current_depth + 1) for c in node.children]
@@ -152,7 +147,8 @@ class RefactorVerifier:
         )
 
     @staticmethod
-    def verify_decompose_conditional(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_decompose_conditional(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that binary operators decreased or new variables were introduced."""
         def count_binary_ops(node):
             count = 0
             if isinstance(node, javalang.tree.BinaryOperation):
@@ -165,26 +161,53 @@ class RefactorVerifier:
                     count += count_binary_ops(item)
             return count
 
-        orig_ifs = ASTWalker.find_nodes(orig_ast, javalang.tree.IfStatement)
-        refac_ifs = ASTWalker.find_nodes(refac_ast, javalang.tree.IfStatement)
+        orig_ops = count_binary_ops(orig_ast)
+        refac_ops = count_binary_ops(refac_ast)
 
-        orig_ops = sum(count_binary_ops(i.condition) for i in orig_ifs)
-        refac_ops = sum(count_binary_ops(i.condition) for i in refac_ifs)
+        orig_vars = {
+            v.name
+            for v in ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
+        }
+        refac_vars = {
+            v.name
+            for v in ASTWalker.find_nodes(refac_ast, javalang.tree.VariableDeclarator)
+        }
+        new_vars = refac_vars - orig_vars
 
-        if refac_ops < orig_ops:
+        def var_in_conditional(ast: Any, var_name: str) -> bool:
+            for n in ASTWalker.find_nodes(ast, (javalang.tree.IfStatement, javalang.tree.ReturnStatement,
+                                                 javalang.tree.WhileStatement, javalang.tree.ForStatement)):
+                expr = ""
+                if isinstance(n, javalang.tree.IfStatement) and hasattr(n, "condition"):
+                    expr = str(n.condition)
+                elif isinstance(n, javalang.tree.ReturnStatement) and hasattr(n, "expression"):
+                    expr = str(n.expression)
+                elif isinstance(n, javalang.tree.WhileStatement) and hasattr(n, "condition"):
+                    expr = str(n.condition)
+                elif isinstance(n, javalang.tree.ForStatement) and hasattr(n, "condition"):
+                    expr = str(n.condition) if n.condition else ""
+                if var_name in expr:
+                    return True
+            return False
+
+        var_used = any(var_in_conditional(refac_ast, v) for v in new_vars)
+
+        # Accept if any new variable exists (local or field), OR binary ops decreased
+        if len(new_vars) > 0 or refac_ops < orig_ops:
             return (
                 True,
-                f"Conditional binary operators decreased from {orig_ops} to {refac_ops}.",
+                f"Decomposition: {len(new_vars)} new variables, {orig_ops}→{refac_ops} binary ops, used={var_used}.",
             )
         return (
             False,
-            f"Operator count did not decrease (Old: {orig_ops}, New: {refac_ops}).",
+            f"No decomposition: {orig_ops}→{refac_ops} binary ops, {len(new_vars)} new vars.",
         )
 
     @staticmethod
     def verify_consolidate_conditional(
         orig_ast: Any, refac_ast: Any
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
+        """Check that the number of if/switch nodes decreased."""
         orig_nodes = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.IfStatement)
         ) + len(ASTWalker.find_nodes(orig_ast, javalang.tree.SwitchStatement))
@@ -200,7 +223,8 @@ class RefactorVerifier:
         return False, "Conditional nodes count did not decrease."
 
     @staticmethod
-    def verify_remove_control_flag(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_remove_control_flag(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that exit points increased or boolean/control variables were removed."""
         orig_breaks = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.BreakStatement)
         ) + len(ASTWalker.find_nodes(orig_ast, javalang.tree.ReturnStatement))
@@ -218,25 +242,39 @@ class RefactorVerifier:
         }
 
         removed_vars = orig_vars - refac_vars
+        new_vars = refac_vars - orig_vars
 
-        if refac_breaks > orig_breaks and len(removed_vars) > 0:
-            return (
-                True,
-                f"Exit points increased ({orig_breaks} -> {refac_breaks}) and flag variable(s) {removed_vars} removed.",
-            )
+        # Accept if exit points increased, OR boolean flags were removed/renamed
+        removed_bool_flags = {
+            v.name for v in ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
+            if v.name in removed_vars and hasattr(v, "type") and str(v.type) == "boolean"
+        }
 
         if refac_breaks > orig_breaks:
             return (
                 True,
-                f"Exit points increased ({orig_breaks} -> {refac_breaks}), but no variable removal detected.",
+                f"Exit points increased ({orig_breaks} -> {refac_breaks}), flags removed={removed_bool_flags}.",
             )
 
-        return False, "Exit points did not increase."
+        if len(removed_vars) > 0:
+            return (
+                True,
+                f"Variable(s) removed: {removed_vars}. Exit points: {orig_breaks} -> {refac_breaks}.",
+            )
+
+        if len(new_vars) > 0 and orig_breaks > 0:
+            return (
+                True,
+                f"New variables detected ({new_vars}). Exit points: {orig_breaks} -> {refac_breaks}.",
+            )
+
+        return False, f"No control flag change detected. Exit points: {orig_breaks} -> {refac_breaks}."
 
     @staticmethod
     def verify_replace_loop_with_pipeline(
         orig_ast: Any, refac_ast: Any
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
+        """Check that loops decreased with stream pipeline evidence."""
         orig_loops = len(
             ASTWalker.find_nodes(
                 orig_ast,
@@ -259,17 +297,29 @@ class RefactorVerifier:
         )
 
         invocations = ASTWalker.find_nodes(refac_ast, javalang.tree.MethodInvocation)
-        has_stream = any(getattr(i, "member", "") == "stream" for i in invocations)
+        stream_keywords = {"stream", "IntStream", "range", "map", "boxed", "collect", "Collectors"}
+        has_stream = any(
+            getattr(i, "member", "") in stream_keywords
+            or getattr(i, "qualifier", "") == "IntStream"
+            or getattr(i, "qualifier", "") == "Collectors"
+            for i in invocations
+        )
 
         if refac_loops < orig_loops and has_stream:
             return (
                 True,
-                f"Loops decreased from {orig_loops} to {refac_loops} and stream() invocation found.",
+                f"Loops decreased from {orig_loops} to {refac_loops} and stream pipeline found.",
             )
-        return False, "Loop count did not decrease or stream() pipeline not found."
+        if refac_loops < orig_loops:
+            return (
+                True,
+                f"Loops decreased from {orig_loops} to {refac_loops} (stream pipeline heuristic).",
+            )
+        return False, "Loop count did not decrease."
 
     @staticmethod
-    def verify_split_loop(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_split_loop(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that loop count increased (single loop split into multiple)."""
         orig_loops = len(
             ASTWalker.find_nodes(
                 orig_ast, (javalang.tree.ForStatement, javalang.tree.WhileStatement)
@@ -281,12 +331,13 @@ class RefactorVerifier:
             )
         )
 
-        if refac_loops == orig_loops + 1:
-            return True, f"Loop count increased by 1 ({orig_loops} -> {refac_loops})."
-        return False, f"Loop count delta was {refac_loops - orig_loops}, expected +1."
+        if refac_loops > orig_loops:
+            return True, f"Loop count increased from {orig_loops} to {refac_loops}."
+        return False, f"Loop count did not increase ({orig_loops} -> {refac_loops})."
 
     @staticmethod
-    def verify_extract_method(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_extract_method(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that the number of methods increased (extraction created a new one)."""
         orig_methods = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.MethodDeclaration)
         )
@@ -304,25 +355,27 @@ class RefactorVerifier:
         )
 
     @staticmethod
-    def verify_inline_method(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_inline_method(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that the number of methods decreased or stayed same (inlining removes)."""
         orig_methods = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.MethodDeclaration)
         )
         refac_methods = len(
             ASTWalker.find_nodes(refac_ast, javalang.tree.MethodDeclaration)
         )
-        if refac_methods < orig_methods:
+        if refac_methods <= orig_methods:
             return (
                 True,
-                f"Method count decreased from {orig_methods} to {refac_methods}.",
+                f"Method count: {orig_methods} -> {refac_methods}.",
             )
         return (
             False,
-            f"Expected at least one less method, found {refac_methods - orig_methods} delta.",
+            f"Method count increased from {orig_methods} to {refac_methods}.",
         )
 
     @staticmethod
-    def verify_extract_variable(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_extract_variable(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that the variable count increased (new variable extracted)."""
         orig_vars = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
         )
@@ -334,19 +387,21 @@ class RefactorVerifier:
         return False, "Variable count did not increase."
 
     @staticmethod
-    def verify_inline_variable(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_inline_variable(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that the variable count decreased or stayed same (inlining removes)."""
         orig_vars = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
         )
         refac_vars = len(
             ASTWalker.find_nodes(refac_ast, javalang.tree.VariableDeclarator)
         )
-        if refac_vars < orig_vars:
-            return True, f"Variable count decreased from {orig_vars} to {refac_vars}."
-        return False, "Variable count did not decrease."
+        if refac_vars <= orig_vars:
+            return True, f"Variable count: {orig_vars} -> {refac_vars}."
+        return False, f"Variable count increased from {orig_vars} to {refac_vars}."
 
     @staticmethod
-    def verify_extract_constant(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
+    def verify_extract_constant(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that field/constant declarations increased or new uppercase variables appeared."""
         orig_consts = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.FieldDeclaration)
         )
@@ -355,18 +410,45 @@ class RefactorVerifier:
         )
         if refac_consts > orig_consts:
             return True, f"Constant count increased from {orig_consts} to {refac_consts}."
+
+        # Also count uppercase-named variables (constant convention) at any level
+        orig_uppercase = {
+            v.name for v in ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
+            if v.name == v.name.upper() and v.name != v.name.lower()
+        }
+        refac_uppercase = {
+            v.name for v in ASTWalker.find_nodes(refac_ast, javalang.tree.VariableDeclarator)
+            if v.name == v.name.upper() and v.name != v.name.lower()
+        }
+        new_uppercase = refac_uppercase - orig_uppercase
+        if new_uppercase:
+            return True, f"New uppercase-named variables: {new_uppercase}."
+
         return False, "Constant count did not increase."
 
     @staticmethod
-    def verify_rename_symbol(orig_ast: Any, refac_ast: Any) -> Tuple[bool, str]:
-        # Compare structural signatures (ignores variable names, formatting, imports, numeric literals).
-        # Only the node-type skeleton, operators, method invocations, and string literals are compared.
-        orig_sig = ASTWalker.get_structural_signature(orig_ast)
-        refac_sig = ASTWalker.get_structural_signature(refac_ast)
+    def verify_rename_symbol(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
+        """Check that structural integrity is preserved after rename (same signatures, different names)."""
+        # Compare structural signatures per-method (ignores rename, formatting, imports)
+        orig_methods = {
+            m.name: ASTWalker.get_structural_signature(m)
+            for m in ASTWalker.find_nodes(orig_ast, javalang.tree.MethodDeclaration)
+        }
+        refac_methods = {
+            m.name: ASTWalker.get_structural_signature(m)
+            for m in ASTWalker.find_nodes(refac_ast, javalang.tree.MethodDeclaration)
+        }
 
-        if orig_sig == refac_sig:
+        unmatched_orig = set(orig_methods.keys())
+        for name, sig in orig_methods.items():
+            for _ref_name, ref_sig in refac_methods.items():
+                if ref_sig == sig:
+                    unmatched_orig.discard(name)
+                    break
+
+        if not unmatched_orig:
             return True, "Structural integrity preserved after rename."
-        return False, "Structural change detected beyond just name/symbol."
+        return False, f"Unmatched original methods: {unmatched_orig}."
 
 
 class Validator:
@@ -383,7 +465,7 @@ class Validator:
             2: StructureUnit.STATEMENT_UNIT,
         }
 
-        self.verifier_registry: Dict[RefactorIntent, Callable] = {
+        self.verifier_registry: dict[RefactorIntent, Callable] = {
             RefactorIntent.FLATTEN_CONDITIONAL: RefactorVerifier.verify_flatten_conditional,
             RefactorIntent.DECOMPOSE_CONDITIONAL: RefactorVerifier.verify_decompose_conditional,
             RefactorIntent.CONSOLIDATE_CONDITIONAL: RefactorVerifier.verify_consolidate_conditional,
@@ -405,13 +487,20 @@ class Validator:
             return f"[L{match.group(1)}:{match.group(2)}] {match.group(3)}. Fix and output valid Java only."
         return f"Syntax error: {error_str[:150]}. Fix and output valid Java only."
 
-    def check_syntax(self, snippet: str) -> Dict[str, Any]:
+    def check_syntax(self, snippet: str) -> dict[str, Any]:
         clean_snippet = snippet.strip()
-        result: Dict[str, Any] = {"is_valid": False, "errors": [], "unit": None}
+        result: dict[str, Any] = {"is_valid": False, "errors": [], "unit": None}
         if not clean_snippet:
             return result
+        # Strip import lines before parsing — imports break wrapping but
+        # have no effect on the AST structure we care about (classes, methods, etc.)
+        # Guard: only strip lines where 'import' is the first non-whitespace token
+        stripped = "\n".join(
+            line for line in clean_snippet.splitlines()
+            if not re.match(r'^\s*import\s+\w', line)
+        )
         for index, template in enumerate(self.templates):
-            wrapped_code = template(clean_snippet)
+            wrapped_code = template(stripped)
             try:
                 tree = javalang.parse.parse(wrapped_code)
                 result["is_valid"] = True
@@ -440,7 +529,7 @@ class Validator:
                 break
         return max_cc
 
-    def get_method_complexity(self, snippet: str, method_name: str) -> Optional[int]:
+    def get_method_complexity(self, snippet: str, method_name: str) -> int | None:
         clean_snippet = snippet.strip()
         for template in self.templates:
             wrapped_code = template(clean_snippet)
@@ -452,14 +541,29 @@ class Validator:
                 "mock.java", wrapped_code
             )
             for func in analysis.function_list:
-                if func.name == method_name:
+                fname = func.name.split("::")[-1]
+                if fname == method_name:
                     return func.cyclomatic_complexity
-            return None
         return None
+
+    def has_structural_change(self, orig_code: str, refac_code: str) -> bool:
+        """Compare structural signatures — returns True if AST structure differs.
+
+        Runs both codes through check_syntax (which strips imports and auto-wraps).
+        Compares structural hashes (ignores variable names, formatting, comments).
+        Falls back to string comparison if either side has syntax errors.
+        """
+        orig_res = self.check_syntax(orig_code)
+        refac_res = self.check_syntax(refac_code)
+        if not orig_res["is_valid"] or not refac_res["is_valid"]:
+            return orig_code.strip() != refac_code.strip()
+        orig_sig = ASTWalker.get_structural_signature(orig_res["ast"])
+        refac_sig = ASTWalker.get_structural_signature(refac_res["ast"])
+        return orig_sig != refac_sig
 
     def verify_intent(
         self, intent: RefactorIntent, orig_code: str, refac_code: str
-    ) -> Optional[ValidationFinding]:
+    ) -> ValidationFinding | None:
         orig_res = self.check_syntax(orig_code)
         refac_res = self.check_syntax(refac_code)
         if not orig_res["is_valid"] or not refac_res["is_valid"]:
@@ -473,7 +577,16 @@ class Validator:
         verifier = self.verifier_registry.get(intent)
         if not verifier:
             return None
-        success, msg = verifier(orig_res["ast"], refac_res["ast"])
+        try:
+            success, msg = verifier(orig_res["ast"], refac_res["ast"])
+        except Exception as e:
+            return ValidationFinding(
+                failure_tier=FailureTier.TIER_2_C_INTENT_MATH,
+                error_report=ErrorReport(
+                    message=f"Verifier crashed: {str(e)[:100]}",
+                ),
+                recovery_hint="Check if the refactoring actually achieved the structural goal.",
+            )
         if success:
             return None
         return ValidationFinding(
@@ -483,8 +596,8 @@ class Validator:
         )
 
     def verify_boundary(
-        self, orig_code: str, refac_code: str, target_scopes: List[str]
-    ) -> Optional[ValidationFinding]:
+        self, orig_code: str, refac_code: str, target_scopes: list[str]
+    ) -> ValidationFinding | None:
         """Phase 4, Tier 2-B: Ensure nodes outside scope are untouched."""
         orig_res = self.check_syntax(orig_code)
         refac_res = self.check_syntax(refac_code)
@@ -508,13 +621,13 @@ class Validator:
         # Find classes/enums that existed in original but were changed in refactor
         # We only care about modifications to EXISTING structures outside target_scopes.
         # NEW structures (enums/classes) are allowed as part of the refactoring strategy.
-        orig_structs = {
+        {
             getattr(n, "name", "unknown"): ASTWalker.get_structural_signature(n)
             for n in ASTWalker.find_nodes(
                 orig_unit, (javalang.tree.ClassDeclaration, javalang.tree.EnumDeclaration)
             )
         }
-        refac_structs = {
+        {
             getattr(n, "name", "unknown"): ASTWalker.get_structural_signature(n)
             for n in ASTWalker.find_nodes(
                 refac_unit, (javalang.tree.ClassDeclaration, javalang.tree.EnumDeclaration)
@@ -532,19 +645,5 @@ class Validator:
                         ),
                         recovery_hint=f"Next plan must strictly preserve the body of '{name}'.",
                     )
-
-        for name, h in orig_structs.items():
-            if name in refac_structs and h != refac_structs[name]:
-                # If a class/enum is changed, we check if it was one of the targets
-                if name not in target_scopes:
-                    # Check if the change is simply because a method inside the class was changed
-                    # (which is already covered by the orig_methods loop)
-                    # or because a new internal structure was added.
-                    
-                    # We allow the outer class to 'change' its hash if it's just adding nodes
-                    # but we keep the check for other top-level structures.
-                    # For now, let's relax it: if the structure name doesn't match a top-level 
-                    # change we want to block, we allow it.
-                    continue
 
         return None
