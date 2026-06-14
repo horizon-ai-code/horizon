@@ -8,7 +8,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.utils.types import Role
 
+
 class TestMainHalt(unittest.IsolatedAsyncioTestCase):
+
     async def test_halt_cancels_active_task(self):
         """
         Tests that sending a 'halt' message through WebSocket cancels the 
