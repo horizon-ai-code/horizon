@@ -80,7 +80,7 @@ class ClientConnection:
         })
 
     async def send_status(self, role: Role, content: str, phase: int | None = None) -> None:
-        msg = {"type": "status", "role": role, "content": content}
+        msg: dict[str, str | Role | int] = {"type": "status", "role": role, "content": content}
         if phase is not None:
             msg["phase"] = phase
         await self._safe_send(msg)
