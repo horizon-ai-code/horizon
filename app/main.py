@@ -104,7 +104,6 @@ async def entrypoint(websocket: WebSocket) -> None:
     )
     await client_conn.start_heartbeat()
     active_tasks: set[asyncio.Task] = set()
-    current_task: asyncio.Task | None = None
 
     async def run_orchestration(validated_data: RefactorRequest):
         try:
