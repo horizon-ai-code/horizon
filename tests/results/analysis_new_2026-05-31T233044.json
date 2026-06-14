@@ -1,0 +1,180 @@
+[
+  {
+    "name": "analysis_const_two_methods",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying magic number and its usage\", \"primary_targets\": [\"calculateArea\", \"calculateCircumference\"], \"secondary_targets\": [], \"new_structures_needed\": [\"PI\"], \"must_preserve\": [] }",
+    "duration": 2.94,
+    "primary_targets": [
+      "calculateArea",
+      "calculateCircumference"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "PI"
+    ],
+    "must_preserve": [],
+    "scratchpad_len": 38,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_const_single_method",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the magic number and its usage\", \"primary_targets\": [\"compute\"], \"secondary_targets\": [], \"new_structures_needed\": [\"MOD\"], \"must_preserve\": [] }",
+    "duration": 2.16,
+    "primary_targets": [
+      "compute"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "MOD"
+    ],
+    "must_preserve": [],
+    "scratchpad_len": 42,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_rename_field_accessors",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the field 'n' and its references\", \"primary_targets\": [\"n\", \"getN\", \"setN\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.83,
+    "primary_targets": [
+      "n",
+      "getN",
+      "setN"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 44,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_rename_variables",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying symbols to rename and their references\", \"primary_targets\": [\"first\", \"second\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.34,
+    "primary_targets": [
+      "first",
+      "second"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 50,
+    "primary_complete": false,
+    "primary_missing": [
+      "head"
+    ],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_extract_method_tax",
+    "intent": "EXTRACT_METHOD",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the code to extract and its dependencies\", \"primary_targets\": [\"calculateTotal\"], \"secondary_targets\": [], \"new_structures_needed\": [\"computeTaxWithRounding\"], \"must_preserve\": [\"double: 'total'\", \"Exception: IllegalArgumentException\"] }",
+    "duration": 3.21,
+    "primary_targets": [
+      "calculateTotal"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "computeTaxWithRounding"
+    ],
+    "must_preserve": [
+      "double: 'total'",
+      "Exception: IllegalArgumentException"
+    ],
+    "scratchpad_len": 52,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_decompose_isEligible",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Reasoning about the code structure and what needs to change\", \"primary_targets\": [\"isEligible\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isAdult\", \"isWorkingAge\", \"hasSufficientIncome\", \"hasGoodCredit\"], \"must_preserve\": [\"Return type: boolean\"] }",
+    "duration": 3.82,
+    "primary_targets": [
+      "isEligible"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "isAdult",
+      "isWorkingAge",
+      "hasSufficientIncome",
+      "hasGoodCredit"
+    ],
+    "must_preserve": [
+      "Return type: boolean"
+    ],
+    "scratchpad_len": 59,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_flatten_preserve_exceptions",
+    "intent": "FLATTEN_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying nested if statements and exception messages\", \"primary_targets\": [\"process\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [\"Exception: IllegalArgumentException\", \"String: 'input empty'\", \"String: 'input null'\"] }",
+    "duration": 3.12,
+    "primary_targets": [
+      "process"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [
+      "Exception: IllegalArgumentException",
+      "String: 'input empty'",
+      "String: 'input null'"
+    ],
+    "scratchpad_len": 55,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": true,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_consolidate_wordPattern",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying duplicate conditional branches\", \"primary_targets\": [\"wordPatternMatch\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.07,
+    "primary_targets": [
+      "wordPatternMatch"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 42,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  }
+]

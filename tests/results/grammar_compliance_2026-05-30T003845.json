@@ -1,0 +1,160 @@
+{
+  "timestamp": "2026-05-30T003845",
+  "planner_results": [
+    {
+      "name": "short_easy_nim",
+      "classifier_content": "{ \"classification_scratchpad\": \"Instruction targets conditional structure. Code has a single if-return in canWinNim method. Category is CONTROL_FLOW, intent is FLATTEN_CONDITIONAL.\", \"intent_packet\": { \"refactor_category\": \"CONTROL_FLOW\", \"specific_intent\": \"FLATTEN_CONDITIONAL\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\"} } }",
+      "classifier_valid": true,
+      "intent": "FLATTEN_CONDITIONAL",
+      "classifier_pydantic": true,
+      "classifier_scratchpad_len": 148,
+      "analysis_content": "{ \"analysis_scratchpad\": \"The instruction asks to flatten the single if-return into a guard clause with an early return. This means we need to move the condition and its corresponding return statement outside of the method body.\", \"primary_targets\": [\"canWinNim\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+      "analysis_valid": true,
+      "analysis_pydantic": true,
+      "primary_targets": 1,
+      "secondary_targets": 0,
+      "new_structures": 0,
+      "analysis_scratchpad_len": 202,
+      "synthesis_content": "{ \"architect_scratchpad\": \"The primary target 'canWinNim' needs to be modified by removing the if statement and replacing it with a guard clause that checks for the condition `n % 4 != 0` directly in the return statement.\", \"ast_modification_plan\": { \"target_class\": \"ClassName\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"canWinNim\", \"details\": { \"modifiers\": [\"public\"], \"type\": \"boolean\", \"parameters\": [], \"logic_changes\": [\"Replace nested ifs with guard clauses using early retur",
+      "synthesis_valid": true,
+      "synthesis_pydantic": true,
+      "target_class": "ClassName",
+      "mutation_count": 1,
+      "mutation_actions": [
+        "MODIFY_METHOD"
+      ],
+      "synthesis_scratchpad_len": 194
+    },
+    {
+      "name": "medium_rotate",
+      "classifier_content": "{ \"classification_scratchpad\": \"Instruction asks to extract binary search logic into a helper method. Code contains a binary search in findMin method. Category is METHOD_MOVEMENT, intent is EXTRACT_METHOD.\", \"intent_packet\": { \"refactor_category\": \"METHOD_MOVEMENT\", \"specific_intent\": \"EXTRACT_METHOD\", \"scope_anchor\": { \"unit_type\": \"CLASS_UNIT\"} } }",
+      "classifier_valid": true,
+      "intent": "EXTRACT_METHOD",
+      "classifier_pydantic": true,
+      "classifier_scratchpad_len": 173,
+      "analysis_content": "{ \"analysis_scratchpad\": \"The instruction asks to extract the binary search logic into a helper method called findPivotIndex. The primary target is the `findMin` method, which contains the binary search logic.\", \"primary_targets\": [\"findMin\"], \"secondary_targets\": [], \"new_structures_needed\": [\"findPivotIndex\"], \"must_preserve\": [] }",
+      "analysis_valid": true,
+      "analysis_pydantic": true,
+      "primary_targets": 1,
+      "secondary_targets": 0,
+      "new_structures": 1,
+      "analysis_scratchpad_len": 183,
+      "synthesis_content": "{ \"architect_scratchpad\": \"The primary target is the `findMin` method, which contains the binary search logic. The new structure needed is a helper method called `findPivotIndex`. No secondary targets are specified.\", \"ast_modification_plan\": { \"target_class\": \"ClassName\", \"ast_mutations\": [ { \"action\": \"ADD_METHOD\", \"target\": \"findPivotIndex\", \"details\": { \"modifiers\": [\"public\"], \"type\": \"int\", \"parameters\": [], \"body_abstract\": \"Implement the binary search logic to find the pivot index.\" } },",
+      "synthesis_valid": true,
+      "synthesis_pydantic": true,
+      "target_class": "ClassName",
+      "mutation_count": 2,
+      "mutation_actions": [
+        "ADD_METHOD",
+        "MODIFY_METHOD"
+      ],
+      "synthesis_scratchpad_len": 188
+    },
+    {
+      "name": "medium_operations",
+      "classifier_content": "{ \"classification_scratchpad\": \"Instruction asks to extract a magic number into a constant. Code contains the number 3 in the loop condition and operations count.\", \"intent_packet\": { \"refactor_category\": \"STATE_MANAGEMENT\", \"specific_intent\": \"EXTRACT_CONSTANT\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\", \"class\": \"\", \"member\": \"\" } } }",
+      "classifier_valid": true,
+      "intent": "EXTRACT_CONSTANT",
+      "classifier_pydantic": true,
+      "classifier_scratchpad_len": 130,
+      "analysis_content": "{ \"analysis_scratchpad\": \"The instruction asks to extract the magic number 3 into a constant named MIN_OPS. This involves identifying where this number is used and replacing it with the new constant.\", \"primary_targets\": [\"MIN_OPS\"], \"secondary_targets\": [], \"new_structures_needed\": [\"public static final int MIN_OPS = 3;\"], \"must_preserve\": [] }",
+      "analysis_valid": true,
+      "analysis_pydantic": true,
+      "primary_targets": 1,
+      "secondary_targets": 0,
+      "new_structures": 1,
+      "analysis_scratchpad_len": 173,
+      "synthesis_content": "{ \"architect_scratchpad\": \"The instruction asks to extract the magic number 3 into a constant named MIN_OPS. This involves identifying where this number is used and replacing it with the new constant.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_CONSTANT\", \"target\": \"MIN_OPS\", \"details\": { \"type\": \"int\", \"body_abstract\": \"public static final int MIN_OPS = 3;\" } } ] } }",
+      "synthesis_valid": true,
+      "synthesis_pydantic": true,
+      "target_class": "",
+      "mutation_count": 1,
+      "mutation_actions": [
+        "ADD_CONSTANT"
+      ],
+      "synthesis_scratchpad_len": 173
+    },
+    {
+      "name": "hard_palindrome",
+      "classifier_content": "{ \"classification_scratchpad\": \"Instruction asks to break a compound condition into named boolean variables. Code has a compound condition in isPalindrome method. Category is CONTROL_FLOW, intent is DECOMPOSE_CONDITIONAL.\", \"intent_packet\": { \"refactor_category\": \"CONTROL_FLOW\", \"specific_intent\": \"DECOMPOSE_CONDITIONAL\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\",\"class\":\"Solution\",\"member\":\"isPalindrome\"} } }",
+      "classifier_valid": true,
+      "intent": "DECOMPOSE_CONDITIONAL",
+      "classifier_pydantic": true,
+      "classifier_scratchpad_len": 189,
+      "analysis_content": "{ \"analysis_scratchpad\": \"The instruction asks to decompose the compound condition into named booleans: isSameChar and isInnerPalindrome. This involves creating new methods for these conditions.\", \"primary_targets\": [\"isPalindrome\"], \"secondary_targets\": [], \"new_structures_needed\": [\"boolean isSameChar(String s, int start, int end)\", \"boolean isInnerPalindrome(String s)\"], \"must_preserve\": [] }",
+      "analysis_valid": true,
+      "analysis_pydantic": true,
+      "primary_targets": 1,
+      "secondary_targets": 0,
+      "new_structures": 2,
+      "analysis_scratchpad_len": 168,
+      "synthesis_content": "{ \"architect_scratchpad\": \"The instruction asks to decompose the compound condition into named booleans: isSameChar and isInnerPalindrome. This involves creating new methods for these conditions.\", \"ast_modification_plan\": { \"target_class\": \"Solution\", \"ast_mutations\": [ { \"action\": \"ADD_METHOD\", \"target\": \"isSameChar(String s, int start, int end)\", \"details\": { \"modifiers\": [\"public\"], \"type\": \"boolean\", \"parameters\": [{ \"name\": \"s\", \"type\": \"String\" }, { \"name\": \"start\", \"type\": \"int\" }, { \"na",
+      "synthesis_valid": true,
+      "synthesis_pydantic": true,
+      "target_class": "Solution",
+      "mutation_count": 3,
+      "mutation_actions": [
+        "ADD_METHOD",
+        "ADD_METHOD",
+        "MODIFY_METHOD"
+      ],
+      "synthesis_scratchpad_len": 168
+    },
+    {
+      "name": "hard_large",
+      "classifier_content": "{ \"classification_scratchpad\": \"Instruction asks to rename variables 'i' and 'j'. Code has a nested loop with variable names i and j. Category is STATE_MANAGEMENT, intent is RENAME_SYMBOL.\", \"intent_packet\": { \"refactor_category\": \"STATE_MANAGEMENT\", \"specific_intent\": \"RENAME_SYMBOL\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\"} } }",
+      "classifier_valid": true,
+      "intent": "RENAME_SYMBOL",
+      "classifier_pydantic": true,
+      "classifier_scratchpad_len": 156,
+      "analysis_content": "{ \"analysis_scratchpad\": \"The instruction asks to rename the variables 'i' and 'j' in the method. This will affect all occurrences of these variable names within the method.\", \"primary_targets\": [\"uniquePaths\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+      "analysis_valid": true,
+      "analysis_pydantic": true,
+      "primary_targets": 1,
+      "secondary_targets": 0,
+      "new_structures": 0,
+      "analysis_scratchpad_len": 147,
+      "synthesis_content": "{ \"architect_scratchpad\": \"Rename 'i' to 'row', rename 'j' to 'col'\", \"ast_modification_plan\": { \"target_class\": \"uniquePaths\", \"ast_mutations\": [ { \"action\": \"RENAME_SYMBOL\", \"target\": \"i\", \"details\": {} }, { \"action\": \"RENAME_SYMBOL\", \"target\": \"j\", \"details\": {} } ] } }",
+      "synthesis_valid": true,
+      "synthesis_pydantic": true,
+      "target_class": "uniquePaths",
+      "mutation_count": 2,
+      "mutation_actions": [
+        "RENAME_SYMBOL",
+        "RENAME_SYMBOL"
+      ],
+      "synthesis_scratchpad_len": 40
+    }
+  ],
+  "judge_results": [
+    {
+      "name": "judge_accept_rename",
+      "judge_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"input\"}, {\"original\": \"n\", \"refactored\": \"count\"}], \"logic_comparison\": \"Structural summary of conditional paths with at least one concrete example.\\n\\nFor the input 5, both original and refactored code produce output: count = 5. However,\\nthe logic drift is in handling negative inputs:\\nOriginal Code: if (x < 0) { n = -1; } else { n = x; }\\nRefactored Code: if (input < 0) { count = -1; } else { count = input; }\\nThe refac",
+      "judge_valid": true,
+      "judge_pydantic": false,
+      "judge_error": "1 validation error for StructuralAuditorResponse\n  Invalid JSON: EOF while parsing a string at line 1 column 3317 [type=json_invalid, input_value='{\"audit_scratchpad\": {\"v... { count = input & y; }', "
+    },
+    {
+      "name": "judge_revise_broken",
+      "judge_content": "{\"audit_scratchpad\": {\"variable_trace\": [], \"logic_comparison\": \"The refactored code prints 5 to the console, but does not return it. This change deviates from the original logic of returning a value.\\n\\nExample: If we call calc(), the function will print 5 and then continue executing without any output or return value.\"}, \"verdict\": \"REVISE\", \"issues\": [\"Plan was not executed: code is identical to original.\", \"Logic drift would cause different behavior.\"] }",
+      "judge_valid": true,
+      "judge_pydantic": true,
+      "verdict": "REVISE",
+      "issue_count": 2,
+      "scratchpad_str": "variable_trace=[] logic_comparison='The refactored code prints 5 to the console, but does not return it. This change deviates from the original logic of returning a value.\\n\\nExample: If we call calc(), the function will print 5 and then continue executing without any output or return value.'",
+      "reasoning_meaningful": true,
+      "scratchpad_len": 293
+    },
+    {
+      "name": "judge_noop",
+      "judge_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"x\"}], \"logic_comparison\": \"The conditional path with input x = 0 produces the same output in both original and refactored code. However, no changes were made to handle this case.\"}, \"verdict\": \"REVISE\", \"issues\": [\"Plan was not executed: code is identical to original.\"] }",
+      "judge_valid": true,
+      "judge_pydantic": true,
+      "verdict": "REVISE",
+      "issue_count": 1,
+      "scratchpad_str": "variable_trace=[AuditTrace(original='x', refactored='x', mapping=None)] logic_comparison='The conditional path with input x = 0 produces the same output in both original and refactored code. However, no changes were made to handle this case.'",
+      "reasoning_meaningful": true,
+      "scratchpad_len": 242
+    }
+  ]
+}

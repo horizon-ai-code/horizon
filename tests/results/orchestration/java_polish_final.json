@@ -1,0 +1,110 @@
+[
+  {
+    "name": "flat_80_search_rotated",
+    "passed": true,
+    "duration": 80.2,
+    "cc": "9->9",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "flat_451_validate_ip",
+    "passed": true,
+    "duration": 25.1,
+    "cc": "5->5",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "decomp_1263_closed_island",
+    "passed": true,
+    "duration": 153.8,
+    "cc": "11->11",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "decomp_9_regex",
+    "passed": true,
+    "duration": 65.7,
+    "cc": "12->11",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "decomp_86_scramble",
+    "passed": true,
+    "duration": 151.7,
+    "cc": "8->5",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "extract_72_set_zeroes",
+    "passed": true,
+    "duration": 102.7,
+    "cc": "14->14",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "extract_1092_prime",
+    "passed": true,
+    "duration": 59.1,
+    "cc": "8->6",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "split_1144_board_path",
+    "passed": true,
+    "duration": 63.2,
+    "cc": "6->6",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "split_62_unique_paths",
+    "passed": true,
+    "duration": 94.1,
+    "cc": "11->11",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "const_391_abbreviation",
+    "passed": true,
+    "duration": 76.2,
+    "cc": "9->9",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "rename_1_add_two_numbers",
+    "passed": true,
+    "duration": 24.6,
+    "cc": "8->8",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  },
+  {
+    "name": "rename_18_remove_nth",
+    "passed": true,
+    "duration": 59.1,
+    "cc": "4->4",
+    "verdict": "",
+    "loops": 0,
+    "error": ""
+  }
+]

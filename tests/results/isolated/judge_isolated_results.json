@@ -1,0 +1,604 @@
+[
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "runs": [
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The refactored code maintains the same conditional paths as the original. The computeTaxWithRounding method is called with correct arguments and returns the rounded total.\"}",
+        "duration": 5.54,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The refactored code maintains the same conditional paths as the original. The computeTaxWithRounding method is called with correct arguments and returns the rounded total.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_method_tax"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The refactored code maintains the same conditional paths as the original. The computeTaxWithRounding method is called with correct arguments and returns the rounded total.\"}",
+        "duration": 5.38,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The refactored code maintains the same conditional paths as the original. The computeTaxWithRounding method is called with correct arguments and returns the rounded total.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_method_tax"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The refactored code maintains the original logic and intent.\"}",
+        "duration": 5.64,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The refactored code maintains the original logic and intent.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_method_tax"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The refactored code maintains the original logic and intent.\"}",
+        "duration": 6.08,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The refactored code maintains the original logic and intent.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_method_tax"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The refactored code maintains the original logic and intent.\"}",
+        "duration": 5.83,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"subtotal\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The refactored code maintains the original logic and intent.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_method_tax"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "runs": [
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\", \"mapping\": null}], \"logic_comparison\": \"Renaming variables in conditional paths does not affect behavior.\"}",
+        "duration": 3.37,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\"}], \"logic_comparison\": \"Renaming variables in conditional paths does not affect behavior.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_rename_symbol_field"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\", \"mapping\": null}, {\"original\": \"getN\", \"refactored\": \"getUsername\", \"mapping\": null}, {\"original\": \"setN\", \"refactored\": \"setUsername\", \"mapping\": null}], \"logic_comparison\": \"Renaming variables and methods does not affect the logic of this class.\"}",
+        "duration": 4.25,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"n\",\"refactored\":\"username\"},{\"original\":\"getN\",\"refactored\":\"getUsername\"},{\"original\":\"setN\",\"refactored\":\"setUsername\"}],\"logic_comparison\":\"Renaming variables and methods does not affect the logic of this class.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_rename_symbol_field"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\", \"mapping\": null}, {\"original\": \"getN\", \"refactored\": \"getUsername\", \"mapping\": null}, {\"original\": \"setN\", \"refactored\": \"setUsername\", \"mapping\": null}], \"logic_comparison\": \"Renaming variables and methods does not affect the logic of this class.\"}",
+        "duration": 4.88,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"n\",\"refactored\":\"username\"},{\"original\":\"getN\",\"refactored\":\"getUsername\"},{\"original\":\"setN\",\"refactored\":\"setUsername\"}],\"logic_comparison\":\"Renaming variables and methods does not affect the logic of this class.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_rename_symbol_field"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\", \"mapping\": null}, {\"original\": \"getN\", \"refactored\": \"getUsername\", \"mapping\": null}, {\"original\": \"setN\", \"refactored\": \"setUsername\", \"mapping\": null}], \"logic_comparison\": \"Renaming variables and methods does not affect the logic of this class.\"}",
+        "duration": 5.44,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"n\",\"refactored\":\"username\"},{\"original\":\"getN\",\"refactored\":\"getUsername\"},{\"original\":\"setN\",\"refactored\":\"setUsername\"}],\"logic_comparison\":\"Renaming variables and methods does not affect the logic of this class.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_rename_symbol_field"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\", \"mapping\": null}], \"logic_comparison\": \"Renaming variables in conditional paths does not affect behavior.\"}",
+        "duration": 4.19,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"n\", \"refactored\": \"username\"}], \"logic_comparison\": \"Renaming variables in conditional paths does not affect behavior.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_rename_symbol_field"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "runs": [
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}",
+        "duration": 4.95,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"},{\"original\":\"y\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"}],\"logic_comparison\":\"The conditional paths produce the same outputs for the given inputs.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_flatten_guard_clauses"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}",
+        "duration": 4.24,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"},{\"original\":\"y\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"}],\"logic_comparison\":\"The conditional paths produce the same outputs for the given inputs.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_flatten_guard_clauses"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}",
+        "duration": 4.44,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"},{\"original\":\"y\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"}],\"logic_comparison\":\"The conditional paths produce the same outputs for the given inputs.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_flatten_guard_clauses"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}",
+        "duration": 4.12,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"},{\"original\":\"y\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"}],\"logic_comparison\":\"The conditional paths produce the same outputs for the given inputs.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_flatten_guard_clauses"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"y\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}",
+        "duration": 4.17,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"},{\"original\":\"y\",\"refactored\":\"y\",\"mapping\":\"IDENTITY\"}],\"logic_comparison\":\"The conditional paths produce the same outputs for the given inputs.\"},\"verdict\":\"ACCEPT\",\"issues\":[]}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_flatten_guard_clauses"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "runs": [
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"arr\", \"refactored\": \"arr\", \"mapping\": null}], \"logic_comparison\": \"Both loops iterate over the same array, producing identical outputs for each input.\"}",
+        "duration": 3.61,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"arr\", \"refactored\": \"arr\"}], \"logic_comparison\": \"Both loops iterate over the same array, producing identical outputs for each input.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_split_loop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\", \"mapping\": null}], \"logic_comparison\": \"Both loops iterate over the same range (0-9) and produce identical outputs.\"}",
+        "duration": 3.84,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\"}], \"logic_comparison\": \"Both loops iterate over the same range (0-9) and produce identical outputs.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_split_loop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Both loops have the same input range (0-9) and produce identical outputs. The loop bodies are identical, printing each element of the array once.\"}",
+        "duration": 5.05,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Both loops have the same input range (0-9) and produce identical outputs. The loop bodies are identical, printing each element of the array once.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_split_loop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\", \"mapping\": null}], \"logic_comparison\": \"Both loops have the same loop variable and iteration condition, producing identical outputs for all inputs.\"}",
+        "duration": 4.09,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\"}], \"logic_comparison\": \"Both loops have the same loop variable and iteration condition, producing identical outputs for all inputs.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_split_loop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\", \"mapping\": null}], \"logic_comparison\": \"Both loops iterate over the same range (0-9) and produce identical outputs.\"}",
+        "duration": 3.74,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\"}], \"logic_comparison\": \"Both loops iterate over the same range (0-9) and produce identical outputs.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_split_loop"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "runs": [
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}",
+        "duration": 3.89,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_constant_pi"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}",
+        "duration": 3.97,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_constant_pi"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}",
+        "duration": 3.95,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_constant_pi"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for given inputs.\"}",
+        "duration": 3.78,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for given inputs.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_constant_pi"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}",
+        "duration": 3.73,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"PI\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for a given input.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "ACCEPT",
+        "case_name": "accept_extract_constant_pi"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "runs": [
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"radius\", \"refactored\": \"radius\", \"mapping\": null}], \"logic_comparison\": \"The original code had two methods, calculateArea and calculateCircumference. The refactored version has the same logic but now prints to console instead of returning values.\\n\\nFor a given input radius, both functions will produce different outputs: area vs circumference.\"}",
+        "duration": 6.0,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"radius\",\"refactored\":\"radius\"}],\"logic_comparison\":\"The original code had two methods, calculateArea and calculateCircumference. The refactored version has the same logic but now prints to console instead of returning values.\\n\\nFor a given input radius, both functions will produce different outputs: area vs circumference.\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_constant_broken_sig"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"radius\", \"refactored\": \"radius\", \"mapping\": null}], \"logic_comparison\": \"The original code had two separate methods for calculating area and circumference. The refactored version combines these into a single method with the constant PI extracted as a static field.\"}",
+        "duration": 4.89,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"radius\",\"refactored\":\"radius\"}],\"logic_comparison\":\"The original code had two separate methods for calculating area and circumference. The refactored version combines these into a single method with the constant PI extracted as a static field.\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_constant_broken_sig"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Variable naming inconsistency.",
+          "Logic drift due to inconsistent input handling."
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"radius\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The original code used a variable 'r' which was not present in the refactored version. The logic comparison for different inputs is as follows:\\n- For radius = 1, Area: 3.14159 and Circumference: 6.28318\\n- For radius = 2, Area: 12.56637 and Circumference: 12.56637\\nThe refactored code uses 'radius' instead of the original variable name.\\n\"}",
+        "duration": 9.93,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"radius\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The original code used a variable 'r' which was not present in the refactored version. The logic comparison for different inputs is as follows:\\n- For radius = 1, Area: 3.14159 and Circumference: 6.28318\\n- For radius = 2, Area: 12.56637 and Circumference: 12.56637\\nThe refactored code uses 'radius' instead of the original variable name.\\n\"}, \"verdict\": \"REVISE\", \"issues\": [\"Variable naming inconsistency.\", \"Logic drift due to inconsistent input handling.\"] }",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_constant_broken_sig"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"radius\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The original calculateArea and calculateCircumference methods have been modified to print the results instead of returning them. This change does not affect the output for a given input, as it is still calculating the correct area and circumference.\"}",
+        "duration": 5.99,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"radius\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The original calculateArea and calculateCircumference methods have been modified to print the results instead of returning them. This change does not affect the output for a given input, as it is still calculating the correct area and circumference.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_constant_broken_sig"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"radius\", \"refactored\": \"radius\", \"mapping\": null}], \"logic_comparison\": \"The original code had two methods, calculateArea and calculateCircumference. The refactored version has the same logic but now prints to console instead of returning values. This change does not affect the functionality for a given input.\\n\\nFor example, if we call calculateArea(5), it will print 'Area is: 78.53975' in both versions.\\n\\nHowever, this refactoring changes the behavior from expected output back to actual output (printing instead of returning). This change should be revisited as it does not align with the original intent.\"}",
+        "duration": 9.99,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"radius\",\"refactored\":\"radius\"}],\"logic_comparison\":\"The original code had two methods, calculateArea and calculateCircumference. The refactored version has the same logic but now prints to console instead of returning values. This change does not affect the functionality for a given input.\\n\\nFor example, if we call calculateArea(5), it will print 'Area is: 78.53975' in both versions.\\n\\nHowever, this refactoring changes the behavior from expected output back to actual output (printing instead of returning). This change should be revisited as it does not align with the original intent.\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_constant_broken_sig"
+      }
+    ],
+    "what_happened": "4/5 runs matched expected REVISE. 1 runs disagreed. Judge is inconsistent on this case.",
+    "why": "Return type changed double\u2192void AND println side-effect added. Two clear violations of the SIGNATURE CHECK task. When both signals are present, Judge reliably catches at least one. "
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "runs": [
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\", \"mapping\": null}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}",
+        "duration": 3.55,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_decompose_noop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\", \"mapping\": null}, {\"original\": \"income\", \"refactored\": \"income\", \"mapping\": null}, {\"original\": \"score\", \"refactored\": \"score\", \"mapping\": null}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\", \"mapping\": null}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code. No changes were made that would affect behavior for a given input.\"}",
+        "duration": 7.2,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\"}, {\"original\": \"income\", \"refactored\": \"income\"}, {\"original\": \"score\", \"refactored\": \"score\"}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\"}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code. No changes were made that would affect behavior for a given input.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_decompose_noop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\", \"mapping\": null}, {\"original\": \"income\", \"refactored\": \"income\", \"mapping\": null}, {\"original\": \"score\", \"refactored\": \"score\", \"mapping\": null}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\", \"mapping\": null}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code, as no changes were made. The logic remains unchanged.\"}",
+        "duration": 7.14,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\"}, {\"original\": \"income\", \"refactored\": \"income\"}, {\"original\": \"score\", \"refactored\": \"score\"}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\"}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code, as no changes were made. The logic remains unchanged.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_decompose_noop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\", \"mapping\": null}, {\"original\": \"income\", \"refactored\": \"income\", \"mapping\": null}, {\"original\": \"score\", \"refactored\": \"score\", \"mapping\": null}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\", \"mapping\": null}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code. The logic remains unchanged.\"}",
+        "duration": 6.62,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\"}, {\"original\": \"income\", \"refactored\": \"income\"}, {\"original\": \"score\", \"refactored\": \"score\"}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\"}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code. The logic remains unchanged.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_decompose_noop"
+      },
+      {
+        "verdict": "ACCEPT",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\", \"mapping\": null}, {\"original\": \"income\", \"refactored\": \"income\", \"mapping\": null}, {\"original\": \"score\", \"refactored\": \"score\", \"mapping\": null}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\", \"mapping\": null}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code, as no changes were made. The logic remains unchanged.\"}",
+        "duration": 6.93,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"age\", \"refactored\": \"age\"}, {\"original\": \"income\", \"refactored\": \"income\"}, {\"original\": \"score\", \"refactored\": \"score\"}, {\"original\": \"hasCollateral\", \"refactored\": \"hasCollateral\"}], \"logic_comparison\": \"The conditional paths in the refactored code are identical to those in the original code, as no changes were made. The logic remains unchanged.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_decompose_noop"
+      }
+    ],
+    "what_happened": "All 5 runs gave opposite verdict (ACCEPT instead of REVISE). Judge is systematically wrong on this case.",
+    "why": "Code is identical to original \u2014 the most obvious REVISE case. Model can verify this easily because both code blocks are the same. "
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "runs": [
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ for total > 1000 and premium.\\nFor total <= 1000, discount(0.15) is called when premium = false but should be discount(0.05).\\nFor total > 1000, discount(0.05) is called when premium = true but should be discount(0.15).\"}",
+        "duration": 8.35,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ for total > 1000 and premium.\\nFor total <= 1000, discount(0.15) is called when premium = false but should be discount(0.05).\\nFor total > 1000, discount(0.05) is called when premium = true but should be discount(0.15).\"},\"verdict\": \"REVISE\",\"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_flatten_logic_inverted"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: discount(0.15) if (total > 1000 && premium), Refactored: discount(0.05) if (!premium || total <= 1000). The original method applies a discount of 0.15 when the input is greater than 1000 and premium, while the refactored version only applies a discount of 0.05 when either the premium condition or the total value is less than or equal to 1000.\"}",
+        "duration": 10.36,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: discount(0.15) if (total > 1000 && premium), Refactored: discount(0.05) if (!premium || total <= 1000). The original method applies a discount of 0.15 when the input is greater than 1000 and premium, while the refactored version only applies a discount of 0.05 when either the premium condition or the total value is less than or equal to 1000.\"}, \"verdict\": \"REVISE\", \"issues\": []}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_flatten_logic_inverted"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: total > 1000 and premium, Refactored: total > 1000 or not premium.\\nExpected output for inputs (total=1200, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=800, premium=false): discount(0.05), Actual output: no discount applied.\\nExpected output for inputs (total=1001, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=999, premium=false): discount(0.05), Actual output: discount(0.05).\"}",
+        "duration": 12.7,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: total > 1000 and premium, Refactored: total > 1000 or not premium.\\nExpected output for inputs (total=1200, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=800, premium=false): discount(0.05), Actual output: no discount applied.\\nExpected output for inputs (total=1001, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=999, premium=false): discount(0.05), Actual output: discount(0.05).\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_flatten_logic_inverted"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Conditional logic changed from total > 1000 and premium to total > 1000 or not premium.",
+          "Discount calculation differs between original and refactored code."
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: total > 1000 and premium, Refactored: total > 1000 or not premium.\\nExpected output for inputs (total=1200, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=800, premium=false): discount(0.05), Actual output: no discount applied.\\nExpected output for inputs (total=1001, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=999, premium=false): discount(0.05), Actual output: discount(0.05).\"}",
+        "duration": 15.09,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: total > 1000 and premium, Refactored: total > 1000 or not premium.\\nExpected output for inputs (total=1200, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=800, premium=false): discount(0.05), Actual output: no discount applied.\\nExpected output for inputs (total=1001, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for inputs (total=999, premium=false): discount(0.05), Actual output: discount(0.05).\"}, \"verdict\": \"REVISE\", \"issues\": [\"Conditional logic changed from total > 1000 and premium to total > 1000 or not premium.\", \"Discount calculation differs between original and refactored code.\"]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_flatten_logic_inverted"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: total > 1000 and premium, Refactored: total > 1000 or not premium.\\nExpected output for inputs (total=1500, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for input (total=500, premium=false): discount(0.05), Actual output: no discount applied.\\nExpected output for input (total=1001, premium=true): discount(0.15), Actual output: discount(0.15).\\nExpected output for input (total=1001, premium=false): discount(0.05), Actual output: discount(0.05).\"}",
+        "duration": 13.06,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"total\", \"refactored\": \"total\", \"mapping\": \"IDENTITY\"}, {\"original\": \"premium\", \"refactored\": \"premium\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"Conditional paths differ. Original: total > 1000 and premium, Refactored: total > 1000 or not premium.\\nExpected output for inputs (total=1500, premium=true): discount(0.15), Actual output: discount(0.05).\\nExpected output for input (total=500, premium=false): discount(0.05), Actual output: no discount applied.\\nExpected output for input (total=1001, premium=true): discount(0.15), Actual output: discount(0.15).\\nExpected output for input (total=1001, premium=false): discount(0.05), Actual output: discount(0.05).\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_flatten_logic_inverted"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Logic inversion (discount applied at wrong threshold) is a subtle semantic error. The 3B model may struggle to trace all conditional paths. "
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "runs": [
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Unplanned signature changes: computeTax has an additional parameter 'extraFee'"
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"price\", \"mapping\": \"IDENTITY\"}, {\"original\": \"y\", \"refactored\": \"quantity\", \"mapping\": \"IDENTITY\"}, {\"original\": \"z\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}, {\"original\": \"w\", \"refactored\": \"extraFee\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The refactored code introduces a new variable 'extraFee' which is not present in the original. This change affects the logic of the calculateTotal method.\\n\\nFor the same inputs, the conditional paths produce different outputs due to the introduction of this extra fee.\"}",
+        "duration": 9.69,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"price\",\"mapping\":\"IDENTITY\"},{\"original\":\"y\",\"refactored\":\"quantity\",\"mapping\":\"IDENTITY\"},{\"original\":\"z\",\"refactored\":\"taxRate\",\"mapping\":\"IDENTITY\"},{\"original\":\"w\",\"refactored\":\"extraFee\",\"mapping\":\"IDENTITY\"}],\"logic_comparison\": \"The refactored code introduces a new variable 'extraFee' which is not present in the original. This change affects the logic of the calculateTotal method.\\n\\nFor the same inputs, the conditional paths produce different outputs due to the introduction of this extra fee.\"},\"verdict\":\"REVISE\",\"issues\":[\"Unplanned signature changes: computeTax has an additional parameter 'extraFee'\"]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_method_wrong_params"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "The refactored code has an additional parameter that changes the calculation, which is inconsistent with the original method."
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"price\", \"refactored\": \"price\", \"mapping\": null}, {\"original\": \"quantity\", \"refactored\": \"quantity\", \"mapping\": null}, {\"original\": \"taxRate\", \"refactored\": \"taxRate\", \"mapping\": null}], \"logic_comparison\": \"The refactored code has an additional parameter in the computeTax method, which changes the calculation. The original and refactored methods will produce different outputs for certain inputs.\\n\\nFor example, if taxRate is 0.05 and extraFee is also 0.05, then calculateTotal would return 1.25 + 1.25 = 2.5 but computeTax would return 1.25 + 1.25 + (1.25 * 0.05) = 3.125.\\n\\nThis change does not match the original plan and should be revised to maintain consistency in calculation logic.\"}",
+        "duration": 14.0,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"price\", \"refactored\": \"price\"}, {\"original\": \"quantity\", \"refactored\": \"quantity\"}, {\"original\": \"taxRate\", \"refactored\": \"taxRate\"}], \"logic_comparison\": \"The refactored code has an additional parameter in the computeTax method, which changes the calculation. The original and refactored methods will produce different outputs for certain inputs.\\n\\nFor example, if taxRate is 0.05 and extraFee is also 0.05, then calculateTotal would return 1.25 + 1.25 = 2.5 but computeTax would return 1.25 + 1.25 + (1.25 * 0.05) = 3.125.\\n\\nThis change does not match the original plan and should be revised to maintain consistency in calculation logic.\"}, \"verdict\": \"REVISE\", \"issues\": [\"The refactored code has an additional parameter that changes the calculation, which is inconsistent with the original method.\"] }",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_method_wrong_params"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "The refactored code has changed the calculation of calculateTotal by introducing an additional parameter extraFee in computeTax, which is not explicitly stated as part of the original plan."
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"price\", \"refactored\": \"price\", \"mapping\": null}, {\"original\": \"quantity\", \"refactored\": \"quantity\", \"mapping\": null}, {\"original\": \"taxRate\", \"refactored\": \"taxRate\", \"mapping\": null}], \"logic_comparison\": \"The refactored code has an additional parameter in the computeTax method, which changes the calculation. The original and refactored methods will produce different outputs for certain inputs.\\n\\nFor example, if taxRate is 0.05 and extraFee is also 0.05, then calculateTotal would return 1.25 * quantity + (1.25 * quantity) * 0.05 = 1.3125 * quantity instead of just 1.25 * quantity.\\n\\nHowever, the refactored code does not explicitly state that it will produce different outputs for certain inputs or that it is intended to handle extra fees in this way.\\nThis change could be considered a logic drift if the intent was only to extract tax from the total price and quantity without adding an additional fee.\"}",
+        "duration": 16.85,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"price\", \"refactored\": \"price\"}, {\"original\": \"quantity\", \"refactored\": \"quantity\"}, {\"original\": \"taxRate\", \"refactored\": \"taxRate\"}], \"logic_comparison\": \"The refactored code has an additional parameter in the computeTax method, which changes the calculation. The original and refactored methods will produce different outputs for certain inputs.\\n\\nFor example, if taxRate is 0.05 and extraFee is also 0.05, then calculateTotal would return 1.25 * quantity + (1.25 * quantity) * 0.05 = 1.3125 * quantity instead of just 1.25 * quantity.\\n\\nHowever, the refactored code does not explicitly state that it will produce different outputs for certain inputs or that it is intended to handle extra fees in this way.\\nThis change could be considered a logic drift if the intent was only to extract tax from the total price and quantity without adding an additional fee.\"}, \"verdict\": \"REVISE\", \"issues\": [\"The refactored code has changed the calculation of calculateTotal by introducing an additional parameter extraFee in computeTax, which is not explicitly stated as part of the original plan.\"] }",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_method_wrong_params"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Unplanned method signature change: computeTax has an additional parameter 'extraFee' that was not present in the original calculateTotal method."
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"price\", \"refactored\": \"price\", \"mapping\": \"IDENTITY\"}, {\"original\": \"quantity\", \"refactored\": \"quantity\", \"mapping\": \"IDENTITY\"}, {\"original\": \"taxRate\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The original and refactored code behave identically, with no changes to logic or functionality.\"}",
+        "duration": 9.6,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"price\", \"refactored\": \"price\", \"mapping\": \"IDENTITY\"}, {\"original\": \"quantity\", \"refactored\": \"quantity\", \"mapping\": \"IDENTITY\"}, {\"original\": \"taxRate\", \"refactored\": \"taxRate\", \"mapping\": \"IDENTITY\"}], \"logic_comparison\": \"The conditional paths produce the same outputs for the given inputs. The original and refactored code behave identically, with no changes to logic or functionality.\"}, \"verdict\": \"REVISE\", \"issues\": [\"Unplanned method signature change: computeTax has an additional parameter 'extraFee' that was not present in the original calculateTotal method.\"] }",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_method_wrong_params"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Unplanned introduction of extraFee parameter"
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"price\", \"mapping\": \"RENAME\"}, {\"original\": \"y\", \"refactored\": \"quantity\", \"mapping\": \"RENAME\"}, {\"original\": \"z\", \"refactored\": \"taxRate\", \"mapping\": \"RENAME\"}, {\"original\": \"w\", \"refactored\": \"extraFee\", \"mapping\": \"RENAME\"}], \"logic_comparison\": \"The refactored code introduces a new variable 'extraFee' which is not present in the original. This change alters the logic of the calculateTotal method, causing it to return different results for the same inputs.\"}",
+        "duration": 8.53,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"price\",\"mapping\":\"RENAME\"},{\"original\":\"y\",\"refactored\":\"quantity\",\"mapping\":\"RENAME\"},{\"original\":\"z\",\"refactored\":\"taxRate\",\"mapping\":\"RENAME\"},{\"original\":\"w\",\"refactored\":\"extraFee\",\"mapping\":\"RENAME\"}],\"logic_comparison\": \"The refactored code introduces a new variable 'extraFee' which is not present in the original. This change alters the logic of the calculateTotal method, causing it to return different results for the same inputs.\"},\"verdict\":\"REVISE\",\"issues\":[\"Unplanned introduction of extraFee parameter\"]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_extract_method_wrong_params"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "runs": [
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "UNPLANNED_VARIABLE_MAPPING"
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"check\", \"refactored\": \"verify\", \"mapping\": null}], \"logic_comparison\": \"The conditional path for the original check function is equivalent to that of verify. However, variable x was not mapped correctly in refactored code.\"}",
+        "duration": 5.01,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"check\",\"refactored\":\"verify\"}],\"logic_comparison\":\"The conditional path for the original check function is equivalent to that of verify. However, variable x was not mapped correctly in refactored code.\"},\"verdict\":\"REVISE\",\"issues\":[\"UNPLANNED_VARIABLE_MAPPING\"]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_rename_broke_structural"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"check\", \"refactored\": \"verify\", \"mapping\": null}], \"logic_comparison\": \"The conditional path for verify(x) is equivalent to check(x). The original function returns true when x > 0 and false otherwise, which matches the refactored version.\"}",
+        "duration": 4.87,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"check\",\"refactored\":\"verify\"}],\"logic_comparison\":\"The conditional path for verify(x) is equivalent to check(x). The original function returns true when x > 0 and false otherwise, which matches the refactored version.\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_rename_broke_structural"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Unplanned signature change: boolean verify(int) does not match the expected return type of flag.check(boolean int)"
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"check\", \"refactored\": \"verify\", \"mapping\": null}], \"logic_comparison\": \"The conditional paths produce different outputs for the same inputs. The original function returns true when x is greater than 0, but the refactored function always returns true regardless of x.\"}",
+        "duration": 6.4,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"check\",\"refactored\":\"verify\"}],\"logic_comparison\":\"The conditional paths produce different outputs for the same inputs. The original function returns true when x is greater than 0, but the refactored function always returns true regardless of x.\"},\"verdict\":\"REVISE\",\"issues\":[\"Unplanned signature change: boolean verify(int) does not match the expected return type of flag.check(boolean int)\"]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_rename_broke_structural"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"check\", \"refactored\": \"verify\", \"mapping\": null}], \"logic_comparison\": \"The conditional path for the original check function and refactored verify function differ. The original checks if x is greater than 0, while the refactored returns true immediately when x is positive.\"}",
+        "duration": 5.1,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"check\",\"refactored\":\"verify\"}],\"logic_comparison\":\"The conditional path for the original check function and refactored verify function differ. The original checks if x is greater than 0, while the refactored returns true immediately when x is positive.\"},\"verdict\":\"REVISE\",\"issues\":[]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_rename_broke_structural"
+      },
+      {
+        "verdict": "REVISE",
+        "issues": [
+          "Unplanned signature change: return type of 'boolean' is unchanged, but parameter name has been modified from 'check' to 'verify'."
+        ],
+        "scratchpad": "{\"variable_trace\": [{\"original\": \"x\", \"refactored\": \"\", \"mapping\": \"\"}, {\"original\": \"check\", \"refactored\": \"verify\", \"mapping\": null}], \"logic_comparison\": \"The conditional path for the original check method and refactored verify method produce different outputs for a given input.\"}",
+        "duration": 6.03,
+        "raw_content": "{\"audit_scratchpad\": {\"variable_trace\":[{\"original\":\"x\",\"refactored\":\"\",\"mapping\":\"\"},{\"original\":\"check\",\"refactored\":\"verify\"}],\"logic_comparison\":\"The conditional path for the original check method and refactored verify method produce different outputs for a given input.\"},\"verdict\":\"REVISE\",\"issues\":[\"Unplanned signature change: return type of 'boolean' is unchanged, but parameter name has been modified from 'check' to 'verify'.\"]}",
+        "error": null,
+        "expected": "REVISE",
+        "case_name": "revise_rename_broke_structural"
+      }
+    ],
+    "what_happened": "All 5 runs matched the expected verdict. Judge performed correctly.",
+    "why": "Within the model's reliable range \u2014 clear structural signals make verdict straightforward. "
+  }
+]

@@ -1,0 +1,1148 @@
+/home/pugario/Projects/horizon-code/./app/utils/performance.py:3: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context: n_ctx_per_seq (6144) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+
+
+
+======================================================================
+RUNNING MODE: SEQUENTIAL
+======================================================================
+
+
+============================================================
+[1/5] [SEQUENTIAL] polish_extract_long_reformat
+Intent: EXTRACT_METHOD
+Code length: 647 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions extracting the interleaving logic into a helper method, which matches EXTRACT_METHOD.", "intent_packet": { "refactor_category": "METHOD_MOVEMENT", "specific_intent": "EXTRACT_METHOD", "scope_anchor": { "unit_type": "METHOD_UNIT","class":"A","member":"reformat"} } }
+-------------------------------
+[Planner] Intent Classified: EXTRACT_METHOD
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the code to extract and new helper method", "primary_targets": ["reformat"], "secondary_targets": [], "new_structures_needed": ["interleaveQueues"], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying the code to extract and new helper method", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_METHOD", "target": "interleaveQueues", "details": { "body_abstract": "Create a private helper method that interleaves two queues.", "value": "{ Queue<Character> letters = new LinkedList<>(); Queue<Character> digits = new LinkedList<>(); while (!letters.isEmpty() || !digits.isEmpty()) { if (useLetter) result.append(letters.poll()); else result.append(digits.poll()); useLetter = !useLetter; } return result.toString(); }" } }, { "action": "MODIFY_METHOD", "target": "reformat", "details": { "body_abstract": "Replace extracted code with a call to the new helper method.", "value": "{ Queue<Character> letters = new LinkedList<>(); Queue<Character> digits = new LinkedList<>(); for (char c : s.toCharArray()) { if (Character.isLetter(c)) letters.add(c); else digits.add(c); } if (Math.abs(letters.size() - digits.size()) > 1) return \"\"; StringBuilder result = new StringBuilder(); boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "result", "details": { "body_abstract": "Add a field to store the interleaved result.", "value": "{ StringBuilder result = new StringBuilder(); boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return
+------------------------------
+Orchestration Error: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7964 [type=json_invalid, input_value='{ "architect_scratchpad"...sult.toString(); }" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+ERROR: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7964 [type=json_invalid, input_value='{ "architect_scratchpad"...sult.toString(); }" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+
+--- Result ---
+Status: PROCESSING
+Total: 140422ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[2/5] [SEQUENTIAL] polish_const_short_box
+Intent: EXTRACT_CONSTANT
+Code length: 360 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions extracting a magic number into constants.", "intent_packet": { "refactor_category": "STATE_MANAGEMENT", "specific_intent": "EXTRACT_CONSTANT", "scope_anchor": { "unit_type": "METHOD_UNIT", "class": "", "member": "boxCategory" } } }
+-------------------------------
+[Planner] Intent Classified: EXTRACT_CONSTANT
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying magic numbers and preparing to extract them into constants.", "primary_targets": ["boxCategory"], "secondary_targets": [], "new_structures_needed": ["BULKY_DIMENSION_THRESHOLD", "HEAVY_MASS_THRESHOLD"], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying magic numbers and preparing to extract them into constants. new_structures_needed has 2 items → 2 ADD_CONSTANT mutations.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_FIELD", "target": "BULKY_DIMENSION_THRESHOLD", "details": { "value": "10000" } }, { "action": "MODIFY_METHOD", "target": "boxCategory", "details": { "body_abstract": "Replace the magic number 10000 with the constant reference BULKY_DIMENSION_THRESHOLD." } }, { "action": "ADD_FIELD", "target": "HEAVY_MASS_THRESHOLD", "details": { "value": "100" } }, { "action": "MODIFY_METHOD", "target": "boxCategory", "details": { "body_abstract": "Replace the magic number 100 with the constant reference HEAVY_MASS_THRESHOLD." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Sequential editing (3 mutations)...
+KV Cache purged. Sequence memory cleared.
+
+--- Sequential Step 1/3 ---
+Action: ADD_FIELD BULKY_DIMENSION_THRESHOLD | Time: 6179ms | Status: OK
+[Generator] Applied ADD_FIELD BULKY_DIMENSION_THRESHOLD (1/3). 6179ms
+
+--- Sequential Step 2/3 ---
+Action: ADD_FIELD HEAVY_MASS_THRESHOLD | Time: 6576ms | Status: OK
+[Generator] Applied ADD_FIELD HEAVY_MASS_THRESHOLD (2/3). 6576ms
+
+--- Sequential Step 3/3 ---
+Action: MODIFY_METHOD boxCategory | Time: 6435ms | Status: OK
+[Generator] Applied MODIFY_METHOD boxCategory (3/3). 6435ms
+[Generator] All 3 mutations applied. Total gen time: 19190ms
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 0\n-----------------------------------
+[Validator] Structural Checks Passed.
+[Judge] Ph5: Running final audit...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/llama_engine.gguf (Layers: 28, Context: 6144)
+
+--- Judge Auditor Output ---
+{"audit_scratchpad": {"variable_trace": [{"original": "x", "refactored": "y", "mapping": null}], "logic_comparison": "The refactored code maintains the same logic as the original, but with added constants for better readability and maintainability. The extracted constant BULKY_DIMENSION_THRESHOLD is used consistently throughout the method."}, "verdict": "REVISE", "issues": ["Plan was not executed: code is identical to original."] }
+--------------------------
+[Judge] Audit Finished: REVISE
+[Judge] Audit requested revision.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{"analysis_scratchpad": "Extracting constants from boxCategory method", "primary_targets": ["boxCategory"], "secondary_targets": ["length", "width", "height", "mass"], "new_structures_needed": ["BULKY_DIMENSION_THRESHOLD", "HEAVY_MASS_THRESHOLD"], "must_preserve": ["String: 'Both', String: 'Bulky', String: 'Heavy', String: 'Neither']}" ] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{"architect_scratchpad": "Extracting constants from boxCategory method", "ast_modification_plan": {"target_class": "", "ast_mutations": [{"action": "MODIFY_METHOD", "target": "boxCategory", "details": {"body_abstract": "Replace the magic number with the constant reference.", "replace_text": "[10000, 100]"}}]}}
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.3 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public String boxCategory(int length, int width, int height, int mass) {
+    boolean bulky = length >= BULKY_LENGTH || width >= BULKY_WIDTH || height >= BULKY_HEIGHT || length * width * height >= MAX_VOLUME;
+    boolean heavy = mass >= HEAVY_THRESHOLD;
+    if (bulky && heavy) return "Both";
+    else if (bulky) return "Bulky";
+    else if (heavy) return "Heavy";
+    else return "Neither";
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 1 temps. Best: temp=0.3 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public String boxCategory(int length, int width, int height, int mass) {
+    boolean bulky = length >= BULKY_LENGTH || width >= BULKY_WIDTH || height >= BULKY_HEIGHT || (length * width * height) >= MAX_VOLUME;
+    boolean heavy = mass >= HEAVY_THRESHOLD;
+    if (bulky && heavy) return "Both";
+    else if (bulky) return "Bulky";
+    else if (heavy) return "Heavy";
+    else return "Neither";
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying magic numbers and preparing to extract them into constants", "primary_targets": ["boxCategory"], "secondary_targets": [], "new_structures_needed": ["BULKY_DIMENSION_THRESHOLD", "HEAVY_MASS_THRESHOLD"], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying magic numbers and preparing to extract them into constants. new_structures_needed has 2 items → 2 ADD_CONSTANT mutations, primary_targets has 1 item → 1 MODIFY_METHOD mutation. total: 3 mutations.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_CONSTANT", "target": "BULKY_DIMENSION_THRESHOLD", "details": { "value": "10000" } }, { "action": "ADD_CONSTANT", "target": "HEAVY_MASS_THRESHOLD", "details": { "value": "100" } }, { "action": "MODIFY_METHOD", "target": "boxCategory", "details": { "body_abstract": "Replace the magic number with the constant reference." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.3 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+private static final int BULKY_DIMENSION_THRESHOLD = 10000;
+private static final int HEAVY_MASS_THRESHOLD = 100;
+
+public String boxCategory(int length, int width, int height, int mass) {
+    boolean bulky = length >= BULKY_DIMENSION_THRESHOLD || width >= BULKY_DIMENSION_THRESHOLD || height >= BULKY_DIMENSION_THRESHOLD || length * width * height >= 1000000000;
+    boolean heavy = mass >= HEAVY_MASS_THRESHOLD;
+    if (bulky && heavy) return "Both";
+    else if (bulky) return "Bulky";
+    else if (heavy) return "Heavy";
+    else return "Neither";
+}
+[Validator] Ph4: Validating (Strategy 3, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 0\n-----------------------------------
+[Validator] Structural Checks Passed.
+[Judge] Ph5: Running final audit...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/llama_engine.gguf (Layers: 28, Context: 6144)
+
+--- Judge Auditor Output ---
+{"audit_scratchpad": {"variable_trace": [{"original": "x", "refactored": "y", "mapping": null}], "logic_comparison": "The refactored code maintains the same logic as the original, but with extracted constants. The conditional paths produce the same outputs for the given inputs.\n\nFor example:\n- Input: length = 5000, width = 20000, height = 3000, mass = 50 \n- Original Output: Bulky\n- Refactored Output: Bulky\n- Expected Output: Bulky (matches)\n\nHowever, the refactored code does not handle edge cases where the input values are outside of the defined thresholds. For instance:\n- Input: length = -10000, width = 20000, height = 3000, mass = 50 \n- Original Output: Neither\n- Refactored Output: Bulky (expected output)"},"verdict": "REVISE", "issues": ["Plan was not executed: code is identical to original.", "Logic drift would cause different behavior for edge cases."] }
+--------------------------
+[Judge] Audit Finished: REVISE
+[Judge] Audit requested revision.
+[System] Ph6: Finalizing session (Status: ABORT_STRATEGY)...
+
+--- Result ---
+Status: ABORT_STRATEGY
+Total: 133900ms | Gen: 19190ms
+Gen steps: 3
+============================================================
+
+
+============================================================
+[3/5] [SEQUENTIAL] polish_flatten_long_quads
+Intent: FLATTEN_CONDITIONAL
+Code length: 472 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions 'guard clauses', 'continue' and 'remove all nesting'. The code has nested for-loops that can be flattened into guard clauses.", "intent_packet": { "refactor_category": "CONTROL_FLOW", "specific_intent": "FLATTEN_CONDITIONAL", "scope_anchor": { "unit_type": "METHOD_UNIT", "class": "", "member": "increasingQuadruplets" } } }
+-------------------------------
+[Planner] Intent Classified: FLATTEN_CONDITIONAL
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "The method increasingQuadruplets contains nested for-loops which need to be flattened using guard clauses.", "primary_targets": ["increasingQuadruplets"], "secondary_targets": [], "new_structures_needed": [], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "primary_targets has 1 item → 1 MODIFY_METHOD. new_structures is empty for this intent.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "MODIFY_METHOD", "target": "increasingQuadruplets", "details": { "body_abstract": "Invert each nested condition into a guard clause at the method top. Each invalid state skips to next iteration immediately at loop top. Remove all nesting.", "find_text": "", "replace_text": "" } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.1 CC=9 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public int increasingQuadruplets(int[] nums) {
+    if(nums.length < 4) return 0;
+    
+    int n = nums.length, count = 0;
+
+    for (int i = 0; i < n - 3; i++) {
+        if (nums[i] >= nums[i + 1]) continue;
+
+        for (int j = i + 1; j < n - 2; j++) {
+            if (nums[j] <= nums[j + 1]) continue;
+            
+            for (int k = j + 1; k < n - 1; k++) {
+                if (nums[k] >= nums[k + 1]) continue;
+
+                for (int l = k + 1; l < n; l++) {
+                    count++;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 9 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 1 temps. Best: temp=0.3 CC=9 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public int increasingQuadruplets(int[] nums) {
+    if (nums.length < 4) return 0;
+
+    int n = nums.length, count = 0;
+    
+    for (int i = 0; i < n - 3; i++) {
+        if (nums[i] >= nums[i + 1]) continue;
+
+        for (int j = i + 1; j < n - 2; j++) {
+            if (nums[j] <= nums[j + 1]) continue;
+            
+            for (int k = j + 1; k < n - 1; k++) {
+                if (nums[k] >= nums[k + 1]) continue;
+
+                for (int l = k + 1; l < n; l++) {
+                    count++;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 9 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying nested if/else chains and exception handling", "primary_targets": ["increasingQuadruplets"], "secondary_targets": [], "new_structures_needed": [], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "primary_targets has 1 item → 1 MODIFY_METHOD. new_structures is empty → 0 ADD_* mutations. total: 1 mutation.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "MODIFY_METHOD", "target": "increasingQuadruplets", "details": { "body_abstract": "Invert each nested condition into a guard clause at the method top. Each invalid state skips to next iteration immediately at loop top.", "find_text": "\nfor(int i = 0; i < n - 3; i++) {\n    for(int j = i + 1; j < n - 2; j++) {\n        for(int k = j + 1; k < n - 1; k++) {\n            if(nums[i] < nums[k] && nums[k] < nums[j]) {", "replace_text": "\nif (!(nums[i] >= nums[k])) continue;\nfor(int j = i + 1; j < n - 2; j++) {\n    if (!(nums[k] >= nums[j])) continue;\n    for(int k = j + 1; k < n - 1; k++) {" } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.5 CC=10 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public int increasingQuadruplets(int[] nums) {
+    int n = nums.length, count = 0;
+    for (int i = 0; i < n - 3; i++) {
+        if (!(nums[i] >= nums[k])) continue;
+        for (int j = i + 1; j < n - 2; j++) {
+            if (!(nums[k] >= nums[j])) continue;
+            for (int k = j + 1; k < n - 1; k++) {
+
+                if (nums[i] < nums[k] && nums[k] < nums[j]) {
+                    for (int l = k + 1; l < n; l++) {
+                        if (!(nums[j] >= nums[l])) continue;
+                        count++;
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 10 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 2\n-----------------------------------
+[Validator] Structural Checks Failed (2 issues).
+[Validator] Routing to Generator for targeted fix...
+[System] Circuit Breaker: Faults not decreasing. Aborting.
+[System] Ph6: Finalizing session (Status: ABORT_STRATEGY)...
+
+--- Result ---
+Status: ABORT_STRATEGY
+Total: 87271ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[4/5] [SEQUENTIAL] polish_decompose_long_palindrome
+Intent: DECOMPOSE_CONDITIONAL
+Code length: 326 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions decomposing the odd-count validation check into a boolean variable, which aligns with DECOMPOSE_CONDITIONAL.", "intent_packet": { "refactor_category": "CONTROL_FLOW", "specific_intent": "DECOMPOSE_CONDITIONAL", "scope_anchor": { "unit_type": "METHOD_UNIT"} } }
+-------------------------------
+[Planner] Intent Classified: DECOMPOSE_CONDITIONAL
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the compound condition and naming boolean variables", "primary_targets": ["canPermutePalindrome"], "secondary_targets": [], "new_structures_needed": ["hasPalindromePermutation"], "must_preserve": ["Return type: boolean"]}
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "primary_targets has 1 item → 1 MODIFY_METHOD. new_structures has 1 item → 1 ADD_*. total: 2 mutations.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_FIELD", "target": "hasPalindromePermutation", "details": { "type": "boolean" } }, { "action": "MODIFY_METHOD", "target": "canPermutePalindrome", "details": { "body_abstract": "Declare boolean variable hasPalindromePermutation to check if the number of odd counts is less than or equal to 1." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Sequential editing (2 mutations)...
+KV Cache purged. Sequence memory cleared.
+[Generator] Boundary violation on ADD_FIELD hasPalindromePermutation. Retrying (attempt 1/3)...
+[Generator] Boundary violation on ADD_FIELD hasPalindromePermutation. Retrying (attempt 2/3)...
+[Generator] Boundary violation on ADD_FIELD hasPalindromePermutation. Retrying (attempt 3/3)...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.1 CC=4 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public boolean canPermutePalindrome(String s) {
+    HashMap<Character, Integer> count = new HashMap<>();
+    for(char c : s.toCharArray())
+        count.put(c, count.getOrDefault(c, 0) + 1);
+    
+    int odd_count = 0;
+    hasPalindromePermutation = false; // Initialize the field
+    for(int value : count.values()) {
+        if(value % 2 != 0) {
+            odd_count++;
+            hasPalindromePermutation = true; // Set to true as soon as an odd count is found
+        }
+    }
+    
+    return odd_count <= 1;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 4 (Original: 4)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 1 temps. Best: temp=0.3 CC=4 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public boolean canPermutePalindrome(String s) {
+    HashMap<Character, Integer> count = new HashMap<>();
+    for(char c : s.toCharArray())
+        count.put(c, count.getOrDefault(c, 0) + 1);
+    
+    int odd_count = 0;
+    boolean hasPalindromePermutation = false; // Initialize the field
+    for(int value : count.values()) {
+        if(value % 2 != 0) {
+            odd_count++;
+            hasPalindromePermutation = true; // Set to true as soon as an odd count is found
+        }
+    }
+    
+    return odd_count <= 1;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 4 (Original: 4)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the compound condition and naming boolean variables", "primary_targets": ["canPermutePalindrome"], "secondary_targets": [], "new_structures_needed": ["hasPalindromePermutation"], "must_preserve": ["Return type: boolean"]}
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying the compound condition and naming boolean variables", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_FIELD", "target": "hasPalindromePermutation", "details": { "type": "boolean" } }, { "action": "MODIFY_METHOD", "target": "canPermutePalindrome", "details": { "body_abstract": "Declare the boolean variable hasPalindromePermutation to check if there is at most one character with an odd count. Assign its condition based on the evenness of each character's frequency." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.3 CC=4 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public boolean canPermutePalindrome(String s) {
+    HashMap<Character, Integer> count = new HashMap<>();
+    for(char c : s.toCharArray())
+        count.put(c, count.getOrDefault(c, 0) + 1);
+    
+    int odd_count = 0;
+    hasPalindromePermutation = false; // Initialize the field
+    
+    for(int value : count.values()) {
+        if(value % 2 != 0) {
+            odd_count++;
+            hasPalindromePermutation = true; // Set to true as soon as an odd frequency is found
+        }
+    }
+    
+    return odd_count <= 1;
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 4 (Original: 4)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[System] Circuit Breaker: Faults not decreasing. Aborting.
+[System] Ph6: Finalizing session (Status: ABORT_STRATEGY)...
+
+--- Result ---
+Status: ABORT_STRATEGY
+Total: 87772ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[5/5] [SEQUENTIAL] polish_rename_long_paths
+Intent: RENAME_SYMBOL
+Code length: 549 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions renaming variables, which aligns with the RENAME_SYMBOL intent.", "intent_packet": { "refactor_category": "STATE_MANAGEMENT", "specific_intent": "RENAME_SYMBOL", "scope_anchor": { "unit_type": "METHOD_UNIT"} } }
+-------------------------------
+[Planner] Intent Classified: RENAME_SYMBOL
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the symbols to rename and their references", "primary_targets": ["m", "n"], "secondary_targets": ["uniquePathsWithObstacles(int[][] grid)", "grid.length", "grid[0].length", "i", "j"], "new_structures_needed": [], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying the symbols to rename and their references", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "RENAME_SYMBOL", "target": "m", "details": { "body_abstract": "Rename variable 'm' to 'rowCount'", "value": "" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\"
+------------------------------
+Orchestration Error: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7242 [type=json_invalid, input_value='{ "architect_scratchpad"..."\\\\browCount\\\\" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+ERROR: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7242 [type=json_invalid, input_value='{ "architect_scratchpad"..."\\\\browCount\\\\" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+
+--- Result ---
+Status: PROCESSING
+Total: 143347ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+MODE: SEQUENTIAL — SUMMARY
+============================================================
+  polish_extract_long_reformat             | PROCESSING           | 140422ms | gen:      0ms
+  polish_const_short_box                   | ABORT_STRATEGY       | 133900ms | gen:  19190ms
+  polish_flatten_long_quads                | ABORT_STRATEGY       |  87271ms | gen:      0ms
+  polish_decompose_long_palindrome         | ABORT_STRATEGY       |  87772ms | gen:      0ms
+  polish_rename_long_paths                 | PROCESSING           | 143347ms | gen:      0ms
+============================================================
+Results saved to test_results/enriched_sequential_results.json
+
+
+======================================================================
+RUNNING MODE: ONE-SHOT
+======================================================================
+
+
+============================================================
+[1/5] [ONE-SHOT] polish_extract_long_reformat
+Intent: EXTRACT_METHOD
+Code length: 647 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions extracting the interleaving logic into a helper method, which matches EXTRACT_METHOD.", "intent_packet": { "refactor_category": "METHOD_MOVEMENT", "specific_intent": "EXTRACT_METHOD", "scope_anchor": { "unit_type": "METHOD_UNIT","class":"A","member":"reformat"} } }
+-------------------------------
+[Planner] Intent Classified: EXTRACT_METHOD
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the code to extract and new helper method", "primary_targets": ["reformat"], "secondary_targets": [], "new_structures_needed": ["interleaveQueues"], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying the code to extract and new helper method", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_METHOD", "target": "interleaveQueues", "details": { "body_abstract": "Create a private helper method that interleaves two queues.", "value": "{ Queue<Character> letters = new LinkedList<>(); Queue<Character> digits = new LinkedList<>(); while (!letters.isEmpty() || !digits.isEmpty()) { if (useLetter) result.append(letters.poll()); else result.append(digits.poll()); useLetter = !useLetter; } return result.toString(); }" } }, { "action": "MODIFY_METHOD", "target": "reformat", "details": { "body_abstract": "Replace extracted code with a call to the new helper method.", "value": "{ Queue<Character> letters = new LinkedList<>(); Queue<Character> digits = new LinkedList<>(); for (char c : s.toCharArray()) { if (Character.isLetter(c)) letters.add(c); else digits.add(c); } if (Math.abs(letters.size() - digits.size()) > 1) return \"\"; StringBuilder result = new StringBuilder(); boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "result", "details": { "body_abstract": "Add a field to store the interleaved result.", "value": "{ StringBuilder result = new StringBuilder(); boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_FIELD", "target": "useLetter", "details": { "body_abstract": "Add a field to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return result.toString(); }" } }, { "action": "ADD_CONSTANT", "target": "useLetter", "details": { "body_abstract": "Add a constant to store the interleaving logic.", "value": "{ boolean useLetter = letters.size() > digits.size(); interleaveQueues(letters, digits, result); return
+------------------------------
+Orchestration Error: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7964 [type=json_invalid, input_value='{ "architect_scratchpad"...sult.toString(); }" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+ERROR: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7964 [type=json_invalid, input_value='{ "architect_scratchpad"...sult.toString(); }" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+
+--- Result ---
+Status: PROCESSING
+Total: 146863ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[2/5] [ONE-SHOT] polish_const_short_box
+Intent: EXTRACT_CONSTANT
+Code length: 360 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions extracting a magic number into constants.", "intent_packet": { "refactor_category": "STATE_MANAGEMENT", "specific_intent": "EXTRACT_CONSTANT", "scope_anchor": { "unit_type": "METHOD_UNIT", "class": "", "member": "boxCategory" } } }
+-------------------------------
+[Planner] Intent Classified: EXTRACT_CONSTANT
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying magic numbers and preparing to extract them into constants.", "primary_targets": ["boxCategory"], "secondary_targets": [], "new_structures_needed": ["BULKY_DIMENSION_THRESHOLD", "HEAVY_MASS_THRESHOLD"], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying magic numbers and preparing to extract them into constants. new_structures_needed has 2 items → 2 ADD_CONSTANT mutations.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_FIELD", "target": "BULKY_DIMENSION_THRESHOLD", "details": { "value": "10000" } }, { "action": "MODIFY_METHOD", "target": "boxCategory", "details": { "body_abstract": "Replace the magic number 10000 with the constant reference BULKY_DIMENSION_THRESHOLD." } }, { "action": "ADD_FIELD", "target": "HEAVY_MASS_THRESHOLD", "details": { "value": "100" } }, { "action": "MODIFY_METHOD", "target": "boxCategory", "details": { "body_abstract": "Replace the magic number 100 with the constant reference HEAVY_MASS_THRESHOLD." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.1 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public class X {
+    private static final int BULKY_DIMENSION_THRESHOLD = 10000;
+    private static final int HEAVY_MASS_THRESHOLD = 100;
+
+    public String boxCategory(int length, int width, int height, int mass) {
+        boolean bulky = length >= BULKY_DIMENSION_THRESHOLD || width >= BULKY_DIMENSION_THRESHOLD || height >= BULKY_DIMENSION_THRESHOLD || length * width * height >= 1000000000;
+        boolean heavy = mass >= HEAVY_MASS_THRESHOLD;
+        if (bulky && heavy) return "Both";
+        else if (bulky) return "Bulky";
+        else if (heavy) return "Heavy";
+        else return "Neither";
+    }
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 0\n-----------------------------------
+[Validator] Structural Checks Passed.
+[Judge] Ph5: Running final audit...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/llama_engine.gguf (Layers: 28, Context: 6144)
+
+--- Judge Auditor Output ---
+{"audit_scratchpad": {"variable_trace": [{"original": "x", "refactored": "y", "mapping": null}], "logic_comparison": "The boxCategory method still behaves the same way with the refactored constants. For example, if length is 10000 and mass is 200, it will return \"Bulky\"."}, "verdict": "REVISE", "issues": ["Plan was not executed: code is identical to original."] }
+--------------------------
+[Judge] Audit Finished: REVISE
+[Judge] Audit requested revision.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{"analysis_scratchpad": "Extracting constants from boxCategory method", "primary_targets": ["boxCategory"], "secondary_targets": ["length", "width", "height", "mass"], "new_structures_needed": ["BULKY_DIMENSION_THRESHOLD", "HEAVY_MASS_THRESHOLD"], "must_preserve": ["String: 'Both', String: 'Bulky', String: 'Heavy', String: 'Neither']}" ] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{"architect_scratchpad": "Extracting constants from boxCategory method", "ast_modification_plan": {"target_class": "", "ast_mutations": [{"action": "MODIFY_METHOD", "target": "boxCategory", "details": {"body_abstract": "Replace the magic number with the constant reference.", "replace_text": "[10000, 100]"}}]}}
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.3 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public String boxCategory(int length, int width, int height, int mass) {
+    boolean bulky = length >= BULKY_LENGTH || width >= BULKY_WIDTH || height >= BULKY_HEIGHT || length * width * height >= MAX_VOLUME;
+    boolean heavy = mass >= HEAVY_THRESHOLD;
+    if (bulky && heavy) return "Both";
+    else if (bulky) return "Bulky";
+    else if (heavy) return "Heavy";
+    else return "Neither";
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 1 temps. Best: temp=0.3 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public String boxCategory(int length, int width, int height, int mass) {
+    boolean bulky = length >= BULKY_LENGTH || width >= BULKY_WIDTH || height >= BULKY_HEIGHT || (length * width * height) >= MAX_VOLUME;
+    boolean heavy = mass >= HEAVY_THRESHOLD;
+    if (bulky && heavy) return "Both";
+    else if (bulky) return "Bulky";
+    else if (heavy) return "Heavy";
+    else return "Neither";
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying magic numbers and preparing to extract them into constants", "primary_targets": ["boxCategory"], "secondary_targets": [], "new_structures_needed": ["BULKY_DIMENSION_THRESHOLD", "HEAVY_MASS_THRESHOLD"], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying magic numbers and preparing to extract them into constants. new_structures_needed has 2 items → 2 ADD_CONSTANT mutations, primary_targets has 1 item → 1 MODIFY_METHOD mutation. total: 3 mutations.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_CONSTANT", "target": "BULKY_DIMENSION_THRESHOLD", "details": { "value": "10000" } }, { "action": "ADD_CONSTANT", "target": "HEAVY_MASS_THRESHOLD", "details": { "value": "100" } }, { "action": "MODIFY_METHOD", "target": "boxCategory", "details": { "body_abstract": "Replace the magic number with the constant reference." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.3 CC=8 syntax=OK
+----------------------------
+[Generator] Code refactored.
+private static final int BULKY_DIMENSION_THRESHOLD = 10000;
+private static final int HEAVY_MASS_THRESHOLD = 100;
+
+public String boxCategory(int length, int width, int height, int mass) {
+    boolean bulky = length >= BULKY_DIMENSION_THRESHOLD || width >= BULKY_DIMENSION_THRESHOLD || height >= BULKY_DIMENSION_THRESHOLD || length * width * height >= 1000000000;
+    boolean heavy = mass >= HEAVY_MASS_THRESHOLD;
+    if (bulky && heavy) return "Both";
+    else if (bulky) return "Bulky";
+    else if (heavy) return "Heavy";
+    else return "Neither";
+}
+[Validator] Ph4: Validating (Strategy 3, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 8 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 0\n-----------------------------------
+[Validator] Structural Checks Passed.
+[Judge] Ph5: Running final audit...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/llama_engine.gguf (Layers: 28, Context: 6144)
+
+--- Judge Auditor Output ---
+{"audit_scratchpad": {"variable_trace": [{"original": "x", "refactored": "y", "mapping": null}], "logic_comparison": "The refactored code maintains the same logic as the original, but with extracted constants. The conditional paths produce the same outputs for the given inputs.\n\nFor example:\n- Input: length = 5000, width = 20000, height = 3000, mass = 50 \n- Original Output: Bulky\n- Refactored Output: Bulky\n- Expected Output: Bulky (matches)\n\nHowever, the refactored code does not handle edge cases where the input values are outside of the defined thresholds. For instance:\n- Input: length = -10000, width = 20000, height = 3000, mass = 50 \n- Original Output: Neither\n- Refactored Output: Bulky (expected output)"},"verdict": "REVISE", "issues": ["Plan was not executed: code is identical to original.", "Logic drift would cause different behavior for edge cases."] }
+--------------------------
+[Judge] Audit Finished: REVISE
+[Judge] Audit requested revision.
+[System] Ph6: Finalizing session (Status: ABORT_STRATEGY)...
+
+--- Result ---
+Status: ABORT_STRATEGY
+Total: 135544ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[3/5] [ONE-SHOT] polish_flatten_long_quads
+Intent: FLATTEN_CONDITIONAL
+Code length: 472 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions 'guard clauses', 'continue' and 'remove all nesting'. The code has nested for-loops that can be flattened into guard clauses.", "intent_packet": { "refactor_category": "CONTROL_FLOW", "specific_intent": "FLATTEN_CONDITIONAL", "scope_anchor": { "unit_type": "METHOD_UNIT", "class": "", "member": "increasingQuadruplets" } } }
+-------------------------------
+[Planner] Intent Classified: FLATTEN_CONDITIONAL
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "The method increasingQuadruplets contains nested for-loops which need to be flattened using guard clauses.", "primary_targets": ["increasingQuadruplets"], "secondary_targets": [], "new_structures_needed": [], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "primary_targets has 1 item → 1 MODIFY_METHOD. new_structures is empty for this intent.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "MODIFY_METHOD", "target": "increasingQuadruplets", "details": { "body_abstract": "Invert each nested condition into a guard clause at the method top. Each invalid state skips to next iteration immediately at loop top. Remove all nesting.", "find_text": "", "replace_text": "" } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.1 CC=9 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public int increasingQuadruplets(int[] nums) {
+    if(nums.length < 4) return 0;
+    
+    int n = nums.length, count = 0;
+
+    for (int i = 0; i < n - 3; i++) {
+        if (nums[i] >= nums[i + 1]) continue;
+
+        for (int j = i + 1; j < n - 2; j++) {
+            if (nums[j] <= nums[j + 1]) continue;
+            
+            for (int k = j + 1; k < n - 1; k++) {
+                if (nums[k] >= nums[k + 1]) continue;
+
+                for (int l = k + 1; l < n; l++) {
+                    count++;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 9 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 1 temps. Best: temp=0.3 CC=9 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public int increasingQuadruplets(int[] nums) {
+    if (nums.length < 4) return 0;
+
+    int n = nums.length, count = 0;
+    
+    for (int i = 0; i < n - 3; i++) {
+        if (nums[i] >= nums[i + 1]) continue;
+
+        for (int j = i + 1; j < n - 2; j++) {
+            if (nums[j] <= nums[j + 1]) continue;
+            
+            for (int k = j + 1; k < n - 1; k++) {
+                if (nums[k] >= nums[k + 1]) continue;
+
+                for (int l = k + 1; l < n; l++) {
+                    count++;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 9 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: False\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying nested if/else chains and exception handling", "primary_targets": ["increasingQuadruplets"], "secondary_targets": [], "new_structures_needed": [], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "primary_targets has 1 item → 1 MODIFY_METHOD. new_structures is empty → 0 ADD_* mutations. total: 1 mutation.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "MODIFY_METHOD", "target": "increasingQuadruplets", "details": { "body_abstract": "Invert each nested condition into a guard clause at the method top. Each invalid state skips to next iteration immediately at loop top.", "find_text": "\nfor(int i = 0; i < n - 3; i++) {\n    for(int j = i + 1; j < n - 2; j++) {\n        for(int k = j + 1; k < n - 1; k++) {\n            if(nums[i] < nums[k] && nums[k] < nums[j]) {", "replace_text": "\nif (!(nums[i] >= nums[k])) continue;\nfor(int j = i + 1; j < n - 2; j++) {\n    if (!(nums[k] >= nums[j])) continue;\n    for(int k = j + 1; k < n - 1; k++) {" } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.5 CC=10 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public int increasingQuadruplets(int[] nums) {
+    int n = nums.length, count = 0;
+    for (int i = 0; i < n - 3; i++) {
+        if (!(nums[i] >= nums[k])) continue;
+        for (int j = i + 1; j < n - 2; j++) {
+            if (!(nums[k] >= nums[j])) continue;
+            for (int k = j + 1; k < n - 1; k++) {
+
+                if (nums[i] < nums[k] && nums[k] < nums[j]) {
+                    for (int l = k + 1; l < n; l++) {
+                        if (!(nums[j] >= nums[l])) continue;
+                        count++;
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 10 (Original: 8)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 2\n-----------------------------------
+[Validator] Structural Checks Failed (2 issues).
+[Validator] Routing to Generator for targeted fix...
+[System] Circuit Breaker: Faults not decreasing. Aborting.
+[System] Ph6: Finalizing session (Status: ABORT_STRATEGY)...
+
+--- Result ---
+Status: ABORT_STRATEGY
+Total: 87780ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[4/5] [ONE-SHOT] polish_decompose_long_palindrome
+Intent: DECOMPOSE_CONDITIONAL
+Code length: 326 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions decomposing the odd-count validation check into a boolean variable, which aligns with DECOMPOSE_CONDITIONAL.", "intent_packet": { "refactor_category": "CONTROL_FLOW", "specific_intent": "DECOMPOSE_CONDITIONAL", "scope_anchor": { "unit_type": "METHOD_UNIT"} } }
+-------------------------------
+[Planner] Intent Classified: DECOMPOSE_CONDITIONAL
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the compound condition and naming boolean variables", "primary_targets": ["canPermutePalindrome"], "secondary_targets": [], "new_structures_needed": ["hasPalindromePermutation"], "must_preserve": ["Return type: boolean"]}
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "primary_targets has 1 item → 1 MODIFY_METHOD. new_structures has 1 item → 1 ADD_*. total: 2 mutations.", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_FIELD", "target": "hasPalindromePermutation", "details": { "type": "boolean" } }, { "action": "MODIFY_METHOD", "target": "canPermutePalindrome", "details": { "body_abstract": "Declare boolean variable hasPalindromePermutation to check if the number of odd counts is less than or equal to 1." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.1 CC=4 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public boolean canPermutePalindrome(String s) {
+    HashMap<Character, Integer> count = new HashMap<>();
+    for(char c : s.toCharArray())
+        count.put(c, count.getOrDefault(c, 0) + 1);
+    
+    int odd_count = 0;
+    hasPalindromePermutation = false; // ADD_FIELD declaration
+    for(int value : count.values()) {
+        if(value % 2 != 0) {
+            odd_count++;
+            hasPalindromePermutation = true; // MODIFY_METHOD body to set boolean variable
+        }
+    }
+    
+    return odd_count <= 1;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 4 (Original: 4)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 1 temps. Best: temp=0.3 CC=4 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public boolean canPermutePalindrome(String s) {
+    HashMap<Character, Integer> count = new HashMap<>();
+    for(char c : s.toCharArray())
+        count.put(c, count.getOrDefault(c, 0) + 1);
+    
+    int odd_count = 0;
+    hasPalindromePermutation = false; // ADD_FIELD declaration
+    for(int value : count.values()) {
+        if(value % 2 != 0) {
+            odd_count++;
+            hasPalindromePermutation = true; // MODIFY_METHOD body to set boolean variable
+        }
+    }
+    
+    return odd_count <= 1;
+}
+[Validator] Ph4: Validating (Strategy 1, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 4 (Original: 4)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the compound condition and naming boolean variables", "primary_targets": ["canPermutePalindrome"], "secondary_targets": [], "new_structures_needed": ["hasPalindromePermutation"], "must_preserve": ["Return type: boolean"]}
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying the compound condition and naming boolean variables", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "ADD_FIELD", "target": "hasPalindromePermutation", "details": { "type": "boolean" } }, { "action": "MODIFY_METHOD", "target": "canPermutePalindrome", "details": { "body_abstract": "Declare the boolean variable hasPalindromePermutation to check if there is at most one character with an odd count. Assign its condition based on the odd_count and return it." } } ] } }
+------------------------------
+[Planner] Modification plan generated.
+[Generator] Ph3: Implementing plan...
+KV Cache purged. Sequence memory cleared.
+
+--- Generator Multi-Sample ---
+Tried 3 temps. Best: temp=0.3 CC=4 syntax=OK
+----------------------------
+[Generator] Code refactored.
+public boolean canPermutePalindrome(String s) {
+    HashMap<Character, Integer> count = new HashMap<>();
+    for(char c : s.toCharArray())
+        count.put(c, count.getOrDefault(c, 0) + 1);
+    
+    int odd_count = 0;
+    for(int value : count.values()) {
+        if(value % 2 != 0) odd_count++;
+    }
+    
+    boolean hasPalindromePermutation = (odd_count <= 1);
+    return hasPalindromePermutation;
+}
+[Validator] Ph4: Validating (Strategy 2, Syntax 0)...
+\n--- Validator Syntax Check ---\nIs Valid: True\nError: None\n------------------------------
+[Validator] Syntax OK. Running Structural Checks...
+\n--- Validator Structural Checks ---\nComplexity Check: 4 (Original: 4)\nBoundary check found issue: False\nIntent check found issue: True\nTotal findings: 1\n-----------------------------------
+[Validator] Structural Checks Failed (1 issues).
+[Validator] Routing to Generator for targeted fix...
+[System] Circuit Breaker: Faults not decreasing. Aborting.
+[System] Ph6: Finalizing session (Status: ABORT_STRATEGY)...
+
+--- Result ---
+Status: ABORT_STRATEGY
+Total: 67730ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+[5/5] [ONE-SHOT] polish_rename_long_paths
+Intent: RENAME_SYMBOL
+Code length: 549 chars
+============================================================
+[Validator] Ph1: Baselining code structure...
+[Planner] Ph2: Classifying intent (Strategy Iter 1)...
+Model loaded successfully: /home/pugario/Projects/horizon-code/models/qwen_coder.gguf (Layers: 36, Context: 6144)
+
+--- Planner Classifier Output ---
+{ "classification_scratchpad": "The instruction mentions renaming variables, which aligns with the RENAME_SYMBOL intent.", "intent_packet": { "refactor_category": "STATE_MANAGEMENT", "specific_intent": "RENAME_SYMBOL", "scope_anchor": { "unit_type": "METHOD_UNIT"} } }
+-------------------------------
+[Planner] Intent Classified: RENAME_SYMBOL
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Analyzing code structure...
+
+--- Planner Analysis Output ---
+{ "analysis_scratchpad": "Identifying the symbols to rename and their references", "primary_targets": ["m", "n"], "secondary_targets": ["uniquePathsWithObstacles(int[][] grid)", "grid.length", "grid[0].length", "i", "j"], "new_structures_needed": [], "must_preserve": [] }
+-------------------------------
+[Planner] Structure analysis complete.
+KV Cache purged. Sequence memory cleared.
+[Planner] Ph2: Designing mutation plan...
+
+--- Planner Architect Output ---
+{ "architect_scratchpad": "Identifying the symbols to rename and their references", "ast_modification_plan": { "target_class": "", "ast_mutations": [ { "action": "RENAME_SYMBOL", "target": "m", "details": { "body_abstract": "Rename variable 'm' to 'rowCount'", "value": "" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.", "find_text": "\\bm\\b", "replace_text": "\\browCount\\" } }, { "action": "MODIFY_METHOD", "target": "uniquePathsWithObstacles(int[][] grid)", "details": { "body_abstract": "Update all references from old name 'n' to new name 'colCount' inside this method.", "find_text": "\\bn\\b", "replace_text": "\\bcolCount\\"
+------------------------------
+Orchestration Error: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7242 [type=json_invalid, input_value='{ "architect_scratchpad"..."\\\\browCount\\\\" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+ERROR: 1 validation error for ASTArchitectResponse
+  Invalid JSON: EOF while parsing a list at line 1 column 7242 [type=json_invalid, input_value='{ "architect_scratchpad"..."\\\\browCount\\\\" } }', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+
+--- Result ---
+Status: PROCESSING
+Total: 143884ms | Gen: 0ms
+Gen steps: 0
+============================================================
+
+
+============================================================
+MODE: ONE-SHOT — SUMMARY
+============================================================
+  polish_extract_long_reformat             | PROCESSING           | 146863ms | gen:      0ms
+  polish_const_short_box                   | ABORT_STRATEGY       | 135544ms | gen:      0ms
+  polish_flatten_long_quads                | ABORT_STRATEGY       |  87780ms | gen:      0ms
+  polish_decompose_long_palindrome         | ABORT_STRATEGY       |  67730ms | gen:      0ms
+  polish_rename_long_paths                 | PROCESSING           | 143884ms | gen:      0ms
+============================================================
+Results saved to test_results/enriched_oneshot_results.json
+
+
+======================================================================
+FINAL COMPARISON
+======================================================================
+Case                                     Seq Status           1S Status            Seq Gen    1S Gen    
+----------------------------------------------------------------------------------------------------
+polish_extract_long_reformat             PROCESSING           PROCESSING                  0ms        0ms
+polish_const_short_box                   ABORT_STRATEGY       ABORT_STRATEGY          19190ms        0ms
+polish_flatten_long_quads                ABORT_STRATEGY       ABORT_STRATEGY              0ms        0ms
+polish_decompose_long_palindrome         ABORT_STRATEGY       ABORT_STRATEGY              0ms        0ms
+polish_rename_long_paths                 PROCESSING           PROCESSING                  0ms        0ms
+
+Comparison saved to test_results/enriched_comparison.md
+

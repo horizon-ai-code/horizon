@@ -1,0 +1,774 @@
+[
+  {
+    "name": "gen_extract_tax_helper",
+    "intent": "EXTRACT_METHOD",
+    "bad_plan": false,
+    "code_len": 320,
+    "mutation_count": 2,
+    "plan_summary": "ADD_METHOD, MODIFY_METHOD",
+    "output_code": "public class Calculator {\n    private double computeTaxWithRounding(double subtotal, double taxRate) {\n        double tax = subtotal * taxRate;\n        return Math.round((subtotal + tax) * 100.0) / 100.0;\n    }\n\n    public double calculateTotal(double price, int quantity, double taxRate) {\n        double subtotal = price * quantity;\n        return computeTaxWithRounding(subtotal, taxRate);\n    }\n}",
+    "duration": 3.78,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 2,
+    "planned_total": 2,
+    "planned_details": [
+      "ADD_METHOD(computeTaxWithRounding) \u2014 present \u2713",
+      "MODIFY_METHOD(calculateTotal) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Calculator",
+      "ast_mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "computeTaxWithRounding",
+          "details": {
+            "modifiers": [
+              "private"
+            ],
+            "type": "double",
+            "parameters": [
+              {
+                "type": "double",
+                "name": "subtotal"
+              },
+              {
+                "type": "double",
+                "name": "taxRate"
+              }
+            ],
+            "logic_changes": [
+              "Extract tax calculation and rounding"
+            ],
+            "body_abstract": "Compute tax, add to subtotal, round to 2 decimal places, return result"
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "calculateTotal",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "double",
+            "parameters": [
+              {
+                "type": "double",
+                "name": "price"
+              },
+              {
+                "type": "int",
+                "name": "quantity"
+              },
+              {
+                "type": "double",
+                "name": "taxRate"
+              }
+            ],
+            "logic_changes": [
+              "Replace tax logic with call to computeTaxWithRounding"
+            ],
+            "body_abstract": "Compute subtotal from price*quantity, call computeTaxWithRounding, return result"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_extract_prime_count",
+    "intent": "EXTRACT_METHOD",
+    "bad_plan": false,
+    "code_len": 535,
+    "mutation_count": 2,
+    "plan_summary": "ADD_METHOD, MODIFY_METHOD",
+    "output_code": "public class Solution {\n    private int countPrimes(int n) {\n        boolean[] isPrime = new boolean[n + 1];\n        Arrays.fill(isPrime, true); isPrime[0] = false; isPrime[1] = false;\n        for (int i = 2; i * i <= n; i++) if (isPrime[i])\n            for (int j = i * i; j <= n; j += i) isPrime[j] = false;\n        int pc = 0; for (int i = 2; i <= n; i++) if (isPrime[i]) pc++;\n        return pc;\n    }\n\n    public int numPrimeArrangements(int n) {\n        int pc = countPrimes(n);\n        int cc = n - pc;\n        long res = 1; int MOD = 1000000007;\n        for (int i = 1; i <= pc; i++) res = res * i % MOD;\n        for (int i = 1; i <= cc; i++) res = res * i % MOD;\n        return (int) res;\n    }\n}",
+    "duration": 9.01,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 2,
+    "planned_total": 2,
+    "planned_details": [
+      "ADD_METHOD(countPrimes) \u2014 present \u2713",
+      "MODIFY_METHOD(numPrimeArrangements) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Solution",
+      "ast_mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "countPrimes",
+          "details": {
+            "modifiers": [
+              "private"
+            ],
+            "type": "int",
+            "parameters": [
+              {
+                "type": "int",
+                "name": "n"
+              }
+            ],
+            "logic_changes": [
+              "Extract Sieve of Eratosthenes"
+            ],
+            "body_abstract": "Run Sieve up to n, return count of primes"
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "numPrimeArrangements",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "int",
+            "parameters": [
+              {
+                "type": "int",
+                "name": "n"
+              }
+            ],
+            "logic_changes": [
+              "Replace sieve logic with call to countPrimes"
+            ],
+            "body_abstract": "Call countPrimes(n), compute factorial result, return as int"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_extract_set_zeroes_helpers",
+    "intent": "EXTRACT_METHOD",
+    "bad_plan": false,
+    "code_len": 641,
+    "mutation_count": 2,
+    "plan_summary": "ADD_METHOD, MODIFY_METHOD",
+    "output_code": "public class Solution {\n    private void markZeroes(int[][] matrix) {\n        int rows = matrix.length, cols = matrix[0].length;\n        boolean firstRow = false, firstCol = false;\n\n        for (int i = 1; i < rows; i++) {\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][j] == 0) {\n                    matrix[i][0] = 0;\n                    matrix[0][j] = 0;\n                }\n            }\n        }\n\n        for (int i = 1; i < rows; i++) {\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][0] == 0 || matrix[0][j] == 0) {\n                    matrix[i][j] = 0;\n                }\n            }\n        }\n\n        if (firstRow) {\n            for (int j = 0; j < cols; j++) {\n                matrix[0][j] = 0;\n            }\n        }\n\n        if (firstCol) {\n            for (int i = 0; i < rows; i++) {\n                matrix[i][0] = 0;\n            }\n        }\n    }\n\n    public void setZeroes(int[][] matrix) {\n        markZeroes(matrix);\n        int rows = matrix.length, cols = matrix[0].length;\n\n        boolean firstRow = false, firstCol = false;\n\n        for (int i = 1; i < rows; i++) {\n            if (matrix[i][0] == 0) {\n                firstRow = true;\n            }\n        }\n\n        for (int j = 1; j < cols; j++) {\n            if (matrix[0][j] == 0) {\n                firstCol = true;\n            }\n        }\n\n        for (int i = 1; i < rows; i++) {\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][0] == 0 || matrix[0][j] == 0) {\n                    matrix[i][j] = 0;\n                }\n            }\n        }\n\n        if (firstRow) {\n            for (int j = 0; j < cols; j++) {\n                matrix[0][j] = 0;\n            }\n        }\n\n        if (firstCol) {\n            for (int i = 0; i < rows; i++) {\n                matrix[i][0] = 0;\n            }\n        }\n    }\n}",
+    "duration": 20.13,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 2,
+    "planned_total": 2,
+    "planned_details": [
+      "ADD_METHOD(markZeroes) \u2014 present \u2713",
+      "MODIFY_METHOD(setZeroes) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Solution",
+      "ast_mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "markZeroes",
+          "details": {
+            "modifiers": [
+              "private"
+            ],
+            "type": "void",
+            "parameters": [
+              {
+                "type": "int[][]",
+                "name": "matrix"
+              }
+            ],
+            "logic_changes": [
+              "Extract zero-marking logic"
+            ],
+            "body_abstract": "Find zeros, mark first row and first column"
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "setZeroes",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "void",
+            "parameters": [
+              {
+                "type": "int[][]",
+                "name": "matrix"
+              }
+            ],
+            "logic_changes": [
+              "Call markZeroes then apply row/col zeroing"
+            ],
+            "body_abstract": "Call markZeroes(matrix), then set rows/cols to zero"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_flatten_orderprocessor",
+    "intent": "FLATTEN_CONDITIONAL",
+    "bad_plan": false,
+    "code_len": 1168,
+    "mutation_count": 1,
+    "plan_summary": "MODIFY_METHOD",
+    "output_code": "public class OrderProcessor {\n    public void processOrder(Order order, User user) throws IllegalArgumentException, IllegalStateException {\n        if (user == null) {\n            throw new IllegalArgumentException(\"User cannot be null.\");\n        }\n        \n        if (!user.isActive()) {\n            throw new IllegalStateException(\"User account is inactive.\");\n        }\n\n        if (order == null || order.getItems().isEmpty()) {\n            throw new IllegalArgumentException(\"Order has no items or is null.\");\n        }\n\n        double total = order.getTotal();\n        if (total > 1000) {\n            if (!user.isPremium()) {\n                order.applyDiscount(0.05);\n            }\n        } else {\n            order.applyDiscount(0.15);\n        }\n\n        System.out.println(\"Processing order for: \" + user.getName());\n    }\n}",
+    "duration": 6.4,
+    "verdict": "FAIL",
+    "syntax_valid": true,
+    "planned_present": 1,
+    "planned_total": 1,
+    "planned_details": [
+      "MODIFY_METHOD(processOrder) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [
+      "May have merged guard clause exception messages",
+      "Original exception messages lost: {'Order has no items.', 'Order cannot be null.'}"
+    ],
+    "anti_pattern_count": 2,
+    "compliance_pass": true,
+    "what_happened": "Anti-pattern violations: ['May have merged guard clause exception messages', \"Original exception messages lost: {'Order has no items.', 'Order cannot be null.'}\"]. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "OrderProcessor",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "processOrder",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "void",
+            "parameters": [
+              {
+                "type": "Order",
+                "name": "order"
+              },
+              {
+                "type": "User",
+                "name": "user"
+              }
+            ],
+            "logic_changes": [
+              "Replace nested ifs with guard clauses using early exceptions"
+            ],
+            "body_abstract": "Invert all conditionals. Each original exception becomes a guard clause at the top with immediate throw."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_flatten_simple_ifs",
+    "intent": "FLATTEN_CONDITIONAL",
+    "bad_plan": false,
+    "code_len": 272,
+    "mutation_count": 1,
+    "plan_summary": "MODIFY_METHOD",
+    "output_code": "void process(Object x, Object y) {\n    if (x == null || y == null) {\n        throw new IllegalArgumentException(x != null ? \"y is null\" : \"x is null\");\n    }\n    doWork(x, y);\n}",
+    "duration": 2.35,
+    "verdict": "FAIL",
+    "syntax_valid": true,
+    "planned_present": 1,
+    "planned_total": 1,
+    "planned_details": [
+      "MODIFY_METHOD(process) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [
+      "May have merged guard clause exception messages",
+      "Original exception messages lost: {'x is null', 'y is null'}"
+    ],
+    "anti_pattern_count": 2,
+    "compliance_pass": true,
+    "what_happened": "Anti-pattern violations: ['May have merged guard clause exception messages', \"Original exception messages lost: {'x is null', 'y is null'}\"]. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Processor",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "process",
+          "details": {
+            "modifiers": [],
+            "type": "void",
+            "parameters": [
+              {
+                "type": "Object",
+                "name": "x"
+              },
+              {
+                "type": "Object",
+                "name": "y"
+              }
+            ],
+            "logic_changes": [
+              "Flatten nested ifs to guard clauses"
+            ],
+            "body_abstract": "Check x==null throw, check y==null throw, then doWork"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_rename_field",
+    "intent": "RENAME_SYMBOL",
+    "bad_plan": false,
+    "code_len": 136,
+    "mutation_count": 1,
+    "plan_summary": "RENAME_SYMBOL",
+    "output_code": "public class UserManager {\n    private String username;\n    public String getUsername() { return username; }\n    public void setUsername(String username) { this.username = username; }\n}",
+    "duration": 1.73,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 1,
+    "planned_total": 1,
+    "planned_details": [
+      "RENAME_SYMBOL(n) \u2014 old name absent \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "UserManager",
+      "ast_mutations": [
+        {
+          "action": "RENAME_SYMBOL",
+          "target": "n",
+          "details": {
+            "modifiers": [],
+            "type": "String",
+            "parameters": [],
+            "logic_changes": [
+              "Rename field n to username"
+            ],
+            "body_abstract": "Update field, getter, and setter to use username"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_rename_variables",
+    "intent": "RENAME_SYMBOL",
+    "bad_plan": false,
+    "code_len": 421,
+    "mutation_count": 2,
+    "plan_summary": "RENAME_SYMBOL, RENAME_SYMBOL",
+    "output_code": "class ListNode { int val; ListNode next; ListNode(int x) { val = x; } }\npublic ListNode removeNthFromEnd(ListNode head, int n) {\n    ListNode fast = head; ListNode slow = head;\n    for (int i = 0; i < n; i++) fast = fast.next;\n    if (fast == null) { head = head.next; return head; }\n    while (fast.next != null) { fast = fast.next; slow = slow.next; }\n    slow.next = slow.next.next;\n    return head;\n}",
+    "duration": 4.83,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 2,
+    "planned_total": 2,
+    "planned_details": [
+      "RENAME_SYMBOL(first) \u2014 old name absent \u2713",
+      "RENAME_SYMBOL(second) \u2014 old name absent \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Solution",
+      "ast_mutations": [
+        {
+          "action": "RENAME_SYMBOL",
+          "target": "first",
+          "details": {
+            "modifiers": [],
+            "type": "",
+            "parameters": [],
+            "logic_changes": [
+              "Rename first to fast"
+            ],
+            "body_abstract": ""
+          }
+        },
+        {
+          "action": "RENAME_SYMBOL",
+          "target": "second",
+          "details": {
+            "modifiers": [],
+            "type": "",
+            "parameters": [],
+            "logic_changes": [
+              "Rename second to slow"
+            ],
+            "body_abstract": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_extract_pi_constant",
+    "intent": "ADD_CONSTANT",
+    "bad_plan": false,
+    "code_len": 221,
+    "mutation_count": 3,
+    "plan_summary": "ADD_CONSTANT, MODIFY_METHOD, MODIFY_METHOD",
+    "output_code": "public class Circle {\n    private static final double PI = 3.14159;\n\n    public double calculateArea(double radius) {\n        return PI * radius * radius;\n    }\n\n    public double calculateCircumference(double radius) {\n        return 2 * PI * radius;\n    }\n}",
+    "duration": 2.91,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 3,
+    "planned_total": 3,
+    "planned_details": [
+      "ADD_CONSTANT(PI) \u2014 present \u2713",
+      "MODIFY_METHOD(calculateArea) \u2014 ok \u2713",
+      "MODIFY_METHOD(calculateCircumference) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Circle",
+      "ast_mutations": [
+        {
+          "action": "ADD_CONSTANT",
+          "target": "PI",
+          "details": {
+            "modifiers": [
+              "private",
+              "static",
+              "final"
+            ],
+            "type": "double",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": ""
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "calculateArea",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "double",
+            "parameters": [
+              {
+                "type": "double",
+                "name": "radius"
+              }
+            ],
+            "logic_changes": [
+              "Replace 3.14159 with PI"
+            ],
+            "body_abstract": ""
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "calculateCircumference",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "double",
+            "parameters": [
+              {
+                "type": "double",
+                "name": "radius"
+              }
+            ],
+            "logic_changes": [
+              "Replace 3.14159 with PI"
+            ],
+            "body_abstract": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_extract_mod_constant",
+    "intent": "ADD_CONSTANT",
+    "bad_plan": false,
+    "code_len": 198,
+    "mutation_count": 2,
+    "plan_summary": "ADD_CONSTANT, MODIFY_METHOD",
+    "output_code": "public class Solution {\n    private static final int MOD = 1000000007;\n\n    public int compute(int n) {\n        int result = 1;\n        for (int i = 1; i <= n; i++) {\n            result = result * i % MOD;\n        }\n        return result;\n    }\n}",
+    "duration": 3.15,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 2,
+    "planned_total": 2,
+    "planned_details": [
+      "ADD_CONSTANT(MOD) \u2014 present \u2713",
+      "MODIFY_METHOD(compute) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Solution",
+      "ast_mutations": [
+        {
+          "action": "ADD_CONSTANT",
+          "target": "MOD",
+          "details": {
+            "modifiers": [
+              "private",
+              "static",
+              "final"
+            ],
+            "type": "int",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": ""
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "compute",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "int",
+            "parameters": [
+              {
+                "type": "int",
+                "name": "n"
+              }
+            ],
+            "logic_changes": [
+              "Replace 1000000007 with MOD constant"
+            ],
+            "body_abstract": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_decompose_simple",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "bad_plan": false,
+    "code_len": 176,
+    "mutation_count": 1,
+    "plan_summary": "MODIFY_METHOD",
+    "output_code": "public boolean isEligible(int age, double income, int score) {\n    boolean meetsAgeRequirements = (age >= 18 && age <= 65);\n    boolean hasHighIncome = (income > 30000);\n    boolean hasGoodScore = (score > 650);\n\n    return meetsAgeRequirements && hasHighIncome && hasGoodScore;\n}",
+    "duration": 3.46,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 1,
+    "planned_total": 1,
+    "planned_details": [
+      "MODIFY_METHOD(isEligible) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "DECOMPOSE is the hardest intent \u2014 requires creating multiple named booleans and restructuring conditions. 3B model capability limit. ",
+    "plan": {
+      "target_class": "Checker",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "isEligible",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "boolean",
+            "parameters": [
+              {
+                "type": "int",
+                "name": "age"
+              },
+              {
+                "type": "double",
+                "name": "income"
+              },
+              {
+                "type": "int",
+                "name": "score"
+              }
+            ],
+            "logic_changes": [
+              "Decompose compound condition into named booleans"
+            ],
+            "body_abstract": "Create boolean variables for each condition, combine with &&, return result"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "gen_split_simple_loop",
+    "intent": "SPLIT_LOOP",
+    "bad_plan": false,
+    "code_len": 190,
+    "mutation_count": 1,
+    "plan_summary": "MODIFY_METHOD",
+    "output_code": "void process(int[] arr) {\n    for (int i = 0; i < arr.length; i++) {\n        arr[i] *= 2;\n    }\n}",
+    "duration": 1.83,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 1,
+    "planned_total": 1,
+    "planned_details": [
+      "MODIFY_METHOD(process) \u2014 ok \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Simple plan within model's reliable range. ",
+    "plan": {
+      "target_class": "Processor",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "process",
+          "details": {
+            "modifiers": [],
+            "type": "void",
+            "parameters": [
+              {
+                "type": "int[]",
+                "name": "arr"
+              }
+            ],
+            "logic_changes": [],
+            "body_abstract": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "bad_missing_target",
+    "intent": "STRESS",
+    "bad_plan": true,
+    "code_len": 161,
+    "mutation_count": 1,
+    "plan_summary": "MODIFY_METHOD",
+    "output_code": "public class Calculator {\n    public double calculateTotal(double price, int quantity, double taxRate) {\n        return price * quantity * (1 + taxRate);\n    }\n}",
+    "duration": 1.68,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 0,
+    "planned_total": 1,
+    "planned_details": [
+      "MODIFY_METHOD(nonExistentMethod) \u2014 not found \u2717"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "graceful": true,
+    "what_happened": "Only 0/1 planned elements present. All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "MODIFY_METHOD target doesn't exist in code. Generator treated it as valid instruction \u2014 plan is trusted blindly. ",
+    "plan": {
+      "target_class": "Calculator",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "nonExistentMethod",
+          "details": {
+            "modifiers": [
+              "public"
+            ],
+            "type": "void",
+            "parameters": [],
+            "logic_changes": [
+              "Change nothing"
+            ],
+            "body_abstract": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "bad_empty_mutations",
+    "intent": "STRESS",
+    "bad_plan": true,
+    "code_len": 46,
+    "mutation_count": 0,
+    "plan_summary": "",
+    "output_code": "public class A {\n    void m() { int x = 1; }\n}",
+    "duration": 1.06,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 0,
+    "planned_total": 0,
+    "planned_details": [],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "graceful": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Empty mutations list. Generator had nothing to change \u2014 returned original code (correct behavior). ",
+    "plan": {
+      "target_class": "A",
+      "ast_mutations": []
+    }
+  },
+  {
+    "name": "bad_hallucinated_add",
+    "intent": "STRESS",
+    "bad_plan": true,
+    "code_len": 46,
+    "mutation_count": 1,
+    "plan_summary": "ADD_METHOD",
+    "output_code": "public class A {\n    void m() { int x = 1; }\n    \n    private void xyZzZzZzHelperMethod() {\n        Do something;\n    }\n}",
+    "duration": 1.79,
+    "verdict": "PASS",
+    "syntax_valid": true,
+    "planned_present": 1,
+    "planned_total": 1,
+    "planned_details": [
+      "ADD_METHOD(xyZzZzZzHelperMethod) \u2014 present \u2713"
+    ],
+    "anti_patterns": [],
+    "anti_pattern_count": 0,
+    "compliance_pass": true,
+    "graceful": true,
+    "what_happened": "All planned elements created, syntax valid, no anti-pattern violations. ",
+    "why": "Hallucinated ADD_METHOD name. Generator created the method \u2014 treats all plan entries as authoritative. ",
+    "plan": {
+      "target_class": "A",
+      "ast_mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "xyZzZzZzHelperMethod",
+          "details": {
+            "modifiers": [
+              "private"
+            ],
+            "type": "void",
+            "parameters": [],
+            "logic_changes": [
+              "Do something"
+            ],
+            "body_abstract": ""
+          }
+        }
+      ]
+    }
+  }
+]

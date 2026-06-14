@@ -1,0 +1,184 @@
+[
+  {
+    "name": "analysis_const_two_methods",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the magic number and its usage in methods.\", \"primary_targets\": [\"calculateArea\", \"calculateCircumference\"], \"secondary_targets\": [], \"new_structures_needed\": [\"PI\"], \"must_preserve\": [] }",
+    "duration": 3.02,
+    "primary_targets": [
+      "calculateArea",
+      "calculateCircumference"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "PI"
+    ],
+    "must_preserve": [],
+    "scratchpad_len": 54,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_const_single_method",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"The magic number 1000000007 is being extracted into a constant named MOD.\", \"primary_targets\": [\"compute\"], \"secondary_targets\": [], \"new_structures_needed\": [\"MOD\"], \"must_preserve\": [] }",
+    "duration": 2.75,
+    "primary_targets": [
+      "compute"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "MOD"
+    ],
+    "must_preserve": [],
+    "scratchpad_len": 73,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_rename_field_accessors",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the field 'n' and its references.\", \"primary_targets\": [\"n\", \"getN\", \"setN\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.79,
+    "primary_targets": [
+      "n",
+      "getN",
+      "setN"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 45,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_rename_variables",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the symbol to rename and finding all references in the code.\", \"primary_targets\": [\"first\", \"second\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.54,
+    "primary_targets": [
+      "first",
+      "second"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 72,
+    "primary_complete": false,
+    "primary_missing": [
+      "head"
+    ],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_extract_method_tax",
+    "intent": "EXTRACT_METHOD",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the code to extract and its dependencies\", \"primary_targets\": [\"calculateTotal\"], \"secondary_targets\": [], \"new_structures_needed\": [\"computeTaxWithRounding(double price, int quantity)\"], \"must_preserve\": [\"double: subtotal\", \"double: taxRate\"] }",
+    "duration": 3.79,
+    "primary_targets": [
+      "calculateTotal"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "computeTaxWithRounding(double price, int quantity)"
+    ],
+    "must_preserve": [
+      "double: subtotal",
+      "double: taxRate"
+    ],
+    "scratchpad_len": 52,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": false,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_decompose_isEligible",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"The method isEligible contains a complex compound condition with five parts. We need to decompose it into separate boolean variables.\", \"primary_targets\": [\"LoanApprover.isEligible\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isAdult\", \"isWorkingAge\", \"hasSufficientIncome\", \"hasGoodCredit\"], \"must_preserve\": [\"public class LoanApprover { public boolean isEligible(int age, double income, int creditScore, boolean hasCollateral) { if (age >= 18 && age <= 65 && in",
+    "duration": 8.79,
+    "primary_targets": [
+      "LoanApprover.isEligible"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "isAdult",
+      "isWorkingAge",
+      "hasSufficientIncome",
+      "hasGoodCredit"
+    ],
+    "must_preserve": [
+      "public class LoanApprover { public boolean isEligible(int age, double income, int creditScore, boolean hasCollateral) { if (age >= 18 && age <= 65 && income > 30000 && creditScore > 650 && hasCollateral) { return true; } return false; } }"
+    ],
+    "scratchpad_len": 133,
+    "primary_complete": false,
+    "primary_missing": [
+      "isEligible"
+    ],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_flatten_preserve_exceptions",
+    "intent": "FLATTEN_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"The method `process` contains nested if-else statements that need to be flattened using guard clauses.\", \"primary_targets\": [\"Processor.process(String s)\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [\"Exception: IllegalArgumentException\", \"String: 'input empty'\", \"String: 'input null'\"] }",
+    "duration": 4.28,
+    "primary_targets": [
+      "Processor.process(String s)"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [
+      "Exception: IllegalArgumentException",
+      "String: 'input empty'",
+      "String: 'input null'"
+    ],
+    "scratchpad_len": 102,
+    "primary_complete": false,
+    "primary_missing": [
+      "process"
+    ],
+    "new_complete": true,
+    "preserve_complete": true,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_consolidate_wordPattern",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying duplicate conditional branches and consolidating them.\", \"primary_targets\": [\"wordPatternMatch\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.44,
+    "primary_targets": [
+      "wordPatternMatch"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 66,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  }
+]

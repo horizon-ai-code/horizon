@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-06-05T13:09:43",
+  "model": "llama_engine.gguf",
+  "total_cases": 5,
+  "results": [
+    {
+      "case": "RENAME_SWAP_PAIRS",
+      "expected_intent": "RENAME_SYMBOL",
+      "instruction": "Rename the method `swapPairs` to `swapAdjacentNodes` for clarity.",
+      "verdict": "ACCEPT",
+      "issues": [],
+      "audit_scratchpad": {
+        "variable_trace": [
+          {
+            "original": "x",
+            "refactored": "y",
+            "mapping": null
+          }
+        ],
+        "logic_comparison": "The refactored method produces the same output as the original for all inputs, but with a different name."
+      },
+      "parse_ok": true,
+      "parse_error": null,
+      "duration_ms": 3923
+    },
+    {
+      "case": "EXTRACT_FIND_SUBSTRING",
+      "expected_intent": "EXTRACT_METHOD",
+      "instruction": "Extract the inner loop's word validation logic into a separate helper method called isValidWordSequence. The helper should take the current index i, word_count map, word_length, total_words, and s as parameters and return boolean.",
+      "verdict": "ACCEPT",
+      "issues": [],
+      "audit_scratchpad": {
+        "variable_trace": [
+          {
+            "original": "i",
+            "refactored": "i",
+            "mapping": null
+          }
+        ],
+        "logic_comparison": "Structural summary of conditional paths with at least one concrete example."
+      },
+      "parse_ok": true,
+      "parse_error": null,
+      "duration_ms": 3420
+    },
+    {
+      "case": "CONSTANT_COUNT_AND_SAY",
+      "expected_intent": "EXTRACT_CONSTANT",
+      "instruction": "Extract the base case string literal '1' into a named constant BASE_CASE_STRING.",
+      "verdict": "ACCEPT",
+      "issues": [],
+      "audit_scratchpad": {
+        "variable_trace": [
+          {
+            "original": "x",
+            "refactored": "BASE_CASE_STRING",
+            "mapping": null
+          }
+        ],
+        "logic_comparison": "The refactored code produces the same output as the original for n = 1. For example, countAndSay(1) returns BASE_CASE_STRING in both versions."
+      },
+      "parse_ok": true,
+      "parse_error": null,
+      "duration_ms": 4412
+    },
+    {
+      "case": "DECOMPOSE_JUMP_GAME",
+      "expected_intent": "DECOMPOSE_CONDITIONAL",
+      "instruction": "Decompose the jump condition `i == currentEnd` by extracting it into a boolean variable `needToJump`.",
+      "verdict": "REVISE",
+      "issues": [
+        "Plan was not executed: code is identical to original.",
+        "Logic drift would cause different behavior."
+      ],
+      "audit_scratchpad": {
+        "variable_trace": [
+          {
+            "original": "i",
+            "refactored": "i",
+            "mapping": null
+          }
+        ],
+        "logic_comparison": "The condition i == currentEnd is decomposed into a boolean variable needToJump. The logic drift would cause different behavior if the refactored code does not update jumps when canReachEnd becomes false."
+      },
+      "parse_ok": true,
+      "parse_error": null,
+      "duration_ms": 5276
+    },
+    {
+      "case": "FLATTEN_EDIT_DISTANCE",
+      "expected_intent": "FLATTEN_CONDITIONAL",
+      "instruction": "Flatten the nested if-else chain in the DP loop by using guard clauses with early assignment. Each branch should assign dp[i][j] and continue the loop immediately.",
+      "verdict": "SKIP",
+      "issues": [
+        "No valid generated code to audit"
+      ]
+    }
+  ]
+}

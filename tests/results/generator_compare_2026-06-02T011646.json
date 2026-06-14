@@ -1,0 +1,603 @@
+[
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'minDistance'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 9.53,
+    "output_len": 0
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "methods_ok": false,
+    "duration": 9.11,
+    "output_len": 0
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'canWinNim'}"
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 4.26,
+    "output_len": 0
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'canPermutePalindrome'}"
+    ],
+    "orig_cc": 4,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 5.7,
+    "output_len": 0
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC: 4\u21926 (limit\u22644)",
+      "Intent: Conditional nodes count did not decrease."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 6,
+    "methods_ok": true,
+    "duration": 3.79,
+    "output_len": 291
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'findLHS'}"
+    ],
+    "orig_cc": 4,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 6.37,
+    "output_len": 0
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Constant count did not increase."
+    ],
+    "orig_cc": 8,
+    "refac_cc": 8,
+    "methods_ok": true,
+    "duration": 4.97,
+    "output_len": 413
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'findDerangement'}"
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 4.98,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Expected at least one new method, found 0 delta.",
+      "Methods dropped: {'isPalindrome'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 6,
+    "methods_ok": false,
+    "duration": 6.42,
+    "output_len": 474
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_METHOD",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'reformat'}"
+    ],
+    "orig_cc": 7,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 8.04,
+    "output_len": 0
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 3.48,
+    "output_len": 229
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Methods dropped: {'uniquePathsWithObstacles'}"
+    ],
+    "orig_cc": 11,
+    "refac_cc": 11,
+    "methods_ok": false,
+    "duration": 8.86,
+    "output_len": 514
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'distinctIntegersAfterReversingAndAdding'}"
+    ],
+    "orig_cc": 3,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 5.29,
+    "output_len": 0
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_ok": true,
+    "duration": 5.86,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'minSeconds'}"
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 16.39,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'fixedPoint'}"
+    ],
+    "orig_cc": 4,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 4.83,
+    "output_len": 0
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'minDistance'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 9.02,
+    "output_len": 0
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Nesting depth did not decrease (Old: 1, New: 1)."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 3,
+    "methods_ok": true,
+    "duration": 2.11,
+    "output_len": 128
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_ok": true,
+    "duration": 6.6,
+    "output_len": 0
+  },
+  {
+    "name": "polish_inline_nim",
+    "intent": "INLINE_METHOD",
+    "mode": "TEXT",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Expected at least one less method, found 0 delta."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 3.42,
+    "output_len": 229
+  },
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC: 6\u219211 (limit\u22646)"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 11,
+    "methods_ok": true,
+    "duration": 10.39,
+    "output_len": 679
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "methods_ok": true,
+    "duration": 6.91,
+    "output_len": 475
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Operator count did not decrease (Old: 0, New: 0)."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "methods_ok": true,
+    "duration": 2.12,
+    "output_len": 113
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC: 4\u21925 (limit\u22644)",
+      "Intent: Operator count did not decrease (Old: 2, New: 2)."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 5,
+    "methods_ok": true,
+    "duration": 4.5,
+    "output_len": 411
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC: 4\u21926 (limit\u22644)",
+      "Intent: Conditional nodes count did not decrease."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 6,
+    "methods_ok": true,
+    "duration": 3.94,
+    "output_len": 291
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Operator count did not decrease (Old: 1, New: 1)."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 4.36,
+    "output_len": 393
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Constant count did not increase."
+    ],
+    "orig_cc": 8,
+    "refac_cc": 8,
+    "methods_ok": true,
+    "duration": 4.62,
+    "output_len": 423
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'findDerangement'}"
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 6.59,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'isPalindrome', 'checkPartitioning'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 8.01,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_METHOD",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 7,
+    "refac_cc": 6,
+    "methods_ok": true,
+    "duration": 9.22,
+    "output_len": 828
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 3.91,
+    "output_len": 229
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Methods dropped: {'uniquePathsWithObstacles'}"
+    ],
+    "orig_cc": 11,
+    "refac_cc": 11,
+    "methods_ok": false,
+    "duration": 10.32,
+    "output_len": 514
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 3,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 4.99,
+    "output_len": 384
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_ok": true,
+    "duration": 4.88,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Cannot verify intent: Syntax error in input.",
+      "Methods dropped: {'minSeconds'}"
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "methods_ok": false,
+    "duration": 5.16,
+    "output_len": 0
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 4.72,
+    "output_len": 426
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 6,
+    "refac_cc": 4,
+    "methods_ok": true,
+    "duration": 3.69,
+    "output_len": 282
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Nesting depth did not decrease (Old: 1, New: 1)."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 3,
+    "methods_ok": true,
+    "duration": 2.12,
+    "output_len": 128
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Loop count did not decrease or stream() pipeline not found."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_ok": true,
+    "duration": 2.58,
+    "output_len": 150
+  },
+  {
+    "name": "polish_inline_nim",
+    "intent": "INLINE_METHOD",
+    "mode": "ICL",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Expected at least one less method, found 0 delta."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "methods_ok": true,
+    "duration": 1.96,
+    "output_len": 133
+  }
+]

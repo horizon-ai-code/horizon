@@ -1,0 +1,346 @@
+{
+  "timestamp": "2026-06-05T13:06:05",
+  "model": "qwen_coder.gguf",
+  "total_cases": 5,
+  "results": [
+    {
+      "case": "RENAME_SWAP_PAIRS",
+      "expected_intent": "RENAME_SYMBOL",
+      "code": "public ListNode swapPairs(ListNode head) {\n    if (head == null || head.next == null) return head;\n\n    ListNode second = head.next;\n    head.next = swapPairs(second.next);\n    second.next = head;\n\n    return second;\n}",
+      "instruction": "Rename the method `swapPairs` to `swapAdjacentNodes` for clarity.",
+      "classifier_ok": true,
+      "classifier_error": null,
+      "classifier_text": "{ \"classification_scratchpad\": \"\", \"intent_packet\": { \"refactor_category\": \"METHOD_MOVEMENT\", \"specific_intent\": \"RENAME_SYMBOL\", \"scope_anchor\": { \"unit_type\": \"CLASS_UNIT\", \"class\": \"A\", \"member\": \"swapPairs\" } } }",
+      "classifier_tokens": 20,
+      "analysis_ok": true,
+      "analysis_error": null,
+      "analysis_text": "{ \"analysis_scratchpad\": \"Identifying the method to rename and its references\", \"primary_targets\": [\"swapPairs\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+      "analysis_tokens": 19,
+      "arch_raw_length": 481,
+      "parse_ok": true,
+      "parse_error": null,
+      "parse_time_ms": 0,
+      "raw_mutation_count": 2,
+      "arch_tokens": 61,
+      "truncated": false,
+      "repeated_mutations": 0,
+      "unique_mutations": 2,
+      "mutations_capped": false,
+      "action_breakdown": {
+        "RENAME_SYMBOL": 1,
+        "MODIFY_METHOD": 1
+      },
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "RENAME_SYMBOL",
+        "scope_anchor": {
+          "target_class": "A",
+          "member": "swapPairs",
+          "unit_type": "CLASS_UNIT"
+        }
+      },
+      "plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "RENAME_SYMBOL",
+            "target": "swapPairs",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Rename all occurrences of 'swapPairs' to 'swapAdjacentNodes'.",
+              "value": ""
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "swapPairs",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Update references from old name to new name inside this method.",
+              "value": ""
+            }
+          }
+        ]
+      },
+      "arch_preview": "{ \"architect_scratchpad\": \"Identifying the method to rename and its references\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"RENAME_SYMBOL\", \"target\": \"swapPairs\", \"details\": { \"body_abstract\": \"Rename all occurrences of 'swapPairs' to 'swapAdjacentNodes'.\", \"value\": \"\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"swapPairs\", \"details\": { \"body_abstract\": \"Update references from old name to new name inside this method.\", \"value\": \"\" } } ] } }",
+      "time_ms": 12814
+    },
+    {
+      "case": "EXTRACT_FIND_SUBSTRING",
+      "expected_intent": "EXTRACT_METHOD",
+      "code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\npublic List<Integer> findSubstring(String s, String[] words) {\n    if (s == null || s.length() == 0 || words == null || words.length == 0) return new ArrayList<>();\n\n    Map<String, Integer> word_count = new HashMap<>();\n    for (String word : words) {\n        word_count.put(word, word_count.getOrDefault(word, 0) + 1);\n    }\n\n    int word_length = words[0].length();\n    int total_words = words.length;\n    int total_length = word_length * total_words;\n    List<Integer> result = new ArrayList<>();\n\n    for (int i = 0; i <= s.length() - total_length; i++) {\n        Map<String, Integer> temp_word_count = new HashMap<>();\n        for (int j = 0; j < total_words; j++) {\n            String current_word = s.substring(i + j * word_length, i + (j + 1) * word_length);\n            if (!word_count.containsKey(current_word)) break;\n            temp_word_count.put(current_word, temp_word_count.getOrDefault(current_word, 0) + 1);\n            if (temp_word_count.get(current_word) > word_count.get(current_word)) break;\n            if (j + 1 == total_words) result.add(i);\n        }\n    }\n\n    return result;\n}",
+      "instruction": "Extract the inner loop's word validation logic into a separate helper method called isValidWordSequence. The helper should take the current index i, word_count map, word_length, total_words, and s as parameters and return boolean.",
+      "classifier_ok": true,
+      "classifier_error": null,
+      "classifier_text": "{ \"classification_scratchpad\": \"The instruction mentions extracting the inner loop's logic into a helper method, which matches EXTRACT_METHOD.\", \"intent_packet\": { \"refactor_category\": \"METHOD_MOVEMENT\", \"specific_intent\": \"EXTRACT_METHOD\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\",\"class\":\"A\",\"member\":\"findSubstring\"} } }",
+      "classifier_tokens": 29,
+      "analysis_ok": true,
+      "analysis_error": null,
+      "analysis_text": "{ \"analysis_scratchpad\": \"Identifying the inner loop's word validation logic and extracting it into a helper method.\", \"primary_targets\": [\"findSubstring\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isValidWordSequence\"], \"must_preserve\": [] }",
+      "analysis_tokens": 25,
+      "arch_raw_length": 792,
+      "parse_ok": true,
+      "parse_error": null,
+      "parse_time_ms": 0,
+      "raw_mutation_count": 2,
+      "arch_tokens": 110,
+      "truncated": false,
+      "repeated_mutations": 0,
+      "unique_mutations": 2,
+      "mutations_capped": false,
+      "action_breakdown": {
+        "ADD_METHOD": 1,
+        "MODIFY_METHOD": 1
+      },
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "EXTRACT_METHOD",
+        "scope_anchor": {
+          "target_class": "A",
+          "member": "findSubstring",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "ADD_METHOD",
+            "target": "isValidWordSequence",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [
+                {
+                  "name": "i",
+                  "type": "int"
+                },
+                {
+                  "name": "word_count_map",
+                  "type": "Map<String, Integer>"
+                },
+                {
+                  "name": "word_length",
+                  "type": "int"
+                },
+                {
+                  "name": "total_words",
+                  "type": "int"
+                },
+                {
+                  "name": "s",
+                  "type": "String"
+                }
+              ],
+              "logic_changes": [],
+              "body_abstract": "",
+              "value": ""
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "findSubstring",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [
+                {
+                  "name": "s",
+                  "type": "String"
+                },
+                {
+                  "name": "words",
+                  "type": "String[]"
+                }
+              ],
+              "logic_changes": [],
+              "body_abstract": "Replace extracted code with a call to the new helper method.",
+              "value": ""
+            }
+          }
+        ]
+      },
+      "arch_preview": "{ \"architect_scratchpad\": \"Identifying the inner loop's word validation logic and extracting it into a helper method.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_METHOD\", \"target\": \"isValidWordSequence\", \"details\": { \"parameters\": [ { \"name\": \"i\", \"type\": \"int\" }, { \"name\": \"word_count_map\", \"type\": \"Map<String, Integer>\" }, { \"name\": \"word_length\", \"type\": \"int\" }, { \"name\": \"total_words\", \"type\": \"int\" }, { \"name\": \"s\", \"type\": \"String\" } ], \"body_abstr",
+      "time_ms": 20579
+    },
+    {
+      "case": "CONSTANT_COUNT_AND_SAY",
+      "expected_intent": "EXTRACT_CONSTANT",
+      "code": "public String countAndSay(int n) {\n    if (n == 1) return \"1\";\n    String previous = countAndSay(n-1);\n    StringBuilder result = new StringBuilder();\n    int count = 1;\n    for (int i = 1; i < previous.length(); i++) {\n        if (previous.charAt(i) == previous.charAt(i-1)) {\n            count++;\n        } else {\n            result.append(count).append(previous.charAt(i-1));\n            count = 1;\n        }\n    }\n    result.append(count).append(previous.charAt(previous.length()-1));\n    return result.toString();\n}",
+      "instruction": "Extract the base case string literal '1' into a named constant BASE_CASE_STRING.",
+      "classifier_ok": true,
+      "classifier_error": null,
+      "classifier_text": "{ \"classification_scratchpad\": \"The instruction mentions 'extract constant', which matches the EXTRACT_CONSTANT definition.\", \"intent_packet\": { \"refactor_category\": \"STATE_MANAGEMENT\", \"specific_intent\": \"EXTRACT_CONSTANT\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\", \"class\": \"\", \"member\": \"countAndSay\" } } }",
+      "classifier_tokens": 29,
+      "analysis_ok": true,
+      "analysis_error": null,
+      "analysis_text": "{ \"analysis_scratchpad\": \"Identifying the base case string literal '1' and preparing to extract it as a constant.\", \"primary_targets\": [\"countAndSay\"], \"secondary_targets\": [], \"new_structures_needed\": [\"BASE_CASE_STRING\"], \"must_preserve\": [] }",
+      "analysis_tokens": 26,
+      "arch_raw_length": 474,
+      "parse_ok": true,
+      "parse_error": null,
+      "parse_time_ms": 0,
+      "raw_mutation_count": 2,
+      "arch_tokens": 62,
+      "truncated": false,
+      "repeated_mutations": 0,
+      "unique_mutations": 2,
+      "mutations_capped": false,
+      "action_breakdown": {
+        "ADD_CONSTANT": 1,
+        "MODIFY_METHOD": 1
+      },
+      "intent_packet": {
+        "refactor_category": "STATE_MANAGEMENT",
+        "specific_intent": "EXTRACT_CONSTANT",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "countAndSay",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "ADD_CONSTANT",
+            "target": "BASE_CASE_STRING",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": null,
+              "value": "\"1\""
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "countAndSay",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Replace the magic number with the constant reference.",
+              "value": "if (n == 1) return BASE_CASE_STRING;"
+            }
+          }
+        ]
+      },
+      "arch_preview": "{ \"architect_scratchpad\": \"Identifying the base case string literal '1' and preparing to extract it as a constant.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_CONSTANT\", \"target\": \"BASE_CASE_STRING\", \"details\": { \"value\": \"\\\"1\\\"\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"countAndSay\", \"details\": { \"body_abstract\": \"Replace the magic number with the constant reference.\", \"value\": \"if (n == 1) return BASE_CASE_STRING;\" } } ] } }",
+      "time_ms": 15481
+    },
+    {
+      "case": "DECOMPOSE_JUMP_GAME",
+      "expected_intent": "DECOMPOSE_CONDITIONAL",
+      "code": "public int jump(int[] nums) {\n    int jumps = 0, currentEnd = 0, currentFarthest = 0;\n\n    for (int i = 0; i < nums.length - 1; i++) {\n        currentFarthest = Math.max(currentFarthest, i + nums[i]);\n        if (i == currentEnd) {\n            jumps++;\n            currentEnd = currentFarthest;\n        }\n    }\n    return jumps;\n}",
+      "instruction": "Decompose the jump condition `i == currentEnd` by extracting it into a boolean variable `needToJump`.",
+      "classifier_ok": true,
+      "classifier_error": null,
+      "classifier_text": "{ \"classification_scratchpad\": \"The instruction mentions 'decompose the jump condition', which aligns with DECOMPOSE_CONDITIONAL. The code has a compound condition that needs to be broken into named booleans.\", \"intent_packet\": { \"refactor_category\": \"CONTROL_FLOW\", \"specific_intent\": \"DECOMPOSE_CONDITIONAL\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\", \"class\": \"\", \"member\": \"jump\" } } }",
+      "classifier_tokens": 44,
+      "analysis_ok": true,
+      "analysis_error": null,
+      "analysis_text": "{ \"analysis_scratchpad\": \"Reasoning about the code structure and what needs to change\", \"primary_targets\": [\"jump\"], \"secondary_targets\": [], \"new_structures_needed\": [\"needToJump\"], \"must_preserve\": [] }",
+      "analysis_tokens": 21,
+      "arch_raw_length": 468,
+      "parse_ok": true,
+      "parse_error": null,
+      "parse_time_ms": 0,
+      "raw_mutation_count": 2,
+      "arch_tokens": 64,
+      "truncated": false,
+      "repeated_mutations": 0,
+      "unique_mutations": 2,
+      "mutations_capped": false,
+      "action_breakdown": {
+        "ADD_FIELD": 1,
+        "MODIFY_METHOD": 1
+      },
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "DECOMPOSE_CONDITIONAL",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "jump",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "ADD_FIELD",
+            "target": "needToJump",
+            "details": {
+              "modifiers": [],
+              "type": "boolean",
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": null,
+              "value": null
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "jump",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Declare each boolean variable, assign its condition, then use the variables in the if condition.",
+              "value": null
+            }
+          }
+        ]
+      },
+      "arch_preview": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 1 item \u2192 1 ADD_*. total: 2 mutations.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_FIELD\", \"target\": \"needToJump\", \"details\": { \"type\": \"boolean\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"jump\", \"details\": { \"body_abstract\": \"Declare each boolean variable, assign its condition, then use the variables in the if condition.\" } } ] } }",
+      "time_ms": 16133
+    },
+    {
+      "case": "FLATTEN_EDIT_DISTANCE",
+      "expected_intent": "FLATTEN_CONDITIONAL",
+      "code": "public int minDistance(String word1, String word2) {\n    int m = word1.length();\n    int n = word2.length();\n    int[][] dp = new int[m + 1][n + 1];\n\n    for (int i = 0; i <= m; i++) {\n        for (int j = 0; j <= n; j++) {\n            if (i == 0) {\n                dp[i][j] = j;\n            } else if (j == 0) {\n                dp[i][j] = i;\n            } else if (word1.charAt(i - 1) == word2.charAt(j - 1)) {\n                dp[i][j] = dp[i - 1][j - 1];\n            } else {\n                dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;\n            }\n        }\n    }\n\n    return dp[m][n];\n}",
+      "instruction": "Flatten the nested if-else chain in the DP loop by using guard clauses with early assignment. Each branch should assign dp[i][j] and continue the loop immediately.",
+      "classifier_ok": true,
+      "classifier_error": null,
+      "classifier_text": "{ \"classification_scratchpad\": \"The instruction mentions flattening the nested if-else chain using guard clauses with early assignment, which matches the FLATTEN_CONDITIONAL definition.\", \"intent_packet\": { \"refactor_category\": \"CONTROL_FLOW\", \"specific_intent\": \"FLATTEN_CONDITIONAL\", \"scope_anchor\": { \"unit_type\": \"METHOD_UNIT\"} } }",
+      "classifier_tokens": 33,
+      "analysis_ok": true,
+      "analysis_error": null,
+      "analysis_text": "{ \"analysis_scratchpad\": \"The method `minDistance` contains a nested if-else chain that needs to be flattened using guard clauses.\", \"primary_targets\": [\"minDistance\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+      "analysis_tokens": 27,
+      "arch_raw_length": 9023,
+      "parse_ok": false,
+      "parse_error": "1 validation error for ASTArchitectResponse\n  Invalid JSON: EOF while parsing a list at line 1 column 9020 [type=json_invalid, input_value='{ \"architect_scratchpad\"...ly.\", \"value\": null } }', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid",
+      "parse_time_ms": 0,
+      "raw_mutation_count": 0,
+      "arch_tokens": 1268,
+      "truncated": true,
+      "repeated_mutations": 0,
+      "unique_mutations": 0,
+      "mutations_capped": false,
+      "action_breakdown": {},
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "FLATTEN_CONDITIONAL",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "plan": null,
+      "arch_preview": "{ \"architect_scratchpad\": \"The method `minDistance` contains a nested if-else chain that needs to be flattened using guard clauses with early assignment. Each branch should assign dp[i][j] and continue the loop immediately.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"minDistance\", \"details\": { \"body_abstract\": \"Invert each nested condition into a guard clause at the method top. Each invalid state throws or returns early. All excepti",
+      "time_ms": 119819
+    }
+  ]
+}

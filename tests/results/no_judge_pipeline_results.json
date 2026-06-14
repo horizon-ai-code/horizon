@@ -1,0 +1,265 @@
+{
+  "timestamp": "2026-06-05T12:45:23",
+  "total_cases": 5,
+  "results": [
+    {
+      "case": "EXTRACT_METHOD",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 64218,
+      "original_cc": 7,
+      "refactored_cc": 4,
+      "cc_delta": -3,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 3,
+      "mutation_queue_len": 3,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_METHOD",
+          "target": "interleaveQueues",
+          "time_ms": 6560,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "ADD_FIELD",
+          "target": "",
+          "time_ms": 6775,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'interleaveQueues' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 2,
+          "action": "ADD_FIELD",
+          "target": "",
+          "time_ms": 5992,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'interleaveQueues' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 2,
+          "action": "ADD_FIELD",
+          "target": "",
+          "time_ms": 6383,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'interleaveQueues' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 2,
+          "action": "ADD_FIELD",
+          "target": "",
+          "time_ms": 5730,
+          "status": "OK"
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "reformat",
+          "time_ms": 7932,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 3,
+      "gen_fail_steps": 3,
+      "gen_total_time_ms": 39372
+    },
+    {
+      "case": "EXTRACT_CONSTANT",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 36643,
+      "original_cc": 8,
+      "refactored_cc": 8,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 3,
+      "mutation_queue_len": 3,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "BULKY_DIMENSION_THRESHOLD",
+          "time_ms": 5321,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "ADD_FIELD",
+          "target": "HEAVY_MASS_THRESHOLD",
+          "time_ms": 5835,
+          "status": "OK"
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "boxCategory",
+          "time_ms": 5617,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 3,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 16773
+    },
+    {
+      "case": "FLATTEN_CONDITIONAL",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 35656,
+      "original_cc": 8,
+      "refactored_cc": 8,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0
+    },
+    {
+      "case": "DECOMPOSE_CONDITIONAL",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 4,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 113798,
+      "original_cc": 4,
+      "refactored_cc": 4,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "validation_findings": [
+        {
+          "failure_tier": "TIER_2_C_INTENT_MATH",
+          "error_report": {
+            "message": "No decomposition: 4\u21924 binary ops, 1 new vars, used=False.",
+            "faulty_node": null,
+            "actual_value": null,
+            "required_value": null
+          },
+          "recovery_hint": "Check if the refactoring actually achieved the structural goal."
+        },
+        {
+          "failure_tier": "TIER_2_C_INTENT_MATH",
+          "error_report": {
+            "message": "No decomposition: 4\u21924 binary ops, 0 new vars, used=False.",
+            "faulty_node": null,
+            "actual_value": null,
+            "required_value": null
+          },
+          "recovery_hint": "Check if the refactoring actually achieved the structural goal."
+        },
+        {
+          "failure_tier": "TIER_2_C_INTENT_MATH",
+          "error_report": {
+            "message": "No decomposition: 4\u21924 binary ops, 1 new vars, used=False.",
+            "faulty_node": null,
+            "actual_value": null,
+            "required_value": null
+          },
+          "recovery_hint": "Check if the refactoring actually achieved the structural goal."
+        }
+      ],
+      "num_validation_findings": 3,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4927,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4632,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4610,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4640,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        }
+      ],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 4,
+      "gen_total_time_ms": 18809
+    },
+    {
+      "case": "RENAME_SYMBOL",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 49676,
+      "original_cc": 11,
+      "refactored_cc": 11,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 3,
+      "mutation_queue_len": 3,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "RENAME_SYMBOL",
+          "target": "m",
+          "time_ms": 8633,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "RENAME_SYMBOL",
+          "target": "n",
+          "time_ms": 9443,
+          "status": "OK"
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "uniquePathsWithObstacles(int[][] grid)",
+          "time_ms": 9228,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 3,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 27304
+    }
+  ]
+}

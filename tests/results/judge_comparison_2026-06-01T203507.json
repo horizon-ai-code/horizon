@@ -1,0 +1,1756 @@
+[
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 3.65,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 4.06,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 3.84,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 3.51,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 3.42,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 2.89,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 172
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 4.01,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 174
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 4.1,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 174
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 3.68,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 174
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 3.55,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 174
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 14.74,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 317
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 9.25,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 512
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 8.6,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 464
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 9.4,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 516
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 10.63,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 524
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 6.02,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing planned ADD_METHOD item 'System.out.println(arr[i])'"
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 5.62,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing ADD_METHOD 'print' item."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 5.66,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 5.91,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing planned ADD_METHOD item 'System.out.println(arr[i])'"
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 6.29,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 4.09,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 152
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 11.21,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged."
+    ],
+    "scratchpad_len": 457
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 5.0,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: Planned ADD_CONSTANT(PI) item is MISSING."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 30.41,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 1764
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 3.75,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 152
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 5.6,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 5.61,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 5.43,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 6.29,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 6.03,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 156
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 3.83,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 141
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 3.65,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 141
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 3.71,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 141
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 3.59,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 141
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 3.54,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 141
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 5.93,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 276
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 5.75,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 146
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 5.36,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 146
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 36.19,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 1743
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 7.22,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 146
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 5.49,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 4.97,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 4.43,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 4.19,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 4.23,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "baseline",
+    "duration": 4.74,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing ADD_METHOD/ADD_FIELD/ADD_CONSTANT items."
+    ],
+    "scratchpad_len": 150
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "baseline",
+    "duration": 4.64,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing ADD_METHOD 'computeValue' item in plan."
+    ],
+    "scratchpad_len": 150
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "baseline",
+    "duration": 4.66,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing ADD_METHOD/ADD_FIELD/ADD_CONSTANT items."
+    ],
+    "scratchpad_len": 150
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "baseline",
+    "duration": 4.86,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing ADD_METHOD 'computeValue' item in plan."
+    ],
+    "scratchpad_len": 150
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "baseline",
+    "duration": 4.58,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Missing ADD_METHOD 'computeValue' item in plan."
+    ],
+    "scratchpad_len": 150
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 3.87,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.8,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 3.77,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 3.69,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 3.69,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 3.41,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 162
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.21,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 162
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 3.31,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 162
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 3.28,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 162
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 3.4,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 162
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 3.34,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 231
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.24,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 231
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 3.46,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 3.25,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 154
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 9.5,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 523
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 5.4,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Critical: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 173
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.76,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 161
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 5.15,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Critical: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 173
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 5.37,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Critical: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 173
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 6.16,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Critical: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 173
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 4.96,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 4.55,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 4.7,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 159
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 12.36,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 692
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 4.13,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 3.92,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 189
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.93,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 189
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 3.94,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 189
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 4.18,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 204
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 4.0,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 175
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 4.36,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.81,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 141
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 4.01,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 139
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 4.23,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 4.14,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 3.35,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 108
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 4.04,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 191
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 12.28,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "Critical: Planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 464
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 3.27,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 108
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 51.04,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [],
+    "scratchpad_len": 2927
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 4.05,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.81,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 3.69,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 3.72,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 3.63,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "definitions",
+    "duration": 3.63,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 146
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "definitions",
+    "duration": 3.65,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 146
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "definitions",
+    "duration": 6.04,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 285
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "definitions",
+    "duration": 3.63,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 146
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "definitions",
+    "duration": 4.92,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "BEHAVIOR: Any logic, return value or side effect changed beyond renaming."
+    ],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "icl",
+    "duration": 4.4,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "icl",
+    "duration": 4.08,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "icl",
+    "duration": 4.07,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "icl",
+    "duration": 4.06,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "accept_extract_method_tax",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "icl",
+    "duration": 4.18,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "icl",
+    "duration": 2.84,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 172
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "icl",
+    "duration": 2.71,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 172
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "icl",
+    "duration": 2.77,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 172
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "icl",
+    "duration": 2.87,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 172
+  },
+  {
+    "name": "accept_rename_symbol_field",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "icl",
+    "duration": 2.85,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 172
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "icl",
+    "duration": 4.02,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "icl",
+    "duration": 3.7,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "icl",
+    "duration": 3.49,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "icl",
+    "duration": 3.55,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_flatten_guard_clauses",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "icl",
+    "duration": 3.73,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "icl",
+    "duration": 3.78,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 161
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "icl",
+    "duration": 3.52,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 161
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "icl",
+    "duration": 3.5,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 161
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "icl",
+    "duration": 3.51,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 161
+  },
+  {
+    "name": "accept_split_loop",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "icl",
+    "duration": 4.21,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 161
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 1,
+    "mode": "icl",
+    "duration": 4.69,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 159
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 2,
+    "mode": "icl",
+    "duration": 4.18,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 160
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 3,
+    "mode": "icl",
+    "duration": 4.22,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 160
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 4,
+    "mode": "icl",
+    "duration": 3.97,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 158
+  },
+  {
+    "name": "accept_extract_constant_pi",
+    "expected_verdict": "ACCEPT",
+    "run": 5,
+    "mode": "icl",
+    "duration": 4.05,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 159
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "icl",
+    "duration": 3.96,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 204
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "icl",
+    "duration": 3.97,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 204
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "icl",
+    "duration": 3.89,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 204
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "icl",
+    "duration": 3.91,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 204
+  },
+  {
+    "name": "revise_extract_constant_broken_sig",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "icl",
+    "duration": 4.34,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 204
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "icl",
+    "duration": 3.66,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "icl",
+    "duration": 3.42,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "icl",
+    "duration": 3.24,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "icl",
+    "duration": 3.3,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 151
+  },
+  {
+    "name": "revise_decompose_noop",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "icl",
+    "duration": 3.61,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 155
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "icl",
+    "duration": 5.95,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 165
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "icl",
+    "duration": 5.8,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 165
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "icl",
+    "duration": 7.61,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 227
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "icl",
+    "duration": 5.65,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 165
+  },
+  {
+    "name": "revise_flatten_logic_inverted",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "icl",
+    "duration": 7.03,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: If planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING, verdict MUST be REVISE."
+    ],
+    "scratchpad_len": 227
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "icl",
+    "duration": 4.93,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "icl",
+    "duration": 4.55,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "icl",
+    "duration": 4.5,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 219
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "icl",
+    "duration": 6.52,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 333
+  },
+  {
+    "name": "revise_extract_method_wrong_params",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "icl",
+    "duration": 6.39,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 333
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 1,
+    "mode": "icl",
+    "duration": 5.24,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "MODIFY_METHOD(getValue) item is MISSING."
+    ],
+    "scratchpad_len": 155
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 2,
+    "mode": "icl",
+    "duration": 6.45,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 176
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 3,
+    "mode": "icl",
+    "duration": 6.49,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 176
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 4,
+    "mode": "icl",
+    "duration": 4.38,
+    "success": true,
+    "verdict": "ACCEPT",
+    "issues": [],
+    "scratchpad_len": 171
+  },
+  {
+    "name": "revise_rename_broke_structural",
+    "expected_verdict": "REVISE",
+    "run": 5,
+    "mode": "icl",
+    "duration": 5.62,
+    "success": true,
+    "verdict": "REVISE",
+    "issues": [
+      "Plan was not executed: code unchanged.",
+      "CRITICAL: Planned ADD_METHOD/ADD_FIELD/ADD_CONSTANT items are MISSING."
+    ],
+    "scratchpad_len": 176
+  }
+]

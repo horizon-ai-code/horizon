@@ -1,0 +1,352 @@
+{
+  "timestamp": "2026-06-06T00:06:22",
+  "total_cases": 5,
+  "config": {
+    "USE_SEQUENTIAL": true,
+    "SKIP_JUDGE": false
+  },
+  "results": [
+    {
+      "case": "EMPTY_METHOD_BODY",
+      "instruction": "Extract the empty body into a helper method called fooHelper.",
+      "code": "public void foo() {}",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 4,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 54335,
+      "original_cc": 1,
+      "refactored_cc": 1,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public void foo() { fooHelper(); }\n\n  private void fooHelper() {}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'foo' was modified but was outside target scope(s).\", 'faulty_node': 'foo', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'foo'.\"}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'foo' was modified but was outside target scope(s).\", 'faulty_node': 'foo', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'foo'.\"}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'foo' was modified but was outside target scope(s).\", 'faulty_node': 'foo', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'foo'.\"}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'foo' was modified but was outside target scope(s).\", 'faulty_node': 'foo', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'foo'.\"}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': ['Plan was not executed: code is identical to original.', 'Logic drift would cause different behavior.']}",
+          "message": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': ['Plan was not executed: code is identical to original.', 'Logic drift would cause different behavior.']}"
+        }
+      ],
+      "num_validation_findings": 3,
+      "mutation_index": 2,
+      "mutation_queue_len": 2,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "ABORT_STRATEGY",
+          "strategy_iter": 4,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 54335
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_METHOD",
+          "target": "fooHelper",
+          "time_ms": 833,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "foo",
+          "time_ms": 1117,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 1950,
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "EXTRACT_METHOD",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "fooHelper",
+          "unit_type": "METHOD_UNIT"
+        }
+      }
+    },
+    {
+      "case": "STANDALONE_METHOD",
+      "instruction": "Rename bar to execute.",
+      "code": "void bar(int x) {\n    return;\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 26856,
+      "original_cc": 1,
+      "refactored_cc": 1,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "void execute(int x) {\n    return;\n}",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 2,
+      "mutation_queue_len": 2,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 26856
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "RENAME_SYMBOL",
+          "target": "bar",
+          "time_ms": 773,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "bar",
+          "time_ms": 602,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 1375,
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "RENAME_SYMBOL",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "bar",
+          "unit_type": "METHOD_UNIT"
+        }
+      }
+    },
+    {
+      "case": "LONG_METHOD_FLATTEN",
+      "instruction": "Flatten the deeply nested if-else into early return guard clauses. Each branch should return immediately without nesting.",
+      "code": "public int longMethod(int a, int b, int c, int d) {\n    if (a > 0) {\n        if (b > 0) {\n            if (c > 0) {\n                if (d > 0) {\n                    return a + b + c + d;\n                } else {\n                    return a + b + c;\n                }\n            } else {\n                if (d > 0) {\n                    return a + b + d;\n                } else {\n                    return a + b;\n                }\n            }\n        } else {\n            if (c > 0) {\n                if (d > 0) {\n                    return a + c + d;\n                } else {\n                    return a + c;\n                }\n            } else {\n                if (d > 0) {\n                    return a + d;\n                } else {\n                    return a;\n                }\n            }\n        }\n    } else {\n        if (b > 0) {\n            if (c > 0) {\n                if (d > 0) {\n                    return b + c + d;\n                } else {\n                    return b + c;\n                }\n            } else {\n                if (d > 0) {\n                    return b + d;\n                } else {\n                    return b;\n                }\n            }\n        } else {\n            if (c > 0) {\n                if (d > 0) {\n                    return c + d;\n                } else {\n                    return c;\n                }\n            } else {\n                if (d > 0) {\n                    return d;\n                } else {\n                    return 0;\n                }\n            }\n        }\n    }\n}",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 2,
+      "total_duration_ms": 132324,
+      "original_cc": 16,
+      "refactored_cc": 16,
+      "cc_delta": 0,
+      "working_code_changed": false,
+      "working_code_unchanged": true,
+      "generated_code": "public int longMethod(int a, int b, int c, int d) {\n    if (a > 0) {\n        if (b > 0) {\n            if (c > 0) {\n                if (d > 0) {\n                    return a + b + c + d;\n                } else {\n                    return a + b + c;\n                }\n            } else {\n                if (d > 0) {\n                    return a + b + d;\n                } else {\n                    return a + b;\n                }\n            }\n        } else {\n            if (c > 0) {\n                if (d > 0) {\n                    return a + c + d;\n                } else {\n                    return a + c;\n                }\n            } else {\n                if (d > 0) {\n                    return a + d;\n                } else {\n                    return a;\n                }\n            }\n        }\n    } else {\n        if (b > 0) {\n            if (c > 0) {\n                if (d > 0) {\n                    return b + c + d;\n                } else {\n                    return b + c;\n                }\n            } else {\n                if (d > 0) {\n                    return b + d;\n                } else {\n                    return b;\n                }\n            }\n        } else {\n            if (c > 0) {\n                if (d > 0) {\n                    return c + d;\n                } else {\n                    return c;\n                }\n            } else {\n                if (d > 0) {\n                    return d;\n                } else {\n                    return 0;\n                }\n            }\n        }\n    }\n}",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "error",
+          "error": "1 validation error for ASTArchitectResponse\n  Invalid JSON: EOF while parsing a list at line 1 column 8869 [type=json_invalid, input_value='{ \"architect_scratchpad\"...ly.\", \"value\": null } }', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid"
+        },
+        {
+          "phase": "exit",
+          "exit_status": "PROCESSING",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 2,
+          "duration_ms": 132324
+        }
+      ],
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "FLATTEN_CONDITIONAL",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "longMethod",
+          "unit_type": "METHOD_UNIT"
+        }
+      }
+    },
+    {
+      "case": "NESTED_INNER_CLASSES",
+      "instruction": "Extract the getName and setName methods in Outer class into a separate NameHolder interface.",
+      "code": "import java.util.List;\nimport java.util.ArrayList;\n\npublic class Outer {\n    private String name;\n\n    public String getName() {\n        return name;\n    }\n\n    public void setName(String n) {\n        this.name = n;\n    }\n\n    static class InnerOne {\n        private int value;\n\n        public int getValue() {\n            return value;\n        }\n\n        public void setValue(int v) {\n            this.value = v;\n        }\n    }\n\n    static class InnerTwo {\n        private List<String> items;\n\n        public void addItem(String item) {\n            if (items == null) {\n                items = new ArrayList<>();\n            }\n            items.add(item);\n        }\n\n        public List<String> getItems() {\n            return items;\n        }\n    }\n}",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 4,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 212000,
+      "original_cc": 2,
+      "refactored_cc": 2,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "import java.util.List;\nimport java.util.ArrayList;\n\npublic class Outer {\n    private String name;\n\n    public static void main(String[] args) {\n        // Example usage\n        NameHolder holder = new NameHolder();\n        holder.setName(\"John\");\n        System.out.println(holder.getName());  // Output: John\n\n        List<String> items = new ArrayList<>();\n        ItemManager manager = new ItemManager(items);\n        manager.addItem(\"Item1\");\n        manager.addItem(\"Item2\");\n        System.out.println(manager.getItems());\n    }\n\n    public String getName() {\n        return name;\n    }\n}\n\nclass NameHolder extends Outer {\n    @Override\n    public String getName() {\n        return super.getName();\n    }\n\n    @Override\n    protected void setName(String n) {\n        super.setName(n);\n    }\n}\n\nstatic class ItemManager {\n    private List<String> items;\n\n    public ItemManager(List<String> items) {\n        this.items = items;\n    }\n\n    public static void main(String[] args) {\n        // Example usage\n        NameHolder holder = new NameHolder();\n        holder.setName(\"John\");\n        System.out.println(holder.getName());  // Output: John\n\n        List<String> items = new ArrayList<>();\n        ItemManager manager = new ItemManager(items);\n        manager.addItem(\"Item1\");\n        manager.addItem(\"Item2\");\n        System.out.println(manager.getItems());\n    }\n\n    public void addItem(String item) {\n        if (items == null) {\n            items = new ArrayList<>();\n        }\n        items.add(item);\n    }\n\n    private static List<String> getItems() {\n        return super.getItems();  // Call the original method\n    }\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'getName' was modified but was outside target scope(s).\", 'faulty_node': 'getName', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'getName'.\"}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'getName' was modified but was outside target scope(s).\", 'faulty_node': 'getName', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'getName'.\"}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'getName' was modified but was outside target scope(s).\", 'faulty_node': 'getName', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'getName'.\"}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'getName' was modified but was outside target scope(s).\", 'faulty_node': 'getName', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'getName'.\"}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'getName' was modified but was outside target scope(s).\", 'faulty_node': 'getName', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'getName'.\"}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_B_BOUNDARY: 'TIER_2_B_BOUNDARY'>, 'error_report': {'message': \"Boundary Violation: Method 'getName' was modified but was outside target scope(s).\", 'faulty_node': 'getName', 'actual_value': None, 'required_value': None}, 'recovery_hint': \"Next plan must strictly preserve the body of 'getName'.\"}"
+        }
+      ],
+      "num_validation_findings": 3,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "ABORT_STRATEGY",
+          "strategy_iter": 4,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 212000
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_METHOD",
+          "target": "NameHolder.getName",
+          "time_ms": 6764,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "ADD_METHOD",
+          "target": "NameHolder.setName",
+          "time_ms": 7892,
+          "status": "OK"
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "Outer.getName",
+          "time_ms": 8130,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'getName' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "Outer.getName",
+          "time_ms": 8200,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'getName' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "Outer.getName",
+          "time_ms": 7950,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'getName' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "Outer.getName",
+          "time_ms": 8031,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'getName' was modified but was outside target scope(s)."
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 4,
+      "gen_total_time_ms": 46967,
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "EXTRACT_METHOD",
+        "scope_anchor": {
+          "target_class": "Outer",
+          "member": "",
+          "unit_type": "CLASS_UNIT"
+        }
+      }
+    },
+    {
+      "case": "NOOP_RENAME",
+      "instruction": "Rename the process method to processItems.",
+      "code": "import java.util.List;\nimport java.util.ArrayList;\n\npublic class Processor {\n    private List<String> data;\n\n    public void process() {\n        if (data != null && !data.isEmpty()) {\n            for (String item : data) {\n                System.out.println(item);\n            }\n        }\n    }\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 2,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 81009,
+      "original_cc": 4,
+      "refactored_cc": 4,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "import java.util.List;\nimport java.util.ArrayList;\n\npublic class Processor {\n    private List<String> dataItems;\n\n    public void processItems() {\n        if (dataItems != null && !dataItems.isEmpty()) {\n            for (String item : dataItems) {\n                System.out.println(item);\n            }\n        }\n    }\n\n    // MODIFY_METHOD data\n    // Body: Update all references from 'item' to 'null' in this field.\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': ['Plan was not executed: RENAME_SYMBOL mutation did not result in code changes.', 'Logic drift would cause different behavior due to method name and parameter addition.']}",
+          "message": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': ['Plan was not executed: RENAME_SYMBOL mutation did not result in code changes.', 'Logic drift would cause different behavior due to method name and parameter addition.']}"
+        }
+      ],
+      "num_validation_findings": 1,
+      "mutation_index": 2,
+      "mutation_queue_len": 2,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 2,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 81009
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "RENAME_SYMBOL",
+          "target": "processItems",
+          "time_ms": 2727,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "process",
+          "time_ms": 3211,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 5938,
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "RENAME_SYMBOL",
+        "scope_anchor": {
+          "target_class": "Processor",
+          "member": "processItems",
+          "unit_type": "CLASS_UNIT"
+        }
+      }
+    }
+  ]
+}

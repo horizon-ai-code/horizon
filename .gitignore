@@ -12,7 +12,6 @@ GEMINI.md
 
 .agents
 
-tests/results/
 .coverage
 
 .opencode/

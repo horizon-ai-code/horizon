@@ -1,0 +1,271 @@
+{
+  "timestamp": "2026-06-03T22:32:08",
+  "total_cases": 5,
+  "results": [
+    {
+      "case": "polish_extract_long_reformat",
+      "intent": "EXTRACT_METHOD",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 2,
+      "total_duration_ms": 77767,
+      "gen_time_ms": 14569,
+      "gen_steps": [
+        {
+          "msg": "Applied ADD_METHOD interleaveQueues (1/2). 7200ms",
+          "ms": 7200
+        },
+        {
+          "msg": "Applied MODIFY_METHOD reformat (2/2). 7369ms",
+          "ms": 7369
+        }
+      ],
+      "gen_timings_raw": [
+        {
+          "step": 1,
+          "action": "ADD_METHOD",
+          "target": "interleaveQueues",
+          "time_ms": 7200,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "reformat",
+          "time_ms": 7369,
+          "status": "OK"
+        }
+      ],
+      "mutation_index": 2,
+      "mutation_queue_len": 2,
+      "refactored_code": "public String reformat(String s) {\n    Queue<Character> letters = new LinkedList<>();\n    Queue<Char",
+      "num_statuses": 32,
+      "key_statuses": [
+        "Ph2: Designing mutation plan...",
+        "Modification plan generated.\n\n**Target Class:** ``\n\n**Mutations:**\n- **ADD_METHOD** on `interleaveQueues`\n- **MODIFY_METHOD** on `reformat`\n",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 2, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Failed (1 issues).\n\n**Total Faults:** 1\n\n**[TIER_2_A_COMPLEXITY]**\n> Target method 'reformat' not found in refactored code.\n- *Hint:* Preserve the target method name in the refactore",
+        "Routing to Generator for targeted fix...",
+        "Circuit Breaker: Faults not decreasing. Aborting.",
+        "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      ]
+    },
+    {
+      "case": "polish_const_short_box",
+      "intent": "EXTRACT_CONSTANT",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 2,
+      "total_duration_ms": 185923,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "BULKY_DIMENSION_THRESHOLD",
+          "time_ms": 5827,
+          "status": "SYNTAX_FAIL",
+          "error": ""
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "BULKY_DIMENSION_THRESHOLD",
+          "time_ms": 5359,
+          "status": "SYNTAX_FAIL",
+          "error": ""
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "BULKY_DIMENSION_THRESHOLD",
+          "time_ms": 5347,
+          "status": "SYNTAX_FAIL",
+          "error": ""
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "BULKY_DIMENSION_THRESHOLD",
+          "time_ms": 5275,
+          "status": "SYNTAX_FAIL",
+          "error": ""
+        }
+      ],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "num_statuses": 27,
+      "key_statuses": [
+        "Routing to Generator for targeted fix...",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 1, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Failed (1 issues).\n\n**Total Faults:** 1\n\n**[TIER_2_C_INTENT_MATH]**\n> Constant count did not increase.\n- *Hint:* Check if the refactoring actually achieved the structural goal.\n\n",
+        "Ph2: Analyzing code structure...",
+        "Structure analysis complete.\n\n```json\n{\n  \"analysis_scratchpad\": \"Identifying magic numbers and preparing to extract them into constants\",\n  \"primary_targets\": [\n    \"boxCategory\"\n  ],\n  \"secondary_ta",
+        "Ph2: Designing mutation plan...",
+        "Error: 1 validation error for ASTArchitectResponse\n  Invalid JSON: EOF while parsing a list at line 1 column 7918 [type=json_invalid, input_value='{ \"architect_scratchpad\"...VY_MASS_THRESHOLD.\" } }', "
+      ]
+    },
+    {
+      "case": "polish_flatten_long_quads",
+      "intent": "FLATTEN_CONDITIONAL",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 2,
+      "total_duration_ms": 81765,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "refactored_code": "public int increasingQuadruplets(int[] nums) {\n    int n = nums.length, count = 0;\n    for(int i = 0",
+      "num_statuses": 30,
+      "key_statuses": [
+        "Ph2: Designing mutation plan...",
+        "Modification plan generated.\n\n**Target Class:** ``\n\n**Mutations:**\n- **MODIFY_METHOD** on `increasingQuadruplets`\n",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 2, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Failed (1 issues).\n\n**Total Faults:** 1\n\n**[TIER_2_A_COMPLEXITY]**\n> CC increased from 8 to 10 (limit: 8)\n- *Hint:* Simplify logic to maintain or reduce complexity.\n\n",
+        "Routing to Generator for targeted fix...",
+        "Circuit Breaker: Faults not decreasing. Aborting.",
+        "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      ]
+    },
+    {
+      "case": "polish_decompose_long_palindrome",
+      "intent": "DECOMPOSE_CONDITIONAL",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 2,
+      "total_duration_ms": 80726,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4959,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4549,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4594,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "time_ms": 4725,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'canPermutePalindrome' was modified but was outside target scope(s)."
+        }
+      ],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "refactored_code": "public boolean canPermutePalindrome(String s) {\n    HashMap<Character, Integer> count = new HashMap<",
+      "num_statuses": 34,
+      "key_statuses": [
+        "Ph2: Designing mutation plan...",
+        "Modification plan generated.\n\n**Target Class:** ``\n\n**Mutations:**\n- **ADD_FIELD** on `hasPalindromePermutation`\n- **MODIFY_METHOD** on `canPermutePalindrome`\n",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 2, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Failed (1 issues).\n\n**Total Faults:** 1\n\n**[TIER_2_C_INTENT_MATH]**\n> Operator count did not decrease (Old: 2, New: 2).\n- *Hint:* Check if the refactoring actually achieved the struc",
+        "Routing to Generator for targeted fix...",
+        "Circuit Breaker: Faults not decreasing. Aborting.",
+        "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      ]
+    },
+    {
+      "case": "polish_rename_long_paths",
+      "intent": "RENAME_SYMBOL",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "total_duration_ms": 81162,
+      "gen_time_ms": 37683,
+      "gen_steps": [
+        {
+          "msg": "Applied RENAME_SYMBOL m (1/4). 9116ms",
+          "ms": 9116
+        },
+        {
+          "msg": "Applied RENAME_SYMBOL n (2/4). 9648ms",
+          "ms": 9648
+        },
+        {
+          "msg": "Applied MODIFY_METHOD uniquePathsWithObstacles(int[][] grid) (3/4). 9521ms",
+          "ms": 9521
+        },
+        {
+          "msg": "Applied MODIFY_METHOD uniquePathsWithObstacles(int[][] grid) (4/4). 9398ms",
+          "ms": 9398
+        }
+      ],
+      "gen_timings_raw": [
+        {
+          "step": 1,
+          "action": "RENAME_SYMBOL",
+          "target": "m",
+          "time_ms": 9116,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "RENAME_SYMBOL",
+          "target": "n",
+          "time_ms": 9648,
+          "status": "OK"
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "uniquePathsWithObstacles(int[][] grid)",
+          "time_ms": 9521,
+          "status": "OK"
+        },
+        {
+          "step": 4,
+          "action": "MODIFY_METHOD",
+          "target": "uniquePathsWithObstacles(int[][] grid)",
+          "time_ms": 9398,
+          "status": "OK"
+        }
+      ],
+      "mutation_index": 4,
+      "mutation_queue_len": 4,
+      "refactored_code": "public int uniquePathsWithObstacles(int[][] grid) {\n    int rowCount = grid.length;\n    int colCount",
+      "num_statuses": 20,
+      "key_statuses": [
+        "Applied MODIFY_METHOD uniquePathsWithObstacles(int[][] grid) (3/4). 9521ms",
+        "Applied MODIFY_METHOD uniquePathsWithObstacles(int[][] grid) (4/4). 9398ms",
+        "All 4 mutations applied. Total gen time: 37683ms",
+        "Ph4: Validating (Strategy 1, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Passed.",
+        "Ph5: Running final audit...",
+        "Audit Finished: ACCEPT\n\n**Verdict:** \u2705 ACCEPT\n",
+        "Ph6: Finalizing session (Status: SUCCESS)...",
+        "Generating insights..."
+      ]
+    }
+  ]
+}

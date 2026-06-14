@@ -1,0 +1,426 @@
+[
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 7.69
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Variable count did not increase.",
+      "Dropped: {'checkPartitioning'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 6,
+    "output_len": 846,
+    "duration": 7.78
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 6.72
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 4.27
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 4.17
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 122.16
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Boundary: Boundary Violation: Method 'boxCategory' was modified but was outside target sco"
+    ],
+    "orig_cc": 8,
+    "refac_cc": 8,
+    "output_len": 446,
+    "duration": 4.86
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 8.39
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Boundary: Boundary Violation: Method 'isPalindrome' was modified but was outside target sc",
+      "Dropped: {'checkPartitioning'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 6,
+    "output_len": 1094,
+    "duration": 9.86
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "output_len": 273,
+    "duration": 3.74
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 9.47
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 3,
+    "refac_cc": 4,
+    "output_len": 501,
+    "duration": 5.35
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Loop count delta was 0, expected +1."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 2,
+    "output_len": 235,
+    "duration": 3.41
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 341,
+    "duration": 4.73
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 7.93
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "REMOVE_CONTROL_FLAG",
+    "mode": "ONE-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Exit points did not increase."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "output_len": 158,
+    "duration": 2.33
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "mode": "ONE-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 2.46
+  },
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 7.95
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 6.36
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 7.68
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "TWO-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Conditional nodes count did not decrease."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "output_len": 375,
+    "duration": 4.03
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 4.17
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 8.48
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 5.32
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 9.44
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 13.65
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 3.54
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 9.28
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 4.96
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 2.78
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "TWO-STEP",
+    "syntax_ok": true,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent: Variable count did not increase."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "output_len": 346,
+    "duration": 4.05
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 7.59
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "REMOVE_CONTROL_FLAG",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 2.14
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "mode": "TWO-STEP",
+    "syntax_ok": false,
+    "phase4_pass": false,
+    "phase4_findings": [],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "output_len": 0,
+    "duration": 2.26
+  }
+]

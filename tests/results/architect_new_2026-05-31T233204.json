@@ -1,0 +1,286 @@
+[
+  {
+    "name": "arch_extract_constant_two_methods",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 2 items \u2192 2 MODIFY_METHOD. new_structures has 1 item \u2192 1 ADD_CONSTANT. total: 3 mutations.\", \"ast_modification_plan\": { \"target_class\": \"Circle\", \"ast_mutations\": [ { \"action\": \"ADD_CONSTANT\", \"target\": \"PI\", \"details\": { \"type\": \"double\", \"body_abstract\": \"Declare a static final field holding the magic number value.\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"calculateArea\", \"details\": { \"body_abstract\": \"Replace the magic number with the constan",
+    "duration": 8.98,
+    "target_class": "Circle",
+    "mutation_count": 3,
+    "mutations": [
+      {
+        "action": "ADD_CONSTANT",
+        "target": "PI",
+        "body": "Declare a static final field holding the magic number value."
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "calculateArea",
+        "body": "Replace the magic number with the constant reference."
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "calculateCircumference",
+        "body": "Replace the magic number with the constant reference."
+      }
+    ],
+    "actions": [
+      "ADD_CONSTANT",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 110,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": false,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_extract_constant_single_method",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 1 item \u2192 1 ADD_CONSTANT. total: 2 mutations.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_CONSTANT\", \"target\": \"MOD\", \"details\": { \"body_abstract\": \"Declare a static final field holding the magic number value.\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"compute\", \"details\": { \"body_abstract\": \"Replace the magic number with the constant reference.\" } } ] } }",
+    "duration": 6.25,
+    "target_class": "",
+    "mutation_count": 2,
+    "mutations": [
+      {
+        "action": "ADD_CONSTANT",
+        "target": "MOD",
+        "body": "Declare a static final field holding the magic number value."
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "compute",
+        "body": "Replace the magic number with the constant reference."
+      }
+    ],
+    "actions": [
+      "ADD_CONSTANT",
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 109,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": true,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_rename_field_with_accessors",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 3 items \u2192 1 RENAME_SYMBOL + 2 MODIFY_METHOD. total: 5 mutations.\", \"ast_modification_plan\": { \"target_class\": \"UserManager\", \"ast_mutations\": [ { \"action\": \"RENAME_SYMBOL\", \"target\": \"n\" , \"details\": {\"body_abstract\":\"Rename field 'n' to 'newN'\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"getN\", \"details\": {\"body_abstract\":\"Update all references from old name 'n' to new name 'newN' inside this method.\"} }, { \"action\": \"MODIFY_METHOD\", \"target\": \"se",
+    "duration": 8.98,
+    "target_class": "UserManager",
+    "mutation_count": 3,
+    "mutations": [
+      {
+        "action": "RENAME_SYMBOL",
+        "target": "n",
+        "body": "Rename field 'n' to 'newN'"
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "getN",
+        "body": "Update all references from old name 'n' to new name 'newN' inside this method."
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "setN",
+        "body": "Update all references from old name 'n' to new name 'newN' inside this method."
+      }
+    ],
+    "actions": [
+      "RENAME_SYMBOL",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 84,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": false,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_extract_method_tax",
+    "intent": "EXTRACT_METHOD",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 1 item \u2192 1 ADD_*. total: 2 mutations.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_METHOD\", \"target\": \"computeTaxWithRounding\", \"details\": { \"parameters\": [], \"body_abstract\": \"\" } }, { \"action\": \"MODIFY_METHOD\", \"target\": \"calculateTotal\", \"details\": { \"body_abstract\": \"Replace extracted code with a call to the new helper method.\" } } ] } }",
+    "duration": 6.78,
+    "target_class": "",
+    "mutation_count": 2,
+    "mutations": [
+      {
+        "action": "ADD_METHOD",
+        "target": "computeTaxWithRounding",
+        "body": ""
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "calculateTotal",
+        "body": "Replace extracted code with a call to the new helper method."
+      }
+    ],
+    "actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 102,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": true,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_decompose_boolean_fields",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 3 items \u2192 3 ADD_*. total: 4 mutations.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_FIELD\", \"target\": \"isAdult\", \"details\": { \"type\": \"boolean\" } }, { \"action\": \"ADD_FIELD\", \"target\": \"hasSufficientIncome\", \"details\": { \"type\": \"boolean\" } }, { \"action\": \"ADD_FIELD\", \"target\": \"hasGoodCredit\", \"details\": { \"type\": \"boolean\" } }, { \"action\": \"MODIFY_METHOD\", \"target\"",
+    "duration": 9.6,
+    "target_class": "",
+    "mutation_count": 4,
+    "mutations": [
+      {
+        "action": "ADD_FIELD",
+        "target": "isAdult",
+        "body": ""
+      },
+      {
+        "action": "ADD_FIELD",
+        "target": "hasSufficientIncome",
+        "body": ""
+      },
+      {
+        "action": "ADD_FIELD",
+        "target": "hasGoodCredit",
+        "body": ""
+      },
+      {
+        "action": "MODIFY_METHOD",
+        "target": "isEligible",
+        "body": "Declare each boolean variable, assign its condition, then use the variables in the if condition."
+      }
+    ],
+    "actions": [
+      "ADD_FIELD",
+      "ADD_FIELD",
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 103,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": true,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_flatten_guard_clauses",
+    "intent": "FLATTEN_CONDITIONAL",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures is empty for this intent \u2192 no ADD_* mutations. total: 1 mutation.\", \"ast_modification_plan\": { \"target_class\": \"Processor\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"process\", \"details\": { \"body_abstract\": \"Invert each nested condition into a guard clause at the method top. Each invalid state throws or returns early. All exception types and messages from must_preserve must appear exactly.\\n\\n",
+    "duration": 9.92,
+    "target_class": "Processor",
+    "mutation_count": 1,
+    "mutations": [
+      {
+        "action": "MODIFY_METHOD",
+        "target": "process",
+        "body": "Invert each nested condition into a guard clause at the method top. Each invalid state throws or ret"
+      }
+    ],
+    "actions": [
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 126,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "target_class_empty": false,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_split_loop",
+    "intent": "SPLIT_LOOP",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 0 items \u2192 0 ADD_*. total: 1 mutation.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"process\", \"details\": { \"body_abstract\": \"Split the loop into separate loops. Each handles one operation. Preserve overall logic.\" } } ] } }",
+    "duration": 5.46,
+    "target_class": "",
+    "mutation_count": 1,
+    "mutations": [
+      {
+        "action": "MODIFY_METHOD",
+        "target": "process",
+        "body": "Split the loop into separate loops. Each handles one operation. Preserve overall logic."
+      }
+    ],
+    "actions": [
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 102,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": true,
+    "target_class_placeholder": false
+  },
+  {
+    "name": "arch_consolidate_condition",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures is empty \u2192 no ADD_* mutations. total: 1 mutation.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"wordPatternMatch\", \"details\": { \"body_abstract\": \"Combine duplicate conditional branches into a single check.\" } } ] } }",
+    "duration": 5.1,
+    "target_class": "",
+    "mutation_count": 1,
+    "mutations": [
+      {
+        "action": "MODIFY_METHOD",
+        "target": "wordPatternMatch",
+        "body": "Combine duplicate conditional branches into a single check."
+      }
+    ],
+    "actions": [
+      "MODIFY_METHOD"
+    ],
+    "scratchpad_len": 110,
+    "count_match": true,
+    "count_diff": 0,
+    "actions_match": true,
+    "targets_clean": true,
+    "bad_targets": [],
+    "no_template_bleed": true,
+    "bleed_count": 0,
+    "target_class_empty": true,
+    "target_class_placeholder": false
+  }
+]

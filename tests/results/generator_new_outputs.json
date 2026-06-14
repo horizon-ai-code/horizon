@@ -1,0 +1,292 @@
+{
+  "timestamp": "2026-06-05T13:09:04",
+  "model": "qwen_coder.gguf",
+  "total_cases": 5,
+  "results": [
+    {
+      "case": "RENAME_SWAP_PAIRS",
+      "expected_intent": "RENAME_SYMBOL",
+      "instruction": "Rename the method `swapPairs` to `swapAdjacentNodes` for clarity.",
+      "original_code": "public ListNode swapPairs(ListNode head) {\n    if (head == null || head.next == null) return head;\n\n    ListNode second = head.next;\n    head.next = swapPairs(second.next);\n    second.next = head;\n\n    return second;\n}",
+      "planner_parse_ok": true,
+      "mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "swapPairs",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Update references from old name to new name inside this method.",
+            "value": ""
+          }
+        },
+        {
+          "action": "RENAME_SYMBOL",
+          "target": "swapPairs",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Rename all occurrences of 'swapPairs' to 'swapAdjacentNodes'.",
+            "value": "",
+            "find_text": "swapPairs"
+          }
+        }
+      ],
+      "mutation_count": 2,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "MODIFY_METHOD",
+          "target": "swapPairs",
+          "time_ms": 2185,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "RENAME_SYMBOL",
+          "target": "swapPairs",
+          "time_ms": 1952,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 4137,
+      "generated_code": "public ListNode swapAdjacentNodes(ListNode head) {\n    if (head == null || head.next == null) return head;\n\n    ListNode second = head.next;\n    head.next = swapAdjacentNodes(second.next);\n    second.next = head;\n\n    return second;\n}",
+      "code_changed": true,
+      "final_syntax_ok": true,
+      "original_cc": 3,
+      "refactored_cc": 3,
+      "cc_delta": 0,
+      "validation_findings": [],
+      "num_validation_findings": 0
+    },
+    {
+      "case": "EXTRACT_FIND_SUBSTRING",
+      "expected_intent": "EXTRACT_METHOD",
+      "instruction": "Extract the inner loop's word validation logic into a separate helper method called isValidWordSequence. The helper should take the current index i, word_count map, word_length, total_words, and s as parameters and return boolean.",
+      "original_code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\npublic List<Integer> findSubstring(String s, String[] words) {\n    if (s == null || s.length() == 0 || words == null || words.length == 0) return new ArrayList<>();\n\n    Map<String, Integer> word_count = new HashMap<>();\n    for (String word : words) {\n        word_count.put(word, word_count.getOrDefault(word, 0) + 1);\n    }\n\n    int word_length = words[0].length();\n    int total_words = words.length;\n    int total_length = word_length * total_words;\n    List<Integer> result = new ArrayList<>();\n\n    for (int i = 0; i <= s.length() - total_length; i++) {\n        Map<String, Integer> temp_word_count = new HashMap<>();\n        for (int j = 0; j < total_words; j++) {\n            String current_word = s.substring(i + j * word_length, i + (j + 1) * word_length);\n            if (!word_count.containsKey(current_word)) break;\n            temp_word_count.put(current_word, temp_word_count.getOrDefault(current_word, 0) + 1);\n            if (temp_word_count.get(current_word) > word_count.get(current_word)) break;\n            if (j + 1 == total_words) result.add(i);\n        }\n    }\n\n    return result;\n}",
+      "planner_parse_ok": true,
+      "mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "isValidWordSequence",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [
+              {
+                "name": "i",
+                "type": "int"
+              },
+              {
+                "name": "word_count_map",
+                "type": "Map<String, Integer>"
+              },
+              {
+                "name": "word_length",
+                "type": "int"
+              },
+              {
+                "name": "total_words",
+                "type": "int"
+              },
+              {
+                "name": "s",
+                "type": "String"
+              }
+            ],
+            "logic_changes": [],
+            "body_abstract": "",
+            "value": ""
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "findSubstring",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [
+              {
+                "name": "s",
+                "type": "String"
+              },
+              {
+                "name": "words",
+                "type": "String[]"
+              }
+            ],
+            "logic_changes": [],
+            "body_abstract": "Replace extracted code with a call to the new helper method.",
+            "value": ""
+          }
+        }
+      ],
+      "mutation_count": 2,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_METHOD",
+          "target": "isValidWordSequence",
+          "time_ms": 15667,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "findSubstring",
+          "time_ms": 15704,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 31371,
+      "generated_code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\npublic class X {\n    public List<Integer> findSubstring(String s, String[] words) {\n        if (s == null || s.length() == 0 || words == null || words.length == 0) return new ArrayList<>();\n\n        Map<String, Integer> word_count = new HashMap<>();\n        for (String word : words) {\n            word_count.put(word, word_count.getOrDefault(word, 0) + 1);\n        }\n\n        int word_length = words[0].length();\n        int total_words = words.length;\n        int total_length = word_length * total_words;\n\n        List<Integer> result = new ArrayList<>();\n        for (int i = 0; i <= s.length() - total_length; i++) {\n            if (!isValidWordSequence(i, word_count, word_length, total_words, s)) continue;\n\n            Map<String, Integer> temp_word_count = new HashMap<>();\n            for (int j = 0; j < total_words; j++) {\n                String current_word = s.substring(i + j * word_length, i + (j + 1) * word_length);\n                if (!word_count.containsKey(current_word)) break;\n                temp_word_count.put(current_word, temp_word_count.getOrDefault(current_word, 0) + 1);\n                if (temp_word_count.get(current_word) > word_count.get(current_word)) break;\n            }\n        }\n\n        return result;\n    }\n\n    private boolean isValidWordSequence(int i, Map<String, Integer> word_count_map, int word_length, int total_words, String s) {\n        for (int j = 0; j < total_words; j++) {\n            String current_word = s.substring(i + j * word_length, i + (j + 1) * word_length);\n            if (!word_count.containsKey(current_word)) return false;\n            word_count_map.put(current_word, word_count_map.getOrDefault(current_word, 0) - 1);\n        }\n        for (int count : word_count.values()) {\n            if (count != 0) return false;\n        }\n        return true;\n    }\n\n}",
+      "code_changed": true,
+      "final_syntax_ok": true,
+      "original_cc": 1,
+      "refactored_cc": 11,
+      "cc_delta": 10,
+      "validation_findings": [],
+      "num_validation_findings": 0
+    },
+    {
+      "case": "CONSTANT_COUNT_AND_SAY",
+      "expected_intent": "EXTRACT_CONSTANT",
+      "instruction": "Extract the base case string literal '1' into a named constant BASE_CASE_STRING.",
+      "original_code": "public String countAndSay(int n) {\n    if (n == 1) return \"1\";\n    String previous = countAndSay(n-1);\n    StringBuilder result = new StringBuilder();\n    int count = 1;\n    for (int i = 1; i < previous.length(); i++) {\n        if (previous.charAt(i) == previous.charAt(i-1)) {\n            count++;\n        } else {\n            result.append(count).append(previous.charAt(i-1));\n            count = 1;\n        }\n    }\n    result.append(count).append(previous.charAt(previous.length()-1));\n    return result.toString();\n}",
+      "planner_parse_ok": true,
+      "mutations": [
+        {
+          "action": "ADD_CONSTANT",
+          "target": "BASE_CASE_STRING",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": null,
+            "value": "\"1\""
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "countAndSay",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace the magic number with the constant reference.",
+            "value": "if (n == 1) return BASE_CASE_STRING;",
+            "find_text": "\"1\"",
+            "replace_text": "BASE_CASE_STRING"
+          }
+        }
+      ],
+      "mutation_count": 2,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "BASE_CASE_STRING",
+          "time_ms": 4702,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "countAndSay",
+          "time_ms": 5012,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 9714,
+      "generated_code": "private static final String BASE_CASE_STRING = \"1\";\n\npublic String countAndSay(int n) {\n    if (n == 1) return BASE_CASE_STRING;\n    String previous = countAndSay(n-1);\n    StringBuilder result = new StringBuilder();\n    int count = 1;\n    for (int i = 1; i < previous.length(); i++) {\n        if (previous.charAt(i) == previous.charAt(i-1)) {\n            count++;\n        } else {\n            result.append(count).append(previous.charAt(i-1));\n            count = 1;\n        }\n    }\n    result.append(count).append(previous.charAt(previous.length()-1));\n    return result.toString();\n}",
+      "code_changed": true,
+      "final_syntax_ok": true,
+      "original_cc": 4,
+      "refactored_cc": 4,
+      "cc_delta": 0,
+      "validation_findings": [],
+      "num_validation_findings": 0
+    },
+    {
+      "case": "DECOMPOSE_JUMP_GAME",
+      "expected_intent": "DECOMPOSE_CONDITIONAL",
+      "instruction": "Decompose the jump condition `i == currentEnd` by extracting it into a boolean variable `needToJump`.",
+      "original_code": "public int jump(int[] nums) {\n    int jumps = 0, currentEnd = 0, currentFarthest = 0;\n\n    for (int i = 0; i < nums.length - 1; i++) {\n        currentFarthest = Math.max(currentFarthest, i + nums[i]);\n        if (i == currentEnd) {\n            jumps++;\n            currentEnd = currentFarthest;\n        }\n    }\n    return jumps;\n}",
+      "planner_parse_ok": true,
+      "mutations": [
+        {
+          "action": "ADD_FIELD",
+          "target": "needToJump",
+          "details": {
+            "modifiers": [],
+            "type": "boolean",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": null,
+            "value": null
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "jump",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare each boolean variable, assign its condition, then use the variables in the if condition.",
+            "value": null
+          }
+        }
+      ],
+      "mutation_count": 2,
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "needToJump",
+          "time_ms": 4675,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "jump",
+          "time_ms": 5164,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 9839,
+      "generated_code": "public int jump(int[] nums) {\n    boolean needToJump = false;\n    boolean canReachEnd = true;\n\n    for (int i = 0; i < nums.length - 1 && canReachEnd; i++) {\n        if (!needToJump && i == currentEnd) {\n            needToJump = true;\n        }\n        int nextFarthest = Math.max(i + nums[i], currentFarthest);\n        if (i == currentEnd) {\n            jumps++;\n            currentEnd = nextFarthest;\n            canReachEnd = nextFarthest >= nums.length - 1;\n        } else {\n            canReachEnd &= i < currentFarthest;\n        }\n    }\n\n    return jumps;\n}",
+      "code_changed": true,
+      "final_syntax_ok": true,
+      "original_cc": 3,
+      "refactored_cc": 6,
+      "cc_delta": 3,
+      "validation_findings": [],
+      "num_validation_findings": 0
+    },
+    {
+      "case": "FLATTEN_EDIT_DISTANCE",
+      "expected_intent": "FLATTEN_CONDITIONAL",
+      "instruction": "Flatten the nested if-else chain in the DP loop by using guard clauses with early assignment. Each branch should assign dp[i][j] and continue the loop immediately.",
+      "original_code": "public int minDistance(String word1, String word2) {\n    int m = word1.length();\n    int n = word2.length();\n    int[][] dp = new int[m + 1][n + 1];\n\n    for (int i = 0; i <= m; i++) {\n        for (int j = 0; j <= n; j++) {\n            if (i == 0) {\n                dp[i][j] = j;\n            } else if (j == 0) {\n                dp[i][j] = i;\n            } else if (word1.charAt(i - 1) == word2.charAt(j - 1)) {\n                dp[i][j] = dp[i - 1][j - 1];\n            } else {\n                dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;\n            }\n        }\n    }\n\n    return dp[m][n];\n}",
+      "planner_parse_ok": false,
+      "error": "No plan from planner"
+    }
+  ]
+}

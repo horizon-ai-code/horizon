@@ -1,0 +1,714 @@
+[
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Nesting depth did not decrease (Old: 2, New: 2)."
+      ],
+      "orig_cc": 6,
+      "refac_cc": 6
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 1,
+    "score": -1,
+    "duration": 3.26
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Nesting depth did not decrease (Old: 2, New: 2)."
+      ],
+      "orig_cc": 8,
+      "refac_cc": 8
+    },
+    "edit_count": 0,
+    "add_count": 0,
+    "match_errors": 2,
+    "score": -3,
+    "duration": 4.59
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Operator count did not decrease (Old: 0, New: 0)."
+      ],
+      "orig_cc": 1,
+      "refac_cc": 1
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 0,
+    "score": 1,
+    "duration": 3.11
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Operator count did not decrease (Old: 2, New: 2)."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 1,
+    "score": -1,
+    "duration": 3.68
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Conditional nodes count did not decrease."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "edit_count": 0,
+    "add_count": 0,
+    "match_errors": 2,
+    "score": -2,
+    "duration": 1.63
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Operator count did not decrease (Old: 1, New: 1)."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 0,
+    "score": 1,
+    "duration": 4.54
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Dropped: {'boxCategory'}"
+      ],
+      "orig_cc": 8,
+      "refac_cc": 1
+    },
+    "edit_count": 1,
+    "add_count": 2,
+    "match_errors": 1,
+    "score": 7,
+    "duration": 7.8
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": true,
+      "findings": [],
+      "orig_cc": 2,
+      "refac_cc": 2
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 0,
+    "score": 12,
+    "duration": 4.09
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 0,
+    "add_count": 3,
+    "match_errors": 3,
+    "score": -9,
+    "duration": 9.03
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_METHOD",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 0,
+    "score": -2,
+    "duration": 2.97
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 1,
+    "add_count": 1,
+    "match_errors": 3,
+    "score": -9,
+    "duration": 6.59
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 1,
+    "add_count": 2,
+    "match_errors": 0,
+    "score": -3,
+    "duration": 3.09
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Loop count delta was 0, expected +1."
+      ],
+      "orig_cc": 3,
+      "refac_cc": 3
+    },
+    "edit_count": 0,
+    "add_count": 0,
+    "match_errors": 2,
+    "score": -3,
+    "duration": 5.27
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 1,
+    "add_count": 0,
+    "match_errors": 0,
+    "score": -3,
+    "duration": 4.83
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Variable count did not increase."
+      ],
+      "orig_cc": 1,
+      "refac_cc": 1
+    },
+    "edit_count": 0,
+    "add_count": 0,
+    "match_errors": 2,
+    "score": -3,
+    "duration": 8.23
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Variable count did not increase."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "edit_count": 0,
+    "add_count": 0,
+    "match_errors": 2,
+    "score": -2,
+    "duration": 1.02
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Variable count did not decrease."
+      ],
+      "orig_cc": 6,
+      "refac_cc": 6
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 1,
+    "score": 0,
+    "duration": 1.88
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 0,
+    "add_count": 1,
+    "match_errors": 0,
+    "score": -2,
+    "duration": 1.65
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "mode": "TOOL",
+    "syntax_ok": false,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "syntax fail"
+      ],
+      "orig_cc": 0,
+      "refac_cc": 999
+    },
+    "edit_count": 1,
+    "add_count": 0,
+    "match_errors": 0,
+    "score": -2,
+    "duration": 1.96
+  },
+  {
+    "name": "polish_inline_nim",
+    "intent": "INLINE_METHOD",
+    "mode": "TOOL",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'check' was modified but was outside target scope(s).",
+        "Dropped: {'canWinNim'}"
+      ],
+      "orig_cc": 1,
+      "refac_cc": 2
+    },
+    "edit_count": 1,
+    "add_count": 0,
+    "match_errors": 0,
+    "score": 1,
+    "duration": 1.86
+  },
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "CC: 6\u21929 (limit\u22646)",
+        "Boundary: Boundary Violation: Method 'minDistance' was modified but was outside target sco"
+      ],
+      "orig_cc": 6,
+      "refac_cc": 9
+    },
+    "score": -2,
+    "duration": 6.55
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'increasingQuadruplets' was modified but was outside ",
+        "Intent: Nesting depth did not decrease (Old: 2, New: 3)."
+      ],
+      "orig_cc": 8,
+      "refac_cc": 8
+    },
+    "score": 0,
+    "duration": 6.22
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'canWinNim' was modified but was outside target scope",
+        "Intent: Operator count did not decrease (Old: 0, New: 0)."
+      ],
+      "orig_cc": 1,
+      "refac_cc": 1
+    },
+    "score": 1,
+    "duration": 2.37
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "CC: 4\u21925 (limit\u22644)",
+        "Boundary: Boundary Violation: Method 'canPermutePalindrome' was modified but was outside t",
+        "Intent: Operator count did not decrease (Old: 2, New: 3)."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 5
+    },
+    "score": -1,
+    "duration": 6.03
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'fixedPoint' was modified but was outside target scop",
+        "Intent: Conditional nodes count did not decrease."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "score": 0,
+    "duration": 3.73
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'findLHS' was modified but was outside target scope(s"
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "score": 1,
+    "duration": 5.74
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'boxCategory' was modified but was outside target sco"
+      ],
+      "orig_cc": 8,
+      "refac_cc": 8
+    },
+    "score": 1,
+    "duration": 6.54
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "intent": "EXTRACT_CONSTANT",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'findDerangement' was modified but was outside target"
+      ],
+      "orig_cc": 2,
+      "refac_cc": 2
+    },
+    "score": 1,
+    "duration": 4.55
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'checkPartitioning' was modified but was outside targ",
+        "Intent: Expected at least one new method, found 0 delta.",
+        "Dropped: {'isPalindrome'}"
+      ],
+      "orig_cc": 6,
+      "refac_cc": 6
+    },
+    "score": 0,
+    "duration": 6.69
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_METHOD",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'reformat' was modified but was outside target scope("
+      ],
+      "orig_cc": 7,
+      "refac_cc": 4
+    },
+    "score": 4,
+    "duration": 7.15
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": true,
+      "findings": [],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "score": 12,
+    "duration": 3.36
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Dropped: {'uniquePathsWithObstacles'}"
+      ],
+      "orig_cc": 11,
+      "refac_cc": 11
+    },
+    "score": 2,
+    "duration": 8.82
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'distinctIntegersAfterReversingAndAdding' was modifie",
+        "Intent: Loop count delta was 0, expected +1."
+      ],
+      "orig_cc": 3,
+      "refac_cc": 2
+    },
+    "score": 1,
+    "duration": 5.33
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "CC: 2\u21925 (limit\u22643)",
+        "Boundary: Boundary Violation: Method 'grayCode' was modified but was outside target scope(",
+        "Intent: Loop count delta was 2, expected +1."
+      ],
+      "orig_cc": 2,
+      "refac_cc": 5
+    },
+    "score": -3,
+    "duration": 6.3
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'minSeconds' was modified but was outside target scop"
+      ],
+      "orig_cc": 1,
+      "refac_cc": 1
+    },
+    "score": 1,
+    "duration": 5.01
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "intent": "EXTRACT_VARIABLE",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Intent: Variable count did not increase."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 4
+    },
+    "score": 1,
+    "duration": 3.58
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'minDistance' was modified but was outside target sco",
+        "Intent: Variable count did not decrease."
+      ],
+      "orig_cc": 6,
+      "refac_cc": 6
+    },
+    "score": 0,
+    "duration": 7.41
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "FLATTEN_CONDITIONAL",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'search' was modified but was outside target scope(s)",
+        "Intent: Nesting depth did not decrease (Old: 1, New: 1)."
+      ],
+      "orig_cc": 4,
+      "refac_cc": 3
+    },
+    "score": 2,
+    "duration": 1.72
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'grayCode' was modified but was outside target scope(",
+        "Intent: Loop count did not decrease or stream() pipeline not found."
+      ],
+      "orig_cc": 2,
+      "refac_cc": 1
+    },
+    "score": 2,
+    "duration": 1.87
+  },
+  {
+    "name": "polish_inline_nim",
+    "intent": "INLINE_METHOD",
+    "mode": "FULLGEN",
+    "syntax_ok": true,
+    "phase4": {
+      "pass": false,
+      "findings": [
+        "Boundary: Boundary Violation: Method 'check' was modified but was outside target scope(s).",
+        "Intent: Expected at least one less method, found 0 delta."
+      ],
+      "orig_cc": 1,
+      "refac_cc": 4
+    },
+    "score": -2,
+    "duration": 2.21
+  }
+]

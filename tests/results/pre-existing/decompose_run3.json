@@ -1,0 +1,263 @@
+[
+  {
+    "name": "decompose_conditional",
+    "passed": true,
+    "verdict": "",
+    "outer_loops": 0,
+    "syntax_retries": 0,
+    "status_count": 45,
+    "error": "",
+    "final_code": "public class LoanApprover {\n    public boolean isEligible(int age, double income, int creditScore, boolean hasCollateral) {\n        if (age >= 18 && age <= 65 && income > 30000 && creditScore > 650 && hasCollateral) {\n            return true;\n        }\n        return false;\n    }\n}",
+    "original_complexity": 6,
+    "refactored_complexity": 6,
+    "duration": 164.05,
+    "events": [
+      {
+        "type": "connection_id",
+        "id": "3df66a70-edda-43c3-b000-8202591c2d1f"
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Ph1: Baselining code structure..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Classifying intent (Strategy Iter 1)..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Intent Classified: DECOMPOSE_CONDITIONAL\n\n**Category:** `CONTROL_FLOW`\n**Intent:** `DECOMPOSE_CONDITIONAL`\n**Target Unit:** `METHOD_UNIT`\n**Target Member:** `isEligible`\n"
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Analyzing code structure..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Structure analysis complete.\n\n```json\n{\n  \"analysis_scratchpad\": \"The conditional in isEligible can be decomposed into several boolean variables for each condition.\",\n  \"primary_targets\": [\n    \"isEligible\"\n  ],\n  \"secondary_targets\": [],\n  \"new_structures_needed\": [\n    \"boolean hasSufficientAge\",\n    \"boolean sufficientIncome\",\n    \"boolean highCreditScore\",\n    \"boolean collateralAvailable\"\n  ],\n  \"must_preserve\": []\n}\n```"
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Designing mutation plan..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Modification plan generated.\n\n**Target Class:** `LoanApprover`\n\n**Mutations:**\n- **ADD_METHOD** on `hasSufficientAge(int age)`\n- **ADD_METHOD** on `sufficientIncome(double income)`\n- **ADD_METHOD** on `highCreditScore(int creditScore)`\n- **ADD_METHOD** on `collateralAvailable(boolean hasCollateral)`\n- **MODIFY_METHOD** on `isEligible(int age, double income, int creditScore, boolean hasCollateral)`\n  - *Replace the original conditional with a series of method calls to check each condition separately.*\n- **ADD_FIELD** on `boolean hasSufficientAge;`\n- **ADD_FIELD** on `boolean sufficientIncome;`\n- **ADD_FIELD** on `boolean highCreditScore;`\n- **ADD_FIELD** on `boolean collateralAvailable;`\n"
+      },
+      {
+        "type": "status",
+        "role": "Generator",
+        "content": "Ph3: Implementing plan..."
+      },
+      {
+        "type": "status",
+        "role": "Generator",
+        "content": "Code refactored."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Ph4: Validating (Strategy 1, Syntax 0)..."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Syntax OK. Running Structural Checks..."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Structural Checks Passed."
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Ph5: Running final audit..."
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Audit Finished: REVISE\n\n**Verdict:** \u274c REVISE\n\n**Issues:**\n- Logic drift: The refactored method is not equivalent to the original method for certain input values.\n"
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Audit requested revision."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Classifying intent (Strategy Iter 2)..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Intent Classified: DECOMPOSE_CONDITIONAL\n\n**Category:** `CONTROL_FLOW`\n**Intent:** `DECOMPOSE_CONDITIONAL`\n**Target Unit:** `METHOD_UNIT`\n**Target Member:** `isEligible`\n"
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Analyzing code structure..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Structure analysis complete.\n\n```json\n{\n  \"analysis_scratchpad\": \"The original method checks if a loan applicant is eligible based on age, income, credit score, and collateral. The instruction asks to decompose this into well-named boolean variables for each condition.\",\n  \"primary_targets\": [\n    \"isEligible\"\n  ],\n  \"secondary_targets\": [],\n  \"new_structures_needed\": [\n    \"boolean hasSufficientAge\",\n    \"boolean isHighIncome\",\n    \"boolean hasGoodCreditScore\",\n    \"boolean hasCollateral\"\n  ],\n  \"must_preserve\": []\n}\n```"
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Designing mutation plan..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Modification plan generated.\n\n**Target Class:** `LoanApprover`\n\n**Mutations:**\n- **MODIFY_METHOD** on `isEligible`\n  - *Replace nested ifs with guard clauses using early returns/exceptions*\n"
+      },
+      {
+        "type": "status",
+        "role": "Generator",
+        "content": "Ph3: Implementing plan..."
+      },
+      {
+        "type": "status",
+        "role": "Generator",
+        "content": "Code refactored."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Ph4: Validating (Strategy 2, Syntax 0)..."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Syntax OK. Running Structural Checks..."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Structural Checks Passed."
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Ph5: Running final audit..."
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Audit Finished: REVISE\n\n**Verdict:** \u274c REVISE\n"
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Audit requested revision."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Classifying intent (Strategy Iter 3)..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Intent Classified: DECOMPOSE_CONDITIONAL\n\n**Category:** `CONTROL_FLOW`\n**Intent:** `DECOMPOSE_CONDITIONAL`\n**Target Unit:** `METHOD_UNIT`\n**Target Member:** `isEligible`\n"
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Analyzing code structure..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Structure analysis complete.\n\n```json\n{\n  \"analysis_scratchpad\": \"The original method checks multiple conditions and returns a boolean. To decompose it, we will create separate methods for each condition.\",\n  \"primary_targets\": [\n    \"isEligible\"\n  ],\n  \"secondary_targets\": [],\n  \"new_structures_needed\": [\n    \"checkAge\",\n    \"checkIncome\",\n    \"checkCreditScore\",\n    \"checkHasCollateral\"\n  ],\n  \"must_preserve\": []\n}\n```"
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Ph2: Designing mutation plan..."
+      },
+      {
+        "type": "status",
+        "role": "Planner",
+        "content": "Modification plan generated.\n\n**Target Class:** `LoanApprover`\n\n**Mutations:**\n- **ADD_METHOD** on `checkAge`\n- **ADD_METHOD** on `checkIncome`\n- **ADD_METHOD** on `checkCreditScore`\n- **ADD_METHOD** on `checkHasCollateral`\n- **MODIFY_METHOD** on `isEligible`\n  - *Replace the original method with a series of calls to checkAge, checkIncome, checkCreditScore, and checkHasCollateral*\n"
+      },
+      {
+        "type": "status",
+        "role": "Generator",
+        "content": "Ph3: Implementing plan..."
+      },
+      {
+        "type": "status",
+        "role": "Generator",
+        "content": "Code refactored."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Ph4: Validating (Strategy 3, Syntax 0)..."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Syntax OK. Running Structural Checks..."
+      },
+      {
+        "type": "status",
+        "role": "Validator",
+        "content": "Structural Checks Passed."
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Ph5: Running final audit..."
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Audit Finished: REVISE\n\n**Verdict:** \u274c REVISE\n\n**Issues:**\n- The refactored method does not handle cases where age equals 65 due to the use of <= instead of < in the checkAge function.\n- checkHasCollateral() always returns true, regardless of its input. This is because it only checks if hasCollateral is present and never compares its value.\n"
+      },
+      {
+        "type": "status",
+        "role": "Judge",
+        "content": "Audit requested revision."
+      },
+      {
+        "type": "status",
+        "role": "System",
+        "content": "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      },
+      {
+        "type": "result",
+        "id": "3df66a70-edda-43c3-b000-8202591c2d1f",
+        "code": "public class LoanApprover {\n    public boolean isEligible(int age, double income, int creditScore, boolean hasCollateral) {\n        if (age >= 18 && age <= 65 && income > 30000 && creditScore > 650 && hasCollateral) {\n            return true;\n        }\n        return false;\n    }\n}",
+        "original_complexity": 6,
+        "refactored_complexity": 6,
+        "performance": {
+          "avg_gpu_utilization": 40.23,
+          "avg_gpu_memory": 69.41,
+          "avg_gpu_memory_used": 2981183938.94,
+          "inference_time": 163.84
+        },
+        "planner_model": "Qwen2.5-Coder-3B-Instruct",
+        "generator_model": "Qwen2.5-Coder-3B-Instruct",
+        "judge_model": "Llama-3.2-3B-Instruct"
+      },
+      {
+        "type": "insights",
+        "id": "3df66a70-edda-43c3-b000-8202591c2d1f",
+        "insights": "Refactoring aborted: ABORT_STRATEGY. Reverted to original code."
+      }
+    ],
+    "timestamp": "2026-05-25T17:02:59.207432"
+  }
+]

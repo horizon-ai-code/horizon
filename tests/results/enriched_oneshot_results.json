@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-06-04T00:28:19",
+  "mode": "ONE-SHOT",
+  "total_cases": 5,
+  "results": [
+    {
+      "case": "polish_extract_long_reformat",
+      "intent": "EXTRACT_METHOD",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "total_duration_ms": 146863,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "num_statuses": 7,
+      "key_statuses": [
+        "Ph1: Baselining code structure...",
+        "Ph2: Classifying intent (Strategy Iter 1)...",
+        "Intent Classified: EXTRACT_METHOD\n\n**Category:** `METHOD_MOVEMENT`\n**Intent:** `EXTRACT_METHOD`\n**Target Unit:** `METHOD_UNIT`\n**Target Member:** `reformat`\n",
+        "Ph2: Analyzing code structure...",
+        "Structure analysis complete.\n\n```json\n{\n  \"analysis_scratchpad\": \"Identifying the code to extract and new helper method\",\n  \"primary_targets\": [\n    \"reformat\"\n  ],\n  \"secondary_targets\": [],\n  \"new_s",
+        "Ph2: Designing mutation plan...",
+        "Error: 1 validation error for ASTArchitectResponse\n  Invalid JSON: EOF while parsing a list at line 1 column 7964 [type=json_invalid, input_value='{ \"architect_scratchpad\"...sult.toString(); }\" } }', "
+      ]
+    },
+    {
+      "case": "polish_const_short_box",
+      "intent": "EXTRACT_CONSTANT",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 4,
+      "total_duration_ms": 135544,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "refactored_code": "public String boxCategory(int length, int width, int height, int mass) {\n    boolean bulky = length ",
+      "num_statuses": 43,
+      "key_statuses": [
+        "Modification plan generated.\n\n**Target Class:** ``\n\n**Mutations:**\n- **ADD_CONSTANT** on `BULKY_DIMENSION_THRESHOLD`\n- **ADD_CONSTANT** on `HEAVY_MASS_THRESHOLD`\n- **MODIFY_METHOD** on `boxCategory`\n",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 3, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Passed.",
+        "Ph5: Running final audit...",
+        "Audit Finished: REVISE\n\n**Verdict:** \u274c REVISE\n\n**Issues:**\n- Plan was not executed: code is identical to original.\n- Logic drift would cause different behavior for edge cases.\n",
+        "Audit requested revision.",
+        "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      ]
+    },
+    {
+      "case": "polish_flatten_long_quads",
+      "intent": "FLATTEN_CONDITIONAL",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 2,
+      "total_duration_ms": 87780,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "refactored_code": "public int increasingQuadruplets(int[] nums) {\n    int n = nums.length, count = 0;\n    for(int i = 0",
+      "num_statuses": 30,
+      "key_statuses": [
+        "Ph2: Designing mutation plan...",
+        "Modification plan generated.\n\n**Target Class:** ``\n\n**Mutations:**\n- **MODIFY_METHOD** on `increasingQuadruplets`\n",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 2, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Failed (2 issues).\n\n**Total Faults:** 2\n\n**[TIER_2_A_COMPLEXITY]**\n> CC increased from 8 to 10 (limit: 8)\n- *Hint:* Simplify logic to maintain or reduce complexity.\n\n**[TIER_2_C_INTE",
+        "Routing to Generator for targeted fix...",
+        "Circuit Breaker: Faults not decreasing. Aborting.",
+        "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      ]
+    },
+    {
+      "case": "polish_decompose_long_palindrome",
+      "intent": "DECOMPOSE_CONDITIONAL",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 2,
+      "total_duration_ms": 67730,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "refactored_code": "public boolean canPermutePalindrome(String s) {\n    HashMap<Character, Integer> count = new HashMap<",
+      "num_statuses": 30,
+      "key_statuses": [
+        "Ph2: Designing mutation plan...",
+        "Modification plan generated.\n\n**Target Class:** ``\n\n**Mutations:**\n- **ADD_FIELD** on `hasPalindromePermutation`\n- **MODIFY_METHOD** on `canPermutePalindrome`\n",
+        "Ph3: Implementing plan...",
+        "Code refactored.",
+        "Ph4: Validating (Strategy 2, Syntax 0)...",
+        "Syntax OK. Running Structural Checks...",
+        "Structural Checks Failed (1 issues).\n\n**Total Faults:** 1\n\n**[TIER_2_C_INTENT_MATH]**\n> Operator count did not decrease (Old: 2, New: 2).\n- *Hint:* Check if the refactoring actually achieved the struc",
+        "Routing to Generator for targeted fix...",
+        "Circuit Breaker: Faults not decreasing. Aborting.",
+        "Ph6: Finalizing session (Status: ABORT_STRATEGY)..."
+      ]
+    },
+    {
+      "case": "polish_rename_long_paths",
+      "intent": "RENAME_SYMBOL",
+      "exit_status": "PROCESSING",
+      "strategy_iter": 1,
+      "total_duration_ms": 143884,
+      "gen_time_ms": 0,
+      "gen_steps": [],
+      "gen_timings_raw": [],
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "num_statuses": 7,
+      "key_statuses": [
+        "Ph1: Baselining code structure...",
+        "Ph2: Classifying intent (Strategy Iter 1)...",
+        "Intent Classified: RENAME_SYMBOL\n\n**Category:** `STATE_MANAGEMENT`\n**Intent:** `RENAME_SYMBOL`\n**Target Unit:** `METHOD_UNIT`\n",
+        "Ph2: Analyzing code structure...",
+        "Structure analysis complete.\n\n```json\n{\n  \"analysis_scratchpad\": \"Identifying the symbols to rename and their references\",\n  \"primary_targets\": [\n    \"m\",\n    \"n\"\n  ],\n  \"secondary_targets\": [\n    \"un",
+        "Ph2: Designing mutation plan...",
+        "Error: 1 validation error for ASTArchitectResponse\n  Invalid JSON: EOF while parsing a list at line 1 column 7242 [type=json_invalid, input_value='{ \"architect_scratchpad\"...\"\\\\\\\\browCount\\\\\\\\\" } }', "
+      ]
+    }
+  ]
+}

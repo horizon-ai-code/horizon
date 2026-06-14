@@ -1,0 +1,539 @@
+[
+  {
+    "name": "polish_flatten_short_mindist",
+    "intent": "FLATTEN_CONDITIONAL",
+    "code": "public int minDistance(String word1, String word2) { int m = word1.length(), n = word2.length(); int[][] dp = new int[m+1][n+1]; for(int i = 0; i <= m; i++) { for(int j = 0; j <= n; j++) { if(i == 0 || j == 0) dp[i][j] = i + j; else if(word1.charAt(i-1) == word2.charAt(j-1)) dp[i][j] = dp[i-1][j-1]; else dp[i][j] = 1 + Math.min(dp[i-1][j], dp[i][j-1]); } } return dp[m][n]; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "minDistance",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Invert each nested condition into a guard clause at the method top. Each invalid state throws or returns early. All exception types and messages from must_preserve must appear exactly."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "intent": "FLATTEN_CONDITIONAL",
+    "code": "public int increasingQuadruplets(int[] nums) { int n = nums.length, count = 0; for(int i = 0; i < n - 3; i++) { for(int j = i + 1; j < n - 2; j++) { for(int k = j + 1; k < n - 1; k++) { if(nums[i] < nums[k] && nums[k] < nums[j]) { for(int l = k + 1; l < n; l++) { if(nums[j] < nums[l]) count++; } } } } } return count; }",
+    "plan": {}
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "code": "public boolean canWinNim(int n) { return n % 4 != 0; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_FIELD",
+          "target": "isNotDivisibleByFour",
+          "details": {
+            "modifiers": [],
+            "type": "boolean",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": null
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "canWinNim",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare the boolean variable 'isNotDivisibleByFour' and assign it the condition n % 4 != 0. Use this variable in the if-statement."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "code": "public boolean canPermutePalindrome(String s) { HashMap<Character, Integer> count = new HashMap<>(); for(char c : s.toCharArray()) count.put(c, count.getOrDefault(c, 0) + 1); int odd_count = 0; for(int value : count.values()) { if(value % 2 != 0) odd_count++; } return odd_count <= 1; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_FIELD",
+          "target": "hasPalindromePermutation",
+          "details": {
+            "modifiers": [],
+            "type": "boolean",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": null
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "canPermutePalindrome",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare the boolean variable hasPalindromePermutation to check if there is at most one character with an odd count. Assign its condition based on the loop logic."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "code": "public int fixedPoint(int[] arr) { int left = 0, right = arr.length - 1; while (left < right) { int middle = left + (right - left) / 2; if (arr[middle] < middle) left = middle + 1; else right = middle; } return arr[left] == left ? left : -1; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "fixedPoint",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Combine duplicate conditional branches into a single check."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "code": "public int findLHS(int[] nums) { HashMap<Integer, Integer> count = new HashMap<>(); for (int num : nums) count.put(num, count.getOrDefault(num, 0) + 1); int longest_sequence = 0; for (int key : count.keySet()) { if (count.containsKey(key + 1)) longest_sequence = Math.max(longest_sequence, count.get(key) + count.get(key + 1)); } return longest_sequence; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_FIELD",
+          "target": "hasKeyPlusOne",
+          "details": {
+            "modifiers": [],
+            "type": "boolean",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": null
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "findLHS",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare the boolean variable 'hasKeyPlusOne', assign its condition, then use it in the if condition."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_const_short_box",
+    "intent": "EXTRACT_CONSTANT",
+    "code": "public String boxCategory(int length, int width, int height, int mass) { boolean bulky = length >= 10000 || width >= 10000 || height >= 10000 || length * width * height >= 1000000000; boolean heavy = mass >= 100; if (bulky && heavy) return \"Both\"; else if (bulky) return \"Bulky\"; else if (heavy) return \"Heavy\"; else return \"Neither\"; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_CONSTANT",
+          "target": "BULKY_DIMENSION_THRESHOLD",
+          "details": {
+            "modifiers": [],
+            "type": "int",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare a static final field holding the magic number value."
+          }
+        },
+        {
+          "action": "ADD_CONSTANT",
+          "target": "HEAVY_MASS_THRESHOLD",
+          "details": {
+            "modifiers": [],
+            "type": "int",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare a static final field holding the magic number value."
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "boxCategory",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace the magic number with the constant reference."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "intent": "EXTRACT_CONSTANT",
+    "code": "public int findDerangement(int n) { long[] dp = new long[n + 1]; dp[2] = 1; for (int i = 3; i <= n; i++) dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % 1000000007; return (int) dp[n]; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_CONSTANT",
+          "target": "MOD",
+          "details": {
+            "modifiers": [],
+            "type": "int",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare a static final field holding the magic number value."
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "findDerangement",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace the magic number with the constant reference."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "intent": "EXTRACT_METHOD",
+    "code": "public class Solution { private boolean isPalindrome(String s, int start, int end) { while (start < end) { if (s.charAt(start) != s.charAt(end)) return false; start++; end--; } return true; } public boolean checkPartitioning(String s) { int n = s.length(); for (int i = 0; i < n - 2; ++i) if (isPalindrome(s, 0, i)) for (int j = i + 1; j < n - 1; ++j) if (isPalindrome(s, i + 1, j) && isPalindrome(s, j + 1, n - 1)) return true; return false; } }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "isPalindromeUtility",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Extracted isPalindrome logic into a utility method."
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "checkPartitioning",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace extracted code with a call to the new helper method."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "intent": "EXTRACT_METHOD",
+    "code": "public String reformat(String s) { Queue<Character> letters = new LinkedList<>(); Queue<Character> digits = new LinkedList<>(); for (char c : s.toCharArray()) { if (Character.isLetter(c)) letters.add(c); else digits.add(c); } if (Math.abs(letters.size() - digits.size()) > 1) return \"\"; StringBuilder result = new StringBuilder(); boolean useLetter = letters.size() > digits.size(); while (!letters.isEmpty() || !digits.isEmpty()) { if (useLetter) result.append(letters.poll()); else result.append(digits.poll()); useLetter = !useLetter; } return result.toString(); }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "ADD_METHOD",
+          "target": "interleaveQueues",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Extracts interleaving logic into a private helper method."
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "reformat",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace extracted code with a call to the new helper method."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "intent": "RENAME_SYMBOL",
+    "code": "public int findJudge(int n, int[][] trust) { int[] trustCounts = new int[n + 1]; for (int[] t : trust) { trustCounts[t[0]]--; trustCounts[t[1]]++; } for (int i = 1; i <= n; i++) if (trustCounts[i] == n - 1) return i; return -1; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "RENAME_SYMBOL",
+          "target": "trustCounts",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Rename 'trustCounts' to 'trustScores'. Update all references inside this method from old name to new name."
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "findJudge",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Update all references from 'trustCounts' to 'trustScores' inside the findJudge method."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "intent": "RENAME_SYMBOL",
+    "code": "public int uniquePathsWithObstacles(int[][] grid) { int m = grid.length; int n = grid[0].length; if (grid[0][0] == 1) return 0; grid[0][0] = 1; for (int i = 1; i < m; ++i) grid[i][0] = (grid[i][0] == 0 && grid[i-1][0] == 1) ? 1 : 0; for (int i = 1; i < n; ++i) grid[0][i] = (grid[0][i] == 0 && grid[0][i-1] == 1) ? 1 : 0; for (int i = 1; i < m; ++i) for (int j = 1; j < n; ++j) if (grid[i][j] == 0) grid[i][j] = grid[i-1][j] + grid[i][j-1]; return grid[m-1][n-1]; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "RENAME_SYMBOL",
+          "target": "uniquePathsWithObstacles",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Rename the method name from uniquePathsWithObstacles to uniquePathsByGrid"
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "m",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Update all references from m to rowCount inside this method."
+          }
+        },
+        {
+          "action": "MODIFY_METHOD",
+          "target": "n",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Update all references from n to colCount inside this method."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "intent": "SPLIT_LOOP",
+    "code": "public int distinctIntegersAfterReversingAndAdding(int[] nums) { Set<Integer> distinct = new HashSet<>(); for (int num : nums) { distinct.add(num); int reversed = 0; while (num > 0) { reversed = reversed * 10 + num % 10; num /= 10; } distinct.add(reversed); } return distinct.size(); }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "distinctIntegersAfterReversingAndAdding",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Split the loop into separate loops. Each handles one operation. Preserve overall logic."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_split_long_gray",
+    "intent": "SPLIT_LOOP",
+    "code": "public List<Integer> grayCode(int n) { List<Integer> result = new ArrayList<>(); for (int i = 0; i < (1 << n); i++) result.add(i ^ (i >> 1)); return result; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "grayCode",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Split the loop into separate loops. Each handles one operation. Preserve overall logic."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "intent": "EXTRACT_VARIABLE",
+    "code": "public int minSeconds(int[] amount) { int total = amount[0] + amount[1] + amount[2]; int largestTwo = Math.max(amount[0] + amount[1], Math.max(amount[1] + amount[2], amount[0] + amount[2])); return (total + 1) / 2 - (largestTwo + 1) / 2 + largestTwo; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "minSeconds",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare local variable, assign the expression (total + 1) / 2, replace all occurrences."
+          }
+        },
+        {
+          "action": "ADD_FIELD",
+          "target": "",
+          "details": {
+            "modifiers": [],
+            "type": "int",
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Add field halfTotalCeil to store the extracted value."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "intent": "EXTRACT_VARIABLE",
+    "code": "public int fixedPoint(int[] arr) { int left = 0, right = arr.length - 1; while (left < right) { int middle = left + (right - left) / 2; if (arr[middle] < middle) left = middle + 1; else right = middle; } return arr[left] == left ? left : -1; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "fixedPoint",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Declare local variable, assign the expression, replace all occurrences."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "intent": "INLINE_VARIABLE",
+    "code": "public int minDistance(String word1, String word2) { int m = word1.length(), n = word2.length(); int[][] dp = new int[m+1][n+1]; for (int i = 0; i <= m; i++) dp[i][0] = i; for (int j = 0; j <= n; j++) dp[0][j] = j; for (int i = 1; i <= m; i++) for (int j = 1; j <= n; j++) if (word1.charAt(i-1) == word2.charAt(j-1)) dp[i][j] = dp[i-1][j-1]; else dp[i][j] = 1 + Math.min(dp[i-1][j], dp[i][j-1]); return dp[m][n]; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "minDistance",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace each reference with its assigned value. Remove the declaration."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_remflag_search",
+    "intent": "FLATTEN_CONDITIONAL",
+    "code": "public int search(int[] arr, int target) { boolean found = false; int result = -1; for (int i = 0; i < arr.length; i++) { if (arr[i] == target) { found = true; result = i; break; } } if (found) return result; return -1; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "search",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Remove the boolean 'found' flag. Use an early return to check if the target is found directly in the loop and set the result accordingly."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "code": "public List<Integer> grayCode(int n) { List<Integer> result = new ArrayList<>(); for (int i = 0; i < (1 << n); i++) result.add(i ^ (i >> 1)); return result; }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "grayCode",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace the loop with a stream pipeline (map, filter, collect)."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "polish_inline_nim",
+    "intent": "INLINE_METHOD",
+    "code": "public class Solution { public boolean canWinNim(int n) { return n % 4 != 0; } public boolean check(int n) { return canWinNim(n); } }",
+    "plan": {
+      "target_class": "",
+      "ast_mutations": [
+        {
+          "action": "MODIFY_METHOD",
+          "target": "check",
+          "details": {
+            "modifiers": [],
+            "type": null,
+            "parameters": [],
+            "logic_changes": [],
+            "body_abstract": "Replace call to canWinNim with its method body inline."
+          }
+        }
+      ]
+    }
+  }
+]

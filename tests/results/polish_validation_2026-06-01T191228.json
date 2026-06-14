@@ -1,0 +1,525 @@
+[
+  {
+    "name": "polish_flatten_short_mindist",
+    "expected_intent": "FLATTEN_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "analysis_primary": [
+      "minDistance"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "minDistance"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 728,
+    "gen_duration": 9.47,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "expected_intent": "FLATTEN_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "analysis_primary": [
+      "increasingQuadruplets"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "increasingQuadruplets"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 589,
+    "gen_duration": 6.97,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "expected_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "analysis_primary": [
+      "canWinNim"
+    ],
+    "analysis_new": [
+      "isNotDivisibleByFour"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "isNotDivisibleByFour",
+      "canWinNim"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 330,
+    "gen_duration": 3.49,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "expected_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "analysis_primary": [
+      "canPermutePalindrome"
+    ],
+    "analysis_new": [
+      "hasPalindromePermutation"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "hasPalindromePermutation",
+      "canPermutePalindrome"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 611,
+    "gen_duration": 5.42,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "expected_intent": "CONSOLIDATE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "CONSOLIDATE_CONDITIONAL",
+    "analysis_primary": [
+      "fixedPoint"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "fixedPoint"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 284,
+    "gen_duration": 3.61,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "expected_intent": "CONSOLIDATE_CONDITIONAL",
+    "classifier_match": false,
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "analysis_primary": [
+      "findLHS"
+    ],
+    "analysis_new": [
+      "hasKeyPlusOne",
+      "keyExistsInMap"
+    ],
+    "plan_mutations": 3,
+    "plan_actions": [
+      "ADD_FIELD",
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "hasKeyPlusOne",
+      "keyExistsInMap",
+      "findLHS"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 928,
+    "gen_duration": 7.89,
+    "methods_preserved": true,
+    "verdict": "FAIL"
+  },
+  {
+    "name": "polish_const_short_box",
+    "expected_intent": "EXTRACT_CONSTANT",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_CONSTANT",
+    "analysis_primary": [
+      "boxCategory"
+    ],
+    "analysis_new": [
+      "BULKY_DIMENSION_THRESHOLD",
+      "HEAVY_MASS_THRESHOLD"
+    ],
+    "plan_mutations": 3,
+    "plan_actions": [
+      "ADD_CONSTANT",
+      "ADD_CONSTANT",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "BULKY_DIMENSION_THRESHOLD",
+      "HEAVY_MASS_THRESHOLD",
+      "boxCategory"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 610,
+    "gen_duration": 6.39,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "expected_intent": "EXTRACT_CONSTANT",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_CONSTANT",
+    "analysis_primary": [
+      "findDerangement"
+    ],
+    "analysis_new": [
+      "MOD"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_CONSTANT",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "MOD",
+      "findDerangement"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 294,
+    "gen_duration": 4.4,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "expected_intent": "EXTRACT_METHOD",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_METHOD",
+    "analysis_primary": [
+      "checkPartitioning"
+    ],
+    "analysis_new": [
+      "isPalindromeUtil"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "isPalindromeUtil",
+      "checkPartitioning"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 623,
+    "gen_duration": 6.39,
+    "methods_preserved": false,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "expected_intent": "EXTRACT_METHOD",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_METHOD",
+    "analysis_primary": [
+      "reformat"
+    ],
+    "analysis_new": [
+      "interleaveQueues"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "interleaveQueues",
+      "reformat"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 832,
+    "gen_duration": 6.36,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "expected_intent": "RENAME_SYMBOL",
+    "classifier_match": true,
+    "actual_intent": "RENAME_SYMBOL",
+    "analysis_primary": [
+      "trustCounts",
+      "findJudge"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "RENAME_SYMBOL",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "trustCounts",
+      "findJudge"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 273,
+    "gen_duration": 3.65,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "expected_intent": "RENAME_SYMBOL",
+    "classifier_match": true,
+    "actual_intent": "RENAME_SYMBOL",
+    "analysis_primary": [
+      "m",
+      "n"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 5,
+    "plan_actions": [
+      "RENAME_SYMBOL",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "m",
+      "uniquePathsWithObstacles",
+      "uniquePathsWithObstacles",
+      "uniquePathsWithObstacles",
+      "uniquePathsWithObstacles"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 605,
+    "gen_duration": 9.87,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "expected_intent": "SPLIT_LOOP",
+    "classifier_match": true,
+    "actual_intent": "SPLIT_LOOP",
+    "analysis_primary": [
+      "distinctIntegersAfterReversingAndAdding"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "distinctIntegersAfterReversingAndAdding"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 501,
+    "gen_duration": 5.13,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_split_long_gray",
+    "expected_intent": "SPLIT_LOOP",
+    "classifier_match": true,
+    "actual_intent": "SPLIT_LOOP",
+    "analysis_primary": [
+      "grayCode"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "grayCode"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 466,
+    "gen_duration": 4.41,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "expected_intent": "EXTRACT_VARIABLE",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_VARIABLE",
+    "analysis_primary": [
+      "minSeconds"
+    ],
+    "analysis_new": [
+      "halfTotalCeil"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "MODIFY_METHOD",
+      "ADD_FIELD"
+    ],
+    "plan_targets": [
+      "minSeconds",
+      ""
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 431,
+    "gen_duration": 5.17,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "expected_intent": "EXTRACT_VARIABLE",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_VARIABLE",
+    "analysis_primary": [
+      "fixedPoint"
+    ],
+    "analysis_new": [
+      "midPoint",
+      "shouldSearchRight"
+    ],
+    "plan_mutations": 5,
+    "plan_actions": [
+      "MODIFY_METHOD",
+      "ADD_FIELD",
+      "MODIFY_METHOD",
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "fixedPoint",
+      "midPoint",
+      "fixedPoint",
+      "shouldSearchRight",
+      "fixedPoint"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 547,
+    "gen_duration": 5.57,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "expected_intent": "INLINE_VARIABLE",
+    "classifier_match": true,
+    "actual_intent": "INLINE_VARIABLE",
+    "analysis_primary": [
+      "minDistance"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "minDistance",
+      "minDistance"
+    ],
+    "targets_clean": true,
+    "syntax_valid": false,
+    "output_len": 391,
+    "gen_duration": 4.57,
+    "methods_preserved": false,
+    "verdict": "FAIL"
+  },
+  {
+    "name": "polish_remflag_search",
+    "expected_intent": "REMOVE_CONTROL_FLAG",
+    "classifier_match": false,
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "analysis_primary": [
+      "search"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "search"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 148,
+    "gen_duration": 2.38,
+    "methods_preserved": true,
+    "verdict": "FAIL"
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "expected_intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "classifier_match": true,
+    "actual_intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "analysis_primary": [
+      "grayCode"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "grayCode"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 205,
+    "gen_duration": 2.31,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  },
+  {
+    "name": "polish_inline_nim",
+    "expected_intent": "INLINE_METHOD",
+    "classifier_match": true,
+    "actual_intent": "INLINE_METHOD",
+    "analysis_primary": [
+      "canWinNim"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "check"
+    ],
+    "targets_clean": true,
+    "syntax_valid": true,
+    "output_len": 535,
+    "gen_duration": 5.81,
+    "methods_preserved": true,
+    "verdict": "PASS"
+  }
+]

@@ -1,0 +1,741 @@
+[
+  {
+    "name": "polish_flatten_short_mindist",
+    "expected_intent": "FLATTEN_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "analysis_primary": [
+      "minDistance"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "minDistance"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int minDistance(String word1, String word2) {\n    if(word1 == null || word2 == null)\n        throw new IllegalArgumentException(\"Input strings cannot be null\");\n    \n    int m = word1.length(), n = word2.length();\n    int[][] dp = new int[m+1][n+1];\n    \n    for(int i = 0; i <= m; i++) {\n        if(i != 0) \n            dp[i][0] = i;\n    }\n    \n    for(int j = 0; j <= n; j++) {\n        if(j != 0)\n            dp[0][j] = j;\n    }\n\n    for(int i = 1; i <= m; i++) {\n        for(int j = 1; j <= n; j++) {\n            if(word1.charAt(i-1) == word2.charAt(j-1))\n                dp[i][j] = dp[i-1][j-1];\n            else\n                dp[i][j] = 1 + Math.min(dp[i-1][j], dp[i][j-1]);\n        }\n    }\n\n    return dp[m][n];\n}",
+    "syntax_valid": true,
+    "output_len": 728,
+    "gen_duration": 8.9,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC increased: 6 \u2192 10 (limit \u2264 6)"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 10,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: CC increased: 6 \u2192 10 (limit \u2264 6)"
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_flatten_long_quads",
+    "expected_intent": "FLATTEN_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "analysis_primary": [
+      "increasingQuadruplets"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "increasingQuadruplets"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int increasingQuadruplets(int[] nums) {\n    if (nums == null || nums.length < 4) return 0;\n\n    int n = nums.length, count = 0;\n    for (int i = 0; i < n - 3; i++) {\n        if (nums[i] >= nums[i + 1]) continue;\n        \n        for (int j = i + 1; j < n - 2; j++) {\n            if (nums[j] <= nums[j + 1]) continue;\n\n            for (int k = j + 1; k < n - 1; k++) {\n                if (nums[k] >= nums[i]) continue;\n                \n                for (int l = k + 1; l < n; l++) {\n                    count++;\n                }\n            }\n        }\n    }\n\n    return count;\n}",
+    "syntax_valid": true,
+    "output_len": 589,
+    "gen_duration": 7.39,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC increased: 8 \u2192 10 (limit \u2264 8)"
+    ],
+    "orig_cc": 8,
+    "refac_cc": 10,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: CC increased: 8 \u2192 10 (limit \u2264 8)"
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_decompose_med_nim",
+    "expected_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "analysis_primary": [
+      "canWinNim"
+    ],
+    "analysis_new": [
+      "isNotDivisibleByFour"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "isNotDivisibleByFour",
+      "canWinNim"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private boolean isNotDivisibleByFour;\n\n    public boolean canWinNim(int n) {\n        this.isNotDivisibleByFour = (n % 4 != 0);\n        \n        if (this.isNotDivisibleByFour) {\n            return true;\n        } else {\n            return false;\n        }\n    }\n\n    // Additional methods or fields as needed\n}",
+    "syntax_valid": true,
+    "output_len": 330,
+    "gen_duration": 3.82,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC increased: 1 \u2192 2 (limit \u2264 1)",
+      "Intent math fail: Operator count did not decrease (Old: 0, New: 0)."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 2,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: CC increased: 1 \u2192 2 (limit \u2264 1); Intent math fail: Operator count did not decrease (Old: 0, New: 0)."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_decompose_long_palindrome",
+    "expected_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "analysis_primary": [
+      "canPermutePalindrome"
+    ],
+    "analysis_new": [
+      "hasPalindromePermutation"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "hasPalindromePermutation",
+      "canPermutePalindrome"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private boolean hasPalindromePermutation;\n\n    public boolean canPermutePalindrome(String s) {\n        HashMap<Character, Integer> count = new HashMap<>();\n        for(char c : s.toCharArray())\n            count.put(c, count.getOrDefault(c, 0) + 1);\n        \n        int odd_count = 0;\n        for(int value : count.values()) {\n            if(value % 2 != 0) odd_count++;\n        }\n        \n        hasPalindromePermutation = (odd_count <= 1);\n        return hasPalindromePermutation;\n    }\n\n    public boolean isHasPalindromePermutation() {\n        return hasPalindromePermutation;\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 611,
+    "gen_duration": 5.85,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Operator count did not decrease (Old: 2, New: 2)."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Operator count did not decrease (Old: 2, New: 2)."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_consolidate_short_fixed",
+    "expected_intent": "CONSOLIDATE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "CONSOLIDATE_CONDITIONAL",
+    "analysis_primary": [
+      "fixedPoint"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "fixedPoint"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int fixedPoint(int[] arr) {\n    int left = 0, right = arr.length - 1;\n    while (left < right) {\n        int middle = left + (right - left) / 2;\n        if (arr[middle] >= middle) right = middle;\n        else left = middle + 1;\n    }\n    return arr[left] == left ? left : -1;\n}",
+    "syntax_valid": true,
+    "output_len": 284,
+    "gen_duration": 3.84,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Conditional nodes count did not decrease."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Conditional nodes count did not decrease."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_consolidate_long_lhs",
+    "expected_intent": "CONSOLIDATE_CONDITIONAL",
+    "classifier_match": true,
+    "actual_intent": "CONSOLIDATE_CONDITIONAL",
+    "analysis_primary": [
+      "findLHS"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "findLHS"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int findLHS(int[] nums) {\n    HashMap<Integer, Integer> count = new HashMap<>();\n    for (int num : nums)\n        count.put(num, count.getOrDefault(num, 0) + 1);\n    int longest_sequence = 0;\n    for (int key : count.keySet()) {\n        if ((count.containsKey(key - 1) && count.get(key - 1) == count.get(key)) || \n            (count.containsKey(key + 1) && count.get(key + 1) == count.get(key)))\n            longest_sequence = Math.max(longest_sequence, count.get(key));\n    }\n    return longest_sequence;\n}",
+    "syntax_valid": true,
+    "output_len": 514,
+    "gen_duration": 6.04,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC increased: 4 \u2192 7 (limit \u2264 4)",
+      "Intent math fail: Conditional nodes count did not decrease."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 7,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: CC increased: 4 \u2192 7 (limit \u2264 4); Intent math fail: Conditional nodes count did not decrease."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_const_short_box",
+    "expected_intent": "EXTRACT_CONSTANT",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_CONSTANT",
+    "analysis_primary": [
+      "boxCategory"
+    ],
+    "analysis_new": [
+      "BULKY_DIMENSION_THRESHOLD",
+      "HEAVY_MASS_THRESHOLD"
+    ],
+    "plan_mutations": 3,
+    "plan_actions": [
+      "ADD_CONSTANT",
+      "ADD_CONSTANT",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "BULKY_DIMENSION_THRESHOLD",
+      "HEAVY_MASS_THRESHOLD",
+      "boxCategory"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private static final int BULKY_DIMENSION_THRESHOLD = 10000;\n    private static final int HEAVY_MASS_THRESHOLD = 100;\n\n    public String boxCategory(int length, int width, int height, int mass) {\n        boolean bulky = length >= BULKY_DIMENSION_THRESHOLD || width >= BULKY_DIMENSION_THRESHOLD || height >= BULKY_DIMENSION_THRESHOLD || length * width * height >= 1000000000;\n        boolean heavy = mass >= HEAVY_MASS_THRESHOLD;\n        if (bulky && heavy) return \"Both\";\n        else if (bulky) return \"Bulky\";\n        else if (heavy) return \"Heavy\";\n        else return \"Neither\";\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 610,
+    "gen_duration": 7.27,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 8,
+    "refac_cc": 8,
+    "methods_preserved": true,
+    "verdict": "PASS",
+    "judge_verdict": "ACCEPT",
+    "judge_issues": [],
+    "judge_duration": 6.85
+  },
+  {
+    "name": "polish_const_long_derangement",
+    "expected_intent": "EXTRACT_CONSTANT",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_CONSTANT",
+    "analysis_primary": [
+      "findDerangement"
+    ],
+    "analysis_new": [
+      "MOD"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_CONSTANT",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "MOD",
+      "findDerangement"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private static final int MOD = 1000000007;\n\n    public int findDerangement(int n) {\n        long[] dp = new long[n + 1];\n        dp[2] = 1;\n        for (int i = 3; i <= n; i++)\n            dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % MOD;\n        return (int) dp[n];\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 294,
+    "gen_duration": 4.75,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 2,
+    "refac_cc": 2,
+    "methods_preserved": true,
+    "verdict": "PASS",
+    "judge_verdict": "REVISE",
+    "judge_issues": [
+      "Plan was not executed: code is identical to original.",
+      "Logic drift would cause different behavior."
+    ],
+    "judge_duration": 7.33
+  },
+  {
+    "name": "polish_extract_short_palindrome",
+    "expected_intent": "EXTRACT_METHOD",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_METHOD",
+    "analysis_primary": [
+      "checkPartitioning"
+    ],
+    "analysis_new": [
+      "isPalindromeUtility"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "isPalindromeUtility",
+      "checkPartitioning"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class Solution {\n    private boolean isPalindromeUtility(String s, int start, int end) {\n        while (start < end) {\n            if (s.charAt(start) != s.charAt(end)) return false;\n            start++; end--;\n        }\n        return true;\n    }\n\n    public boolean checkPartitioning(String s) {\n        int n = s.length();\n        for (int i = 0; i < n - 2; ++i)\n            if (isPalindromeUtility(s, 0, i))\n                for (int j = i + 1; j < n - 1; ++j)\n                    if (isPalindromeUtility(s, i + 1, j) && isPalindromeUtility(s, j + 1, n - 1))\n                        return true;\n        return false;\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 635,
+    "gen_duration": 7.25,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Expected at least one new method, found 0 delta.",
+      "Methods dropped: {'isPalindrome'}"
+    ],
+    "orig_cc": 6,
+    "refac_cc": 6,
+    "methods_preserved": false,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Expected at least one new method, found 0 delta.; Methods dropped: {'isPalindrome'}"
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_extract_long_reformat",
+    "expected_intent": "EXTRACT_METHOD",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_METHOD",
+    "analysis_primary": [
+      "reformat"
+    ],
+    "analysis_new": [
+      "interleaveQueues"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "interleaveQueues",
+      "reformat"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private void interleaveQueues(Queue<Character> letters, Queue<Character> digits, StringBuilder result) {\n        while (!letters.isEmpty() || !digits.isEmpty()) {\n            if (!letters.isEmpty()) result.append(letters.poll());\n            if (!digits.isEmpty()) result.append(digits.poll());\n        }\n    }\n\n    public String reformat(String s) {\n        Queue<Character> letters = new LinkedList<>();\n        Queue<Character> digits = new LinkedList<>();\n        for (char c : s.toCharArray()) {\n            if (Character.isLetter(c)) letters.add(c);\n            else digits.add(c);\n        }\n        if (Math.abs(letters.size() - digits.size()) > 1) return \"\";\n        StringBuilder result = new StringBuilder();\n        interleaveQueues(letters, digits, result);\n        return result.toString();\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 832,
+    "gen_duration": 7.01,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 7,
+    "refac_cc": 5,
+    "methods_preserved": true,
+    "verdict": "PASS",
+    "judge_verdict": "REVISE",
+    "judge_issues": [
+      "Plan was not executed: code is identical to original.",
+      "Logic drift would cause different behavior due to extraction of method into interleaveQueues."
+    ],
+    "judge_duration": 13.15
+  },
+  {
+    "name": "polish_rename_short_judge",
+    "expected_intent": "RENAME_SYMBOL",
+    "classifier_match": true,
+    "actual_intent": "RENAME_SYMBOL",
+    "analysis_primary": [
+      "trustCounts",
+      "findJudge"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "RENAME_SYMBOL",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "trustCounts",
+      "findJudge"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int findJudge(int n, int[][] trust) {\n    int[] trustScores = new int[n + 1];\n    for (int[] t : trust) {\n        trustScores[t[0]]--;\n        trustScores[t[1]]++;\n    }\n    for (int i = 1; i <= n; i++)\n        if (trustScores[i] == n - 1) return i;\n    return -1;\n}",
+    "syntax_valid": true,
+    "output_len": 273,
+    "gen_duration": 3.9,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 4,
+    "refac_cc": 4,
+    "methods_preserved": true,
+    "verdict": "PASS",
+    "judge_verdict": "ACCEPT",
+    "judge_issues": [],
+    "judge_duration": 4.57
+  },
+  {
+    "name": "polish_rename_long_paths",
+    "expected_intent": "RENAME_SYMBOL",
+    "classifier_match": true,
+    "actual_intent": "RENAME_SYMBOL",
+    "analysis_primary": [
+      "m",
+      "n"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 5,
+    "plan_actions": [
+      "RENAME_SYMBOL",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "m",
+      "uniquePathsWithObstacles",
+      "uniquePathsWithObstacles",
+      "uniquePathsWithObstacles",
+      "uniquePathsWithObstacles"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int uniquePathsWithObstacles(int[][] grid) {\n    int rowCount = grid.length;\n    int colCount = grid[0].length;\n    if (grid[0][0] == 1) return 0;\n    grid[0][0] = 1;\n    for (int i = 1; i < rowCount; ++i)\n        grid[i][0] = (grid[i][0] == 0 && grid[i-1][0] == 1) ? 1 : 0;\n    for (int j = 1; j < colCount; ++j)\n        grid[0][j] = (grid[0][j] == 0 && grid[0][j-1] == 1) ? 1 : 0;\n    for (int i = 1; i < rowCount; ++i)\n        for (int j = 1; j < colCount; ++j)\n            if (grid[i][j] == 0)\n                grid[i][j] = grid[i-1][j] + grid[i][j-1];\n    return grid[rowCount-1][colCount-1];\n}",
+    "syntax_valid": true,
+    "output_len": 605,
+    "gen_duration": 9.79,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 11,
+    "refac_cc": 11,
+    "methods_preserved": true,
+    "verdict": "PASS",
+    "judge_verdict": "ACCEPT",
+    "judge_issues": [],
+    "judge_duration": 11.84
+  },
+  {
+    "name": "polish_split_med_distinct",
+    "expected_intent": "SPLIT_LOOP",
+    "classifier_match": true,
+    "actual_intent": "SPLIT_LOOP",
+    "analysis_primary": [
+      "distinctIntegersAfterReversingAndAdding"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "distinctIntegersAfterReversingAndAdding"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int distinctIntegersAfterReversingAndAdding(int[] nums) {\n    Set<Integer> distinct = new HashSet<>();\n    \n    // Add original numbers to the set\n    for (int num : nums) {\n        distinct.add(num);\n    }\n    \n    // Reverse each number and add it to the set\n    for (int num : nums) {\n        int reversed = 0;\n        while (num > 0) {\n            reversed = reversed * 10 + num % 10;\n            num /= 10;\n        }\n        distinct.add(reversed);\n    }\n    \n    return distinct.size();\n}",
+    "syntax_valid": true,
+    "output_len": 501,
+    "gen_duration": 5.1,
+    "phase4_pass": true,
+    "phase4_findings": [],
+    "orig_cc": 3,
+    "refac_cc": 4,
+    "methods_preserved": true,
+    "verdict": "PASS",
+    "judge_verdict": "REVISE",
+    "judge_issues": [
+      "Plan was not executed: code is identical to original."
+    ],
+    "judge_duration": 6.45
+  },
+  {
+    "name": "polish_split_long_gray",
+    "expected_intent": "SPLIT_LOOP",
+    "classifier_match": true,
+    "actual_intent": "SPLIT_LOOP",
+    "analysis_primary": [
+      "grayCode"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "grayCode"
+    ],
+    "targets_clean": true,
+    "_output_code": "public List<Integer> grayCode(int n) {\n    List<Integer> result = new ArrayList<>();\n    \n    // Initialize the first element\n    int current = 0;\n    result.add(current);\n    \n    for (int i = 1; i < (1 << n); i++) {\n        // Calculate the next Gray code by XORing with its previous value shifted right by one bit\n        current ^= (current >> 1);\n        \n        // Add the new Gray code to the list\n        result.add(current);\n    }\n    \n    return result;\n}",
+    "syntax_valid": true,
+    "output_len": 466,
+    "gen_duration": 4.63,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Loop count delta was 0, expected +1."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 2,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Loop count delta was 0, expected +1."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_extvar_med_seconds",
+    "expected_intent": "EXTRACT_VARIABLE",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_VARIABLE",
+    "analysis_primary": [
+      "minSeconds"
+    ],
+    "analysis_new": [
+      "halfTotalCeil"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "MODIFY_METHOD",
+      "ADD_FIELD"
+    ],
+    "plan_targets": [
+      "minSeconds",
+      ""
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private int halfTotalCeil;\n\n    public int minSeconds(int[] amount) {\n        int total = amount[0] + amount[1] + amount[2];\n        \n        // Declare local variable and assign the expression (total + 1) / 2\n        halfTotalCeil = (total + 1) / 2;\n        \n        return halfTotalCeil - (Math.max(amount[0] + amount[1], Math.max(amount[1] + amount[2], amount[0] + amount[2])) + 1) / 2 + largestTwo;\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 431,
+    "gen_duration": 5.18,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Variable count did not increase."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 1,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Variable count did not increase."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_extvar_long_binary",
+    "expected_intent": "EXTRACT_VARIABLE",
+    "classifier_match": true,
+    "actual_intent": "EXTRACT_VARIABLE",
+    "analysis_primary": [
+      "fixedPoint"
+    ],
+    "analysis_new": [
+      "midPoint",
+      "shouldSearchRight"
+    ],
+    "plan_mutations": 3,
+    "plan_actions": [
+      "MODIFY_METHOD",
+      "ADD_FIELD",
+      "ADD_CONSTANT"
+    ],
+    "plan_targets": [
+      "fixedPoint",
+      "midPoint",
+      "shouldSearchRight"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class X {\n    private static final boolean shouldSearchRight = true;\n\n    public int fixedPoint(int[] arr) {\n        int left = 0, right = arr.length - 1;\n        while (left < right) {\n            int middle = left + (right - left) / 2;\n            if (arr[middle] == middle && !shouldSearchRight || arr[middle] > middle) right = middle;\n            else left = middle + 1;\n        }\n        return arr[left] == left ? left : -1;\n    }\n\n    private int midPoint(int[] arr, int left, int right) {\n        return left + (right - left) / 2;\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 553,
+    "gen_duration": 6.84,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "CC increased: 4 \u2192 6 (limit \u2264 4)"
+    ],
+    "orig_cc": 4,
+    "refac_cc": 6,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: CC increased: 4 \u2192 6 (limit \u2264 4)"
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_inlinevar_dp",
+    "expected_intent": "INLINE_VARIABLE",
+    "classifier_match": true,
+    "actual_intent": "INLINE_VARIABLE",
+    "analysis_primary": [
+      "minDistance"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "minDistance",
+      "minDistance"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int minDistance(String word1, String word2) {\n    return (word1.length() == 0 ? word2.length() : \n            word2.length() == 0 ? word1.length() :\n                Math.min(minDistance(word1.substring(1), word2),\n                         Math.min(minDistance(word1, word2.substring(1)),\n minDistance(word1.substring(1), word2.substring(1)) + (word1.charAt(0) != word2.charAt(0))));\n}",
+    "syntax_valid": false,
+    "output_len": 391,
+    "gen_duration": 4.62,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Syntax invalid"
+    ],
+    "orig_cc": 0,
+    "refac_cc": 0,
+    "methods_preserved": false,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Syntax invalid \u2014 skipped judge"
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_remflag_search",
+    "expected_intent": "REMOVE_CONTROL_FLAG",
+    "classifier_match": false,
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "analysis_primary": [
+      "search"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "search"
+    ],
+    "targets_clean": true,
+    "_output_code": "public int search(int[] arr, int target) {\n    for (int i = 0; i < arr.length; i++) {\n        if (arr[i] == target) return i;\n    }\n    return -1;\n}",
+    "syntax_valid": true,
+    "output_len": 148,
+    "gen_duration": 2.5,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Nesting depth did not decrease (Old: 1, New: 1)."
+    ],
+    "orig_cc": 4,
+    "refac_cc": 3,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Nesting depth did not decrease (Old: 1, New: 1)."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_pipeline_gray",
+    "expected_intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "classifier_match": true,
+    "actual_intent": "REPLACE_LOOP_WITH_PIPELINE",
+    "analysis_primary": [
+      "grayCode"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "grayCode"
+    ],
+    "targets_clean": true,
+    "_output_code": "public List<Integer> grayCode(int n) {\n    return IntStream.range(0, 1 << n)\n                     .map(i -> i ^ (i >> 1))\n                     .boxed()\n                     .collect(Collectors.toList());\n}",
+    "syntax_valid": true,
+    "output_len": 205,
+    "gen_duration": 2.44,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Loop count did not decrease or stream() pipeline not found."
+    ],
+    "orig_cc": 2,
+    "refac_cc": 1,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Loop count did not decrease or stream() pipeline not found."
+    ],
+    "judge_duration": 0
+  },
+  {
+    "name": "polish_inline_nim",
+    "expected_intent": "INLINE_METHOD",
+    "classifier_match": true,
+    "actual_intent": "INLINE_METHOD",
+    "analysis_primary": [
+      "canWinNim"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "plan_targets": [
+      "check"
+    ],
+    "targets_clean": true,
+    "_output_code": "public class Solution {\n    public boolean canWinNim(int n) { return n % 4 != 0; }\n    \n    public boolean check(int n) {\n        if (n == 1) return true;\n        if (n == 2) return false;\n        if (n == 3) return true;\n        \n        int count = 0;\n        for (int i = 1; i <= Math.sqrt(n); i++) {\n            if (n % i == 0) {\n                count++;\n                if (count > 1 || n / i != i && canWinNim(i)) {\n                    return true;\n                }\n            }\n        }\n        \n        return false;\n    }\n}",
+    "syntax_valid": true,
+    "output_len": 535,
+    "gen_duration": 6.74,
+    "phase4_pass": false,
+    "phase4_findings": [
+      "Intent math fail: Expected at least one less method, found 0 delta."
+    ],
+    "orig_cc": 1,
+    "refac_cc": 9,
+    "methods_preserved": true,
+    "verdict": "FAIL",
+    "judge_verdict": "SKIP",
+    "judge_issues": [
+      "Phase 4 failed: Intent math fail: Expected at least one less method, found 0 delta."
+    ],
+    "judge_duration": 0
+  }
+]

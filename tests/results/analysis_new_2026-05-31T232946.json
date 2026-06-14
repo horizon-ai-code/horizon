@@ -1,0 +1,182 @@
+[
+  {
+    "name": "analysis_const_two_methods",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying magic number and its usage\", \"primary_targets\": [\"calculateArea\", \"calculateCircumference\"], \"secondary_targets\": [], \"new_structures_needed\": [\"PI\"], \"must_preserve\": [] }",
+    "duration": 2.92,
+    "primary_targets": [
+      "calculateArea",
+      "calculateCircumference"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "PI"
+    ],
+    "must_preserve": [],
+    "scratchpad_len": 38,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_const_single_method",
+    "intent": "EXTRACT_CONSTANT",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the magic number and its usage\", \"primary_targets\": [\"compute\"], \"secondary_targets\": [], \"new_structures_needed\": [\"MOD\"], \"must_preserve\": [] }",
+    "duration": 2.15,
+    "primary_targets": [
+      "compute"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "MOD"
+    ],
+    "must_preserve": [],
+    "scratchpad_len": 42,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_rename_field_accessors",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the field 'n' and its references\", \"primary_targets\": [\"n\", \"getN\", \"setN\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.74,
+    "primary_targets": [
+      "n",
+      "getN",
+      "setN"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 44,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_rename_variables",
+    "intent": "RENAME_SYMBOL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying symbols to rename and their references\", \"primary_targets\": [\"first->fast\", \"second->slow\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.33,
+    "primary_targets": [
+      "first->fast",
+      "second->slow"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 50,
+    "primary_complete": false,
+    "primary_missing": [
+      "first",
+      "second",
+      "head"
+    ],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_extract_method_tax",
+    "intent": "EXTRACT_METHOD",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the code to extract and its dependencies\", \"primary_targets\": [\"calculateTotal\"], \"secondary_targets\": [], \"new_structures_needed\": [\"computeTaxWithRounding\"], \"must_preserve\": [\"double: 'total'\", \"Exception: IllegalArgumentException\"] }",
+    "duration": 3.03,
+    "primary_targets": [
+      "calculateTotal"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "computeTaxWithRounding"
+    ],
+    "must_preserve": [
+      "double: 'total'",
+      "Exception: IllegalArgumentException"
+    ],
+    "scratchpad_len": 52,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_decompose_isEligible",
+    "intent": "DECOMPOSE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying the compound condition and naming boolean variables\", \"primary_targets\": [\"isEligible\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isAdult\", \"isWorkingAge\", \"hasSufficientIncome\", \"hasGoodCredit\"], \"must_preserve\": [\"public boolean isEligible(int age, double income, int creditScore, boolean hasCollateral) { if (age >= 18 && age <= 65 && income > 30000 && creditScore > 650 && hasCollateral) { return true; } return false; }\"] }",
+    "duration": 6.74,
+    "primary_targets": [
+      "isEligible"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [
+      "isAdult",
+      "isWorkingAge",
+      "hasSufficientIncome",
+      "hasGoodCredit"
+    ],
+    "must_preserve": [
+      "public boolean isEligible(int age, double income, int creditScore, boolean hasCollateral) { if (age >= 18 && age <= 65 && income > 30000 && creditScore > 650 && hasCollateral) { return true; } return false; }"
+    ],
+    "scratchpad_len": 63,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_flatten_preserve_exceptions",
+    "intent": "FLATTEN_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying nested if statements and exception messages\", \"primary_targets\": [\"process\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [\"Exception: IllegalArgumentException\", \"String: 'input empty'\", \"String: 'input null'\"] }",
+    "duration": 3.23,
+    "primary_targets": [
+      "process"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [
+      "Exception: IllegalArgumentException",
+      "String: 'input empty'",
+      "String: 'input null'"
+    ],
+    "scratchpad_len": 55,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": true,
+    "format_strings_only": true
+  },
+  {
+    "name": "analysis_consolidate_wordPattern",
+    "intent": "CONSOLIDATE_CONDITIONAL",
+    "success": true,
+    "content": "{ \"analysis_scratchpad\": \"Identifying duplicate conditional branches\", \"primary_targets\": [\"wordPatternMatch\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "duration": 2.17,
+    "primary_targets": [
+      "wordPatternMatch"
+    ],
+    "secondary_targets": [],
+    "new_structures_needed": [],
+    "must_preserve": [],
+    "scratchpad_len": 42,
+    "primary_complete": true,
+    "primary_missing": [],
+    "new_complete": true,
+    "preserve_complete": null,
+    "format_strings_only": true
+  }
+]

@@ -1,0 +1,1169 @@
+{
+  "timestamp": "2026-06-06T15:36:18",
+  "total_cases": 12,
+  "config": {
+    "USE_SEQUENTIAL": true,
+    "SKIP_JUDGE": false
+  },
+  "results": [
+    {
+      "case": "FLATTEN_CONDITIONAL_search",
+      "instruction": "Flatten the nested if-else in the search method using guard clauses with early returns. Each guard clause should handle one distinct case at the top and return immediately.",
+      "code": "public boolean search(int[] nums, int target) {\n    int left = 0, right = nums.length - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return true;\n\n        if (nums[mid] == nums[left]) {\n            left++;\n        } else if (nums[mid] > nums[left]) {\n            if (nums[left] <= target && target < nums[mid]) {\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        } else {\n            if (nums[mid] < target && target <= nums[right]) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n    }\n    return false;\n}",
+      "exit_status": "ABORT_STRATEGY",
+      "strategy_iter": 4,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 156450,
+      "original_cc": 9,
+      "refactored_cc": 12,
+      "cc_delta": 3,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public boolean search(int[] nums, int target) {\n    if (nums == null || nums.length == 0) throw new IllegalArgumentException(\"null array\");\n\n    int left = 0;\n    while (left < nums.length - 1 && nums[left] == nums[nums.length - 1]) left++;\n\n    int right = nums.length - 1;\n\n    while (left <= right) {\n        if (nums[mid] == target) return true;\n\n        int mid = left + (right - left) / 2;\n        \n        if (nums[mid] > nums[left]) {\n            if (target >= nums[left] && target < nums[mid]) {\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        } else {\n            if (target <= nums[right] && target > nums[mid]) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n    }\n\n    return false;\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 9 to 11 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 9 to 11 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 9 to 12 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 9 to 12 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 9 to 12 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 9 to 12 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        }
+      ],
+      "num_validation_findings": 3,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "ABORT_STRATEGY",
+          "strategy_iter": 4,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 156450
+        }
+      ],
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "FLATTEN_CONDITIONAL",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "search",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "MODIFY_METHOD",
+            "target": "search",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Invert each nested condition into a guard clause at the method top. Each invalid state throws or returns early. All exception types and messages from must_preserve must appear exactly.",
+              "value": null
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "DECOMPOSE_CONDITIONAL_isMatch",
+      "instruction": "Decompose the complex character matching condition `s.charAt(i) == p.charAt(j) || p.charAt(j) == '?'` by extracting it into a boolean variable `charMatch` before the while loop body.",
+      "code": "public boolean isMatch(String s, String p) {\n    int m = s.length(), n = p.length();\n    int i = 0, j = 0, asterisk = -1, match = 0;\n    while (i < m) {\n        if (j < n && (s.charAt(i) == p.charAt(j) || p.charAt(j) == '?')) {\n            i++; j++;\n        } else if (j < n && p.charAt(j) == '*') {\n            match = i;\n            asterisk = j++;\n        } else if (asterisk != -1) {\n            i = ++match;\n            j = asterisk + 1;\n        } else {\n            return false;\n        }\n    }\n    while (j < n && p.charAt(j) == '*') j++;\n    return j == n;\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 2,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 139612,
+      "original_cc": 10,
+      "refactored_cc": 8,
+      "cc_delta": -2,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public boolean isMatch(String s, String p) {\n    int m = s.length(), n = p.length();\n    int i = 0, j = 0, asterisk = -1, match = 0;\n    while (i < m && charMatch(s.charAt(i), p.charAt(j))) { // ADD_FIELD\n        if (p.charAt(j) == '?') {\n            i++; j++;\n        } else if (p.charAt(j) == '*') {\n            match = i;\n            asterisk = j++;\n        } else if (asterisk != -1) {\n            i = ++match;\n            j = asterisk + 1;\n        }\n    }\n\n    while (j < n && p.charAt(j) == '*') j++;\n\n    return j == n;\n\n}\n\nboolean charMatch(char a, char b) { // ADD_FIELD\n    if (a == '?' || a == b) {\n        return true;\n    } else {\n        return false;\n    }\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'No decomposition: 15\u219215 binary ops, 0 new vars.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'No decomposition: 15\u219215 binary ops, 0 new vars.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 10 to 11 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 10 to 11 (limit: 10)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'No decomposition: 15\u219217 binary ops, 0 new vars.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'No decomposition: 15\u219217 binary ops, 0 new vars.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}"
+        }
+      ],
+      "num_validation_findings": 3,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 2,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 139612
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "charMatch",
+          "time_ms": 8080,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'isMatch' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "charMatch",
+          "time_ms": 6766,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'isMatch' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "charMatch",
+          "time_ms": 8096,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'isMatch' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "charMatch",
+          "time_ms": 7258,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'isMatch' was modified but was outside target scope(s)."
+        }
+      ],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 4,
+      "gen_total_time_ms": 30200,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "DECOMPOSE_CONDITIONAL",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "ADD_FIELD",
+            "target": "charMatch",
+            "details": {
+              "modifiers": [],
+              "type": "boolean",
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "None",
+              "value": null
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "isMatch",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Declare the boolean variable `charMatch` and assign its condition, then use it in the if condition.",
+              "value": null
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "CONSOLIDATE_CONDITIONAL_sortColors",
+      "instruction": "Consolidate the three separate if-else branches for nums[white] == 0, 1, and 2 into a single switch statement with cases for each value.",
+      "code": "public void sortColors(int[] nums) {\n    int red = 0, white = 0, blue = nums.length - 1;\n    while (white <= blue) {\n        if (nums[white] == 0) {\n            int temp = nums[red];\n            nums[red++] = nums[white];\n            nums[white++] = temp;\n        } else if (nums[white] == 1) {\n            white++;\n        } else {\n            int temp = nums[white];\n            nums[white] = nums[blue];\n            nums[blue--] = temp;\n        }\n    }\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 82859,
+      "original_cc": 4,
+      "refactored_cc": 4,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "private static final int RED = 0;\n    private static final int WHITE = 1;\n\n    public void sortColors(int[] nums) {\n        int red = 0, white = 0, blue = nums.length - 1;\n        while (white <= blue) {\n            if (nums[white] == RED || nums[white] == WHITE) {\n                int temp = nums[red];\n                nums[red++] = nums[white];\n                nums[white++] = temp;\n            } else {\n                int temp = nums[white];\n                nums[white] = nums[blue];\n                nums[blue--] = temp;\n            }\n        }\n    }",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 82859
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "switchStatement",
+          "time_ms": 5633,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'sortColors' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "switchStatement",
+          "time_ms": 4962,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'sortColors' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "switchStatement",
+          "time_ms": 6125,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'sortColors' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "switchStatement",
+          "time_ms": 6229,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'sortColors' was modified but was outside target scope(s)."
+        }
+      ],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 4,
+      "gen_total_time_ms": 22949,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "CONSOLIDATE_CONDITIONAL",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "MODIFY_METHOD",
+            "target": "sortColors",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Combine duplicate conditional branches into a single check.",
+              "value": null
+            }
+          },
+          {
+            "action": "ADD_CONSTANT",
+            "target": "switchStatement",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Add constant for switch statement cases.",
+              "value": null
+            }
+          },
+          {
+            "action": "ADD_FIELD",
+            "target": "switchStatement",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Add field for switch statement cases.",
+              "value": null
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "REMOVE_CONTROL_FLAG_setZeroes",
+      "instruction": "Remove the firstRow and firstCol control flags. Instead, check matrix[0][j] and matrix[i][0] directly in the final zeroing loops by checking if any zero was marked in the first row/col.",
+      "code": "public void setZeroes(int[][] matrix) {\n    int rows = matrix.length;\n    int cols = matrix[0].length;\n    boolean firstRow = false, firstCol = false;\n\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            if (matrix[i][j] == 0) {\n                if (i == 0) firstRow = true;\n                if (j == 0) firstCol = true;\n                matrix[i][0] = 0;\n                matrix[0][j] = 0;\n            }\n        }\n    }\n\n    for (int i = 1; i < rows; i++) {\n        for (int j = 1; j < cols; j++) {\n            if (matrix[i][0] == 0 || matrix[0][j] == 0)\n                matrix[i][j] = 0;\n        }\n    }\n\n    if (firstRow) {\n        for (int j = 0; j < cols; j++)\n            matrix[0][j] = 0;\n    }\n\n    if (firstCol) {\n        for (int i = 0; i < rows; i++)\n            matrix[i][0] = 0;\n    }\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 2,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 131921,
+      "original_cc": 14,
+      "refactored_cc": 8,
+      "cc_delta": -6,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public void setZeroes(int[][] matrix) {\n    int rows = matrix.length;\n    int cols = matrix[0].length;\n\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            if (matrix[i][j] == 0) {\n                markRow(matrix, i);\n                markCol(matrix, j);\n            }\n        }\n    }\n\n    for (int i = 1; i < rows; i++) {\n        for (int j = 1; j < cols; j++) {\n            if (matrix[i][0] == 0 || matrix[0][j] == 0)\n                matrix[i][j] = 0;\n        }\n    }\n\n    markRow(matrix, 0);\n    markCol(matrix, 0);\n}\n\nprivate void markRow(int[][] matrix, int row) {\n    for (int j = 0; j < matrix[row].length; j++) {\n        matrix[row][j] = 0;\n    }\n}\n\nprivate void markCol(int[][] matrix, int col) {\n    for (int i = 0; i < matrix.length; i++) {\n        matrix[i][col] = 0;\n    }\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': [{'issue_type': 'LOGIC_DRIFT', 'description': 'The refactored code has changed logic compared to the original, specifically handling of the first 0'}]}",
+          "message": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': [{'issue_type': 'LOGIC_DRIFT', 'description': 'The refactored code has changed logic compared to the original, specifically handling of the first 0'}]}"
+        }
+      ],
+      "num_validation_findings": 1,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 2,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 131921
+        }
+      ],
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "REMOVE_CONTROL_FLAG",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "setZeroes",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "RENAME_SYMBOL",
+            "target": "firstRow, firstCol",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Eliminate the flag variable. Replace with direct control flow.",
+              "value": null,
+              "find_text": "firstRow, firstCol"
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "REPLACE_LOOP_WITH_PIPELINE_grayCode",
+      "instruction": "Replace the for-loop in grayCode with a Java Stream pipeline using IntStream.range, map, and boxed().collect(Collectors.toList()).",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic List<Integer> grayCode(int n) {\n    List<Integer> result = new ArrayList<>();\n    for (int i = 0; i < (1 << n); i++) {\n        result.add(i ^ (i >> 1));\n    }\n    return result;\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 58751,
+      "original_cc": 1,
+      "refactored_cc": 1,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public List<Integer> grayCode(int n) {\n        return IntStream.range(0, 1 << n)\n                .map(i -> i ^ (i >> 1))\n                .boxed()\n                .collect(Collectors.toList());\n    }",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 58751
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "IntStream.range(0, 1 << n)",
+          "time_ms": 2701,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'grayCode' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "IntStream.range(0, 1 << n)",
+          "time_ms": 2564,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'grayCode' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "IntStream.range(0, 1 << n)",
+          "time_ms": 2351,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'grayCode' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "IntStream.range(0, 1 << n)",
+          "time_ms": 2785,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'grayCode' was modified but was outside target scope(s)."
+        }
+      ],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 4,
+      "gen_total_time_ms": 10401,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "REPLACE_LOOP_WITH_PIPELINE",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "MODIFY_METHOD",
+            "target": "grayCode",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Replace the loop with a stream pipeline (map, filter, collect).",
+              "value": null
+            }
+          },
+          {
+            "action": "ADD_FIELD",
+            "target": "IntStream.range(0, 1 << n)",
+            "details": {
+              "modifiers": [],
+              "type": "java.util.stream.IntStream",
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "None",
+              "value": null
+            }
+          },
+          {
+            "action": "ADD_METHOD",
+            "target": "map(i -> i ^ (i >> 1))",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "",
+              "value": null
+            }
+          },
+          {
+            "action": "ADD_FIELD",
+            "target": ".boxed()",
+            "details": {
+              "modifiers": [],
+              "type": "java.util.stream.IntStream",
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "None",
+              "value": null
+            }
+          },
+          {
+            "action": "ADD_METHOD",
+            "target": ".collect(Collectors.toList())",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "",
+              "value": null
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "SPLIT_LOOP_sortColors",
+      "instruction": "Split the single while loop that handles 0s, 1s, and 2s into three separate while loops: one for moving 0s to the front, one for the middle (1s), and one for 2s to the end.",
+      "code": "public void sortColors(int[] nums) {\n    int red = 0, white = 0, blue = nums.length - 1;\n    while (white <= blue) {\n        if (nums[white] == 0) {\n            int temp = nums[red];\n            nums[red++] = nums[white];\n            nums[white++] = temp;\n        } else if (nums[white] == 1) {\n            white++;\n        } else {\n            int temp = nums[white];\n            nums[white] = nums[blue];\n            nums[blue--] = temp;\n        }\n    }\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 2,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 138943,
+      "original_cc": 4,
+      "refactored_cc": 5,
+      "cc_delta": 1,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public void sortColors(int[] nums) {\n    int red = 0, white = 0;\n    \n    // Move all zeros to the beginning\n    while (white < nums.length && nums[white] == 0) {\n        swap(nums, red++, white++);\n    }\n    \n    // Handle ones in place and move twos to the end\n    for (; white < nums.length; white++) {\n        if (nums[white] == 1) continue;\n        \n        int temp = nums[white];\n        nums[white++] = nums[nums.length - 1];\n        nums[nums.length--] = temp;\n    }\n}\n\nprivate void swap(int[] arr, int i, int j) {\n    int temp = arr[i];\n    arr[i] = arr[j];\n    arr[j] = temp;\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 4 to 11 (limit: 5)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 4 to 11 (limit: 5)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 4 to 11 (limit: 5)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 4 to 11 (limit: 5)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        }
+      ],
+      "num_validation_findings": 2,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 2,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 138943
+        }
+      ],
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0,
+      "intent_packet": {
+        "refactor_category": "CONTROL_FLOW",
+        "specific_intent": "SPLIT_LOOP",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "MODIFY_METHOD",
+            "target": "sortColors",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Split the loop into separate loops for moving 0s, handling 1s in place, and moving 2s to the end.",
+              "value": null
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "EXTRACT_METHOD_combine",
+      "instruction": "Extract the for-loop body inside backtrack into a private helper method called tryNext that takes (int i, int n, int k, List<Integer> current, List<List<Integer>> result).",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic List<List<Integer>> combine(int n, int k) {\n    List<List<Integer>> result = new ArrayList<>();\n    backtrack(n, k, 1, new ArrayList<>(), result);\n    return result;\n}\n\nprivate void backtrack(int n, int k, int start, List<Integer> current, List<List<Integer>> result) {\n    if (current.size() == k) {\n        result.add(new ArrayList<>(current));\n        return;\n    }\n\n    for (int i = start; i <= n; i++) {\n        current.add(i);\n        backtrack(n, k, i + 1, current, result);\n        current.remove(current.size() - 1);\n    }\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 2,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 124185,
+      "original_cc": 1,
+      "refactored_cc": 2,
+      "cc_delta": 1,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public List<List<Integer>> combine(int n, int k) {\n        List<List<Integer>> result = new ArrayList<>();\n        backtrack(n, k, 1, new ArrayList<>(), result);\n        return result;\n    }\n\n    private void backtrack(int i, int n, int k, List<Integer> current, List<List<Integer>> result) {\n        if (current.size() == k) {\n            result.add(new ArrayList<>(current));\n            return;\n        }\n        \n        tryNext(i, n, k, current, result);\n    }\n\n    private void tryNext(int i, int n, int k, List<Integer> current, List<List<Integer>> result) {\n        for (int j = i; j <= n; j++) {\n            current.add(j);\n            backtrack(n, k, j + 1, new ArrayList<>(current), result); // Fixed: Use a copy of the list\n            current.remove(current.size() - 1);\n        }\n    }",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': [{'issue_type': 'LOGIC_DRIFT', 'description': 'The original backtrack method has been replaced with a new tryNext function that handles iteration \u00f0'}]}",
+          "message": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': [{'issue_type': 'LOGIC_DRIFT', 'description': 'The original backtrack method has been replaced with a new tryNext function that handles iteration \u00f0'}]}"
+        }
+      ],
+      "num_validation_findings": 1,
+      "mutation_index": 2,
+      "mutation_queue_len": 2,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 2,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 124185
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_METHOD",
+          "target": "tryNext",
+          "time_ms": 7694,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "backtrack",
+          "time_ms": 8992,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 16686,
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "EXTRACT_METHOD",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "backtrack",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "RENAME_SYMBOL",
+            "target": "backtrack",
+            "details": {
+              "modifiers": [],
+              "type": "METHOD_UNIT",
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Replace extracted code with a call to the new helper method.",
+              "value": "tryNext(int, int, int, List<Integer>, List<List<Integer>>)",
+              "find_text": "backtrack"
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "combine",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [
+                {
+                  "name": "backtrack",
+                  "type": "METHOD_UNIT"
+                }
+              ],
+              "logic_changes": [],
+              "body_abstract": "Replace extracted code with a call to the new helper method.",
+              "value": "(int i, int n, int k) -> tryNext(i, n, k, (List<Integer>) current.get(0), (List<List<Integer>>) result)"
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "INLINE_METHOD_isScramble",
+      "instruction": "Inline the private sorted helper method directly into the two call sites in isScramble. Replace each sorted(...) call with the array sort + string construction logic inline.",
+      "code": "public boolean isScramble(String s1, String s2) {\n    if (s1.equals(s2)) return true;\n    if (sorted(s1).equals(sorted(s2)) == false) return false;\n\n    for (int i = 1; i < s1.length(); i++) {\n        if (isScramble(s1.substring(0, i), s2.substring(0, i)) && isScramble(s1.substring(i), s2.substring(i)))\n            return true;\n        if (isScramble(s1.substring(0, i), s2.substring(s2.length() - i)) && isScramble(s1.substring(i), s2.substring(0, s2.length() - i)))\n            return true;\n    }\n    return false;\n}\n\nprivate String sorted(String s) {\n    char[] chars = s.toCharArray();\n    Arrays.sort(chars);\n    return new String(chars);\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 2,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 124420,
+      "original_cc": 8,
+      "refactored_cc": 8,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public boolean isScramble(String s1, String s2) {\n    if (s1.equals(s2)) return true;\n    if (!isSorted(s1).equals(isSorted(s2))) return false;\n\n    for (int i = 1; i < s1.length(); i++) {\n        if (isScramble(s1.substring(0, i), s2.substring(0, i)) && isScramble(s1.substring(i), s2.substring(i)))\n            return true;\n        if (isScramble(s1.substring(0, i), s2.substring(s2.length() - i)) && isScramble(s1.substring(i), s2.substring(0, s2.length() - i)))\n            return true;\n    }\n    return false;\n\n}\n\nprivate String isSorted(String s) {\n    char[] chars = s.toCharArray();\n    Arrays.sort(chars);\n    return new String(chars);\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': [{'issue_type': 'LOGIC_DRIFT', 'description': 'The refactored code has a different logic than the original code'}]}",
+          "message": "{'failure_tier': <FailureTier.TIER_3_JUDGE: 'TIER_3_JUDGE'>, 'error': [{'issue_type': 'LOGIC_DRIFT', 'description': 'The refactored code has a different logic than the original code'}]}"
+        }
+      ],
+      "num_validation_findings": 1,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 2,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 124420
+        }
+      ],
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0,
+      "intent_packet": {
+        "refactor_category": "METHOD_MOVEMENT",
+        "specific_intent": "INLINE_METHOD",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "isScramble",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "RENAME_SYMBOL",
+            "target": "sorted",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Replace call to [sorted] with its method body inline. Replace each sorted(...) call with the array sort + string construction logic inline.",
+              "value": "",
+              "find_text": "sorted"
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "isScramble",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Inline private sorted helper method into isScramble. Replacing call to sorted(...) with array sort + string construction logic inline.",
+              "value": null
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "EXTRACT_VARIABLE_uniquePaths",
+      "instruction": "Extract the repeated expression `grid[i - 1][j] + grid[i][j - 1]` into a local variable `pathSum` inside the inner for loop.",
+      "code": "public int uniquePathsWithObstacles(int[][] grid) {\n    int m = grid.length;\n    int n = grid[0].length;\n    if (grid[0][0] == 1) return 0;\n\n    grid[0][0] = 1;\n    for (int i = 1; i < m; ++i)\n        grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n    for (int i = 1; i < n; ++i)\n        grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n    for (int i = 1; i < m; ++i)\n        for (int j = 1; j < n; ++j)\n            if (grid[i][j] == 0)\n                grid[i][j] = grid[i - 1][j] + grid[i][j - 1];\n\n    return grid[m - 1][n - 1];\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 65537,
+      "original_cc": 11,
+      "refactored_cc": 11,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "int pathSum;\n\n    public int uniquePathsWithObstacles(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        if (grid[0][0] == 1) return 0;\n\n        grid[0][0] = 1;\n        for (int i = 1; i < m; ++i)\n            grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n        for (int i = 1; i < n; ++i)\n            grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n        int sum = grid[i - 1][j] + grid[i][j - 1];\n        \n        for (int i = 1; i < m; ++i)\n            for (int j = 1; j < n; ++j)\n                if (grid[i][j] == 0) {\n                    pathSum = sum;\n                    grid[i][j] = pathSum;\n                }\n\n        return grid[m - 1][n - 1];\n    }",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 2,
+      "mutation_queue_len": 2,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 65537
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_FIELD",
+          "target": "",
+          "time_ms": 9785,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "MODIFY_METHOD",
+          "target": "uniquePathsWithObstacles",
+          "time_ms": 10206,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 2,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 19991,
+      "intent_packet": {
+        "refactor_category": "STATE_MANAGEMENT",
+        "specific_intent": "EXTRACT_VARIABLE",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "MODIFY_METHOD",
+            "target": "uniquePathsWithObstacles",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Declare local variable, assign the expression, replace all occurrences.",
+              "value": "(grid[i - 1][j] + grid[i][j - 1])"
+            }
+          },
+          {
+            "action": "ADD_FIELD",
+            "target": "",
+            "details": {
+              "modifiers": [],
+              "type": "int",
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "None",
+              "value": "pathSum"
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "INLINE_VARIABLE_search",
+      "instruction": "Inline the local variable `mid` by replacing each occurrence of `mid` with `left + (right - left) / 2` directly in the expressions.",
+      "code": "public boolean search(int[] nums, int target) {\n    int left = 0, right = nums.length - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return true;\n\n        if (nums[mid] == nums[left]) {\n            left++;\n        } else if (nums[mid] > nums[left]) {\n            if (nums[left] <= target && target < nums[mid]) {\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        } else {\n            if (nums[mid] < target && target <= nums[right]) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n    }\n    return false;\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 53561,
+      "original_cc": 9,
+      "refactored_cc": 9,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public boolean search(int[] nums, int target) {\n    int left = 0;\n    int right = nums.length - 1;\n\n    while (left <= right) {\n        int mid = left + ((right - left) / 2);\n        if (nums[mid] == target) return true;\n\n        if (nums[mid] == nums[left]) {\n            left++;\n        } else if (nums[mid] > nums[left]) {\n            if (nums[left] <= target && target < nums[mid]) {\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        } else {\n            if (nums[mid] < target && target <= nums[right]) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n    }\n\n    return false;\n}",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 53561
+        }
+      ],
+      "gen_timings": [],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 0,
+      "intent_packet": {
+        "refactor_category": "STATE_MANAGEMENT",
+        "specific_intent": "INLINE_VARIABLE",
+        "scope_anchor": {
+          "target_class": "",
+          "member": "search",
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "MODIFY_METHOD",
+            "target": "search",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Replace each reference with its assigned value directly in the expressions.",
+              "value": "(left + (right - left) / 2)"
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "EXTRACT_CONSTANT_mySqrt",
+      "instruction": "Extract the threshold values 0 and 1 in the base case check into named constants MIN_SQRT_INPUT and MAX_BASE_SMALL.",
+      "code": "public int mySqrt(int x) {\n    if (x == 0 || x == 1) return x;\n    int start = 1, end = x, ans = 0;\n    while (start <= end) {\n        int mid = (start + end) / 2;\n        if (mid * mid == x) return mid;\n        if (mid <= x / mid) {\n            start = mid + 1;\n            ans = mid;\n        } else {\n            end = mid - 1;\n        }\n    }\n    return ans;\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 3,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 136235,
+      "original_cc": 6,
+      "refactored_cc": 6,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "private static final int MIN_SQRT_INPUT = 0;\nprivate static final int MAX_BASE_SMALL = 1;\n\npublic int mySqrt(int x) {\n    if (x == MIN_SQRT_INPUT || x == MAX_BASE_SMALL) return x;\n    int start = 1, end = x, ans = 0;\n    while (start <= end) {\n        int mid = (start + end) / 2;\n        if (mid * mid == x) return mid;\n        if (mid <= x / mid) {\n            start = mid + 1;\n            ans = mid;\n        } else {\n            end = mid - 1;\n        }\n    }\n    return ans;\n}",
+      "validation_findings": [
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 6 to 8 (limit: 6)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_A_COMPLEXITY: 'TIER_2_A_COMPLEXITY'>, 'error_report': {'message': 'CC increased from 6 to 8 (limit: 6)', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Simplify logic to maintain or reduce complexity.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'Constant count did not increase.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'Constant count did not increase.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}"
+        },
+        {
+          "tier": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'Constant count did not increase.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}",
+          "message": "{'failure_tier': <FailureTier.TIER_2_C_INTENT_MATH: 'TIER_2_C_INTENT_MATH'>, 'error_report': {'message': 'Constant count did not increase.', 'faulty_node': None, 'actual_value': None, 'required_value': None}, 'recovery_hint': 'Check if the refactoring actually achieved the structural goal.'}"
+        }
+      ],
+      "num_validation_findings": 3,
+      "mutation_index": 0,
+      "mutation_queue_len": 0,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 3,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 136235
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "MIN_SQRT_INPUT",
+          "time_ms": 5066,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'mySqrt' was modified but was outside target scope(s)."
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "MIN_SQRT_INPUT",
+          "time_ms": 4574,
+          "status": "SYNTAX_FAIL",
+          "error": ""
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "MIN_SQRT_INPUT",
+          "time_ms": 4742,
+          "status": "SYNTAX_FAIL",
+          "error": ""
+        },
+        {
+          "step": 1,
+          "action": "ADD_CONSTANT",
+          "target": "MIN_SQRT_INPUT",
+          "time_ms": 4661,
+          "status": "BOUNDARY_FAIL",
+          "error": "Boundary Violation: Method 'mySqrt' was modified but was outside target scope(s)."
+        }
+      ],
+      "gen_ok_steps": 0,
+      "gen_fail_steps": 4,
+      "gen_total_time_ms": 19043,
+      "intent_packet": {
+        "refactor_category": "STATE_MANAGEMENT",
+        "specific_intent": "EXTRACT_CONSTANT",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "ADD_CONSTANT",
+            "target": "MIN_SQRT_INPUT",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "None",
+              "value": "0"
+            }
+          },
+          {
+            "action": "ADD_CONSTANT",
+            "target": "MAX_BASE_SMALL",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "None",
+              "value": "1"
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "mySqrt",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Replace the magic number with the constant reference.",
+              "value": null,
+              "find_text": "0",
+              "replace_text": "MIN_SQRT_INPUT"
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    },
+    {
+      "case": "RENAME_SYMBOL_uniquePaths",
+      "instruction": "Rename m to rowCount and n to colCount throughout the entire method. Update every reference.",
+      "code": "public int uniquePathsWithObstacles(int[][] grid) {\n    int m = grid.length;\n    int n = grid[0].length;\n    if (grid[0][0] == 1) return 0;\n\n    grid[0][0] = 1;\n    for (int i = 1; i < m; ++i)\n        grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n    for (int i = 1; i < n; ++i)\n        grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n    for (int i = 1; i < m; ++i)\n        for (int j = 1; j < n; ++j)\n            if (grid[i][j] == 0)\n                grid[i][j] = grid[i - 1][j] + grid[i][j - 1];\n\n    return grid[m - 1][n - 1];\n}",
+      "exit_status": "SUCCESS",
+      "strategy_iter": 1,
+      "syntax_iter": 0,
+      "current_phase": 6,
+      "total_duration_ms": 73460,
+      "original_cc": 11,
+      "refactored_cc": 11,
+      "cc_delta": 0,
+      "working_code_changed": true,
+      "working_code_unchanged": false,
+      "generated_code": "public int uniquePathsWithObstacles(int[][] grid) {\n    int rowCount = grid.length; // Rename symbol 'm' to 'rowCount'\n    int colCount = grid[0].length;\n    if (grid[0][0] == 1) return 0;\n\n    grid[0][0] = 1;\n    for (int i = 1; i < rowCount; ++i)\n        grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n    for (int i = 1; i < colCount; ++i)\n        grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n    for (int i = 1; i < rowCount; ++i)\n        for (int j = 1; j < colCount; ++j)\n            if (grid[i][j] == 0)\n                grid[i][j] = grid[i - 1][j] + grid[i][j - 1];\n\n    return grid[rowCount - 1][colCount - 1];\n}",
+      "validation_findings": [],
+      "num_validation_findings": 0,
+      "mutation_index": 3,
+      "mutation_queue_len": 3,
+      "phase_log": [
+        {
+          "phase": "exit",
+          "exit_status": "SUCCESS",
+          "strategy_iter": 1,
+          "syntax_iter": 0,
+          "current_phase": 6,
+          "duration_ms": 73460
+        }
+      ],
+      "gen_timings": [
+        {
+          "step": 1,
+          "action": "RENAME_SYMBOL",
+          "target": "m",
+          "time_ms": 9509,
+          "status": "OK"
+        },
+        {
+          "step": 2,
+          "action": "RENAME_SYMBOL",
+          "target": "n",
+          "time_ms": 9722,
+          "status": "OK"
+        },
+        {
+          "step": 3,
+          "action": "MODIFY_METHOD",
+          "target": "uniquePathsWithObstacles(int[][] grid)",
+          "time_ms": 9518,
+          "status": "OK"
+        }
+      ],
+      "gen_ok_steps": 3,
+      "gen_fail_steps": 0,
+      "gen_total_time_ms": 28749,
+      "intent_packet": {
+        "refactor_category": "STATE_MANAGEMENT",
+        "specific_intent": "RENAME_SYMBOL",
+        "scope_anchor": {
+          "target_class": null,
+          "member": null,
+          "unit_type": "METHOD_UNIT"
+        }
+      },
+      "active_plan": {
+        "target_class": "",
+        "ast_mutations": [
+          {
+            "action": "RENAME_SYMBOL",
+            "target": "m",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Rename symbol 'm' to 'rowCount'",
+              "value": null,
+              "find_text": "m"
+            }
+          },
+          {
+            "action": "MODIFY_METHOD",
+            "target": "uniquePathsWithObstacles(int[][] grid)",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Update all references from old name 'm' to new name 'rowCount' inside this method.",
+              "value": null
+            }
+          },
+          {
+            "action": "RENAME_SYMBOL",
+            "target": "n",
+            "details": {
+              "modifiers": [],
+              "type": null,
+              "parameters": [],
+              "logic_changes": [],
+              "body_abstract": "Rename symbol 'n' to 'colCount'",
+              "value": null,
+              "find_text": "n"
+            }
+          }
+        ],
+        "enriched_by": "ASTMatcher"
+      }
+    }
+  ]
+}

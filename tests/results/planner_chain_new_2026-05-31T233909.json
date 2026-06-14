@@ -1,0 +1,331 @@
+[
+  {
+    "name": "chain_flat_orderprocessor",
+    "expected_intent": "FLATTEN_CONDITIONAL",
+    "classifier_match": true,
+    "analysis_primary": [
+      "processOrder"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "processOrder"
+    ],
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "classifier_scratchpad": "The instruction mentions 'guard clauses' and 'invert nested ifs', which aligns with the FLATTEN_CONDITIONAL intent. The code has multiple if-statements that need to be flattened into guard clauses.",
+    "intent_used": "FLATTEN_CONDITIONAL",
+    "analysis_scratchpad": "Reasoning about the code structure and what needs to change",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Reasoning about the code structure and what needs to change\", \"primary_targets\": [\"processOrder\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [\"Exception: IllegalArgumentException\", \"String: 'User cannot be null.'\", \"Exception: IllegalStateExcept",
+    "plan_targets": [
+      "processOrder"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures is empty for this intent.",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures is empty for this intent.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"processOrder\", \"details\": { \"body_abstract\": \"Invert each nested condition int"
+  },
+  {
+    "name": "chain_extract_tax_calculator",
+    "expected_intent": "EXTRACT_METHOD",
+    "classifier_match": true,
+    "analysis_primary": [
+      "calculateTotal"
+    ],
+    "analysis_new": [
+      "computeTaxWithRounding"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "computeTaxWithRounding",
+      "calculateTotal"
+    ],
+    "actual_intent": "EXTRACT_METHOD",
+    "classifier_scratchpad": "The instruction mentions extracting tax calculation logic into a separate method, which matches the EXTRACT_METHOD definition.",
+    "intent_used": "EXTRACT_METHOD",
+    "analysis_scratchpad": "Identifying the code to extract and its dependencies",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Identifying the code to extract and its dependencies\", \"primary_targets\": [\"calculateTotal\"], \"secondary_targets\": [], \"new_structures_needed\": [\"computeTaxWithRounding\"], \"must_preserve\": [\"double: 'total'\", \"Exception: IllegalArgumentException\"] }",
+    "plan_targets": [
+      "computeTaxWithRounding",
+      "calculateTotal"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "Identifying the code to extract and its dependencies",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"Identifying the code to extract and its dependencies\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_METHOD\", \"target\": \"computeTaxWithRounding\", \"details\": { \"body_abstract\": \"Extract tax calculation logic into a separate private metho"
+  },
+  {
+    "name": "chain_rename_user_manager",
+    "expected_intent": "RENAME_SYMBOL",
+    "classifier_match": true,
+    "analysis_primary": [
+      "n",
+      "getN",
+      "setN"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "RENAME_SYMBOL"
+    ],
+    "hallucinations": [],
+    "actual_intent": "RENAME_SYMBOL",
+    "classifier_scratchpad": "The instruction mentions renaming a field, which matches the RENAME_SYMBOL intent.",
+    "intent_used": "RENAME_SYMBOL",
+    "analysis_scratchpad": "Identifying the field 'n' and its references",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Identifying the field 'n' and its references\", \"primary_targets\": [\"n\", \"getN\", \"setN\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "plan_targets": [
+      "n"
+    ],
+    "target_class": "UserManager",
+    "arch_scratchpad": "Identifying the field 'n' and its references",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"Identifying the field 'n' and its references\", \"ast_modification_plan\": { \"target_class\": \"UserManager\", \"ast_mutations\": [ { \"action\": \"RENAME_SYMBOL\", \"target\": \"n\" , \"details\": {\"body_abstract\":\"Rename all occurrences of 'n' to 'username'.\"} } ] } }"
+  },
+  {
+    "name": "chain_const_circle_pi",
+    "expected_intent": "EXTRACT_CONSTANT",
+    "classifier_match": true,
+    "analysis_primary": [
+      "calculateArea",
+      "calculateCircumference"
+    ],
+    "analysis_new": [
+      "PI"
+    ],
+    "plan_mutations": 3,
+    "plan_actions": [
+      "ADD_CONSTANT",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "PI",
+      "calculateArea",
+      "calculateCircumference"
+    ],
+    "actual_intent": "EXTRACT_CONSTANT",
+    "classifier_scratchpad": "The instruction mentions extracting a magic number 3.14159 into a named constant PI, which matches the EXTRACT_CONSTANT definition.",
+    "intent_used": "EXTRACT_CONSTANT",
+    "analysis_scratchpad": "Identifying the magic number and its usage in methods",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Identifying the magic number and its usage in methods\", \"primary_targets\": [\"calculateArea\", \"calculateCircumference\"], \"secondary_targets\": [], \"new_structures_needed\": [\"PI\"], \"must_preserve\": [] }",
+    "plan_targets": [
+      "PI",
+      "calculateArea",
+      "calculateCircumference"
+    ],
+    "target_class": "Circle",
+    "arch_scratchpad": "Identifying the magic number 3.14159 and its usage in methods \u2192 Extracting PI constant.",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"Identifying the magic number 3.14159 and its usage in methods \u2192 Extracting PI constant.\", \"ast_modification_plan\": { \"target_class\": \"Circle\", \"ast_mutations\": [ { \"action\": \"ADD_CONSTANT\", \"target\": \"PI\", \"details\": {\"type\": \"double\", \"body_abstract\": \"Declare a static fi"
+  },
+  {
+    "name": "chain_decomp_closed_island",
+    "expected_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_match": true,
+    "analysis_primary": [
+      "dfs"
+    ],
+    "analysis_new": [
+      "isInBounds",
+      "isOnBorder",
+      "isUnvisited"
+    ],
+    "plan_mutations": 4,
+    "plan_actions": [
+      "ADD_FIELD",
+      "ADD_FIELD",
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "isInBounds",
+      "isOnBorder",
+      "isUnvisited"
+    ],
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_scratchpad": "The instruction mentions decomposing the DFS boundary condition into named booleans, which matches DECOMPOSE_CONDITIONAL.",
+    "intent_used": "DECOMPOSE_CONDITIONAL",
+    "analysis_scratchpad": "Decomposing the DFS boundary condition into well-named booleans: isInBounds, isOnBorder, isUnvisited.",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Decomposing the DFS boundary condition into well-named booleans: isInBounds, isOnBorder, isUnvisited.\", \"primary_targets\": [\"dfs\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isInBounds\", \"isOnBorder\", \"isUnvisited\"], \"must_preserve\": [\"Return type: boolean\"] }",
+    "plan_targets": [
+      "isInBounds",
+      "isOnBorder",
+      "isUnvisited",
+      "dfs"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "Decomposing the DFS boundary condition into well-named booleans: isInBounds, isOnBorder, isUnvisited. new_structures_needed has 3 items \u2192 3 ADD_*. primary_targets has 1 item \u2192 1 MODIFY_METHOD. total: ",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"Decomposing the DFS boundary condition into well-named booleans: isInBounds, isOnBorder, isUnvisited. new_structures_needed has 3 items \u2192 3 ADD_*. primary_targets has 1 item \u2192 1 MODIFY_METHOD. total: 4 mutations.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutati"
+  },
+  {
+    "name": "chain_nim_decompose",
+    "expected_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_match": true,
+    "analysis_primary": [
+      "canWinNim"
+    ],
+    "analysis_new": [
+      "isNotMultipleOfFour"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_FIELD",
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "isNotMultipleOfFour",
+      "canWinNim"
+    ],
+    "actual_intent": "DECOMPOSE_CONDITIONAL",
+    "classifier_scratchpad": "The instruction mentions decomposing the condition into a named boolean, which matches DECOMPOSE_CONDITIONAL.",
+    "intent_used": "DECOMPOSE_CONDITIONAL",
+    "analysis_scratchpad": "The method canWinNim contains a compound condition n % 4 != 0. We need to decompose this into named boolean variables.",
+    "analysis_content": "{ \"analysis_scratchpad\": \"The method canWinNim contains a compound condition n % 4 != 0. We need to decompose this into named boolean variables.\", \"primary_targets\": [\"canWinNim\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isNotMultipleOfFour\"], \"must_preserve\": [\"Return type: boolean\", \"M",
+    "plan_targets": [
+      "isNotMultipleOfFour",
+      "canWinNim"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 1 item \u2192 1 ADD_*. total: 2 mutations.",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 1 item \u2192 1 ADD_*. total: 2 mutations.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_FIELD\", \"target\": \"isNotMultipleOfFour\", \"details\": { \"type\": \"boolean\" } }, { \"actio"
+  },
+  {
+    "name": "chain_minops_split",
+    "expected_intent": "SPLIT_LOOP",
+    "classifier_match": true,
+    "analysis_primary": [
+      "minOperations"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "minOperations"
+    ],
+    "actual_intent": "SPLIT_LOOP",
+    "classifier_scratchpad": "",
+    "intent_used": "SPLIT_LOOP",
+    "analysis_scratchpad": "The code contains a loop that performs multiple operations and then checks the result. We need to split this into two separate loops.",
+    "analysis_content": "{ \"analysis_scratchpad\": \"The code contains a loop that performs multiple operations and then checks the result. We need to split this into two separate loops.\", \"primary_targets\": [\"minOperations\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "plan_targets": [
+      "minOperations"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 0 items \u2192 0 ADD_*. total: 1 mutation.",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures has 0 items \u2192 0 ADD_*. total: 1 mutation.\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"minOperations\", \"details\": { \"body_abstract\": \"Split the count"
+  },
+  {
+    "name": "chain_findmin_rename",
+    "expected_intent": "RENAME_SYMBOL",
+    "classifier_match": true,
+    "analysis_primary": [
+      "findMin"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 3,
+    "plan_actions": [
+      "RENAME_SYMBOL",
+      "MODIFY_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "findMin"
+    ],
+    "actual_intent": "RENAME_SYMBOL",
+    "classifier_scratchpad": "The instruction mentions renaming variables, which aligns with the RENAME_SYMBOL intent.",
+    "intent_used": "RENAME_SYMBOL",
+    "analysis_scratchpad": "Identifying the target and its references",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Identifying the target and its references\", \"primary_targets\": [\"findMin\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "plan_targets": [
+      "findMin",
+      "left",
+      "right"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "Identifying the target and its references",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"Identifying the target and its references\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"RENAME_SYMBOL\", \"target\": \"findMin\", \"details\": { \"body_abstract\": \"Rename method 'findMin' to 'getLowBound'. Update all references from old name to n"
+  },
+  {
+    "name": "chain_palindrome_extract",
+    "expected_intent": "EXTRACT_METHOD",
+    "classifier_match": true,
+    "analysis_primary": [
+      "check"
+    ],
+    "analysis_new": [
+      "isPalindrome"
+    ],
+    "plan_mutations": 2,
+    "plan_actions": [
+      "ADD_METHOD",
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "checkPalindrome"
+    ],
+    "actual_intent": "EXTRACT_METHOD",
+    "classifier_scratchpad": "The instruction mentions 'extract the while-loop palindrome checking logic into a private helper method called checkPalindrome'. This matches the EXTRACT_METHOD definition.",
+    "intent_used": "EXTRACT_METHOD",
+    "analysis_scratchpad": "Identifying the code to extract and its dependencies",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Identifying the code to extract and its dependencies\", \"primary_targets\": [\"check\"], \"secondary_targets\": [], \"new_structures_needed\": [\"isPalindrome\"], \"must_preserve\": [] }",
+    "plan_targets": [
+      "checkPalindrome",
+      "check"
+    ],
+    "target_class": "",
+    "arch_scratchpad": "Identifying the code to extract and its dependencies",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"Identifying the code to extract and its dependencies\", \"ast_modification_plan\": { \"target_class\": \"\", \"ast_mutations\": [ { \"action\": \"ADD_METHOD\", \"target\": \"checkPalindrome\", \"details\": { \"body_abstract\": \"Extracted while-loop palindrome checking logic into a private help"
+  },
+  {
+    "name": "chain_uniquepaths_flatten",
+    "expected_intent": "FLATTEN_CONDITIONAL",
+    "classifier_match": true,
+    "analysis_primary": [
+      "uniquePaths"
+    ],
+    "analysis_new": [],
+    "plan_mutations": 1,
+    "plan_actions": [
+      "MODIFY_METHOD"
+    ],
+    "hallucinations": [
+      "uniquePaths"
+    ],
+    "actual_intent": "FLATTEN_CONDITIONAL",
+    "classifier_scratchpad": "The instruction mentions 'flatten' and uses guard clauses with continue for the first row and column initialization, which matches FLATTEN_CONDITIONAL.",
+    "intent_used": "FLATTEN_CONDITIONAL",
+    "analysis_scratchpad": "Identifying nested for-loops and their conditions",
+    "analysis_content": "{ \"analysis_scratchpad\": \"Identifying nested for-loops and their conditions\", \"primary_targets\": [\"uniquePaths\"], \"secondary_targets\": [], \"new_structures_needed\": [], \"must_preserve\": [] }",
+    "plan_targets": [
+      "uniquePaths"
+    ],
+    "target_class": "Solution",
+    "arch_scratchpad": "primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures is empty for this intent.",
+    "targets_clean": true,
+    "chain_coherent": true,
+    "synthesis_content": "{ \"architect_scratchpad\": \"primary_targets has 1 item \u2192 1 MODIFY_METHOD. new_structures is empty for this intent.\", \"ast_modification_plan\": { \"target_class\": \"Solution\", \"ast_mutations\": [ { \"action\": \"MODIFY_METHOD\", \"target\": \"uniquePaths\", \"details\": { \"body_abstract\": \"Invert each nested condit"
+  }
+]
