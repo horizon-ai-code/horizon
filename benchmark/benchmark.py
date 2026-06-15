@@ -199,7 +199,7 @@ async def _run_multi_entry(entry: dict, agent, validator) -> dict:
                 "exit_status": "ERROR", "error": "No state available"}
 
     original_cc = state.original_complexity
-    working_code = state.working_code
+    working_code = state.working_code if state.exit_status == ExitStatus.SUCCESS else code
     refactored_cc = validator.get_complexity(working_code)
     cc_delta = refactored_cc - original_cc
     code_unchanged = working_code.strip() == code.strip()
