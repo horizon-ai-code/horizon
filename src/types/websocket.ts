@@ -16,6 +16,7 @@ export interface StatusMessage {
 export interface ConnectionIdMessage {
   type: "connection_id";
   id: string;
+  created_at?: string;
 }
 
 export interface PerformanceMetrics {

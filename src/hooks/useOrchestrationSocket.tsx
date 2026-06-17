@@ -61,7 +61,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const intentionalCloseRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
   const lastProcessedCommandIdRef = useRef<string | null>(null);
-  const messageBufferRef = useRef<any[]>([]);
+  const messageBufferRef = useRef<ServerMessage[]>([]);
   const routerRef = useRef(router);
   routerRef.current = router;
 
@@ -121,8 +121,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       // Parse glassbox data
       const parsedPhase = parsePhaseNumber(msg.content);
-      const msgPhase = (msg as any).phase;
-      const phase = parsedPhase !== null ? parsedPhase : (msgPhase !== undefined ? msgPhase : (msg.role === "System" ? 6 : undefined));
+      const phase = parsedPhase !== null ? parsedPhase : (msg.phase !== undefined ? msg.phase : (msg.role === "System" ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
@@ -578,8 +577,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           case "connection_id":
             if (targetId === "draft" && msg.id) {
                 const store = useChatStore.getState();
-                const createdAt = (msg as any).created_at
-                  ? new Date((msg as any).created_at).getTime()
+                const createdAt = msg.created_at
+                  ? new Date(msg.created_at).getTime()
                   : Date.now();
                 store.createSession(msg.id, {
                   ...store.draftSession,
@@ -640,8 +639,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   }));
                 }
                 migrateSessionIdRef.current(targetId, msg.id);
-                const createdAt = (msg as any).created_at
-                  ? new Date((msg as any).created_at).getTime()
+                const createdAt = msg.created_at
+                  ? new Date(msg.created_at).getTime()
                   : undefined;
                 if (createdAt) {
                   updateSession(msg.id, { createdAt });
