@@ -11,44 +11,38 @@ export default function Navbar() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout | typeof setInterval> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    let active = true;
 
     const check = async () => {
       try {
         const res = await fetch(`${API_URL}/health`);
-        if (res.ok) {
-          setServerOnline(true);
-          return true;
-        }
-      } catch {}
-      setServerOnline(false);
-      return false;
-    };
-
-    const scheduleNext = (ok: boolean) => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        clearInterval(timerRef.current as unknown as number);
+        if (active) setServerOnline(res.ok);
+        return res.ok;
+      } catch {
+        if (active) setServerOnline(false);
+        return false;
       }
-      timerRef.current = ok
-        ? setInterval(async () => {
-            const alive = await check();
-            if (!alive) scheduleNext(false);
-          }, 10000)
-        : setTimeout(async () => {
-            const alive = await check();
-            scheduleNext(alive);
-          }, 2000);
     };
 
-    check().then(ok => scheduleNext(ok));
+    const scheduleNext = (wasOk: boolean) => {
+      if (!active) return;
+      const delay = wasOk ? 10_000 : 2_000;
+      timerRef.current = setTimeout(async () => {
+        const ok = await check();
+        scheduleNext(ok);
+      }, delay);
+    };
+
+    check().then(scheduleNext);
 
     return () => {
+      active = false;
       if (timerRef.current) {
         clearTimeout(timerRef.current);
-        clearInterval(timerRef.current as unknown as number);
+        timerRef.current = null;
       }
     };
   }, []);
