@@ -22,7 +22,19 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   const handleLoadComplete = useCallback(() => setHasInitialLoaded(true), [setHasInitialLoaded]);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="flex h-screen overflow-hidden bg-jb-bg">
+        <div className="w-12 bg-jb-panel border-r border-jb-border shrink-0" />
+        <div className="flex-1 flex flex-col">
+          <div className="h-[44px] bg-jb-panel border-b border-jb-border" />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="animate-pulse text-jb-text-muted text-sm">Loading session...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

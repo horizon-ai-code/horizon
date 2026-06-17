@@ -286,7 +286,7 @@ export default function Terminal({
               Local
               <button
                 aria-label="Close terminal tab"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); setIsTerminalCollapsed(true); }}
                 className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded ml-1 w-4 h-4 flex items-center justify-center
                   ${isDark ? "hover:bg-jb-border" : "hover:bg-[#ebecf0]"}`}
               >

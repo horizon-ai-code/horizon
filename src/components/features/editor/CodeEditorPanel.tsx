@@ -325,6 +325,7 @@ export default function CodeEditorPanel({
 
         <textarea
           ref={textareaRef}
+          aria-label="Source code editor"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
