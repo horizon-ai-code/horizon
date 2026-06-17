@@ -51,22 +51,29 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
+  const fetchedSessionIdsRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     if (!id) return;
+    if (fetchedSessionIdsRef.current.has(id)) return;
     
-    // Avoid re-running on every store.sessions update to fix the infinite fetch loop.
     const session = useChatStore.getState().sessions[id];
+    
+    if (session?.isLoaded) {
+      fetchedSessionIdsRef.current.add(id);
+      return;
+    }
     
     const fetchAndHandle = async () => {
       const success = await fetchSessionDetails(id);
-      if (!success) {
+      if (success) {
+        fetchedSessionIdsRef.current.add(id);
+      } else {
         router.push('/');
       }
     };
     
-    if (!session || !session.isLoaded) {
-      fetchAndHandle();
-    }
+    fetchAndHandle();
   }, [id, router, fetchSessionDetails]);
 
   const activeSession = id
