@@ -503,21 +503,28 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleGeneratorProgressRef = useRef(handleGeneratorProgress);
   const handlePhaseTimingSummaryRef = useRef(handlePhaseTimingSummary);
 
-  useEffect(() => { handleStatusRef.current = handleStatus; }, [handleStatus]);
-  useEffect(() => { handleResultRef.current = handleResult; }, [handleResult]);
-  useEffect(() => { handleInsightsRef.current = handleInsights; }, [handleInsights]);
-  useEffect(() => { handleHaltAckRef.current = handleHaltAck; }, [handleHaltAck]);
-  useEffect(() => { handleErrorRef.current = handleError; }, [handleError]);
-  useEffect(() => { handlePhaseStartedRef.current = handlePhaseStarted; }, [handlePhaseStarted]);
-  useEffect(() => { handlePhaseCompletedRef.current = handlePhaseCompleted; }, [handlePhaseCompleted]);
-  useEffect(() => { handleMutationPlanRef.current = handleMutationPlan; }, [handleMutationPlan]);
-  useEffect(() => { handleMutationStatusRef.current = handleMutationStatus; }, [handleMutationStatus]);
-  useEffect(() => { handleValidationResultRef.current = handleValidationResult; }, [handleValidationResult]);
-  useEffect(() => { handleIntentClassifiedRef.current = handleIntentClassified; }, [handleIntentClassified]);
-  useEffect(() => { handleArchitectureAnalysisRef.current = handleArchitectureAnalysis; }, [handleArchitectureAnalysis]);
-  useEffect(() => { handleAuditResultRef.current = handleAuditResult; }, [handleAuditResult]);
-  useEffect(() => { handleGeneratorProgressRef.current = handleGeneratorProgress; }, [handleGeneratorProgress]);
-  useEffect(() => { handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary; }, [handlePhaseTimingSummary]);
+  useEffect(() => {
+    handleStatusRef.current = handleStatus;
+    handleResultRef.current = handleResult;
+    handleInsightsRef.current = handleInsights;
+    handleHaltAckRef.current = handleHaltAck;
+    handleErrorRef.current = handleError;
+    handlePhaseStartedRef.current = handlePhaseStarted;
+    handlePhaseCompletedRef.current = handlePhaseCompleted;
+    handleMutationPlanRef.current = handleMutationPlan;
+    handleMutationStatusRef.current = handleMutationStatus;
+    handleValidationResultRef.current = handleValidationResult;
+    handleIntentClassifiedRef.current = handleIntentClassified;
+    handleArchitectureAnalysisRef.current = handleArchitectureAnalysis;
+    handleAuditResultRef.current = handleAuditResult;
+    handleGeneratorProgressRef.current = handleGeneratorProgress;
+    handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary;
+  }, [
+    handleStatus, handleResult, handleInsights, handleHaltAck, handleError,
+    handlePhaseStarted, handlePhaseCompleted, handleMutationPlan, handleMutationStatus,
+    handleValidationResult, handleIntentClassified, handleArchitectureAnalysis,
+    handleAuditResult, handleGeneratorProgress, handlePhaseTimingSummary,
+  ]);
 
   const replayBufferedMessages = useCallback((targetId: string) => {
     const buf = messageBufferRef.current;
@@ -740,11 +747,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         const delay = backoffRef.current;
         backoffRef.current = Math.min(delay * BACKOFF_MULTIPLIER, MAX_BACKOFF_MS);
         reconnectTimerRef.current = setTimeout(() => {
-          doConnect();
+          connectRef.current();
         }, delay);
       }
     };
   }, [clearReconnectTimer]);
+
+  const connectRef = useRef(connect);
+  connectRef.current = connect;
 
   // ── Disconnect ───────────────────────────────────────────────────────────
 
