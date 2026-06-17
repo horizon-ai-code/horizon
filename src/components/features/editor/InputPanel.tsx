@@ -78,16 +78,14 @@ export default function InputPanel({
       }
     };
 
-    // Check on focus and clicks (reliable triggers for user returning to app)
+    // Check clipboard when user returns to the tab
     window.addEventListener('focus', checkClipboard);
-    window.addEventListener('pointerdown', checkClipboard);
     
     // Initial check
     checkClipboard();
 
     return () => {
       window.removeEventListener('focus', checkClipboard);
-      window.removeEventListener('pointerdown', checkClipboard);
     };
   }, []);
 
