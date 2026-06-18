@@ -1,15 +1,16 @@
 
 import type { ReplayStep, InsightMetric } from "./insights";
-import type { PerformanceMetrics } from "./websocket";
+import type { PerformanceMetrics, ExitStatus } from "./websocket";
 
 export type AppState = "idle" | "analyzing" | "waiting" | "done";
 
 export interface TerminalEntry {
   id: string;
-  type: 'command' | 'log' | 'system' | 'error';
+  type: 'command' | 'log' | 'system' | 'error' | 'divider';
   text: string;
   colorClass?: string;
   icon?: string;
+  timestamp?: string;
 }
 
 export interface OrchestrationResult {
@@ -20,6 +21,7 @@ export interface OrchestrationResult {
     added: number[];
     removed: number[];
   };
+  exit_status?: ExitStatus;
   original_complexity?: number | null;
   refactored_complexity?: number | null;
   insights?: string;
@@ -42,6 +44,7 @@ export interface SessionData {
   isTerminalCollapsed: boolean;
   appState: AppState;
   showFlowchartModal: boolean;
+  isMonolith: boolean;
   orchestrationResult: OrchestrationResult;
   isLoaded?: boolean;
   error?: string;

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { API_URL } from '@/lib/env';
 
 // ── Import types from dedicated modules ───────────────────────────────────────
 import type { AppState, SessionData, TerminalEntry, OrchestrationResult } from '@/types/session';
@@ -14,29 +15,46 @@ import type {
   ServerMessage,
 } from '@/types/websocket';
 
+// ── Typed API response interfaces ──────────────────────────────────────────────
+
+interface HistoryItemResponse {
+  id?: string;
+  user_instruction?: string;
+  created_at?: string;
+}
+
+interface SessionDetailResponse {
+  id?: string;
+  user_instruction?: string;
+  original_code?: string;
+  refactored_code?: string;
+  status?: string;
+  exit_status?: string;
+  logs?: Array<{
+    id?: string;
+    role?: string;
+    status?: string;
+    content?: string | null;
+    created_at?: string;
+  }>;
+  insights?: string;
+  original_complexity?: number;
+  refactored_complexity?: number;
+  planner_model?: string;
+  generator_model?: string;
+  judge_model?: string;
+  avg_gpu_utilization?: number;
+  avg_gpu_memory?: number;
+  avg_gpu_memory_used?: number;
+  peak_gpu_utilization?: number;
+  peak_gpu_memory_used?: number;
+  inference_time?: number;
+  created_at?: string;
+}
+
 // ── Import constants ──────────────────────────────────────────────────────────
-import { INITIAL_SOURCE, INITIAL_REFACTORED, EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from '@/lib/constants';
-
-// ── Re-export everything for backward compatibility ───────────────────────────
-// Consumers that already import from '@/store/useChatStore' will continue to work.
-export type {
-  AppState,
-  SessionData,
-  TerminalEntry,
-  OrchestrationResult,
-  ReplayStep,
-  InsightMetric,
-  ConnectionIdMessage,
-  StatusMessage,
-  ResultMessage,
-  PydanticError,
-  ValidationErrorMessage,
-  MalformedJsonErrorMessage,
-  ErrorMessage,
-  ServerMessage,
-};
-
-export { INITIAL_SOURCE, INITIAL_REFACTORED, EMPTY_ORCHESTRATION_RESULT };
+import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from '@/lib/constants';
+import { buildMetrics } from '@/lib/utils/buildMetrics';
 
 // ── Internal Helpers ──────────────────────────────────────────────────────────
 
@@ -52,6 +70,7 @@ const DEFAULT_SESSION: Omit<SessionData, "id"> = {
   isTerminalCollapsed: false,
   appState: "idle",
   showFlowchartModal: false,
+  isMonolith: false,
   orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
 };
 
@@ -65,7 +84,11 @@ const getSessionTitleFromPrompt = (prompt: string) => {
 
 // ── Store Interface ───────────────────────────────────────────────────────────
 
+type OrchestratorStatus = "connected" | "connecting" | "disconnected" | "error";
+
 interface ChatStore {
+  orchestratorStatus: OrchestratorStatus;
+  setOrchestratorStatus: (status: OrchestratorStatus) => void;
   hasInitialLoaded: boolean;
   setHasInitialLoaded: (loaded: boolean) => void;
   sessions: Record<string, SessionData>;
@@ -89,6 +112,8 @@ interface ChatStore {
 // ── Zustand Store ─────────────────────────────────────────────────────────────
 
 export const useChatStore = create<ChatStore>((set) => ({
+  orchestratorStatus: "connected",
+  setOrchestratorStatus: (status) => set({ orchestratorStatus: status }),
   hasInitialLoaded: false,
   setHasInitialLoaded: (loaded) => set({ hasInitialLoaded: loaded }),
   sessions: {},
@@ -147,11 +172,11 @@ export const useChatStore = create<ChatStore>((set) => ({
           ...state.sessions,
           [id]: { 
             ...DEFAULT_SESSION, 
-            ...initialData, 
-            title: derivedTitle,
             id, 
             createdAt: now, 
             updatedAt: now, 
+            ...initialData, 
+            title: derivedTitle,
             isLoaded: true 
           },
         },
@@ -204,11 +229,16 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   deleteSession: async (id) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history/${id}`, {
+      const res = await fetch(`${API_URL}/api/history/${id}`, {
         method: "DELETE",
       });
+      if (!res.ok) {
+        console.error(`[ChatStore] Backend returned ${res.status} on delete`);
+        return;
+      }
     } catch(e) {
       console.error("[ChatStore] Error deleting session from backend:", e);
+      return;
     }
     set((state) => {
       if (!state.sessions[id]) return state;
@@ -241,10 +271,10 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   fetchHistory: async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history`);
+      const res = await fetch(`${API_URL}/api/history`);
       if (!res.ok) return;
       
-      const items: Array<{ id?: string; user_instruction?: string }> = await res.json();
+      const items: HistoryItemResponse[] = await res.json();
       
       set((state) => {
         const newSessions = { ...state.sessions };
@@ -252,21 +282,24 @@ export const useChatStore = create<ChatStore>((set) => ({
         items.forEach((item) => {
             const id = item?.id;
             if (!id) return;
-            
-            const instruction = item.user_instruction || "";
-            
-            if (!newSessions[id]) {
-                const title = instruction.trim().length > 0 
-                  ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
-                  : "New Session";
 
-                newSessions[id] = {
-                    ...DEFAULT_SESSION,
-                    id,
-                    title,
-                    updatedAt: Date.now(), // Ensure it has a timestamp for sorting
-                };
-            }
+            const instruction = item.user_instruction || "";
+            const title = instruction.trim().length > 0
+              ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
+              : "New Session";
+
+            const createdAt = item.created_at
+              ? new Date(item.created_at).getTime()
+              : (newSessions[id]?.createdAt || Date.now());
+
+            newSessions[id] = {
+                ...(newSessions[id] || DEFAULT_SESSION),
+                id,
+                title,
+                createdAt,
+                updatedAt: createdAt,
+                isLoaded: false,
+            };
         });
 
         return {
@@ -277,20 +310,23 @@ export const useChatStore = create<ChatStore>((set) => ({
       });
     } catch (e) {
       console.error("[ChatStore] Error fetching history:", e);
+    } finally {
+      set((state) => ({ ...state, hasInitialLoaded: true }));
     }
   },
 
   fetchSessionDetails: async (id) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/history/${id}`);
+      const res = await fetch(`${API_URL}/api/history/${id}`);
       if (!res.ok) {
+        const errorType = res.status === 404 ? "not_found" : res.status === 409 ? "system_busy" : "unknown";
         set((state) => ({
            ...state,
            sessions: {
              ...state.sessions,
              [id]: {
                ...(state.sessions[id] || { ...DEFAULT_SESSION, id }),
-               error: 'not_found',
+               error: errorType,
                isLoaded: true
              }
            }
@@ -298,7 +334,7 @@ export const useChatStore = create<ChatStore>((set) => ({
         return false;
       }
       
-      const detail = await res.json();
+      const detail: SessionDetailResponse = await res.json();
       
       set((state) => {
         const existing = state.sessions[id] || { ...DEFAULT_SESSION, id };
@@ -308,24 +344,45 @@ export const useChatStore = create<ChatStore>((set) => ({
         const terminalEntries: TerminalEntry[] = (detail.logs || []).map((log: Record<string, unknown>, index: number) => {
             const role = log.role as string;
             const visuals = ROLE_VISUALS[role] || DEFAULT_ROLE_VISUALS;
+            const timestamp = log.created_at
+              ? new Date(log.created_at as string).toLocaleTimeString("en-US", { hour12: false })
+              : undefined;
             return {
                 id: log.id ? `p-${log.id}` : `p-log-${index}`,
                 type: "log",
-                text: `[${role}]: ${log.status}`,
+                text: (log.content as string) || `[${role}]: ${log.status}`,
                 icon: visuals.icon,
-                colorClass: visuals.colorClass
+                colorClass: visuals.colorClass,
+                timestamp,
             };
         });
 
         let activeStep = 0;
         let appState: AppState = "idle";
         const oResult = { ...EMPTY_ORCHESTRATION_RESULT };
-        
+
+        const isHalted = detail.status === "Halted" || detail.exit_status === "ABORTED";
+        const isProcessing = detail.status === "Processing" && !detail.refactored_code && !isHalted;
+
         if (detail.refactored_code) {
            activeStep = 5;
            appState = "done";
-           oResult.summary = detail.insights || "";
-           oResult.insights = detail.insights || "";
+           // Parse insights JSON string
+           let parsedInsights = detail.insights || "";
+           if (typeof parsedInsights === "string" && parsedInsights.startsWith("[")) {
+             try {
+               const parsed = JSON.parse(parsedInsights);
+               if (Array.isArray(parsed)) {
+                 parsedInsights = parsed.map((i: { title?: string; details?: string }) =>
+                   `${i.title || ""}: ${i.details || ""}`
+                 ).join("\n");
+               }
+             } catch {
+               // Not valid JSON, use as-is
+             }
+           }
+           oResult.summary = parsedInsights;
+           oResult.insights = parsedInsights;
            oResult.original_complexity = detail.original_complexity;
            oResult.refactored_complexity = detail.refactored_complexity;
            oResult.planner_model = detail.planner_model;
@@ -335,57 +392,49 @@ export const useChatStore = create<ChatStore>((set) => ({
                 avg_gpu_utilization: detail.avg_gpu_utilization || 0,
                 avg_gpu_memory: detail.avg_gpu_memory || 0,
                 avg_gpu_memory_used: detail.avg_gpu_memory_used || 0,
+                peak_gpu_utilization: detail.peak_gpu_utilization ?? undefined,
+                peak_gpu_memory_used: detail.peak_gpu_memory_used ?? undefined,
                 inference_time: detail.inference_time || 0
            };
 
-           oResult.metrics = [];
-           if (typeof detail.refactored_complexity === "number") {
-                const orig = detail.original_complexity;
-                const ref = detail.refactored_complexity;
-                oResult.metrics.push({
-                    title: "Cyclomatic Complexity",
-                    before: typeof orig === "number" ? `${orig}` : "—",
-                    after: `${ref}`,
-                    direction: typeof orig === "number" 
-                        ? (ref < orig ? "down" as const : (ref > orig ? "up" as const : "neutral" as const))
-                        : (ref <= 5 ? "down" as const : "up" as const),
-                    iconKey: "CheckCircle",
-                });
-           }
-
-           if (detail.avg_gpu_utilization !== undefined) {
-                const memUsed = detail.avg_gpu_memory_used ?? 0;
-                const memPercent = detail.avg_gpu_memory ?? 0;
-                const gpuUtil = detail.avg_gpu_utilization ?? 0;
-                const infTime = detail.inference_time ?? 0;
-
-                oResult.metrics.push({
-                    title: "Inference Time",
-                    before: "—",
-                    after: `${infTime}s`,
-                    direction: "neutral" as const,
-                    iconKey: "Clock",
-                });
-                oResult.metrics.push({
-                    title: "Avg GPU Utilization",
-                    before: "—",
-                    after: `${gpuUtil}%`,
-                    direction: "neutral" as const,
-                    iconKey: "Cpu",
-                });
-                oResult.metrics.push({
-                    title: "Avg GPU Memory",
-                    before: "—",
-                    after: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
-                    direction: "neutral" as const,
-                    iconKey: "Layers",
-                });
-           }
-        }
- else if (detail.logs && detail.logs.length > 0) {
+           oResult.metrics = buildMetrics(
+              detail.original_complexity ?? null,
+              detail.refactored_complexity ?? null,
+              {
+                avg_gpu_utilization: detail.avg_gpu_utilization ?? 0,
+                avg_gpu_memory: detail.avg_gpu_memory ?? 0,
+                avg_gpu_memory_used: detail.avg_gpu_memory_used ?? 0,
+                peak_gpu_utilization: detail.peak_gpu_utilization ?? undefined,
+                peak_gpu_memory_used: detail.peak_gpu_memory_used ?? undefined,
+                inference_time: detail.inference_time ?? 0,
+              }
+           );
+        } else if (isHalted) {
+           activeStep = 0;
+           appState = "done";
+           oResult.summary = "This refactoring was interrupted. You can start a new one.";
+           terminalEntries.push({
+             id: `p-interrupted`,
+             type: "log",
+             text: "[System]: Session was interrupted — refactoring did not complete.",
+             icon: "Monolith",
+             colorClass: "text-[#f4bf4f]",
+           });
+        } else if (isProcessing) {
+           activeStep = 0;
+           appState = "done";
+           oResult.summary = "This refactoring was interrupted. You can start a new one.";
+           terminalEntries.push({
+             id: `p-interrupted`,
+             type: "log",
+             text: "[System]: Session was interrupted — refactoring did not complete.",
+             icon: "Monolith",
+             colorClass: "text-[#f4bf4f]",
+           });
+        } else if (detail.logs && detail.logs.length > 0) {
            appState = "analyzing";
            const lastLog = detail.logs[detail.logs.length - 1];
-           const visuals = ROLE_VISUALS[lastLog.role] || DEFAULT_ROLE_VISUALS;
+           const visuals = ROLE_VISUALS[lastLog.role ?? ''] || DEFAULT_ROLE_VISUALS;
            activeStep = visuals.step;
         }
         

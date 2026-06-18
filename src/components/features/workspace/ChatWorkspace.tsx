@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { useChatStore, INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/store/useChatStore";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useChatStore } from "@/store/useChatStore";
+import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
@@ -14,7 +15,11 @@ import RefactoredOutput from "@/components/features/output/RefactoredOutput";
 import Terminal from "@/components/features/terminal/Terminal";
 
 export default function ChatWorkspace({ sessionId }: { sessionId: string | null }) {
-  const store = useChatStore();
+  const sessions = useChatStore((s) => s.sessions);
+  const draftSession = useChatStore((s) => s.draftSession);
+  const updateSession = useChatStore((s) => s.updateSession);
+  const updateDraftSession = useChatStore((s) => s.updateDraftSession);
+  const fetchSessionDetails = useChatStore((s) => s.fetchSessionDetails);
   const id = sessionId;
   const router = useRouter();
 
@@ -28,66 +33,73 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connectionStatus, connect, sendRefactorRequest, sendHaltRequest, setTargetSessionId } = useOrchestrationSocket();
+  const { connect, disconnect, sendRefactorRequest, sendSingleRefactor, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
     setTargetSessionId(currentId);
   }, [id, setTargetSessionId]);
 
-  const connectionStatusRef = useRef(connectionStatus);
+  const prevIdRef = useRef(id);
   useEffect(() => {
-    connectionStatusRef.current = connectionStatus;
-  }, [connectionStatus]);
+    if (prevIdRef.current && prevIdRef.current !== id && id) {
+      disconnect();
+    }
+    prevIdRef.current = id;
+  }, [id, disconnect]);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
+  const fetchedSessionIdsRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     if (!id) return;
+    if (fetchedSessionIdsRef.current.has(id)) return;
     
-    // Avoid re-running on every store.sessions update to fix the infinite fetch loop.
     const session = useChatStore.getState().sessions[id];
     
+    if (session?.isLoaded) {
+      fetchedSessionIdsRef.current.add(id);
+      return;
+    }
+    
     const fetchAndHandle = async () => {
-      const success = await store.fetchSessionDetails(id);
-      if (!success) {
+      const success = await fetchSessionDetails(id);
+      if (success) {
+        fetchedSessionIdsRef.current.add(id);
+      } else {
         router.push('/');
       }
     };
     
-    if (!session || (session.createdAt === 0 && !session.isLoaded)) {
-      fetchAndHandle();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, router, store.fetchSessionDetails]);
+    fetchAndHandle();
+  }, [id, router, fetchSessionDetails]);
 
-  const activeSession = useMemo(() => {
-    if (!id) return { ...store.draftSession, id: "draft" };
-    return store.sessions[id] || {
-      id: id,
-      sourceCode: INITIAL_SOURCE,
-      refactoredOutput: "",
-      activeStep: 0,
-      inputInstruction: "",
-      terminalEntries: [],
-      isTerminalCollapsed: false,
-      appState: "idle" as const,
-      showFlowchartModal: false,
-      orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
-    };
-  }, [id, store.sessions, store.draftSession]);
+  const activeSession = id
+    ? (sessions[id] ?? {
+        id,
+        sourceCode: INITIAL_SOURCE,
+        refactoredOutput: "",
+        activeStep: 0,
+        inputInstruction: "",
+        terminalEntries: [],
+        isTerminalCollapsed: false,
+        appState: "idle" as const,
+        showFlowchartModal: false,
+        isMonolith: false,
+        orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
+        title: "",
+        createdAt: 0,
+        updatedAt: 0,
+      })
+    : { ...draftSession, id: "draft" };
 
   const {
     sourceCode, refactoredOutput, activeStep, inputInstruction,
-    terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, orchestrationResult
+    terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, isMonolith, orchestrationResult
   } = activeSession;
-
-  const terminalEntriesRef = useRef(terminalEntries);
-  useEffect(() => {
-    terminalEntriesRef.current = terminalEntries;
-  }, [terminalEntries]);
 
   const validateBeforeSubmit = useCallback(() => {
     let hasError = false;
@@ -111,11 +123,11 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   const updateLocal = useCallback((data: Partial<SessionData>) => {
     if (id) {
-      store.updateSession(id, data);
+      updateSession(id, data);
     } else {
-      store.updateDraftSession(data);
+      updateDraftSession(data);
     }
-  }, [id, store]);
+  }, [id, updateSession, updateDraftSession]);
 
   useEffect(() => {
     if (terminalPanelRef.current) {
@@ -126,14 +138,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       }
     }
   }, [isTerminalCollapsed]);
-  
-  const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  useEffect(() => {
-    if (!isTerminalCollapsed) {
-      terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [terminalEntries, activeStep, isTerminalCollapsed, appState]);
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   useEffect(() => {
     if (appState !== "analyzing" && appState !== "waiting") return;
@@ -147,13 +153,19 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [appState]);
 
-  const startAnalysis = useCallback(() => {
+  const startAnalysis = useCallback(async () => {
     if (!validateBeforeSubmit()) return;
-    if (appState === 'analyzing' || appState === 'waiting') return;
-    if (!id) return;
+    if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
+    updateLocal({ isMonolith: false });
+
+    const instruction = inputInstruction.trim();
+    const code = sourceCode.trim();
+    if (!code || !instruction) return;
+
+    const sessionTarget = id || "draft";
 
     const commandId = Date.now().toString();
-    const newEntry = { id: commandId, type: 'command' as const, text: inputInstruction };
+    const newEntry = { id: commandId, type: 'command' as const, text: instruction };
 
     updateLocal({
       terminalEntries: [...terminalEntries, newEntry],
@@ -166,38 +178,29 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     });
     setLocalInputError(false);
     setLocalSourceError(false);
-  }, [validateBeforeSubmit, appState, id, inputInstruction, updateLocal, terminalEntries]);
 
-  // If a session was loaded in analyzing state (due to lazy creation redirect),
-  // ensure the WebSocket connection is established for it.
-  useEffect(() => {
-    let sendInterval: ReturnType<typeof setInterval> | null = null;
-    
-    // Allows the frontend to start the draft session by waiting for connection_id
-    const currentId = id || "draft";
+    connect(sessionTarget);
 
-    if (appState === "analyzing" && activeStep === 1 && terminalEntriesRef.current.length > 0) {
-      // The session was created with analyzing state from the draft flow, or explicitly started.
-      const lastCommand = [...terminalEntriesRef.current].reverse().find(e => e.type === 'command');
-      if (!lastCommand) return;
-
-      connect(currentId);
-      sendInterval = setInterval(() => {
-        const sent = sendRefactorRequest({
-          code: sourceCode,
-          user_instruction: lastCommand.text,
-        }, lastCommand.id);
-        if (sent && sendInterval) {
-          clearInterval(sendInterval);
-          sendInterval = null;
-        }
-      }, 100);
+    const connected = await waitForOpen();
+    if (!connected) {
+      const currentEntries = useChatStore.getState().sessions[sessionTarget]?.terminalEntries ?? [];
+      updateLocal({
+        terminalEntries: [
+          ...currentEntries,
+          { id: crypto.randomUUID(), type: 'log' as const, text: "Failed to connect to orchestrator. Check if the backend is running.", timestamp: new Date().toISOString() },
+        ],
+        appState: "idle" as const,
+        showFlowchartModal: false,
+      });
+      return;
     }
-    
-    return () => {
-      if (sendInterval) clearInterval(sendInterval);
-    };
-  }, [appState, activeStep, id, connect, sendRefactorRequest, sourceCode]);
+
+    sendRefactorRequest({
+      type: "multi",
+      code,
+      user_instruction: instruction,
+    }, commandId);
+  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendRefactorRequest]);
 
   const stopAnalysis = useCallback(() => {
     sendHaltRequest();
@@ -208,9 +211,63 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     });
   }, [sendHaltRequest, updateLocal]);
 
+  const startSingleRefactor = useCallback(async () => {
+    if (!validateBeforeSubmit()) return;
+    if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
+    updateLocal({ isMonolith: true });
+
+    const instruction = inputInstruction.trim();
+    const code = sourceCode.trim();
+    if (!code || !instruction) return;
+
+    const sessionTarget = id || "draft";
+
+    const commandId = Date.now().toString();
+    const newEntry = { id: commandId, type: 'command' as const, text: instruction };
+
+    updateLocal({
+      terminalEntries: [...terminalEntries, newEntry],
+      appState: "analyzing" as const,
+      isTerminalCollapsed: false,
+      showFlowchartModal: true,
+      activeStep: 1,
+      refactoredOutput: "",
+      orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
+    });
+    setLocalInputError(false);
+    setLocalSourceError(false);
+
+    connect(sessionTarget);
+
+    const connected = await waitForOpen();
+    if (!connected) {
+      const currentEntries = useChatStore.getState().sessions[sessionTarget]?.terminalEntries ?? [];
+      updateLocal({
+        terminalEntries: [
+          ...currentEntries,
+          { id: crypto.randomUUID(), type: 'log' as const, text: "Failed to connect to orchestrator. Check if the backend is running.", timestamp: new Date().toISOString() },
+        ],
+        appState: "idle" as const,
+        showFlowchartModal: false,
+      });
+      return;
+    }
+
+    sendSingleRefactor(code, instruction);
+  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendSingleRefactor]);
+
+  const handleSourceChange = useCallback((val: string) => updateLocal({ sourceCode: val }), [updateLocal]);
+  const handleInputChange = useCallback((val: string) => updateLocal({ inputInstruction: val }), [updateLocal]);
+  const handleOutputChange = useCallback((val: string) => updateLocal({ refactoredOutput: val }), [updateLocal]);
+  const handleSourceErrorChange = useCallback((val: boolean) => setLocalSourceError(val), [setLocalSourceError]);
+  const handleInputErrorChange = useCallback((val: boolean) => setLocalInputError(val), [setLocalInputError]);
+  const handleFlowchartChange = useCallback((val: boolean) => updateLocal({ showFlowchartModal: val }), [updateLocal]);
+  const handleTerminalCollapse = useCallback((val: boolean) => updateLocal({ isTerminalCollapsed: val }), [updateLocal]);
+
   if (!mounted) return null;
 
   return (
+    <>
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">
@@ -219,15 +276,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
             <InputPanel 
               sessionId={id}
               sourceCode={sourceCode} 
-              setSourceCode={(val) => updateLocal({ sourceCode: val })} 
+              setSourceCode={handleSourceChange}
               sourceError={localSourceError} 
-              setSourceError={setLocalSourceError}
+              setSourceError={handleSourceErrorChange}
               inputInstruction={inputInstruction}
-              setInputInstruction={(val) => updateLocal({ inputInstruction: val })}
+              setInputInstruction={handleInputChange}
               inputError={localInputError}
-              setInputError={setLocalInputError}
+              setInputError={handleInputErrorChange}
               validateBeforeSubmit={validateBeforeSubmit}
               startAnalysis={startAnalysis}
+              startSingleRefactor={startSingleRefactor}
               stopAnalysis={stopAnalysis}
               appState={appState}
               orchestrationResult={orchestrationResult}
@@ -243,13 +301,15 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
             ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf]'}`}>
             <RefactoredOutput 
               refactoredOutput={refactoredOutput} 
-              setRefactoredOutput={(val) => updateLocal({ refactoredOutput: val })}
+              setRefactoredOutput={handleOutputChange}
               showFlowchartModal={showFlowchartModal} 
-              setShowFlowchartModal={(val) => updateLocal({ showFlowchartModal: val })}
+              setShowFlowchartModal={handleFlowchartChange}
               activeStep={activeStep} 
               isTerminalCollapsed={isTerminalCollapsed}
               appState={appState}
               orchestrationResult={orchestrationResult}
+              glassboxState={glassboxState}
+              isMonolith={isMonolith}
             />
           </Panel>
         </PanelGroup>
@@ -265,25 +325,21 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         defaultSize={32} 
         minSize={5} 
         collapsible={true}
-        collapsedSize={40}
-        onResize={(panelSize) => {
-          const isNowCollapsed = panelSize.inPixels <= 42; 
-          if (isNowCollapsed !== isTerminalCollapsed) {
-            updateLocal({ isTerminalCollapsed: isNowCollapsed });
-          }
-        }}
+        collapsedSize="5%"
         className={`rounded-xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col
           ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf] shadow-slate-200/50'}`}
         id="terminal-panel"
       >
         <Terminal 
           isTerminalCollapsed={isTerminalCollapsed} 
-          setIsTerminalCollapsed={(val) => updateLocal({ isTerminalCollapsed: val })}
+          setIsTerminalCollapsed={handleTerminalCollapse}
           terminalEndRef={terminalEndRef} 
           terminalEntries={terminalEntries}
           appState={appState}
+          glassboxState={glassboxState}
         />
       </Panel>
     </PanelGroup>
+    </>
   );
 }

@@ -2,8 +2,6 @@ import type { OrchestrationResult } from "@/types/session";
 
 export const INITIAL_SOURCE = ``;
 
-export const INITIAL_REFACTORED = ``;
-
 export const EMPTY_ORCHESTRATION_RESULT: OrchestrationResult = {
   replaySteps: [],
   metrics: [],
@@ -23,6 +21,7 @@ export const ROLE_VISUALS: Record<string, { step: number; icon: string; colorCla
   Validator: { step: 3, icon: "FileCode2",    colorClass: "text-[#00e5ff]" },
   Judge:     { step: 4, icon: "CheckCircle2", colorClass: "text-[#27c93f]" },
   System:    { step: 1, icon: "Clock",        colorClass: "text-yellow-400" },
+  Monolith:  { step: 1, icon: "Monolith",     colorClass: "text-[#548af7]" },
 };
 
 export const DEFAULT_ROLE_VISUALS = {

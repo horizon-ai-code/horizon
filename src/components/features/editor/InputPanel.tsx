@@ -6,6 +6,7 @@ import { FileCode2, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
 import RefactorInput from "@/components/features/workspace/RefactorInput";
+import { formatJavaCode } from "@/lib/utils/javaFormatter";
 import type { AppState } from "@/types/session";
 import type { OrchestrationResult } from "@/types/session";
 
@@ -21,6 +22,7 @@ interface InputProps {
   setInputError: (val: boolean) => void;
   validateBeforeSubmit: () => boolean;
   startAnalysis: () => void;
+  startSingleRefactor: () => void;
   stopAnalysis: () => void;
   appState: AppState;
   orchestrationResult: OrchestrationResult;
@@ -38,6 +40,7 @@ export default function InputPanel({
   setInputError,
   validateBeforeSubmit,
   startAnalysis,
+  startSingleRefactor,
   stopAnalysis,
   appState,
   orchestrationResult,
@@ -65,7 +68,8 @@ export default function InputPanel({
         
         // Only show preview if there's new text that isn't already in the editor
         if (trimmedText.length > 0 && trimmedText !== sourceCodeRef.current.trim()) {
-          setClipboardPreview(text);
+          const formatted = formatJavaCode(text);
+          setClipboardPreview(formatted);
         } else {
           setClipboardPreview("");
         }
@@ -74,16 +78,14 @@ export default function InputPanel({
       }
     };
 
-    // Check on focus and clicks (reliable triggers for user returning to app)
+    // Check clipboard when user returns to the tab
     window.addEventListener('focus', checkClipboard);
-    window.addEventListener('pointerdown', checkClipboard);
     
     // Initial check
     checkClipboard();
 
     return () => {
       window.removeEventListener('focus', checkClipboard);
-      window.removeEventListener('pointerdown', checkClipboard);
     };
   }, []);
 
@@ -94,7 +96,8 @@ export default function InputPanel({
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab' && clipboardPreview) {
       e.preventDefault();
-      setSourceCode(clipboardPreview);
+      const formatted = formatJavaCode(clipboardPreview);
+      setSourceCode(formatted);
       setClipboardPreview("");
     }
   };
@@ -178,6 +181,7 @@ export default function InputPanel({
             setInputError={setInputError}
             validateBeforeSubmit={validateBeforeSubmit}
             startAnalysis={startAnalysis}
+            startSingleRefactor={startSingleRefactor}
             stopAnalysis={stopAnalysis}
             appState={appState}
           />

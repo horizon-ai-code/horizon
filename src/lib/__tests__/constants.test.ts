@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   INITIAL_SOURCE,
-  INITIAL_REFACTORED,
   EMPTY_ORCHESTRATION_RESULT,
   ROLE_VISUALS,
   DEFAULT_ROLE_VISUALS,
@@ -12,22 +11,21 @@ describe('constants', () => {
     expect(INITIAL_SOURCE).toBe('');
   });
 
-  it('INITIAL_REFACTORED is empty string', () => {
-    expect(INITIAL_REFACTORED).toBe('');
-  });
-
   it('EMPTY_ORCHESTRATION_RESULT has expected shape', () => {
     expect(EMPTY_ORCHESTRATION_RESULT).toEqual({
       replaySteps: [],
       metrics: [],
       summary: '',
       diffHighlights: { added: [], removed: [] },
+      planner_model: "",
+      generator_model: "",
+      judge_model: "",
     });
   });
 
   describe('ROLE_VISUALS', () => {
-    it('has entries for all 5 roles', () => {
-      expect(Object.keys(ROLE_VISUALS)).toHaveLength(5);
+    it('has entries for all roles', () => {
+      expect(Object.keys(ROLE_VISUALS)).toHaveLength(6);
     });
 
     it('each role has step, icon, and colorClass', () => {

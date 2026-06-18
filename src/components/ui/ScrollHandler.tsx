@@ -8,7 +8,7 @@ import { useEffect } from "react";
  */
 export default function ScrollHandler() {
   useEffect(() => {
-    const scrollTimeouts = new Map<HTMLElement | SVGElement, NodeJS.Timeout>();
+    const scrollTimeouts = new Map<HTMLElement | SVGElement, ReturnType<typeof setTimeout>>();
 
     const onScroll = (e: Event) => {
       const target = e.target as HTMLElement | null;
