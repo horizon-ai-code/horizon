@@ -4,7 +4,7 @@ Covers: _safe_send, exit_status, bidirectional heartbeat, stale detection.
 """
 import asyncio
 import unittest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from fastapi import WebSocketDisconnect
 

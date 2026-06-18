@@ -38,16 +38,16 @@ class PerformanceTracker:
                 await self._task
             except asyncio.CancelledError:
                 pass
+            except Exception:
+                pass
             self._task = None
 
         self._total_inference_time = time.perf_counter() - self._start_time
 
-        if self._has_gpu:
-            try:
-                pynvml.nvmlShutdown()
-            except Exception:
-                pass
-            self._has_gpu = False
+        try:
+            pynvml.nvmlShutdown()
+        except pynvml.NVMLError:
+            pass
 
     async def _poll_gpu(self):
         try:

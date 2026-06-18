@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconn
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import UUID4, ValidationError
 
-from app.modules.agent_service import AgentService
+from app.modules.agent_service import AgentService, InterruptedError
 from app.modules.connection_manager import ClientConnection, ConnectionManager
 from app.modules.context_manager import db
 from app.modules.orchestrator import Orchestrator
@@ -35,9 +35,10 @@ orchestration_lock = asyncio.Lock()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: clean zombie sessions (services init at module level).
-    Shutdown: release loaded model VRAM.
+    """Startup: ensure DB connection, clean zombie sessions.
+    Shutdown: close DB, release model VRAM.
     """
+    db.connect(reuse_if_open=True)
     cleaned = connection.db.cleanup_zombie_sessions()
     if cleaned:
         print(f"Cleaned {cleaned} zombie sessions")
@@ -45,6 +46,7 @@ async def lifespan(app: FastAPI):
     if deleted:
         print(f"Deleted {deleted} halted sessions")
     yield
+    db.close()
     await agent_service.unload()
 
 
@@ -65,12 +67,8 @@ app.add_middleware(
 
 
 async def get_db():
-    try:
-        db.connect(reuse_if_open=True)
-        yield
-    finally:
-        if not db.is_closed():
-            db.close()
+    db.connect(reuse_if_open=True)
+    yield
 
 
 async def check_orchestration_lock():
@@ -125,7 +123,7 @@ async def entrypoint(websocket: WebSocket) -> None:
                 )
             finally:
                 orchestration_lock.release()
-        except asyncio.CancelledError:
+        except (asyncio.CancelledError, InterruptedError):
             connection.db.mark_as_halted(client_conn.id)
             await client_conn.send_halt_notification()
             raise
@@ -178,7 +176,7 @@ async def entrypoint(websocket: WebSocket) -> None:
                 task.add_done_callback(active_tasks.discard)
                 continue
 
-            if data.get("type") == "multi" or not data.get("type"):
+            if data.get("type") == "multi":
                 try:
                     validated = RefactorRequest(**data)
                 except ValidationError as e:
@@ -307,7 +305,7 @@ async def run_single_refactor(
             await client.send_connection_id()
             await orchestrator.run_single_refactor(client, user_code, user_instruction)
 
-    except asyncio.CancelledError:
+    except (asyncio.CancelledError, InterruptedError):
         connection.db.mark_as_halted(client.id)
         await client.send_halt_notification()
         raise

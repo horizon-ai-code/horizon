@@ -169,7 +169,7 @@ async def _run_multi_entry(entry: dict, agent, validator) -> dict:
     db = MockDB()
     client = MockClient(f"bench-{num}")
     orch = Orchestrator(agent, validator, db)
-    orch.SKIP_JUDGE = False
+    orch.skip_judge = False
 
     original_generate = agent.generate
     llm_calls: list[dict] = []
@@ -199,7 +199,7 @@ async def _run_multi_entry(entry: dict, agent, validator) -> dict:
                 "exit_status": "ERROR", "error": "No state available"}
 
     original_cc = state.original_complexity
-    working_code = state.working_code
+    working_code = state.working_code if state.exit_status == ExitStatus.SUCCESS else code
     refactored_cc = validator.get_complexity(working_code)
     cc_delta = refactored_cc - original_cc
     code_unchanged = working_code.strip() == code.strip()
@@ -315,13 +315,19 @@ def cmd_aggregate(args: argparse.Namespace) -> None:
         orig = e.get("original_code", "")
         refa = e.get("final_code", "")
         orig_cc = e.get("original_cc", 0)
-        refa_cc = e.get("refactored_cc", 0)
+        exit_st = e.get("exit_status", "")
+        if exit_st in ("ABORT_STRATEGY", "NO_CHANGE"):
+            refa_cc = orig_cc
+            cc_delta = 0
+        else:
+            refa_cc = e.get("refactored_cc", 0)
+            cc_delta = e.get("cc_delta", 0)
         _, omi = compute_mi(orig, orig_cc) if orig.strip() else (None, 0.0)
         _, rmi = compute_mi(refa, refa_cc) if refa.strip() and refa != orig else (None, 0.0)
         em.append({
             "num": e.get("num", 0), "difficulty": e.get("difficulty", "?"), "intent": e.get("intent", "?"),
             "exit_status": str(e.get("exit_status", "?")), "status": e.get("status", "FAIL"),
-            "original_cc": orig_cc, "refactored_cc": refa_cc, "cc_delta": e.get("cc_delta", 0),
+            "original_cc": orig_cc, "refactored_cc": refa_cc, "cc_delta": cc_delta,
             "duration_ms": e.get("duration_ms", 0), "strategy_iter": e.get("strategy_iter", 0),
             "code_unchanged": e.get("code_unchanged", False), "judge_verdict": e.get("judge_verdict"),
             "phase4_findings": e.get("phase4_findings", []), "gpu": e.get("gpu_metrics", {}),
@@ -780,15 +786,19 @@ def cmd_report(args: argparse.Namespace) -> None:
         status = e.get("status", "FAIL")
         exit_st = e.get("exit_status", "?")
         dur = e.get("duration_ms", 0)
-        unchanged = e.get("code_unchanged", False)
+        unchanged = e.get("final_code", "").strip() == e.get("original_code", "").strip()
         orig_cc = e.get("original_cc", 0)
-        refa_cc = e.get("refactored_cc", 0)
-        cc_delta = e.get("cc_delta", 0)
+        if exit_st in ("ABORT_STRATEGY", "NO_CHANGE"):
+            refa_cc = orig_cc
+            cc_delta = 0
+        else:
+            refa_cc = e.get("refactored_cc", 0)
+            cc_delta = e.get("cc_delta", 0)
 
         # Halstead MI
         final_code = e.get("final_code", "")
         _, orig_mi = compute_mi(e.get("original_code", ""), orig_cc)
-        _, refa_mi = compute_mi(final_code, refa_cc) if not unchanged and final_code.strip() else (None, orig_mi)
+        _, refa_mi = compute_mi(final_code, refa_cc) if final_code.strip() else (None, orig_mi)
         mi_delta = round(refa_mi - orig_mi, 2)
 
         # Multi-only fields
@@ -820,7 +830,7 @@ def cmd_report(args: argparse.Namespace) -> None:
 
         # CSR + BER (integrated — single compilation pass when both requested)
         csr_pass = ber_val = pub_p = priv_p = "-"
-        if not final_code.strip() or unchanged:
+        if not final_code.strip():
             pass
         elif args.ber and args.dataset:
             # BER with test wrapper — also serves as CSR check
@@ -947,12 +957,12 @@ def _check_entry_ber(entry: dict, dataset_entry: dict | None) -> dict:
     """Run CSR + public BER for one entry. Returns {csr, ber, has_input, unchanged}."""
     num = entry.get("num", 0)
     final = entry.get("final_code", "")
-    unchanged = entry.get("code_unchanged", False)
+    unchanged = entry.get("final_code", "").strip() == entry.get("original_code", "").strip()
     csr_ok = False
     ber_ok = False
     pub_in = None
 
-    if not unchanged and final:
+    if final:
         wrapped = wrap_code(final)
         with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
             f.write(wrapped)

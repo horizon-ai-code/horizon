@@ -1,6 +1,7 @@
 import unittest
-import javalang
-from app.modules.validator import Validator, RefactorVerifier
+
+from app.modules.validator import RefactorVerifier, Validator
+
 
 class TestValidatorRobustness(unittest.TestCase):
     def setUp(self):
@@ -32,7 +33,7 @@ class TestValidatorRobustness(unittest.TestCase):
         """
         orig_ast = self.validator.check_syntax(orig)["ast"]
         refac_ast = self.validator.check_syntax(refac)["ast"]
-        
+
         success, msg = RefactorVerifier.verify_extract_constant(orig_ast, refac_ast)
         self.assertTrue(success, f"Expected success for multiple constants, got: {msg}")
 

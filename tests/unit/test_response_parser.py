@@ -1,8 +1,10 @@
-import unittest
 import json
+import unittest
+
 from app.utils.response_parser import ResponseParser
 from app.utils.schemas import IntentPacket
-from app.utils.types import RefactorCategory, RefactorIntent, StructureUnit
+from app.utils.types import RefactorCategory, RefactorIntent
+
 
 class TestResponseParser(unittest.TestCase):
     def test_extract_xml_basic(self):
@@ -17,7 +19,7 @@ class TestResponseParser(unittest.TestCase):
         # Invalid java snippet (no { or ;)
         text = "<code>invalid code</code>"
         self.assertIsNone(ResponseParser.extract_xml(text, "code"))
-        
+
         # Valid java snippet
         text = "<code>int x = 1;</code>"
         self.assertEqual(ResponseParser.extract_xml(text, "code"), "int x = 1;")

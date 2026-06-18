@@ -81,7 +81,6 @@ class DatabaseManager:
 
         current_version = self._get_schema_version()
         if current_version >= SCHEMA_VERSION:
-            db.close()
             return
 
         # Migration v1 -> v2: add columns
@@ -116,7 +115,6 @@ class DatabaseManager:
                     db.execute_sql(f'ALTER TABLE refactorhistory ADD COLUMN {col} REAL')
 
         self._set_schema_version(SCHEMA_VERSION)
-        db.close()
 
     def _get_schema_version(self) -> int:
         try:

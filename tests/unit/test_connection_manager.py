@@ -1,7 +1,9 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock
+
 from app.modules.connection_manager import ClientConnection
 from app.utils.types import Role
+
 
 class TestConnectionManager(unittest.IsolatedAsyncioTestCase):
     def setUp(self):

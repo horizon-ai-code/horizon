@@ -64,7 +64,8 @@ class ASTMatcher:
     def _find_method_body(code: str, method_name: str) -> str | None:
         """Find a method body by name, return the full method declaration."""
         try:
-            wrapped = f"class _W_ {{ {code} }}" if "class" not in code[:100] else code
+            import re
+            wrapped = f"class _W_ {{ {code} }}" if not re.search(r'\bclass\s+\w+\s*\{', code[:100]) else code
             tree = javalang.parse.parse(wrapped)
             for _path, node in tree:
                 if isinstance(node, javalang.tree.MethodDeclaration):

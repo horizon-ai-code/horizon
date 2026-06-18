@@ -13,7 +13,7 @@ from app.modules.connection_manager import ClientConnection
 from app.modules.context_manager import DatabaseManager
 from app.modules.validator import Validator
 from app.utils.ast_matcher import ASTMatcher
-from app.utils.formatters import format_agent_output, format_plan_for_generator
+from app.utils.formatters import format_plan_for_generator
 from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
 from app.utils.performance import PerformanceTracker
 from app.utils.response_parser import ResponseParser
@@ -98,11 +98,13 @@ class Orchestrator:
         agent_service: AgentService,
         validator: Validator,
         db: DatabaseManager,
+        skip_judge: bool = False,
     ) -> None:
         self.agent_service: AgentService = agent_service
         self.validator: Validator = validator
         self.db: DatabaseManager = db
         self.current_client: ClientConnection | None = None
+        self.skip_judge = skip_judge
 
         try:
             with open(MODELS_CONFIG_PATH) as config:
@@ -191,7 +193,7 @@ class Orchestrator:
                     await self._run_phase_3(client, state)
                 elif state.current_phase == 4:
                     await self._run_phase_4(client, state)
-                    if self.SKIP_JUDGE and state.current_phase == 5:
+                    if self.skip_judge and state.current_phase == 5:
                         state.current_phase = 6
                 elif state.current_phase == 5:
                     await self._run_phase_5(client, state)
@@ -808,7 +810,7 @@ class Orchestrator:
         # Step 7: Tier 1 - Syntax
         syntax_res = self.validator.check_syntax(state.working_code)
         print(
-            f"\\n--- Validator Syntax Check ---\\nIs Valid: {syntax_res['is_valid']}\\nError: {syntax_res.get('error')}\\n------------------------------"
+            f"\n--- Validator Syntax Check ---\nIs Valid: {syntax_res['is_valid']}\nError: {syntax_res.get('error')}\n------------------------------"
         )
         if not syntax_res["is_valid"]:
             state.syntax_iter += 1
@@ -935,7 +937,7 @@ class Orchestrator:
 
         current_cc_val = current_cc if cc_rule not in ("SKIP", "EXTRACT_RULE") else state.original_complexity
         print(
-            f"\\n--- Validator Structural Checks ---\\nComplexity Check: {current_cc_val} (Original: {state.original_complexity})\\nBoundary check found issue: {bool(boundary_finding)}\\nIntent check found issue: {bool(intent_finding)}\\nTotal findings: {len(findings)}\\n-----------------------------------"
+            f"\n--- Validator Structural Checks ---\nComplexity Check: {current_cc_val} (Original: {state.original_complexity})\nBoundary check found issue: {bool(boundary_finding)}\nIntent check found issue: {bool(intent_finding)}\nTotal findings: {len(findings)}\n-----------------------------------"
         )
         if findings:
             current_fault_count = len(findings)
@@ -1348,24 +1350,25 @@ class Orchestrator:
             mode="single",
         )
 
+    CC_RULES: dict[RefactorIntent, str] = {
+        RefactorIntent.FLATTEN_CONDITIONAL: "LOOSENED",
+        RefactorIntent.DECOMPOSE_CONDITIONAL: "EXTRACT_RULE",
+        RefactorIntent.CONSOLIDATE_CONDITIONAL: "STRICT",
+        RefactorIntent.REMOVE_CONTROL_FLAG: "STRICT",
+        RefactorIntent.REPLACE_LOOP_WITH_PIPELINE: "STRICT",
+        RefactorIntent.SPLIT_LOOP: "LOOSENED",
+        RefactorIntent.EXTRACT_METHOD: "EXTRACT_RULE",
+        RefactorIntent.INLINE_METHOD: "SKIP",
+        RefactorIntent.EXTRACT_VARIABLE: "STRICT",
+        RefactorIntent.INLINE_VARIABLE: "STRICT",
+        RefactorIntent.EXTRACT_CONSTANT: "STRICT",
+        RefactorIntent.RENAME_SYMBOL: "STRICT",
+    }
+
     @staticmethod
     def _get_cc_rule(intent: RefactorIntent) -> str:
         """Returns the CC rule for an intent: STRICT, LOOSENED, SKIP, or EXTRACT_RULE."""
-        rules: dict[RefactorIntent, str] = {
-            RefactorIntent.FLATTEN_CONDITIONAL: "LOOSENED",
-            RefactorIntent.DECOMPOSE_CONDITIONAL: "EXTRACT_RULE",
-            RefactorIntent.CONSOLIDATE_CONDITIONAL: "STRICT",
-            RefactorIntent.REMOVE_CONTROL_FLAG: "STRICT",
-            RefactorIntent.REPLACE_LOOP_WITH_PIPELINE: "STRICT",
-            RefactorIntent.SPLIT_LOOP: "LOOSENED",
-            RefactorIntent.EXTRACT_METHOD: "EXTRACT_RULE",
-            RefactorIntent.INLINE_METHOD: "SKIP",
-            RefactorIntent.EXTRACT_VARIABLE: "STRICT",
-            RefactorIntent.INLINE_VARIABLE: "STRICT",
-            RefactorIntent.EXTRACT_CONSTANT: "STRICT",
-            RefactorIntent.RENAME_SYMBOL: "STRICT",
-        }
-        return rules.get(intent, "STRICT")
+        return Orchestrator.CC_RULES.get(intent, "STRICT")
 
     @staticmethod
     def _repair_generator_output(original: str, generated: str) -> str:
@@ -1429,7 +1432,10 @@ class Orchestrator:
         """Helper to print to terminal, persist to DB, and notify frontend."""
         print(f"[{role}] {message}")
 
-        # Use swap-able client reference for reconnection support
+        # Use swap-able client reference for reconnection support.
+        # NOTE: effective snapped once per _notify() call. Reconnect swaps
+        # self.current_client between calls — next notification goes to new
+        # client. Working as intended.
         effective = self.current_client or client
 
         # Persist the log entry to the database in real-time
@@ -1446,5 +1452,9 @@ class Orchestrator:
         if effective.is_stale:
             return
 
-        formatted_message = format_agent_output(message, content)
+        if content:
+            formatted_message = f"{message}\n\n{content}"
+        else:
+            formatted_message = message
+
         await effective.send_status(role=role, content=formatted_message)

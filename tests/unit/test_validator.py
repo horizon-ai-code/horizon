@@ -3,6 +3,7 @@
 Covers: get_hash removed, import stripping regex fix.
 """
 import unittest
+
 from app.modules.validator import ASTWalker, Validator
 
 

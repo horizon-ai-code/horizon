@@ -112,14 +112,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 1,
-      "refactored_cc": 6,
-      "cc_delta": 5,
+      "refactored_cc": 1,
+      "cc_delta": 0,
       "duration_ms": 83253,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) {\n        val = x;\n    }\n}\n\npublic class Solution {\n    private int result = Integer.MAX_VALUE;\n    private TreeNode prev;\n\n    public int getMinimumDifference(TreeNode root) {\n        inorderTraversal(root);\n        return result;\n    }\n\n    private void inorderTraversal(TreeNode node) {\n        if (node == null) return;\n        inorderTraversal(node.left);\n        if (prev != null) {\n            result = Math.min(result, node.val - prev.val);\n        }\n        prev = node;\n        inorderTraversal(node.right);\n    }\n}\n\npublic class Solution {\n    public\n}",
-      "final_code": "public class Solution {\n    private int result = Integer.MAX_VALUE;\n    private TreeNode prev;\n\n    public int getMinimumDifference(TreeNode root) {\n        inorderTraversal(root);\n        return result;\n    }\n\n    private void inorderTraversal(TreeNode node) {\n        if (node == null) return;\n        \n        // Inline body of inorderTraversal\n        if (prev != null && node.val - prev.val < result) {\n            result = node.val - prev.val;\n        }\n        prev = node;\n\n        if (node.left != null) {\n            inorderTraversal(node.left);\n        }\n\n        if (node.right != null) {\n            inorderTraversal(node.right);\n        }\n    }\n\n}",
+      "final_code": "class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) {\n        val = x;\n    }\n}\n\npublic class Solution {\n    private int result = Integer.MAX_VALUE;\n    private TreeNode prev;\n\n    public int getMinimumDifference(TreeNode root) {\n        inorderTraversal(root);\n        return result;\n    }\n\n    private void inorderTraversal(TreeNode node) {\n        if (node == null) return;\n        inorderTraversal(node.left);\n        if (prev != null) {\n            result = Math.min(result, node.val - prev.val);\n        }\n        prev = node;\n        inorderTraversal(node.right);\n    }\n}\n\npublic class Solution {\n    public\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_1_SYNTAX",
@@ -504,7 +504,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\npublic class Solution {\n    public \n\n\n    public int[] diameterHelper(TreeNode root) {\n        if (root == null) return new int[]{0, 0};\n        int[] left = diameterHelper(root.left);\n        int[] right = diameterHelper(root.right);\n        int maxHeight = 1 + Math.max(left[0], right[0]);\n        int maxDiameter = Math.max(left[0] + right[0], Math.max(left[1], right[1]));\n        return new int[]{maxHeight, maxDiameter};\n    }\n\n    public int diameterOfBinaryTree(TreeNode root) {\n        return diameterHelper(root)[1];\n    }\n}",
-      "final_code": "public class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n\n    public TreeNode() {}\n    public TreeNode(int val) { this.val = val; }\n    public TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\npublic class Solution {\n\n    public int diameterOfBinaryTree(TreeNode root) {\n        if (root == null) return 0;\n\n        int[] result = new int[1];\n        helper(root, result);\n        return result[0] - 1; // Subtract 1 because the height is one-based\n    }\n\n    private void helper(TreeNode node, int[] result) {\n        \n        \n        \n        int leftHeight = getHeight(node.left);\n        int rightHeight = getHeight(node.right);\n\n        result[0] = Math.max(result[0], leftHeight + rightHeight + 1); // Update the diameter\n\n        helper(node.left, result);\n        helper(node.right, result);\n    }\n\n    private int getHeight(TreeNode node) {\n        \n        \n        \n        int leftHeight = getHeight(node.left);\n        int rightHeight = getHeight(node.right);\n\n        return Math.max(leftHeight, rightHeight) + 1; // Return the height of this subtree\n    }\n}",
+      "final_code": "public class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\npublic class Solution {\n    public \n\n\n    public int[] diameterHelper(TreeNode root) {\n        if (root == null) return new int[]{0, 0};\n        int[] left = diameterHelper(root.left);\n        int[] right = diameterHelper(root.right);\n        int maxHeight = 1 + Math.max(left[0], right[0]);\n        int maxDiameter = Math.max(left[0] + right[0], Math.max(left[1], right[1]));\n        return new int[]{maxHeight, maxDiameter};\n    }\n\n    public int diameterOfBinaryTree(TreeNode root) {\n        return diameterHelper(root)[1];\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -825,14 +825,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 7,
-      "refactored_cc": 3,
-      "cc_delta": -4,
+      "refactored_cc": 7,
+      "cc_delta": 0,
       "duration_ms": 145411,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "import java.util.*;\n\npublic class Solution {\n    public String splitLoopedString(String[] strs) {\n        String ans = \"\", cur = \"\";\n        for (String s : strs) {\n            String rev = new StringBuilder(s).reverse().toString();\n            cur += (s.compareTo(rev) > 0) ? s : rev;\n        }\n\n        for (int i = 0, k = 0; i < strs.length; i++) {\n            String rev = new StringBuilder(strs[i]).reverse().toString();\n            for (String xstr : Arrays.asList(strs[i], rev)) {\n                for (int j = 0; j < xstr.length(); j++) {\n                    String t = xstr.substring(j) + cur.substring(k + xstr.length()) + cur.substring(0, k) + xstr.substring(0, j);\n                    ans = ans.compareTo(t) > 0 ? ans : t;\n                }\n            }\n            k += strs[i].length();\n        }\n        return ans;\n    }\n}",
-      "final_code": "import java.util.*;\n\npublic class Solution {\n    public String splitLoopedString(String[] strs) {\n        return splitAndCompare(strs);\n    }\n\n    private String splitAndCompare(String[] strs) {\n        StringBuilder cur = new StringBuilder();\n        \n        for (String s : strs) {\n            String rev = new StringBuilder(s).reverse().toString();\n            \n            if (s.compareTo(rev) > 0) \n                cur.append(s); \n            else\n                cur.append(rev);\n        }\n        \n        return maxPermutation(cur.toString());\n    }\n\n    private String maxPermutation(String str) {\n        char[] chars = str.toCharArray();\n        Arrays.sort(chars);\n\n        for (int i = 0; i < chars.length - 1; i++) {\n            if (chars[i] != '9') {\n                int j = findNextMaxIndex(chars, i + 1);\n                swap(chars, i, j);\n                break;\n            }\n        }\n\n        return new String(chars);\n    }\n\n    private void swap(char[] arr, int i, int j) {\n        char temp = arr[i];\n        arr[i] = arr[j];\n        arr[j] = temp;\n    }\n\n    private int findNextMaxIndex(char[] chars, int start) {\n        for (int i = chars.length - 1; i >= start; i--) {\n            if (chars[start] < chars[i]) return i;\n        }\n        \n        throw new IllegalArgumentException(\"No next max index found\");\n    }\n}",
+      "final_code": "import java.util.*;\n\npublic class Solution {\n    public String splitLoopedString(String[] strs) {\n        String ans = \"\", cur = \"\";\n        for (String s : strs) {\n            String rev = new StringBuilder(s).reverse().toString();\n            cur += (s.compareTo(rev) > 0) ? s : rev;\n        }\n\n        for (int i = 0, k = 0; i < strs.length; i++) {\n            String rev = new StringBuilder(strs[i]).reverse().toString();\n            for (String xstr : Arrays.asList(strs[i], rev)) {\n                for (int j = 0; j < xstr.length(); j++) {\n                    String t = xstr.substring(j) + cur.substring(k + xstr.length()) + cur.substring(0, k) + xstr.substring(0, j);\n                    ans = ans.compareTo(t) > 0 ? ans : t;\n                }\n            }\n            k += strs[i].length();\n        }\n        return ans;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -1113,7 +1113,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int findTilt(TreeNode root) {\n        int[] tiltSum = new int[] {0};\n        findTiltUtil(root, tiltSum);\n        return tiltSum[0];\n    }\n\n    private int findTiltUtil(TreeNode root, int[] tiltSum) {\n        if (root == null) {\n            return 0;\n        }\n\n        int leftSum = findTiltUtil(root.left, tiltSum);\n        int rightSum = findTiltUtil(root.right, tiltSum);\n\n        tiltSum[0] += Math.abs(leftSum - rightSum);\n        return root.val + leftSum + rightSum;\n    }\n}",
-      "final_code": "public class Solution {\n    public int findTilt(TreeNode root) {\n        return findTiltUtil(root, 0);\n    }\n\n    private int findTiltUtil(TreeNode root, int tiltSum) {\n        if (root == null) {\n            return 0;\n        }\n        \n        int leftSum = findTiltUtil(root.left, tiltSum);\n        int rightSum = findTiltUtil(root.right, tiltSum);\n\n        tiltSum += Math.abs(leftSum - rightSum);\n        return root.val + leftSum + rightSum;\n    }\n}",
+      "final_code": "public class Solution {\n    public int findTilt(TreeNode root) {\n        int[] tiltSum = new int[] {0};\n        findTiltUtil(root, tiltSum);\n        return tiltSum[0];\n    }\n\n    private int findTiltUtil(TreeNode root, int[] tiltSum) {\n        if (root == null) {\n            return 0;\n        }\n\n        int leftSum = findTiltUtil(root.left, tiltSum);\n        int rightSum = findTiltUtil(root.right, tiltSum);\n\n        tiltSum[0] += Math.abs(leftSum - rightSum);\n        return root.val + leftSum + rightSum;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_B_BOUNDARY",
@@ -1869,7 +1869,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int triangleNumber(int[] nums) {\n        Arrays.sort(nums);\n        int count = 0;\n        for (int i = 0; i < nums.length; ++i) {\n            for (int j = i + 1; j < nums.length; ++j) {\n                for (int k = j + 1; k < nums.length; ++k) {\n                    if (nums[i] + nums[j] > nums[k]) {\n                        count++;\n                    }\n                    else {\n                        break;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}",
-      "final_code": "public class Solution {\n    public int triangleNumber(int[] nums) {\n        Arrays.sort(nums);\n        int count = 0;\n        for (int i = 0; i < nums.length - 2; ++i) {\n            if (nums[i] == 0)\n                continue;\n            int left = i + 1, right = nums.length - 1;\n            while (left < right) {\n                if (nums[left] + nums[right] > nums[i]) {\n                    count += right - left;\n                    --right;\n                } else {\n                    ++left;\n                }\n            }\n        }\n        return count;\n    }\n}",
+      "final_code": "public class Solution {\n    public int triangleNumber(int[] nums) {\n        Arrays.sort(nums);\n        int count = 0;\n        for (int i = 0; i < nums.length; ++i) {\n            for (int j = i + 1; j < nums.length; ++j) {\n                for (int k = j + 1; k < nums.length; ++k) {\n                    if (nums[i] + nums[j] > nums[k]) {\n                        count++;\n                    }\n                    else {\n                        break;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -2088,7 +2088,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public void addOneRowHelper(TreeNode node, int val, int depth, int currentDepth) {\n        if (node == null) return;\n        if (currentDepth == depth - 1) {\n            TreeNode left = node.left;\n            TreeNode right = node.right;\n            node.left = new TreeNode(val);\n            node.left.left = left;\n            node.right = new TreeNode(val);\n            node.right.right = right;\n        } else {\n            addOneRowHelper(node.left, val, depth, currentDepth + 1);\n            addOneRowHelper(node.right, val, depth, currentDepth + 1);\n        }\n    }\n\n    public TreeNode addOneRow(TreeNode root, int val, int depth) {\n        if (depth == 1) {\n            TreeNode newRoot = new TreeNode(val);\n            newRoot.left = root;\n            return newRoot;\n        }\n        addOneRowHelper(root, val, depth, 1);\n        return root;\n    }\n}",
-      "final_code": "public class Solution {\n    public void addOneRowHelper(TreeNode node, int val, int depth) {\n        if (node == null) return;\n        if (depth - 1 == 0) { // Changed condition to match the original logic\n            TreeNode left = node.left;\n            TreeNode right = node.right;\n            node.left = new TreeNode(val);\n            node.left.left = left;\n            node.right = new TreeNode(val);\n            node.right.right = right;\n        } else {\n            addOneRowHelper(node.left, val, depth - 1); // Changed to match the original logic\n            addOneRowHelper(node.right, val, depth - 1); // Changed to match the original logic\n        }\n    }\n\n    public TreeNode addOneRow(TreeNode root, int val, int depth) {\n        if (depth == 1) {\n            TreeNode newRoot = new TreeNode(val);\n            newRoot.left = root;\n            return newRoot;\n        }\n        addOneRowHelper(root, val, depth - 1); // Changed to match the original logic\n        return root;\n    }\n}",
+      "final_code": "public class Solution {\n    public void addOneRowHelper(TreeNode node, int val, int depth, int currentDepth) {\n        if (node == null) return;\n        if (currentDepth == depth - 1) {\n            TreeNode left = node.left;\n            TreeNode right = node.right;\n            node.left = new TreeNode(val);\n            node.left.left = left;\n            node.right = new TreeNode(val);\n            node.right.right = right;\n        } else {\n            addOneRowHelper(node.left, val, depth, currentDepth + 1);\n            addOneRowHelper(node.right, val, depth, currentDepth + 1);\n        }\n    }\n\n    public TreeNode addOneRow(TreeNode root, int val, int depth) {\n        if (depth == 1) {\n            TreeNode newRoot = new TreeNode(val);\n            newRoot.left = root;\n            return newRoot;\n        }\n        addOneRowHelper(root, val, depth, 1);\n        return root;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_B_BOUNDARY",
@@ -2720,7 +2720,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\n\npublic class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n\n    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {\n        Map<String, Integer> treeCount = new HashMap<>();\n        List<TreeNode> result = new ArrayList<>();\n        findDuplicateSubtreesHelper(root, treeCount, result);\n        return result;\n    }\n\n    private String findDuplicateSubtreesHelper(TreeNode root, Map<String, Integer> treeCount, List<TreeNode> result) {\n        if (root == null) return \"\";\n        String subtree = root.val + \",\" + findDuplicateSubtreesHelper(root.left, treeCount, result) + \",\" + findDuplicateSubtreesHelper(root.right, treeCount, result);\n        treeCount.put(subtree, treeCount.getOrDefault(subtree, 0) + 1);\n        if (treeCount.get(subtree) == 2) {\n            result.add(root);\n        }\n        return subtree;\n    }\n}",
-      "final_code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\n\npublic class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {\n        Map<String, Integer> treeCount = new HashMap<>();\n        List<TreeNode> result = new ArrayList<>();\n\n        String subtree = findDuplicateSubtreesHelper(root);\n        if (treeCount.containsKey(subtree)) {\n            treeCount.put(subtree, treeCount.getOrDefault(subtree, 0) + 1);\n            if (treeCount.get(subtree) == 2) {\n                result.add(root);\n            }\n        } else {\n            treeCount.put(subtree, 1);\n        }\n\n        return result;\n    }\n\n    private String findDuplicateSubtreesHelper(TreeNode root) {\n        if (root == null) return \"\";\n        String subtree = root.val + \",\" + findDuplicateSubtreesHelper(root.left) + \",\" + findDuplicateSubtreesHelper(root.right);\n        return subtree;\n    }\n}",
+      "final_code": "import java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\n\npublic class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n\n    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {\n        Map<String, Integer> treeCount = new HashMap<>();\n        List<TreeNode> result = new ArrayList<>();\n        findDuplicateSubtreesHelper(root, treeCount, result);\n        return result;\n    }\n\n    private String findDuplicateSubtreesHelper(TreeNode root, Map<String, Integer> treeCount, List<TreeNode> result) {\n        if (root == null) return \"\";\n        String subtree = root.val + \",\" + findDuplicateSubtreesHelper(root.left, treeCount, result) + \",\" + findDuplicateSubtreesHelper(root.right, treeCount, result);\n        treeCount.put(subtree, treeCount.getOrDefault(subtree, 0) + 1);\n        if (treeCount.get(subtree) == 2) {\n            result.add(root);\n        }\n        return subtree;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_B_BOUNDARY",
@@ -2886,7 +2886,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public boolean findTarget(TreeNode root, int k) {\n        Set<Integer> nodes = new HashSet<>();\n        return findNode(root, k, nodes);\n    }\n\n    public boolean findNode(TreeNode root, int k, Set<Integer> nodes) {\n        if (root == null) return false;\n        if (nodes.contains(k - root.val)) return true;\n        nodes.add(root.val);\n        return findNode(root.left, k, nodes) || findNode(root.right, k, nodes);\n    }\n}",
-      "final_code": "public class Solution {\n    public boolean findTarget(TreeNode root, int k) {\n        Set<Integer> nodes = new HashSet<>();\n        return findNode(root, k, nodes);\n    }\n\n    private boolean findNode(TreeNode node, int target, Set<Integer> visitedNodes) {\n        if (node == null) return false;\n        \n        // Check if the complement exists in the set\n        if (visitedNodes.contains(target - node.val)) {\n            return true;\n        }\n        \n        // Add current value to the set and recursively search left and right subtrees\n        visitedNodes.add(node.val);\n        boolean result = findNode(node.left, target, visitedNodes) || findNode(node.right, target, visitedNodes);\n        visitedNodes.remove(node.val); // Remove node after recursive calls\n        return result;\n    }\n}",
+      "final_code": "public class Solution {\n    public boolean findTarget(TreeNode root, int k) {\n        Set<Integer> nodes = new HashSet<>();\n        return findNode(root, k, nodes);\n    }\n\n    public boolean findNode(TreeNode root, int k, Set<Integer> nodes) {\n        if (root == null) return false;\n        if (nodes.contains(k - root.val)) return true;\n        nodes.add(root.val);\n        return findNode(root.left, k, nodes) || findNode(root.right, k, nodes);\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_3_JUDGE",
@@ -3050,14 +3050,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 7,
-      "refactored_cc": 11,
-      "cc_delta": 4,
+      "refactored_cc": 7,
+      "cc_delta": 0,
       "duration_ms": 111849,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public boolean canSplit(int[] nums) {\n        int[] freq = new int[20001], needed = new int[20001];\n        for (int n : nums)\n            freq[n]++;\n        for (int n : nums) {\n            if (freq[n] == 0) continue;\n            if (needed[n - 1] == 0) {\n                if (freq[n + 1] > 0 && freq[n + 2] > 0) {\n                    freq[n]--; freq[n + 1]--; freq[n + 2]--;\n                    needed[n + 2]++;\n                } else return false;\n            } else {\n                freq[n]--; needed[n - 1]--;\n                needed[n]++;\n            }\n        }\n        return true;\n    }\n}",
-      "final_code": "public class Solution {\n    public boolean canSplit(int[] nums) {\n        int[] freq = new int[20001], needed = new int[20001];\n        \n        // Guard 1: Check if all elements in the array are zero\n        for (int n : nums)\n            if (n != 0) return false;\n\n        // Guard 2: If there is any element with a frequency greater than one, return false\n        for (int f : freq)\n            if (f > 1) return false;\n        \n        int sum = 0;\n        for (int n : nums)\n            sum += n;\n        \n        // Guard 3: Check if the array can be split into two parts where each part has at least one element\n        if (sum % 2 != 0 || sum == 0) return false;\n\n        int half = sum / 2, count = 0;\n        for (int n : nums)\n            if (n > 0 && freq[n] != 0) {\n                count += n;\n                freq[n]--;\n                needed[half - n]++;\n            }\n        \n        // Guard 4: Check if the array can be split into two parts where each part has at least one element\n        return count == half;\n\n    }\n}",
+      "final_code": "public class Solution {\n    public boolean canSplit(int[] nums) {\n        int[] freq = new int[20001], needed = new int[20001];\n        for (int n : nums)\n            freq[n]++;\n        for (int n : nums) {\n            if (freq[n] == 0) continue;\n            if (needed[n - 1] == 0) {\n                if (freq[n + 1] > 0 && freq[n + 2] > 0) {\n                    freq[n]--; freq[n + 1]--; freq[n + 2]--;\n                    needed[n + 2]++;\n                } else return false;\n            } else {\n                freq[n]--; needed[n - 1]--;\n                needed[n]++;\n            }\n        }\n        return true;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_1_SYNTAX",
@@ -3480,14 +3480,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 4,
-      "refactored_cc": 3,
-      "cc_delta": -1,
+      "refactored_cc": 4,
+      "cc_delta": 0,
       "duration_ms": 129854,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int findKthNumber(int m, int n, int k) {\n        int low = 1, high = m * n;\n        while (low < high) {\n            int mid = low + (high - low) / 2;\n            int count = 0;\n            for (int i = 1; i <= m; i++) {\n                count += Math.min(mid / i, n);\n            }\n            if (count < k) {\n                low = mid + 1;\n            } else {\n                high = mid;\n            }\n        }\n        return low;\n    }\n}",
-      "final_code": "public class Solution {\n    public int findKthNumber(int m, int n, int k) {\n        int low = 1, high = m * n;\n        \n        while (low < high) {\n            int mid = low + (high - low) / 2;\n            \n            // Split the loop into two separate entities\n            count = calculateCount(mid, m, n);\n            \n            if (count < k) {\n                low = mid + 1;\n            } else {\n                high = mid;\n            }\n        }\n        \n        return low;\n    }\n\n    private int calculateCount(int target, int rows, int cols) {\n        int count = 0;\n\n        for (int i = 1; i <= rows; i++) {\n            // Split the inner loop into two separate entities\n            count += Math.min(target / i, cols);\n        }\n        \n        return count;\n    }\n\n}",
+      "final_code": "public class Solution {\n    public int findKthNumber(int m, int n, int k) {\n        int low = 1, high = m * n;\n        while (low < high) {\n            int mid = low + (high - low) / 2;\n            int count = 0;\n            for (int i = 1; i <= m; i++) {\n                count += Math.min(mid / i, n);\n            }\n            if (count < k) {\n                low = mid + 1;\n            } else {\n                high = mid;\n            }\n        }\n        return low;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -3658,14 +3658,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 5,
-      "refactored_cc": 4,
-      "cc_delta": -1,
+      "refactored_cc": 5,
+      "cc_delta": 0,
       "duration_ms": 113330,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int maximumSwap(int num) {\n        char[] num_str = Integer.toString(num).toCharArray();\n        int[] last = new int[10];\n    \n        for (int i = 0; i < num_str.length; i++) {\n            last[num_str[i] - '0'] = i;\n        }\n    \n        for (int i = 0; i < num_str.length; i++) {\n            for (int d = 9; d > num_str[i] - '0'; d--) {\n                if (last[d] > i) {\n                    swap(num_str, i, last[d]);\n                    return Integer.parseInt(new String(num_str));\n                }\n            }\n        }\n    \n        return num;\n    }\n\n    private void swap(char[] arr, int i, int j) {\n        char temp = arr[i];\n        arr[i] = arr[j];\n        arr[j] = temp;\n    }\n}",
-      "final_code": "public class Solution {\n    public int maximumSwap(int num) {\n        char[] num_str = Integer.toString(num).toCharArray();\n        int[] last = new int[10];\n    \n        for (int i = 0; i < num_str.length; i++) {\n            last[num_str[i] - '0'] = i;\n        }\n    \n        for (int d = 9; d >= 0; d--) {\n            if (last[d] > 0) {\n                swap(num_str, 0, last[d]);\n                return Integer.parseInt(new String(num_str));\n            }\n        }\n\n        return num;\n    }\n\n    private void swap(char[] arr, int i, int j) {\n        char temp = arr[i];\n        arr[i] = arr[j];\n        arr[j] = temp;\n    }\n}",
+      "final_code": "public class Solution {\n    public int maximumSwap(int num) {\n        char[] num_str = Integer.toString(num).toCharArray();\n        int[] last = new int[10];\n    \n        for (int i = 0; i < num_str.length; i++) {\n            last[num_str[i] - '0'] = i;\n        }\n    \n        for (int i = 0; i < num_str.length; i++) {\n            for (int d = 9; d > num_str[i] - '0'; d--) {\n                if (last[d] > i) {\n                    swap(num_str, i, last[d]);\n                    return Integer.parseInt(new String(num_str));\n                }\n            }\n        }\n    \n        return num;\n    }\n\n    private void swap(char[] arr, int i, int j) {\n        char temp = arr[i];\n        arr[i] = arr[j];\n        arr[j] = temp;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -3831,7 +3831,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public double knightProbability(int n, int k, int row, int column) {\n        double[][][] memo = new double[n][n][k + 1];\n        for (double[][] m : memo)\n            for (double[] l : m)\n                Arrays.fill(l, -1.0);\n        return helper(n, k, row, column, memo);\n    }\n\n    double helper(int n, int k, int row, int column, double[][][] memo) {\n        if (row < 0 || row >= n || column < 0 || column >= n) return 0.0;\n        if (k == 0) return 1.0;\n        if (memo[row][column][k] >= 0) return memo[row][column][k];\n\n        double result = 0.0;\n        int[][] moves = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}, {2, -1}, {2, 1}};\n        for (int i = 0; i < 8; ++i)\n            result += helper(n, k - 1, row + moves[i][0], column + moves[i][1], memo) / 8;\n\n        memo[row][column][k] = result;\n        return result;\n    }\n}",
-      "final_code": "public class Solution {\n    public double knightProbability(int n, int k, int row, int column) {\n        boolean isWithinRange = (row >= 0 && row < n && column >= 0 && column < n);\n        \n        if (!isWithinRange || k == 0) return 1.0;\n        \n        double[][][] memo = new double[n][n][k + 1];\n        for (double[][] m : memo)\n            for (double[] l : m)\n                Arrays.fill(l, -1.0);\n        \n        return helper(n, k, row, column, memo);\n    }\n\n    private boolean isWithinRange(int r, int c) {\n        return (r >= 0 && r < n && c >= 0 && c < n);\n    }\n    \n    double helper(int n, int k, int row, int column, double[][][] memo) {\n        if (!isWithinRange(row, column)) return 0.0;\n        if (k == 0) return 1.0;\n\n        if (memo[row][column][k] >= 0) return memo[row][column][k];\n\n        double result = 0.0;\n        int[][] moves = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}, {2, -1}, {2, 1}};\n        for (int i = 0; i < 8; ++i)\n            result += helper(n, k - 1, row + moves[i][0], column + moves[i][1], memo) / 8;\n\n        memo[row][column][k] = result;\n        return result;\n    }\n}",
+      "final_code": "public class Solution {\n    public double knightProbability(int n, int k, int row, int column) {\n        double[][][] memo = new double[n][n][k + 1];\n        for (double[][] m : memo)\n            for (double[] l : m)\n                Arrays.fill(l, -1.0);\n        return helper(n, k, row, column, memo);\n    }\n\n    double helper(int n, int k, int row, int column, double[][][] memo) {\n        if (row < 0 || row >= n || column < 0 || column >= n) return 0.0;\n        if (k == 0) return 1.0;\n        if (memo[row][column][k] >= 0) return memo[row][column][k];\n\n        double result = 0.0;\n        int[][] moves = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}, {2, -1}, {2, 1}};\n        for (int i = 0; i < 8; ++i)\n            result += helper(n, k - 1, row + moves[i][0], column + moves[i][1], memo) / 8;\n\n        memo[row][column][k] = result;\n        return result;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_B_BOUNDARY",
@@ -4607,14 +4607,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 11,
-      "refactored_cc": 10,
-      "cc_delta": -1,
+      "refactored_cc": 11,
+      "cc_delta": 0,
       "duration_ms": 202514,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int cherryPickup(int[][] grid) {\n        int N = grid.length;\n        int[][][] dp = new int[N][N][N];\n        for (int[][] layer: dp)\n            for (int[] row: layer)\n                Arrays.fill(row, Integer.MIN_VALUE);\n\n        return Math.max(0, dp(0, 0, 0, grid, dp));\n    }\n\n    public int dp(int r1, int c1, int c2, int[][] grid, int[][][] memo) {\n        int r2 = r1 + c1 - c2;\n        if (r1 == grid.length || r2 == grid.length || c1 == grid.length || c2 == grid.length ||\n                grid[r1][c1] == -1 || grid[r2][c2] == -1) {\n            return Integer.MIN_VALUE;\n        } else if (r1 == grid.length - 1 && c1 == grid.length - 1) {\n            return grid[r1][c1];\n        } else if (memo[r1][c1][c2] != Integer.MIN_VALUE) {\n            return memo[r1][c1][c2];\n        } else {\n            memo[r1][c1][c2] = grid[r1][c1] + (r1 != r2 ? grid[r2][c2] : 0);\n            int tempMax = Math.max(Math.max(dp(r1+1, c1, c2+1, grid, memo), dp(r1, c1+1, c2+1, grid, memo)),\n                            Math.max(dp(r1+1, c1, c2, grid, memo), dp(r1, c1+1, c2, grid, memo)));\n            memo[r1][c1][c2] += tempMax;\n        }\n        return memo[r1][c1][c2];\n    }\n}",
-      "final_code": "public class Solution {\n    public int cherryPickup(int[][] grid) {\n        boolean isMatch = true;\n        \n        int N = grid.length;\n        int[][][] dp = new int[N][N][N];\n        for (int[][] layer: dp)\n            for (int[] row: layer)\n                Arrays.fill(row, Integer.MIN_VALUE);\n\n        return Math.max(0, dp(0, 0, 0, grid, dp));\n    }\n\n    public int dp(int r1, int c1, int c2, int[][] grid, int[][][] memo) {\n        boolean isMatch = true;\n        \n        int r2 = r1 + c1 - c2;\n        if (r1 == grid.length || r2 == grid.length || c1 == grid.length || c2 == grid.length ||\n                grid[r1][c1] == -1 || grid[r2][c2] == -1) {\n            return Integer.MIN_VALUE;\n        } else if (r1 == grid.length - 1 && c1 == grid.length - 1) {\n            isMatch = true;\n            return grid[r1][c1];\n        } else if (memo[r1][c1][c2] != Integer.MIN_VALUE) {\n            return memo[r1][c1][c2];\n        } else {\n            int tempMax = Math.max(Math.max(dp(r1+1, c1, c2+1, grid, memo), dp(r1, c1+1, c2+1, grid, memo)),\n                            Math.max(dp(r1+1, c1, c2, grid, memo), dp(r1, c1+1, c2, grid, memo)));\n            isMatch = true;\n            return memo[r1][c1][c2] += tempMax;\n        }\n    }\n}",
+      "final_code": "public class Solution {\n    public int cherryPickup(int[][] grid) {\n        int N = grid.length;\n        int[][][] dp = new int[N][N][N];\n        for (int[][] layer: dp)\n            for (int[] row: layer)\n                Arrays.fill(row, Integer.MIN_VALUE);\n\n        return Math.max(0, dp(0, 0, 0, grid, dp));\n    }\n\n    public int dp(int r1, int c1, int c2, int[][] grid, int[][][] memo) {\n        int r2 = r1 + c1 - c2;\n        if (r1 == grid.length || r2 == grid.length || c1 == grid.length || c2 == grid.length ||\n                grid[r1][c1] == -1 || grid[r2][c2] == -1) {\n            return Integer.MIN_VALUE;\n        } else if (r1 == grid.length - 1 && c1 == grid.length - 1) {\n            return grid[r1][c1];\n        } else if (memo[r1][c1][c2] != Integer.MIN_VALUE) {\n            return memo[r1][c1][c2];\n        } else {\n            memo[r1][c1][c2] = grid[r1][c1] + (r1 != r2 ? grid[r2][c2] : 0);\n            int tempMax = Math.max(Math.max(dp(r1+1, c1, c2+1, grid, memo), dp(r1, c1+1, c2+1, grid, memo)),\n                            Math.max(dp(r1+1, c1, c2, grid, memo), dp(r1, c1+1, c2, grid, memo)));\n            memo[r1][c1][c2] += tempMax;\n        }\n        return memo[r1][c1][c2];\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_B_BOUNDARY",
@@ -4763,14 +4763,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 9,
-      "refactored_cc": 8,
-      "cc_delta": -1,
+      "refactored_cc": 9,
+      "cc_delta": 0,
       "duration_ms": 115869,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int countCornerRectangles(int[][] grid) {\n        int count = 0;\n        int m = grid.length;\n        int n = grid[0].length;\n    \n        for (int i = 0; i < m - 1; i++) {\n            for (int j = 0; j < n - 1; j++) {\n                if (grid[i][j] == 1) {\n                    for (int k = i + 1; k < m; k++) {\n                        for (int l = j + 1; l < n; l++) {\n                            if (grid[k][l] == 1 && grid[i][l] == 1 && grid[k][j] == 1) {\n                                count++;\n                            }\n                        }\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}",
-      "final_code": "public class Solution {\n    public int countCornerRectangles(int[][] grid) {\n        int count = 0;\n        int m = grid.length;\n        int n = grid[0].length;\n\n        for (int i = 0; i < m - 1; i++) {\n            boolean[] rowSet = new boolean[n];\n            for (int j = 0; j < n; j++) {\n                if (grid[i][j] == 1) {\n                    rowSet[j] = true;\n                }\n            }\n\n            for (int k = i + 1; k < m; k++) {\n                int cornerCount = 0;\n                boolean[] colSet = new boolean[n];\n                for (int l = 0; l < n; l++) {\n                    if (grid[k][l] == 1 && rowSet[l]) {\n                        cornerCount++;\n                        colSet[l] = true;\n                    }\n                }\n\n                count += cornerCount * (cornerCount - 1) / 2;\n            }\n        }\n        return count;\n    }\n}",
+      "final_code": "public class Solution {\n    public int countCornerRectangles(int[][] grid) {\n        int count = 0;\n        int m = grid.length;\n        int n = grid[0].length;\n    \n        for (int i = 0; i < m - 1; i++) {\n            for (int j = 0; j < n - 1; j++) {\n                if (grid[i][j] == 1) {\n                    for (int k = i + 1; k < m; k++) {\n                        for (int l = j + 1; l < n; l++) {\n                            if (grid[k][l] == 1 && grid[i][l] == 1 && grid[k][j] == 1) {\n                                count++;\n                            }\n                        }\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -5348,14 +5348,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 4,
-      "refactored_cc": 6,
-      "cc_delta": 2,
+      "refactored_cc": 4,
+      "cc_delta": 0,
       "duration_ms": 115325,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int maxDistToClosest(int[] seats) {\n        int n = seats.length;\n        int maxDist = 0, lastPerson = -1;\n\n        for (int i = 0; i < n; ++i) {\n            if (seats[i] == 1) {\n                if (lastPerson == -1)\n                    maxDist = i;\n                else\n                    maxDist = Math.max(maxDist, (i - lastPerson) / 2);\n                lastPerson = i;\n            }\n        }\n        maxDist = Math.max(maxDist, n - 1 - lastPerson);\n        return maxDist;\n    }\n}",
-      "final_code": "public class Solution {\n    public int maxDistToClosest(int[] seats) {\n        if (seats == null || seats.length == 0)\n            throw new IllegalArgumentException(\"Invalid input\");\n\n        int n = seats.length;\n        int maxDist = 0, lastPerson = -1;\n\n        for (int i = 0; i < n; ++i) {\n            if (seats[i] != 1) continue;\n            \n            if (lastPerson == -1)\n                maxDist = i;\n            else\n                maxDist = Math.max(maxDist, (i - lastPerson) / 2);\n            lastPerson = i;\n        }\n        \n        return maxDist;\n    }\n}",
+      "final_code": "public class Solution {\n    public int maxDistToClosest(int[] seats) {\n        int n = seats.length;\n        int maxDist = 0, lastPerson = -1;\n\n        for (int i = 0; i < n; ++i) {\n            if (seats[i] == 1) {\n                if (lastPerson == -1)\n                    maxDist = i;\n                else\n                    maxDist = Math.max(maxDist, (i - lastPerson) / 2);\n                lastPerson = i;\n            }\n        }\n        maxDist = Math.max(maxDist, n - 1 - lastPerson);\n        return maxDist;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_A_COMPLEXITY",
@@ -5605,14 +5605,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 1,
-      "refactored_cc": 2,
-      "cc_delta": 1,
+      "refactored_cc": 1,
+      "cc_delta": 0,
       "duration_ms": 82266,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "import java.util.Arrays;\n\n\npublic class Solution {\n    private static final int MOD = 1000000007;\n\n    public int sumOfWidths(int[] nums) {\n        Arrays.sort(nums);\n        int n = nums.length;\n        long res = 0, c = 1;\n        \n        for (int i = 0; i < n; i++, c = c * 2 % MOD)\n            res = (res + (nums[i] - nums[n - i - 1]) * c) % MOD;\n            \n        return (int) res;\n    }\n}\n\npublic class Solution {\n    public\n}",
-      "final_code": "import java.util.Arrays;\n\n\npublic class Solution {\n    private static final int MOD = 1000000007;\n\n    public int sumOfWidths(int[] nums) {\n        Arrays.sort(nums);\n        int n = nums.length;\n        long res = 0, c = 1;\n        \n        for (int i = 0; i < n; i++, c = c * 2 % MOD)\n            res = (res + ((long)(nums[i] - nums[n - i - 1])) * c) % MOD;\n            \n        return (int) res;\n    }\n}",
+      "final_code": "import java.util.Arrays;\n\n\npublic class Solution {\n    private static final int MOD = 1000000007;\n\n    public int sumOfWidths(int[] nums) {\n        Arrays.sort(nums);\n        int n = nums.length;\n        long res = 0, c = 1;\n        \n        for (int i = 0; i < n; i++, c = c * 2 % MOD)\n            res = (res + (nums[i] - nums[n - i - 1]) * c) % MOD;\n            \n        return (int) res;\n    }\n}\n\npublic class Solution {\n    public\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_1_SYNTAX",
@@ -6277,14 +6277,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 6,
-      "refactored_cc": 15,
-      "cc_delta": 9,
+      "refactored_cc": 6,
+      "cc_delta": 0,
       "duration_ms": 99313,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int minCameraCover(TreeNode root) {\n        int[] ans = new int[1];\n        return (dfs(root, ans) < 1 ? 1 : 0) + ans[0];\n    }\n\n    private int dfs(TreeNode node, int[] ans) {\n        if (node == null) return 2;\n        int left = dfs(node.left, ans);\n        int right = dfs(node.right, ans);\n        if (left == 0 || right == 0) {\n            ans[0]++;\n            return 1;\n        }\n        return left == 1 || right == 1 ? 2 : 0;\n    }\n}",
-      "final_code": "public class Solution {\n    public int minCameraCover(TreeNode root) {\n        if (root == null) return 0;\n        int[] ans = new int[1];\n        return dfs(root, ans);\n    }\n\n    private int dfs(TreeNode node, int[] ans) {\n\n        if (node.left != null && node.right != null) {\n            int left = dfs(node.left, ans);\n            int right = dfs(node.right, ans);\n\n            if (left == 0 || right == 0) {\n                ans[0]++;\n                return 1;\n            }\n\n            return left == 1 || right == 1 ? 2 : 0;\n        } else if (node.left != null && node.right == null) {\n            int left = dfs(node.left, ans);\n            if (left == 0) {\n                ans[0]++;\n                return 1;\n            }\n            return left == 1 ? 2 : 0;\n        } else if (node.left == null && node.right != null) {\n            int right = dfs(node.right, ans);\n            if (right == 0) {\n                ans[0]++;\n                return 1;\n            }\n            return right == 1 ? 2 : 0;\n        }\n\n        return 0;\n    }\n}",
+      "final_code": "public class Solution {\n    public int minCameraCover(TreeNode root) {\n        int[] ans = new int[1];\n        return (dfs(root, ans) < 1 ? 1 : 0) + ans[0];\n    }\n\n    private int dfs(TreeNode node, int[] ans) {\n        if (node == null) return 2;\n        int left = dfs(node.left, ans);\n        int right = dfs(node.right, ans);\n        if (left == 0 || right == 0) {\n            ans[0]++;\n            return 1;\n        }\n        return left == 1 || right == 1 ? 2 : 0;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_B_BOUNDARY",
@@ -6724,14 +6724,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 8,
-      "refactored_cc": 4,
-      "cc_delta": -4,
+      "refactored_cc": 8,
+      "cc_delta": 0,
       "duration_ms": 229090,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    public String lexSmallestEquivalent(String s1, String s2, String baseStr) {\n        Map<Character, Character> parent = new HashMap<>();\n        for (char ch = 'a'; ch <= 'z'; ch++) {\n            parent.put(ch, ch);\n        }\n\n        for (int i = 0; i < s1.length(); i++) {\n            char root1 = s1.charAt(i), root2 = s2.charAt(i);\n            while (parent.get(root1) != root1) root1 = parent.get(root1);\n            while (parent.get(root2) != root2) root2 = parent.get(root2);\n            if (root1 != root2) {\n                parent.put(root1, (char) Math.min(root1, root2));\n                parent.put(root2, (char) Math.min(root1, root2));\n            }\n        }\n\n        StringBuilder sb = new StringBuilder();\n        for (char ch : baseStr.toCharArray()) {\n            while (parent.get(ch) != ch) ch = parent.get(ch);\n            sb.append(ch);\n        }\n\n        return sb.toString();\n    }\n}",
-      "final_code": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    public String lexSmallestEquivalent(String s1, String s2, String baseStr) {\n        Map<Character, Character> parent = new HashMap<>();\n        for (char ch = 'a'; ch <= 'z'; ch++) {\n            parent.put(ch, ch);\n        }\n\n        // Split the original loop into two separate loops\n        splitAndProcess(s1, s2);\n\n        StringBuilder sb = new StringBuilder();\n        for (char ch : baseStr.toCharArray()) {\n            while (parent.get(ch) != ch)\n                ch = parent.get(ch);\n            sb.append(ch);\n        }\n\n        return sb.toString();\n    }\n    \n    private void splitAndProcess(String s1, String s2) {\n        char root1 = s1.charAt(0), root2 = s2.charAt(0);\n\n        // Process the first character\n        while (parent.get(root1) != root1)\n            root1 = parent.get(root1);\n        \n        while (parent.get(root2) != root2)\n            root2 = parent.get(root2);\n        \n        if (root1 != root2) {\n            parent.put(root1, Math.min(root1, root2));\n            parent.put(root2, Math.min(root1, root2));\n        }\n    }\n\n}",
+      "final_code": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    public String lexSmallestEquivalent(String s1, String s2, String baseStr) {\n        Map<Character, Character> parent = new HashMap<>();\n        for (char ch = 'a'; ch <= 'z'; ch++) {\n            parent.put(ch, ch);\n        }\n\n        for (int i = 0; i < s1.length(); i++) {\n            char root1 = s1.charAt(i), root2 = s2.charAt(i);\n            while (parent.get(root1) != root1) root1 = parent.get(root1);\n            while (parent.get(root2) != root2) root2 = parent.get(root2);\n            if (root1 != root2) {\n                parent.put(root1, (char) Math.min(root1, root2));\n                parent.put(root2, (char) Math.min(root1, root2));\n            }\n        }\n\n        StringBuilder sb = new StringBuilder();\n        for (char ch : baseStr.toCharArray()) {\n            while (parent.get(ch) != ch) ch = parent.get(ch);\n            sb.append(ch);\n        }\n\n        return sb.toString();\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",

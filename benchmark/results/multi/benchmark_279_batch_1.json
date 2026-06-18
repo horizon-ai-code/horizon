@@ -1303,14 +1303,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 11,
-      "refactored_cc": 9,
-      "cc_delta": -2,
+      "refactored_cc": 11,
+      "cc_delta": 0,
       "duration_ms": 120847,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int uniquePathsWithObstacles(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        if (grid[0][0] == 1) return 0;\n    \n        grid[0][0] = 1;\n        for (int i = 1; i < m; ++i)\n            grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n        for (int i = 1; i < n; ++i)\n            grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n        for (int i = 1; i < m; ++i)\n            for (int j = 1; j < n; ++j)\n                if (grid[i][j] == 0)\n                    grid[i][j] = grid[i - 1][j] + grid[i][j - 1];\n                else\n                    grid[i][j] = 0;\n\n        return grid[m - 1][n - 1];\n    }\n}",
-      "final_code": "public class Solution {\n    public int uniquePathsWithObstacles(int[][] grid) {\n        if (grid[0][0] == 1 || grid[m - 1][n - 1] == 1)\n            return 0;\n\n        for (int i = 0; i < m; ++i) {\n            for (int j = 0; j < n; ++j) {\n                if ((grid[i][j] != 0 && grid[i - 1][j] == 0) || \n                    (grid[i][j] != 0 && grid[i][j - 1] == 0)) {\n                    grid[i][j] = 1;\n                } else {\n                    grid[i][j] = 0;\n                }\n            }\n        }\n\n        return grid[m - 1][n - 1];\n    }\n}",
+      "final_code": "public class Solution {\n    public int uniquePathsWithObstacles(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        if (grid[0][0] == 1) return 0;\n    \n        grid[0][0] = 1;\n        for (int i = 1; i < m; ++i)\n            grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n        for (int i = 1; i < n; ++i)\n            grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n        for (int i = 1; i < m; ++i)\n            for (int j = 1; j < n; ++j)\n                if (grid[i][j] == 0)\n                    grid[i][j] = grid[i - 1][j] + grid[i][j - 1];\n                else\n                    grid[i][j] = 0;\n\n        return grid[m - 1][n - 1];\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -1758,14 +1758,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 14,
-      "refactored_cc": 16,
-      "cc_delta": 2,
+      "refactored_cc": 14,
+      "cc_delta": 0,
       "duration_ms": 229070,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public void setZeroes(int[][] matrix) {\n        int rows = matrix.length;\n        int cols = matrix[0].length;\n        boolean firstRow = false, firstCol = false;\n\n        for (int i = 0; i < rows; i++) {\n            for (int j = 0; j < cols; j++) {\n                if (matrix[i][j] == 0) {\n                    if (i == 0) firstRow = true;\n                    if (j == 0) firstCol = true;\n                    matrix[i][0] = 0;\n                    matrix[0][j] = 0;\n                }\n            }\n        }\n\n        for (int i = 1; i < rows; i++) {\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][0] == 0 || matrix[0][j] == 0)\n                    matrix[i][j] = 0;\n            }\n        }\n\n        if (firstRow) {\n            for (int j = 0; j < cols; j++)\n                matrix[0][j] = 0;\n        }\n\n        if (firstCol) {\n            for (int i = 0; i < rows; i++)\n                matrix[i][0] = 0;\n        }\n    }\n}",
-      "final_code": "public class Solution {\n    public void setZeroes(int[][] matrix) {\n        if (matrix == null || matrix.length == 0 || matrix[0].length == 0)\n            return;\n\n        int rows = matrix.length;\n        int cols = matrix[0].length;\n        boolean firstRow = false, firstCol = false;\n\n        for (int i = 1; i < rows; i++) {\n            if (matrix[i][0] == 0) firstCol = true;\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][j] == 0) {\n                    matrix[0][j] = 0;\n                    matrix[i][0] = 0;\n                }\n            }\n        }\n\n        for (int i = 1; i < rows; i++) {\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][0] == 0 || matrix[0][j] == 0)\n                    matrix[i][j] = 0;\n            }\n        }\n\n        if (firstRow) {\n            for (int j = 0; j < cols; j++)\n                matrix[0][j] = 0;\n        }\n\n        if (firstCol) {\n            for (int i = 0; i < rows; i++)\n                matrix[i][0] = 0;\n        }\n    }\n}",
+      "final_code": "public class Solution {\n    public void setZeroes(int[][] matrix) {\n        int rows = matrix.length;\n        int cols = matrix[0].length;\n        boolean firstRow = false, firstCol = false;\n\n        for (int i = 0; i < rows; i++) {\n            for (int j = 0; j < cols; j++) {\n                if (matrix[i][j] == 0) {\n                    if (i == 0) firstRow = true;\n                    if (j == 0) firstCol = true;\n                    matrix[i][0] = 0;\n                    matrix[0][j] = 0;\n                }\n            }\n        }\n\n        for (int i = 1; i < rows; i++) {\n            for (int j = 1; j < cols; j++) {\n                if (matrix[i][0] == 0 || matrix[0][j] == 0)\n                    matrix[i][j] = 0;\n            }\n        }\n\n        if (firstRow) {\n            for (int j = 0; j < cols; j++)\n                matrix[0][j] = 0;\n        }\n\n        if (firstCol) {\n            for (int i = 0; i < rows; i++)\n                matrix[i][0] = 0;\n        }\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_A_COMPLEXITY",
@@ -1921,7 +1921,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public void sortColors(int[] nums) {\n        int red = 0, white = 0, blue = nums.length - 1;\n        while (white <= blue) {\n            if (nums[white] == 0) {\n                int temp = nums[red];\n                nums[red++] = nums[white];\n                nums[white++] = temp;\n            } else if (nums[white] == 1) {\n                white++;\n            } else {\n                int temp = nums[white];\n                nums[white] = nums[blue];\n                nums[blue--] = temp;\n            }\n        }\n    }\n}",
-      "final_code": "public class Solution {\n    public void sortColors(int[] nums) {\n        int red = 0, whiteValue;\n        while (white <= blue) {\n            if ((whiteValue = nums[white]) == 0) {\n                int temp = nums[red];\n                nums[red++] = nums[white];\n                nums[white++] = temp;\n            } else if (whiteValue == 1) {\n                white++;\n            } else {\n                int temp = nums[white];\n                nums[white] = nums[blue];\n                nums[blue--] = temp;\n            }\n        }\n    }\n}",
+      "final_code": "public class Solution {\n    public void sortColors(int[] nums) {\n        int red = 0, white = 0, blue = nums.length - 1;\n        while (white <= blue) {\n            if (nums[white] == 0) {\n                int temp = nums[red];\n                nums[red++] = nums[white];\n                nums[white++] = temp;\n            } else if (nums[white] == 1) {\n                white++;\n            } else {\n                int temp = nums[white];\n                nums[white] = nums[blue];\n                nums[blue--] = temp;\n            }\n        }\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -2550,14 +2550,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 11,
-      "refactored_cc": 8,
-      "cc_delta": -3,
+      "refactored_cc": 11,
+      "cc_delta": 0,
       "duration_ms": 135853,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public boolean isInterleave(String s1, String s2, String s3) {\n        int m = s1.length(), n = s2.length();\n        if (m + n != s3.length()) return false;\n\n        boolean[][] dp = new boolean[m + 1][n + 1];\n        dp[0][0] = true;\n        for (int i = 1; i <= m; i++)\n            dp[i][0] = dp[i - 1][0] && s1.charAt(i - 1) == s3.charAt(i - 1);\n        for (int j = 1; j <= n; j++)\n            dp[0][j] = dp[0][j - 1] && s2.charAt(j - 1) == s3.charAt(j - 1);\n\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                dp[i][j] = (dp[i - 1][j] && s1.charAt(i - 1) == s3.charAt(i + j - 1)) ||\n                           (dp[i][j - 1] && s2.charAt(j - 1) == s3.charAt(i + j - 1));\n            }\n        }\n\n        return dp[m][n];\n    }\n}",
-      "final_code": "public class Solution {\n    public boolean isInterleave(String s1, String s2, String s3) {\n        int m = s1.length(), n = s2.length();\n        if (m + n != s3.length()) return false;\n\n        boolean[] dp = new boolean[n + 1];\n        dp[0] = true;\n        \n        for (int i = 1; i <= m; i++) {\n            dp[0] = dp[0] && s1.charAt(i - 1) == s3.charAt(i - 1);\n            \n            for (int j = 1; j <= n; j++) {\n                dp[j] = (dp[j] && s2.charAt(j - 1) == s3.charAt(i + j - 1)) ||\n                           (dp[j - 1] && s1.charAt(i - 1) == s3.charAt(i + j - 1));\n            }\n        }\n\n        return dp[n];\n    }\n}",
+      "final_code": "public class Solution {\n    public boolean isInterleave(String s1, String s2, String s3) {\n        int m = s1.length(), n = s2.length();\n        if (m + n != s3.length()) return false;\n\n        boolean[][] dp = new boolean[m + 1][n + 1];\n        dp[0][0] = true;\n        for (int i = 1; i <= m; i++)\n            dp[i][0] = dp[i - 1][0] && s1.charAt(i - 1) == s3.charAt(i - 1);\n        for (int j = 1; j <= n; j++)\n            dp[0][j] = dp[0][j - 1] && s2.charAt(j - 1) == s3.charAt(j - 1);\n\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                dp[i][j] = (dp[i - 1][j] && s1.charAt(i - 1) == s3.charAt(i + j - 1)) ||\n                           (dp[i][j - 1] && s2.charAt(j - 1) == s3.charAt(i + j - 1));\n            }\n        }\n\n        return dp[m][n];\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -2723,7 +2723,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    void inorder(TreeNode node, TreeNode[] nodes) {\n        if (node == null) return;\n        inorder(node.left, nodes);\n        if (nodes[1] != null && nodes[1].val > node.val) {\n            if (nodes[0] == null) nodes[0] = nodes[1];\n            nodes[2] = node;\n        }\n        nodes[1] = node;\n        inorder(node.right, nodes);\n    }\n\n    public void recoverTree(TreeNode root) {\n        TreeNode[] nodes = new TreeNode[3];\n        inorder(root, nodes);\n        int temp = nodes[0].val;\n        nodes[0].val = nodes[2].val;\n        nodes[2].val = temp;\n    }\n}",
-      "final_code": "public class Solution {\n    void inorder(TreeNode node, TreeNode[] nodes) {\n        if (node == null) return;\n        inorder(node.left, nodes);\n        if (nodes[1] != null && nodes[1].val > node.val) {\n            if (nodes[0] == null) nodes[0] = nodes[1];\n            nodes[2] = node;\n        }\n        nodes[1] = node;\n        inorder(node.right, nodes);\n    }\n\n    public void recoverTree(TreeNode root) {\n        TreeNode[] nodes = new TreeNode[3];\n        inorder(root, nodes);\n\n        if (nodes[0] == null || nodes[2] == null) return;\n\n        int temp = nodes[0].val;\n        nodes[0].val = nodes[2].val;\n        nodes[2].val = temp;\n    }\n}",
+      "final_code": "public class Solution {\n    void inorder(TreeNode node, TreeNode[] nodes) {\n        if (node == null) return;\n        inorder(node.left, nodes);\n        if (nodes[1] != null && nodes[1].val > node.val) {\n            if (nodes[0] == null) nodes[0] = nodes[1];\n            nodes[2] = node;\n        }\n        nodes[1] = node;\n        inorder(node.right, nodes);\n    }\n\n    public void recoverTree(TreeNode root) {\n        TreeNode[] nodes = new TreeNode[3];\n        inorder(root, nodes);\n        int temp = nodes[0].val;\n        nodes[0].val = nodes[2].val;\n        nodes[2].val = temp;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -3074,14 +3074,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 6,
-      "refactored_cc": 4,
-      "cc_delta": -2,
+      "refactored_cc": 6,
+      "cc_delta": 0,
       "duration_ms": 203997,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\nimport java.util.Queue;\n\n\npublic class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n\n    public List<List<Integer>> levelOrderBottom(TreeNode root) {\n        List<List<Integer>> result = new ArrayList<>();\n        if (root == null) return result;\n\n        Queue<TreeNode> queue = new LinkedList<>();\n        queue.add(root);\n\n        while (!queue.isEmpty()) {\n            List<Integer> level = new ArrayList<>();\n            int size = queue.size();\n\n            for (int i = 0; i < size; i++) {\n                TreeNode current = queue.poll();\n                level.add(current.val);\n\n                if (current.left != null) queue.add(current.left);\n                if (current.right != null) queue.add(current.right);\n            }\n            result.add(0, level);\n        }\n\n        return result;\n    }\n}",
-      "final_code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\nimport java.util.Queue;\n\n\npublic class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n\n    public List<List<Integer>> levelOrderBottom(TreeNode root) {\n        return splitLevelOrder(root);\n    }\n\n    private List<List<Integer>> splitLevelOrder(TreeNode root) {\n        Queue<TreeNode> queue = new LinkedList<>();\n        if (root == null) return new ArrayList<>();\n\n        queue.add(root);\n\n        while (!queue.isEmpty()) {\n            int size = queue.size();\n            List<Integer> level = processQueue(queue, size);\n            result.add(0, level); // Add to the beginning of the list\n        }\n\n        return result;\n    }\n\n    private List<List<Integer>> result = new ArrayList<>();\n    \n    private List<Integer> processQueue(Queue<TreeNode> queue, int size) {\n        List<Integer> level = new ArrayList<>();\n\n        for (int i = 0; i < size; i++) {\n            TreeNode current = queue.poll();\n            level.add(current.val);\n\n            if (current.left != null) queue.add(current.left);\n            if (current.right != null) queue.add(current.right);\n        }\n\n        return level;\n    }\n}",
+      "final_code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\nimport java.util.Queue;\n\n\npublic class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n\n    public List<List<Integer>> levelOrderBottom(TreeNode root) {\n        List<List<Integer>> result = new ArrayList<>();\n        if (root == null) return result;\n\n        Queue<TreeNode> queue = new LinkedList<>();\n        queue.add(root);\n\n        while (!queue.isEmpty()) {\n            List<Integer> level = new ArrayList<>();\n            int size = queue.size();\n\n            for (int i = 0; i < size; i++) {\n                TreeNode current = queue.poll();\n                level.add(current.val);\n\n                if (current.left != null) queue.add(current.left);\n                if (current.right != null) queue.add(current.right);\n            }\n            result.add(0, level);\n        }\n\n        return result;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -4080,14 +4080,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 4,
-      "refactored_cc": 3,
-      "cc_delta": -1,
+      "refactored_cc": 4,
+      "cc_delta": 0,
       "duration_ms": 145914,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "class ListNode {\n    int val;\n    ListNode next;\n}\n\npublic class Solution {\n    public ListNode insertionSortList(ListNode head) {\n        ListNode dummy = new ListNode(0);\n        ListNode cur;\n\n        while (head != null) {\n            cur = dummy;\n            while (cur.next != null && cur.next.val < head.val) {\n                cur = cur.next;\n            }\n\n            ListNode temp = head.next;\n            head.next = cur.next;\n            cur.next = head;\n            head = temp;\n        }\n\n        return dummy.next;\n    }\n}",
-      "final_code": "class ListNode {\n    int val;\n    ListNode next;\n\n    public static class SplitSorter {\n        private final ListNode dummy = new ListNode(0);\n        private final ListNode cur;\n\n        public SplitSorter(ListNode head) {\n            this.cur = dummy;\n        }\n\n        void splitInsertion() {\n            while (cur.next != null && cur.next.val < head.val) {\n                cur = cur.next;\n            }\n        }\n\n        void splitSwap(ListNode temp, ListNode nextHead) {\n            temp.next = nextHead;\n            cur.next = head;\n            head = temp;\n        }\n    }\n\n    public static class SplitInsertionSorter extends SplitSorter {\n\n        private final ListNode dummy;\n\n        public SplitInsertionSorter(ListNode head) {\n            super(head);\n            this.dummy = dummy;\n        }\n\n        void splitLoop() {\n            while (head != null && cur.next.val < head.val) {\n                cur = cur.next;\n            }\n        }\n    }\n\n    public ListNode insertionSortList(ListNode head) {\n        SplitInsertionSorter sorter = new SplitInsertionSorter(head);\n        sorter.splitLoop();\n\n        return dummy.next;\n    }\n}",
+      "final_code": "class ListNode {\n    int val;\n    ListNode next;\n}\n\npublic class Solution {\n    public ListNode insertionSortList(ListNode head) {\n        ListNode dummy = new ListNode(0);\n        ListNode cur;\n\n        while (head != null) {\n            cur = dummy;\n            while (cur.next != null && cur.next.val < head.val) {\n                cur = cur.next;\n            }\n\n            ListNode temp = head.next;\n            head.next = cur.next;\n            cur.next = head;\n            head = temp;\n        }\n\n        return dummy.next;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -4492,14 +4492,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 3,
-      "refactored_cc": 5,
-      "cc_delta": 2,
+      "refactored_cc": 3,
+      "cc_delta": 0,
       "duration_ms": 94314,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class Solution {\n    public int maxProduct(int[] nums) {\n        int max_so_far = nums[0];\n        int min_so_far = nums[0];\n        int result = nums[0];\n    \n        for (int i = 1; i < nums.length; i++) {\n            if (nums[i] < 0) {\n                int temp = max_so_far;\n                max_so_far = min_so_far;\n                min_so_far = temp;\n            }\n        \n            max_so_far = Math.max(nums[i], max_so_far * nums[i]);\n            min_so_far = Math.min(nums[i], min_so_far * nums[i]);\n            result = Math.max(result, max_so_far);\n        }\n        return result;\n    }\n}",
-      "final_code": "public class Solution {\n    public int maxProduct(int[] nums) {\n        if (nums == null || nums.length == 0) return 0;\n\n        int currentMax = nums[0];\n        int minSoFar = nums[0];\n        int result = nums[0];\n\n        for (int i = 1; i < nums.length; i++) {\n            if (nums[i] < 0) {\n                int temp = currentMax;\n                currentMax = minSoFar;\n                minSoFar = temp;\n            }\n        \n            currentMax = Math.max(nums[i], currentMax * nums[i]);\n            minSoFar = Math.min(nums[i], minSoFar * nums[i]);\n            result = Math.max(result, currentMax);\n        }\n\n        return result;\n    }\n}",
+      "final_code": "public class Solution {\n    public int maxProduct(int[] nums) {\n        int max_so_far = nums[0];\n        int min_so_far = nums[0];\n        int result = nums[0];\n    \n        for (int i = 1; i < nums.length; i++) {\n            if (nums[i] < 0) {\n                int temp = max_so_far;\n                max_so_far = min_so_far;\n                min_so_far = temp;\n            }\n        \n            max_so_far = Math.max(nums[i], max_so_far * nums[i]);\n            min_so_far = Math.min(nums[i], min_so_far * nums[i]);\n            result = Math.max(result, max_so_far);\n        }\n        return result;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -5733,14 +5733,14 @@
       "phase4_pass": false,
       "judge_verdict": null,
       "original_cc": 8,
-      "refactored_cc": 6,
-      "cc_delta": -2,
+      "refactored_cc": 8,
+      "cc_delta": 0,
       "duration_ms": 200513,
       "strategy_iter": 4,
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\nimport java.util.Queue;\n\npublic class Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        List<List<Integer>> adj = new ArrayList<>(numCourses);\n        int[] inDegree = new int[numCourses];\n    \n        for (int i = 0; i < numCourses; i++)\n            adj.add(new ArrayList<>());\n    \n        for (int[] p : prerequisites) {\n            adj.get(p[1]).add(p[0]);\n            inDegree[p[0]]++;\n        }\n    \n        Queue<Integer> q = new LinkedList<>();\n        for (int i = 0; i < numCourses; i++) {\n            if (inDegree[i] == 0) q.add(i);\n        }\n    \n        while (!q.isEmpty()) {\n            int currCourse = q.poll();\n            numCourses--;\n        \n            for (int nextCourse : adj.get(currCourse)) {\n                inDegree[nextCourse]--;\n                if (inDegree[nextCourse] == 0) q.add(nextCourse);\n            }\n        }\n    \n        return numCourses == 0;\n    }\n}",
-      "final_code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\nimport java.util.Queue;\n\npublic class Solution {\n    private int[] inDegree; // Declare the array for storing indegree of each course\n\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        List<List<Integer>> adj = new ArrayList<>(numCourses);\n        \n        initializeAdjacencyList(adj, prerequisites);\n\n        Queue<Integer> q = new LinkedList<>();\n        for (int i = 0; i < numCourses; i++) {\n            if (inDegree[i] == 0) q.add(i);\n        }\n    \n        while (!q.isEmpty()) {\n            int currCourse = q.poll();\n            numCourses--;\n        \n            for (int nextCourse : adj.get(currCourse)) {\n                inDegree[nextCourse]--;\n                if (inDegree[nextCourse] == 0) q.add(nextCourse);\n            }\n        }\n    \n        return numCourses == 0;\n    }\n\n    private void initializeAdjacencyList(List<List<Integer>> adj, int[][] prerequisites) {\n        for (int[] p : prerequisites) {\n            adj.get(p[1]).add(p[0]);\n            inDegree[p[0]]++;\n        }\n    }\n}",
+      "final_code": "import java.util.ArrayList;\nimport java.util.LinkedList;\nimport java.util.List;\nimport java.util.Queue;\n\npublic class Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        List<List<Integer>> adj = new ArrayList<>(numCourses);\n        int[] inDegree = new int[numCourses];\n    \n        for (int i = 0; i < numCourses; i++)\n            adj.add(new ArrayList<>());\n    \n        for (int[] p : prerequisites) {\n            adj.get(p[1]).add(p[0]);\n            inDegree[p[0]]++;\n        }\n    \n        Queue<Integer> q = new LinkedList<>();\n        for (int i = 0; i < numCourses; i++) {\n            if (inDegree[i] == 0) q.add(i);\n        }\n    \n        while (!q.isEmpty()) {\n            int currCourse = q.poll();\n            numCourses--;\n        \n            for (int nextCourse : adj.get(currCourse)) {\n                inDegree[nextCourse]--;\n                if (inDegree[nextCourse] == 0) q.add(nextCourse);\n            }\n        }\n    \n        return numCourses == 0;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_2_C_INTENT_MATH",
@@ -6350,7 +6350,7 @@
       "syntax_iter": 0,
       "code_unchanged": false,
       "original_code": "public class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n\n    public TreeNode invertTree(TreeNode root) {\n        if (root == null) {\n            return null;\n        }    \n        TreeNode temp = root.left;\n        root.left = invertTree(root.right);\n        root.right = invertTree(temp);\n        return root;\n    }\n}",
-      "final_code": "public class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n    public TreeNode invertTree(TreeNode root) {\n        if (root == null) {\n            return null;\n        }    \n        TreeNode tempNode = root.left;\n        root.left = invertTree(root.right);\n        root.right = invertTree(tempNode);\n        return root;\n    }\n}",
+      "final_code": "public class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode(int x) { val = x; }\n}\n\npublic class Solution {\n    public \n\n\n    public TreeNode invertTree(TreeNode root) {\n        if (root == null) {\n            return null;\n        }    \n        TreeNode temp = root.left;\n        root.left = invertTree(root.right);\n        root.right = invertTree(temp);\n        return root;\n    }\n}",
       "phase4_findings": [
         {
           "tier": "FailureTier.TIER_3_JUDGE",
