@@ -1,7 +1,9 @@
 """Tests for judge structured issue types and override logic."""
 import unittest
+
 from pydantic import ValidationError
-from app.utils.schemas import AuditIssue, StructuralAuditorResponse, AuditScratchpad, AuditTrace
+
+from app.utils.schemas import AuditIssue, AuditScratchpad, AuditTrace, StructuralAuditorResponse
 
 
 class TestAuditIssue(unittest.TestCase):

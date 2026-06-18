@@ -1,14 +1,11 @@
-import asyncio
 import json
 import unittest
-import builtins
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
 from app.modules.agent_service import AgentService
 from app.modules.context_manager import DatabaseManager
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
-from app.utils.types import ExitStatus, Role
 
 
 class MockClient:
@@ -423,7 +420,7 @@ class TestSingleRefactorFlow(unittest.IsolatedAsyncioTestCase):
     @patch("app.main.agent_service")
     async def test_single_refactor_success(self, mock_agent_service):
         """Single mode: code gen pass 1 + insights pass 2, returns result."""
-        from app.main import run_single_refactor, orchestrator
+        from app.main import orchestrator, run_single_refactor
 
         mock_agent_service.generate = AsyncMock()
         mock_agent_service.swap = AsyncMock()

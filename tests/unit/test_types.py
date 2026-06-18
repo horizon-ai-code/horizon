@@ -1,5 +1,7 @@
 import unittest
+
 from pydantic import ValidationError
+
 from app.utils.types import DeclarationScope, HaltRequest, MutationAction
 
 

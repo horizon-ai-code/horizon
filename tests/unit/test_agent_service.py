@@ -3,6 +3,7 @@
 Covers: _count_tokens fallback (len//4 instead of word count).
 """
 import unittest
+
 from app.modules.agent_service import AgentService
 
 

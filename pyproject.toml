@@ -42,7 +42,6 @@ markers = [
 
 [tool.coverage.run]
 source = ["app"]
-omit = ["app/modules/orchestrator.py", "app/modules/agent_service.py", "app/modules/validator.py"]
 branch = true
 
 [tool.coverage.report]
@@ -52,4 +51,4 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
 ]
-fail_under = 70
+fail_under = 50

@@ -22,8 +22,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import websockets
-from app.utils.types import Role
-
 
 WS_URL = "ws://127.0.0.1:8000/ws"
 PASS = 0
@@ -42,8 +40,8 @@ async def ws_connect():
 
 def create_db_session(session_id: str, status: str = "Completed"):
     """Create a session directly in the database for reconnect testing."""
+    from app.modules.context_manager import OrchestrationLog, RefactorHistory, SchemaVersion
     from app.modules.context_manager import db as db_conn
-    from app.modules.context_manager import RefactorHistory, OrchestrationLog, SchemaVersion
 
     db_conn.connect(reuse_if_open=True)
     db_conn.create_tables([SchemaVersion, RefactorHistory, OrchestrationLog], safe=True)

@@ -514,9 +514,14 @@ class Validator:
 
     def get_complexity(self, snippet: str) -> int:
         clean_snippet = snippet.strip()
+        # Strip import lines before wrapping — same logic as check_syntax
+        stripped = "\n".join(
+            line for line in clean_snippet.splitlines()
+            if not re.match(r'^\s*import\s+\w', line)
+        )
         max_cc = 1
         for template in self.templates:
-            wrapped_code = template(clean_snippet)
+            wrapped_code = template(stripped)
             try:
                 javalang.parse.parse(wrapped_code)
             except (javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
@@ -531,8 +536,12 @@ class Validator:
 
     def get_method_complexity(self, snippet: str, method_name: str) -> int | None:
         clean_snippet = snippet.strip()
+        stripped = "\n".join(
+            line for line in clean_snippet.splitlines()
+            if not re.match(r'^\s*import\s+\w', line)
+        )
         for template in self.templates:
-            wrapped_code = template(clean_snippet)
+            wrapped_code = template(stripped)
             try:
                 javalang.parse.parse(wrapped_code)
             except (javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
@@ -621,18 +630,6 @@ class Validator:
         # Find classes/enums that existed in original but were changed in refactor
         # We only care about modifications to EXISTING structures outside target_scopes.
         # NEW structures (enums/classes) are allowed as part of the refactoring strategy.
-        {
-            getattr(n, "name", "unknown"): ASTWalker.get_structural_signature(n)
-            for n in ASTWalker.find_nodes(
-                orig_unit, (javalang.tree.ClassDeclaration, javalang.tree.EnumDeclaration)
-            )
-        }
-        {
-            getattr(n, "name", "unknown"): ASTWalker.get_structural_signature(n)
-            for n in ASTWalker.find_nodes(
-                refac_unit, (javalang.tree.ClassDeclaration, javalang.tree.EnumDeclaration)
-            )
-        }
 
         for name, h in orig_methods.items():
             if name not in target_scopes and name in refac_methods:

@@ -3,6 +3,7 @@
 Covers: _find_method_body bug fix (was crashing on multi-item trees).
 """
 import unittest
+
 from app.utils.ast_matcher import ASTMatcher
 
 

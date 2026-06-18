@@ -1,6 +1,8 @@
-import unittest
 import json
+import unittest
+
 from app.utils.formatters import format_agent_output, format_plan_for_generator
+
 
 class TestFormatters(unittest.TestCase):
     def test_intent_packet_formatting(self):

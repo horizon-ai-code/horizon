@@ -1,9 +1,10 @@
-import unittest
 import asyncio
-import json
-from unittest.mock import MagicMock, AsyncMock, patch
-from app.modules.orchestrator import Orchestrator, OrchestrationState
+import unittest
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from app.modules.orchestrator import Orchestrator
 from app.utils.types import Role
+
 
 class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
@@ -12,15 +13,15 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
         self.agent_service.generate = AsyncMock()
         self.agent_service.unload = AsyncMock()
         self.agent_service.clear_context = AsyncMock()
-        
+
         self.validator = MagicMock()
         self.db = MagicMock()
-        
+
         self.client = MagicMock()
         self.client.id = "test-session-id"
         self.client.send_status = AsyncMock()
         self.client.send_result = AsyncMock()
-        
+
         # Mocking model_config and prompts loading
         self.mock_config = {
             "planner": {"filename": "p", "name": "p"},
@@ -38,14 +39,14 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
     async def test_execute_orchestration_handles_cancellation(self, mock_yaml, mock_open):
         mock_yaml.side_effect = [self.mock_config, self.mock_prompts]
         orchestrator = Orchestrator(self.agent_service, self.validator, self.db)
-        
+
         # Force asyncio.CancelledError during the first baseline phase notification
         # (Or any point early in the execution)
         self.validator.get_complexity.side_effect = asyncio.CancelledError()
-        
+
         with self.assertRaises(asyncio.CancelledError):
             await orchestrator.execute_orchestration(self.client, "public class Test {}", "Refactor.")
-            
+
         self.db.mark_as_halted.assert_called_once_with(self.client.id)
         self.agent_service.unload.assert_called_once()
 
@@ -54,20 +55,22 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
     async def test_execute_orchestration_unloads_on_error(self, mock_yaml, mock_open):
         mock_yaml.side_effect = [self.mock_config, self.mock_prompts]
         orchestrator = Orchestrator(self.agent_service, self.validator, self.db)
-        
+
         self.validator.get_complexity.side_effect = ValueError("Fatal Error")
-        
+
         with self.assertRaises(ValueError):
             await orchestrator.execute_orchestration(self.client, "public class Test {}", "Refactor.")
-            
+
         self.client.send_status.assert_any_call(role=Role.System, content="Error: Fatal Error")
         self.agent_service.unload.assert_called_once()
 
     async def test_cleanup_zombie_sessions(self):
         """Sessions stuck in Processing get marked as Zombie after timeout."""
-        from datetime import datetime, timedelta
-        from app.modules.context_manager import DatabaseManager, RefactorHistory, db as test_db
         import uuid
+        from datetime import datetime, timedelta
+
+        from app.modules.context_manager import DatabaseManager, RefactorHistory
+        from app.modules.context_manager import db as test_db
 
         mgr = DatabaseManager()
         zombie_id = str(uuid.uuid4())
@@ -95,10 +98,13 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
 
     async def test_reconnect_processing_after_restart_returns_error(self):
         """When backend restarts and session is Processing, reconnect returns error not fake status."""
-        from app.main import connection, orchestrator, _handle_reconnect
+        from app.main import _handle_reconnect, connection, orchestrator as global_orch
 
-        # Simulate restart: orchestrator.current_client is None
-        orchestrator.current_client = None
+        # Save and restore global state
+        orig_get_history = connection.get_history_by_id
+        orig_current_client = global_orch.current_client
+
+        global_orch.current_client = None
 
         mock_ws = AsyncMock()
         mock_ws.send_json = AsyncMock()
@@ -123,6 +129,10 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
             any("Session lost" in c.get("content", "") for c in status_calls),
             "Should tell user the session was lost, not promise live updates",
         )
+
+        # Restore global state
+        connection.get_history_by_id = orig_get_history
+        global_orch.current_client = orig_current_client
 
 if __name__ == "__main__":
     unittest.main()

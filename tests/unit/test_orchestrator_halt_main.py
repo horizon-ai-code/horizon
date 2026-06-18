@@ -1,12 +1,11 @@
 import asyncio
-import json
 import time
 import unittest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
+
 from app.main import app
-from app.utils.types import Role
 
 
 class TestMainHalt(unittest.IsolatedAsyncioTestCase):
@@ -27,6 +26,7 @@ class TestMainHalt(unittest.IsolatedAsyncioTestCase):
             client = TestClient(app)
             with client.websocket_connect("/ws") as websocket:
                 websocket.send_json({
+                    "type": "multi",
                     "code": "public class Test {}",
                     "user_instruction": "Refactor this."
                 })
@@ -44,21 +44,25 @@ class TestMainHalt(unittest.IsolatedAsyncioTestCase):
                     except Exception:
                         break
 
-                self.assertTrue(halt_found, f"Halt notification not found in messages")
+                self.assertTrue(halt_found, "Halt notification not found in messages")
 
-    async def test_normal_orchestration_success(self):
+    async def test_orchestration_success_then_halt_works(self):
         """
-        Tests that normal orchestration still works after the refactor.
+        Tests that normal orchestration succeeds, then halt works in a second session.
         """
-        async def fast_orchestration(*args, **kwargs):
-            pass
+        async def slow_orchestration(*args, **kwargs):
+            try:
+                await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                raise
 
         with patch("app.main.orchestrator.execute_orchestration", new_callable=AsyncMock) as mock_execute:
-            mock_execute.side_effect = fast_orchestration
+            mock_execute.side_effect = slow_orchestration
 
             client = TestClient(app)
             with client.websocket_connect("/ws") as websocket:
                 websocket.send_json({
+                    "type": "multi",
                     "code": "public class Test {}",
                     "user_instruction": "Refactor this."
                 })
@@ -68,6 +72,7 @@ class TestMainHalt(unittest.IsolatedAsyncioTestCase):
                 mock_execute.assert_called_once()
             with client.websocket_connect("/ws") as websocket:
                 websocket.send_json({
+                    "type": "multi",
                     "code": "public class Test {}",
                     "user_instruction": "Refactor this."
                 })
@@ -103,6 +108,7 @@ class TestMainHalt(unittest.IsolatedAsyncioTestCase):
             client = TestClient(app)
             with client.websocket_connect("/ws") as websocket:
                 websocket.send_json({
+                    "type": "multi",
                     "code": "public class Test {}",
                     "user_instruction": "Refactor this."
                 })

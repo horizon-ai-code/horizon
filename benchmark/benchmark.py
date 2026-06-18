@@ -169,7 +169,7 @@ async def _run_multi_entry(entry: dict, agent, validator) -> dict:
     db = MockDB()
     client = MockClient(f"bench-{num}")
     orch = Orchestrator(agent, validator, db)
-    orch.SKIP_JUDGE = False
+    orch.skip_judge = False
 
     original_generate = agent.generate
     llm_calls: list[dict] = []

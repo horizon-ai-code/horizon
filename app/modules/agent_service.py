@@ -16,6 +16,10 @@ from app.utils.paths import MODELS_DIR
 T = TypeVar("T", bound=BaseModel)
 
 
+class InterruptedError(Exception):
+    """Raised when model generation is stopped via _stop_event (not Task cancellation)."""
+
+
 class AgentService:
     """
     Handles the lifecycle and operations of the Small Language Models (SLM).
@@ -80,9 +84,10 @@ class AgentService:
                 self.model = None
                 self.current_model_path = None
 
-                # Flush Python objects and wait for CUDA driver to unmap memory
                 await asyncio.to_thread(gc.collect)
-                await asyncio.sleep(0.5)
+
+        # Wait for CUDA driver to unmap memory (no lock needed)
+        await asyncio.sleep(0.5)
 
     async def swap(self, config: dict) -> None:
         """
@@ -227,7 +232,7 @@ class AgentService:
                             break
 
                 if self._stop_event.is_set():
-                    raise asyncio.CancelledError()
+                    raise InterruptedError()
 
             except StopIteration:
                 pass

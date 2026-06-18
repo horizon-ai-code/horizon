@@ -5,8 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.modules.connection_manager import ClientConnection
-from app.modules.orchestrator import Orchestrator, OrchestrationState
+from app.modules.orchestrator import OrchestrationState, Orchestrator
 from app.modules.validator import Validator
 
 

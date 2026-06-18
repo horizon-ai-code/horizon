@@ -1,7 +1,9 @@
 """Verification tests for performance.py changes."""
 import unittest
 from unittest.mock import patch
+
 import pynvml
+
 from app.utils.performance import PerformanceTracker
 
 
