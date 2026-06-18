@@ -6,6 +6,7 @@ import { AlertCircle, ChevronDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
 import { formatStatusContent } from "@/lib/formatStatusContent";
+import JsonDetailBlock from "@/components/features/terminal/JsonDetailBlock";
 import GlassboxBar from "@/components/features/terminal/GlassboxBar";
 import type { GlassboxState } from "@/types/glassbox";
 
@@ -87,7 +88,7 @@ function LogEntry({ entry, isDark }: EntryProps) {
   const iconKey = entry.icon ?? "Cpu";
   const badge = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
   const label = AGENT_LABEL[iconKey] ?? "AGENT";
-  const { summary, tags, details } = formatStatusContent(entry.text);
+  const { summary, tags, details, rawData } = formatStatusContent(entry.text);
   const [showDetails, setShowDetails] = useState(false);
 
   const tagLine = tags
@@ -140,10 +141,14 @@ function LogEntry({ entry, isDark }: EntryProps) {
             </span>
           )}
           {showDetails && details && (
-            <pre className={`mt-1 p-2 rounded text-[10px] leading-relaxed overflow-x-auto
-              ${isDark ? "bg-[#1e1f22] text-[#a8b0bd]" : "bg-[#f2f2f2] text-[#555]"}`}>
-              {details}
-            </pre>
+            rawData ? (
+              <JsonDetailBlock data={rawData} isDark={isDark} />
+            ) : (
+              <pre className={`mt-1 p-2 rounded text-[10px] leading-relaxed overflow-x-auto
+                ${isDark ? "bg-[#1e1f22] text-[#a8b0bd]" : "bg-[#f2f2f2] text-[#555]"}`}>
+                {details}
+              </pre>
+            )
           )}
         </div>
       </div>
