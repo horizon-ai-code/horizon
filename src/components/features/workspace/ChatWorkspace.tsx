@@ -129,16 +129,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }
   }, [id, updateSession, updateDraftSession]);
 
-  useEffect(() => {
-    if (terminalPanelRef.current) {
-      if (isTerminalCollapsed) {
-        terminalPanelRef.current.collapse();
-      } else {
-        terminalPanelRef.current.expand();
-      }
-    }
-  }, [isTerminalCollapsed]);
-  
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   useEffect(() => {
@@ -324,14 +314,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         panelRef={terminalPanelRef}
         defaultSize={32} 
         minSize={5} 
-        collapsible={true}
-        collapsedSize={0}
-        onResize={(panelSize) => {
-          const isNowCollapsed = panelSize.inPixels <= 42; 
-          if (isNowCollapsed !== isTerminalCollapsed) {
-            updateLocal({ isTerminalCollapsed: isNowCollapsed });
-          }
-        }}
         className={`rounded-xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col
           ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf] shadow-slate-200/50'}`}
         id="terminal-panel"
