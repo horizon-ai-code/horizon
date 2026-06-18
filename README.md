@@ -4,6 +4,11 @@ AI-driven Java refactoring pipeline powered by LLM orchestration.
 
 Stack: **FastAPI** (backend), **Next.js** (frontend)
 
+## Requirements
+
+- **NVIDIA GPU** with CUDA 13.0+ driver
+- Docker with `nvidia-container-toolkit`
+
 ## Quick start
 
 ```bash

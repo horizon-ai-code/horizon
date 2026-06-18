@@ -11,7 +11,6 @@ bcrypt
 build
 certifi
 charset-normalizer
-chromadb
 click
 coloredlogs
 datasets
@@ -42,7 +41,6 @@ Jinja2
 joblib
 jsonschema
 jsonschema-specifications
-kubernetes
 markdown-it-py
 MarkupSafe
 mdurl
@@ -54,7 +52,6 @@ networkx
 numpy
 nvidia-ml-py
 oauthlib
-onnxruntime
 opentelemetry-api
 opentelemetry-exporter-otlp-proto-common
 opentelemetry-exporter-otlp-proto-grpc
@@ -90,7 +87,6 @@ rpds-py
 safetensors
 scikit-learn
 scipy
-sentence-transformers
 shellingham
 six
 starlette
@@ -99,9 +95,7 @@ tenacity
 threadpoolctl
 tokenizers
 tomli
-torch
 tqdm
-transformers
 typer
 typer-slim
 typing-inspection

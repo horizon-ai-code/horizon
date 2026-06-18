@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.git/
+.gitignore
+tests/
+benchmark/
+docs/
+scripts/
+models/
+db/
+conda.yaml
+skills-lock.json
+.github/
