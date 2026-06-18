@@ -216,7 +216,7 @@ export default function RefactoredOutput({
                   inferenceTime={orchestrationResult.performance?.inference_time}
                 />
               ) : (
-                <OrchestrationFlowchart glassboxState={glassboxState} />
+                <OrchestrationFlowchart activeStep={activeStep} glassboxState={glassboxState} />
               )}
            </div>
         )}
