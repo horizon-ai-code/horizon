@@ -1,0 +1,34 @@
+# models (large files, not in git)
+/models/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+
+# Node / Next
+node_modules/
+.next/
+out/
+
+# Env files
+.env*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent configs
+.agents/
+.opencode/
