@@ -43,9 +43,8 @@ function JsonValue({ value, isDark, depth }: { value: unknown; isDark: boolean; 
     return (
       <div className="flex flex-col gap-0.5">
         {value.map((item, i) => (
-          <div key={i} className="flex items-start gap-1.5 pl-2"
+          <div key={i} className="flex items-start pl-2"
             style={{ borderLeft: isDark ? "1px solid #393b40" : "1px solid #ddd" }}>
-            <span className={`${mutedCls(isDark)} shrink-0`}>{i}.</span>
             <div className="min-w-0 flex-1">
               <JsonValue value={item} isDark={isDark} depth={depth + 1} />
             </div>

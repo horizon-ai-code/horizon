@@ -325,7 +325,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         defaultSize={32} 
         minSize={5} 
         collapsible={true}
-        collapsedSize={5}
+        collapsedSize="5%"
         className={`rounded-xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col
           ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf] shadow-slate-200/50'}`}
         id="terminal-panel"
