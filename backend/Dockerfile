@@ -14,14 +14,22 @@ COPY requirements.txt .
 ENV CMAKE_ARGS="-DGGML_CUDA=on"
 ENV FORCE_CMAKE=1
 
+# llama-cpp-python needs explicit CUDA build (not in requirements.txt)
+RUN CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 \
+    pip install --no-cache-dir llama-cpp-python
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.10-slim
+FROM nvidia/cuda:13.0.3-runtime-ubuntu22.04
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3.10 python3-pip libgomp1 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY --from=builder /venv /venv
-ENV PATH="/venv/bin:$PATH"
+# Copy venv site-packages to system Python path
+COPY --from=builder /venv/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
 
 COPY app/ ./app/
 COPY model_config.yaml prompts.yaml ./
@@ -30,4 +38,4 @@ RUN mkdir -p /app/db
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
