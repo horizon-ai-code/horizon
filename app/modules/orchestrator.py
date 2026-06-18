@@ -13,7 +13,7 @@ from app.modules.connection_manager import ClientConnection
 from app.modules.context_manager import DatabaseManager
 from app.modules.validator import Validator
 from app.utils.ast_matcher import ASTMatcher
-from app.utils.formatters import format_agent_output, format_plan_for_generator
+from app.utils.formatters import format_plan_for_generator
 from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
 from app.utils.performance import PerformanceTracker
 from app.utils.response_parser import ResponseParser
@@ -1452,5 +1452,9 @@ class Orchestrator:
         if effective.is_stale:
             return
 
-        formatted_message = format_agent_output(message, content)
+        if content:
+            formatted_message = f"{message}\n\n{content}"
+        else:
+            formatted_message = message
+
         await effective.send_status(role=role, content=formatted_message)
