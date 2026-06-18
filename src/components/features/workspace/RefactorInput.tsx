@@ -159,7 +159,7 @@ export default function RefactorInput({
                   aria-label="Select mode"
                 >
                   <div className={`w-1.5 h-1.5 rounded-full ${refactorMode === "multi" ? "bg-[#5a8cf8]" : "bg-[#a855f7]"}`} />
-                  {refactorMode === "multi" ? "Multi" : "7B"}
+                  {refactorMode === "multi" ? "Multi" : "Single"}
                   <ChevronDown size={10} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[170px] p-1.5">
@@ -181,7 +181,7 @@ export default function RefactorInput({
                   >
                     <div className={`h-2.5 w-2.5 rounded-full ${refactorMode === "single" ? "bg-[#a855f7] shadow-[0_0_8px_#a855f7]" : "bg-transparent border-2 border-jb-text-muted"}`} />
                     <div className="flex flex-col">
-                      <span>Single (7B)</span>
+                      <span>Single-Pass</span>
                       <span className="text-[10px] text-jb-text-muted font-normal">Single-pass refactor</span>
                     </div>
                     {refactorMode === "single" && <span className="ml-auto text-[10px] text-jb-accent">✓</span>}

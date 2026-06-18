@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react";
 import { Cpu, Layers, FileCode2, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 

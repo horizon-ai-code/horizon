@@ -56,27 +56,6 @@ interface SessionDetailResponse {
 import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from '@/lib/constants';
 import { buildMetrics } from '@/lib/utils/buildMetrics';
 
-// ── Re-export everything for backward compatibility ───────────────────────────
-// Consumers that already import from '@/store/useChatStore' will continue to work.
-export type {
-  AppState,
-  SessionData,
-  TerminalEntry,
-  OrchestrationResult,
-  ReplayStep,
-  InsightMetric,
-  ConnectionIdMessage,
-  StatusMessage,
-  ResultMessage,
-  PydanticError,
-  ValidationErrorMessage,
-  MalformedJsonErrorMessage,
-  ErrorMessage,
-  ServerMessage,
-};
-
-export { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT };
-
 // ── Internal Helpers ──────────────────────────────────────────────────────────
 
 const DEFAULT_SESSION: Omit<SessionData, "id"> = {

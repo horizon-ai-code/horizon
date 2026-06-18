@@ -61,7 +61,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const intentionalCloseRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
   const lastProcessedCommandIdRef = useRef<string | null>(null);
-  const messageBufferRef = useRef<any[]>([]);
+  const messageBufferRef = useRef<ServerMessage[]>([]);
   const routerRef = useRef(router);
   routerRef.current = router;
 
@@ -121,8 +121,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       // Parse glassbox data
       const parsedPhase = parsePhaseNumber(msg.content);
-      const msgPhase = (msg as any).phase;
-      const phase = parsedPhase !== null ? parsedPhase : (msgPhase !== undefined ? msgPhase : (msg.role === "System" ? 6 : undefined));
+      const phase = parsedPhase !== null ? parsedPhase : (msg.phase !== undefined ? msg.phase : (msg.role === "System" ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
@@ -504,21 +503,52 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleGeneratorProgressRef = useRef(handleGeneratorProgress);
   const handlePhaseTimingSummaryRef = useRef(handlePhaseTimingSummary);
 
-  useEffect(() => { handleStatusRef.current = handleStatus; }, [handleStatus]);
-  useEffect(() => { handleResultRef.current = handleResult; }, [handleResult]);
-  useEffect(() => { handleInsightsRef.current = handleInsights; }, [handleInsights]);
-  useEffect(() => { handleHaltAckRef.current = handleHaltAck; }, [handleHaltAck]);
-  useEffect(() => { handleErrorRef.current = handleError; }, [handleError]);
-  useEffect(() => { handlePhaseStartedRef.current = handlePhaseStarted; }, [handlePhaseStarted]);
-  useEffect(() => { handlePhaseCompletedRef.current = handlePhaseCompleted; }, [handlePhaseCompleted]);
-  useEffect(() => { handleMutationPlanRef.current = handleMutationPlan; }, [handleMutationPlan]);
-  useEffect(() => { handleMutationStatusRef.current = handleMutationStatus; }, [handleMutationStatus]);
-  useEffect(() => { handleValidationResultRef.current = handleValidationResult; }, [handleValidationResult]);
-  useEffect(() => { handleIntentClassifiedRef.current = handleIntentClassified; }, [handleIntentClassified]);
-  useEffect(() => { handleArchitectureAnalysisRef.current = handleArchitectureAnalysis; }, [handleArchitectureAnalysis]);
-  useEffect(() => { handleAuditResultRef.current = handleAuditResult; }, [handleAuditResult]);
-  useEffect(() => { handleGeneratorProgressRef.current = handleGeneratorProgress; }, [handleGeneratorProgress]);
-  useEffect(() => { handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary; }, [handlePhaseTimingSummary]);
+  useEffect(() => {
+    handleStatusRef.current = handleStatus;
+    handleResultRef.current = handleResult;
+    handleInsightsRef.current = handleInsights;
+    handleHaltAckRef.current = handleHaltAck;
+    handleErrorRef.current = handleError;
+    handlePhaseStartedRef.current = handlePhaseStarted;
+    handlePhaseCompletedRef.current = handlePhaseCompleted;
+    handleMutationPlanRef.current = handleMutationPlan;
+    handleMutationStatusRef.current = handleMutationStatus;
+    handleValidationResultRef.current = handleValidationResult;
+    handleIntentClassifiedRef.current = handleIntentClassified;
+    handleArchitectureAnalysisRef.current = handleArchitectureAnalysis;
+    handleAuditResultRef.current = handleAuditResult;
+    handleGeneratorProgressRef.current = handleGeneratorProgress;
+    handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary;
+  }, [
+    handleStatus, handleResult, handleInsights, handleHaltAck, handleError,
+    handlePhaseStarted, handlePhaseCompleted, handleMutationPlan, handleMutationStatus,
+    handleValidationResult, handleIntentClassified, handleArchitectureAnalysis,
+    handleAuditResult, handleGeneratorProgress, handlePhaseTimingSummary,
+  ]);
+
+  const replayBufferedMessages = useCallback((targetId: string) => {
+    const buf = messageBufferRef.current;
+    messageBufferRef.current = [];
+    buf.forEach((bmsg) => {
+      switch (bmsg.type) {
+        case "status": handleStatusRef.current(bmsg, targetId); break;
+        case "result": handleResultRef.current(bmsg, targetId); break;
+        case "insights": handleInsightsRef.current(bmsg, targetId); break;
+        case "halt_acknowledged": handleHaltAckRef.current(targetId); break;
+        case "error": handleErrorRef.current(bmsg, targetId); break;
+        case "phase_started": handlePhaseStartedRef.current(bmsg); break;
+        case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
+        case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
+        case "mutation_status": handleMutationStatusRef.current(bmsg); break;
+        case "validation_result": handleValidationResultRef.current(bmsg); break;
+        case "intent_classified": handleIntentClassifiedRef.current(bmsg); break;
+        case "architecture_analysis": handleArchitectureAnalysisRef.current(bmsg); break;
+        case "audit_result": handleAuditResultRef.current(bmsg); break;
+        case "generator_progress": handleGeneratorProgressRef.current(bmsg); break;
+        case "phase_timing_summary": handlePhaseTimingSummaryRef.current(bmsg); break;
+      }
+    });
+  }, []);
 
   // ── Connect ──────────────────────────────────────────────────────────────
 
@@ -578,8 +608,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           case "connection_id":
             if (targetId === "draft" && msg.id) {
                 const store = useChatStore.getState();
-                const createdAt = (msg as any).created_at
-                  ? new Date((msg as any).created_at).getTime()
+                const createdAt = msg.created_at
+                  ? new Date(msg.created_at).getTime()
                   : Date.now();
                 store.createSession(msg.id, {
                   ...store.draftSession,
@@ -604,31 +634,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   totalDurationMs: null,
                 });
                 sessionIdRef.current = msg.id;
-                // replay buffered messages
-                (() => {
-                  const buf = messageBufferRef.current;
-                  messageBufferRef.current = [];
-                  const tid = sessionIdRef.current!;
-                  buf.forEach((bmsg: ServerMessage) => {
-                    switch (bmsg.type) {
-                      case "status": handleStatusRef.current(bmsg, tid); break;
-                      case "result": handleResultRef.current(bmsg, tid); break;
-                      case "insights": handleInsightsRef.current(bmsg, tid); break;
-                      case "halt_acknowledged": handleHaltAckRef.current(tid); break;
-                      case "error": handleErrorRef.current(bmsg, tid); break;
-                      case "phase_started": handlePhaseStartedRef.current(bmsg); break;
-                      case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
-                      case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
-                      case "mutation_status": handleMutationStatusRef.current(bmsg); break;
-                      case "validation_result": handleValidationResultRef.current(bmsg); break;
-                      case "intent_classified": handleIntentClassifiedRef.current(bmsg); break;
-                      case "architecture_analysis": handleArchitectureAnalysisRef.current(bmsg); break;
-                      case "audit_result": handleAuditResultRef.current(bmsg); break;
-                      case "generator_progress": handleGeneratorProgressRef.current(bmsg); break;
-                      case "phase_timing_summary": handlePhaseTimingSummaryRef.current(bmsg); break;
-                    }
-                  });
-                })();
+                replayBufferedMessages(msg.id);
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
                 routerRef.current.replace(`/${msg.id}`);
             } else if (msg.id && msg.id !== targetId) {
@@ -640,8 +646,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   }));
                 }
                 migrateSessionIdRef.current(targetId, msg.id);
-                const createdAt = (msg as any).created_at
-                  ? new Date((msg as any).created_at).getTime()
+                const createdAt = msg.created_at
+                  ? new Date(msg.created_at).getTime()
                   : undefined;
                 if (createdAt) {
                   updateSession(msg.id, { createdAt });
@@ -663,31 +669,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
                   totalDurationMs: null,
                 });
                 sessionIdRef.current = msg.id;
-                // replay buffered messages
-                (() => {
-                  const buf = messageBufferRef.current;
-                  messageBufferRef.current = [];
-                  const tid = sessionIdRef.current!;
-                  buf.forEach((bmsg: ServerMessage) => {
-                    switch (bmsg.type) {
-                      case "status": handleStatusRef.current(bmsg, tid); break;
-                      case "result": handleResultRef.current(bmsg, tid); break;
-                      case "insights": handleInsightsRef.current(bmsg, tid); break;
-                      case "halt_acknowledged": handleHaltAckRef.current(tid); break;
-                      case "error": handleErrorRef.current(bmsg, tid); break;
-                      case "phase_started": handlePhaseStartedRef.current(bmsg); break;
-                      case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
-                      case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
-                      case "mutation_status": handleMutationStatusRef.current(bmsg); break;
-                      case "validation_result": handleValidationResultRef.current(bmsg); break;
-                      case "intent_classified": handleIntentClassifiedRef.current(bmsg); break;
-                      case "architecture_analysis": handleArchitectureAnalysisRef.current(bmsg); break;
-                      case "audit_result": handleAuditResultRef.current(bmsg); break;
-                      case "generator_progress": handleGeneratorProgressRef.current(bmsg); break;
-                      case "phase_timing_summary": handlePhaseTimingSummaryRef.current(bmsg); break;
-                    }
-                  });
-                })();
+                replayBufferedMessages(msg.id);
                 if (typeof window !== "undefined") localStorage.setItem("lastSessionId", msg.id);
                 routerRef.current.replace(`/${msg.id}`);
             }
@@ -765,11 +747,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         const delay = backoffRef.current;
         backoffRef.current = Math.min(delay * BACKOFF_MULTIPLIER, MAX_BACKOFF_MS);
         reconnectTimerRef.current = setTimeout(() => {
-          doConnect();
+          connectRef.current();
         }, delay);
       }
     };
   }, [clearReconnectTimer]);
+
+  const connectRef = useRef(connect);
+  connectRef.current = connect;
 
   // ── Disconnect ───────────────────────────────────────────────────────────
 

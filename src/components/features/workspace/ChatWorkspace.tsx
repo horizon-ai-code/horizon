@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useChatStore, INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/store/useChatStore";
+import { useChatStore } from "@/store/useChatStore";
+import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
@@ -51,22 +52,29 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
+  const fetchedSessionIdsRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     if (!id) return;
+    if (fetchedSessionIdsRef.current.has(id)) return;
     
-    // Avoid re-running on every store.sessions update to fix the infinite fetch loop.
     const session = useChatStore.getState().sessions[id];
+    
+    if (session?.isLoaded) {
+      fetchedSessionIdsRef.current.add(id);
+      return;
+    }
     
     const fetchAndHandle = async () => {
       const success = await fetchSessionDetails(id);
-      if (!success) {
+      if (success) {
+        fetchedSessionIdsRef.current.add(id);
+      } else {
         router.push('/');
       }
     };
     
-    if (!session || !session.isLoaded) {
-      fetchAndHandle();
-    }
+    fetchAndHandle();
   }, [id, router, fetchSessionDetails]);
 
   const activeSession = id
@@ -130,7 +138,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       }
     }
   }, [isTerminalCollapsed]);
-  
+
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   useEffect(() => {
@@ -317,13 +325,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         defaultSize={32} 
         minSize={5} 
         collapsible={true}
-        collapsedSize={0}
-        onResize={(panelSize) => {
-          const isNowCollapsed = panelSize.inPixels <= 42; 
-          if (isNowCollapsed !== isTerminalCollapsed) {
-            updateLocal({ isTerminalCollapsed: isNowCollapsed });
-          }
-        }}
+        collapsedSize="5%"
         className={`rounded-xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col
           ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf] shadow-slate-200/50'}`}
         id="terminal-panel"

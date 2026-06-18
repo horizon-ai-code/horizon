@@ -20,9 +20,7 @@ export function buildMetrics(
             : refactored_complexity > original_complexity
               ? "up" as const
               : "neutral" as const
-          : refactored_complexity <= 5
-            ? "down" as const
-            : "up" as const,
+          : "neutral" as const,
       iconKey: "CheckCircle",
     });
   }

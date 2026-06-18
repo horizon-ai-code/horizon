@@ -366,7 +366,9 @@ export default function Sidebar() {
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete session?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dialogAction === "delete" ? "Delete session?" : dialogAction === "leave" ? "Leave session?" : "Switch session?"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {dialogAction === "leave" || dialogAction === "switch" || (dialogAction === "delete" && isActiveAnalyzing && dialogSessionId === activeId) ? (
                 <>
@@ -384,7 +386,9 @@ export default function Sidebar() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={closeDialog}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDialogConfirm}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={handleDialogConfirm}>
+              {dialogAction === "delete" ? "Delete" : dialogAction === "leave" ? "Leave" : "Switch"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

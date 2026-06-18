@@ -7,6 +7,7 @@ export interface FormattedContent {
   summary: string;
   tags: ContentTag[];
   details: string | null;
+  rawData?: unknown;
 }
 
 function flattenJson(obj: unknown, indent: number = 0): string {
@@ -57,14 +58,18 @@ function flattenJson(obj: unknown, indent: number = 0): string {
 export function formatStatusContent(raw: string): FormattedContent {
   let text = raw;
   let details: string | null = null;
+  let rawData: unknown = null;
+  let parsedBlock: unknown = null;
 
   // 1. Extract ```json ... ``` blocks and parse to readable text
   const jsonBlockRegex = /```json\s*([\s\S]*?)```/g;
   const parsedBlocks: string[] = [];
   text = text.replace(jsonBlockRegex, (_, json) => {
     try {
-      const formatted = flattenJson(JSON.parse(json.trim()));
+      const parsed = JSON.parse(json.trim());
+      const formatted = flattenJson(parsed);
       if (formatted) parsedBlocks.push(formatted);
+      if (!parsedBlock) parsedBlock = parsed;
     } catch {
       parsedBlocks.push(json.trim());
     }
@@ -72,13 +77,15 @@ export function formatStatusContent(raw: string): FormattedContent {
   });
   if (parsedBlocks.length > 0) {
     details = parsedBlocks.join("\n\n");
+    rawData = parsedBlock;
   }
 
-  // 1b. Extract standalone JSON objects (not in code blocks) — common in past session data
+  // 1b. Extract standalone JSON objects (text is entirely JSON) — common in past session data  
   const trimmed = text.trim();
   if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
     try {
-      const formatted = flattenJson(JSON.parse(trimmed));
+      const parsed = JSON.parse(trimmed);
+      const formatted = flattenJson(parsed);
       if (formatted) {
         if (details) {
           details = formatted + "\n\n" + details;
@@ -87,8 +94,29 @@ export function formatStatusContent(raw: string): FormattedContent {
         }
       }
       text = "";
+      if (!rawData) rawData = parsed;
     } catch {
       // Not valid JSON, fall through
+    }
+  }
+
+  // 1c. Extract JSON after message prefix (message\n\n{...}) — uniform JSON protocol
+  if (!details) {
+    const jsonAtEnd = text.match(/^(.*?)\n\n\{/s);
+    if (jsonAtEnd) {
+      const prefix = jsonAtEnd[1];
+      const jsonStr = text.slice(prefix.length).trim();
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const formatted = flattenJson(parsed);
+        if (formatted) {
+          details = formatted;
+          text = prefix;
+        }
+        if (!rawData) rawData = parsed;
+      } catch {
+        // Not valid JSON after prefix, fall through
+      }
     }
   }
 
@@ -97,7 +125,7 @@ export function formatStatusContent(raw: string): FormattedContent {
     const code = text.trim();
     const methodMatch = code.match(/(?:public|private|protected)\s+\w+\s+(\w+)\s*\(/);
     const summary = methodMatch ? `Code generated — ${methodMatch[1]}` : "Code generated";
-    return { summary, tags: [], details: code };
+    return { summary, tags: [], details: code, rawData: undefined };
   }
 
   // 2. Extract **Key:** `Value` or **Key:** Value pairs as tags (from structured content)
@@ -150,5 +178,5 @@ export function formatStatusContent(raw: string): FormattedContent {
     tags.push({ label: "", value: rest });
   }
 
-  return { summary, tags, details };
+  return { summary, tags, details, rawData };
 }
