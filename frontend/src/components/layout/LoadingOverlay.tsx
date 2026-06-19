@@ -10,6 +10,7 @@ interface LoadingOverlayProps {
 
 export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
   const [greetingText, setGreetingText] = useState("");
+  const [fading, setFading] = useState(false);
   const { resolvedTheme } = useTheme();
   const fullGreeting = "Welcome to Horizon AI";
 
@@ -20,7 +21,10 @@ export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
       i++;
       if (i >= fullGreeting.length) {
         clearInterval(typingInterval);
-        setTimeout(onComplete, 900);
+        setTimeout(() => {
+          setFading(true);
+          setTimeout(onComplete, 400);
+        }, 900);
       }
     }, 30);
     return () => clearInterval(typingInterval);
@@ -29,7 +33,7 @@ export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
   const isDark = resolvedTheme === "dark" || resolvedTheme === undefined;
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background">
+    <div className={`fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background transition-opacity duration-[400ms] ${fading ? 'opacity-0' : 'opacity-100'}`}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
         <div className={`w-[600px] h-[600px] rounded-full blur-[120px] transition-colors duration-1000 ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-400/40'}`}></div>
       </div>
