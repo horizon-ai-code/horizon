@@ -644,3 +644,84 @@ class Validator:
                     )
 
         return None
+
+    # ── CC Rules ──────────────────────────────────────────────────────────
+
+    CC_RULES: dict[RefactorIntent, str] = {
+        RefactorIntent.FLATTEN_CONDITIONAL: "LOOSENED",
+        RefactorIntent.DECOMPOSE_CONDITIONAL: "EXTRACT_RULE",
+        RefactorIntent.CONSOLIDATE_CONDITIONAL: "STRICT",
+        RefactorIntent.REMOVE_CONTROL_FLAG: "STRICT",
+        RefactorIntent.REPLACE_LOOP_WITH_PIPELINE: "STRICT",
+        RefactorIntent.SPLIT_LOOP: "LOOSENED",
+        RefactorIntent.EXTRACT_METHOD: "EXTRACT_RULE",
+        RefactorIntent.INLINE_METHOD: "SKIP",
+        RefactorIntent.EXTRACT_VARIABLE: "STRICT",
+        RefactorIntent.INLINE_VARIABLE: "STRICT",
+        RefactorIntent.EXTRACT_CONSTANT: "STRICT",
+        RefactorIntent.RENAME_SYMBOL: "STRICT",
+    }
+
+    @staticmethod
+    def get_cc_rule(intent: RefactorIntent) -> str:
+        return Validator.CC_RULES.get(intent, "STRICT")
+
+    def verify_complexity(
+        self, base_code: str, working_code: str, intent_packet: dict
+    ) -> tuple[ValidationFinding | None, int | None, int | None]:
+        """Cyclomatic Complexity gate. Returns (finding, before_cc, after_cc)."""
+        intent_enum = RefactorIntent(intent_packet["specific_intent"])
+        cc_rule = self.get_cc_rule(intent_enum)
+        orig_cc = self.get_complexity(base_code)
+
+        if cc_rule == "SKIP":
+            return (None, orig_cc, orig_cc)
+
+        if cc_rule == "EXTRACT_RULE":
+            target = intent_packet.get("scope_anchor", {}).get("member", "")
+            if target:
+                orig_mcc = self.get_method_complexity(base_code, target)
+                refac_mcc = self.get_method_complexity(working_code, target)
+                if orig_mcc is not None and refac_mcc is not None:
+                    if refac_mcc > orig_mcc:
+                        return (
+                            ValidationFinding(
+                                failure_tier=FailureTier.TIER_2_A_COMPLEXITY,
+                                error_report=ErrorReport(
+                                    message=f"CC of target method '{target}' increased from {orig_mcc} to {refac_mcc}"
+                                ),
+                                recovery_hint="Ensure the source method's complexity decreases after extraction.",
+                            ),
+                            orig_mcc,
+                            refac_mcc,
+                        )
+                    return (None, orig_mcc, refac_mcc)
+                if refac_mcc is None:
+                    return (
+                        ValidationFinding(
+                            failure_tier=FailureTier.TIER_2_A_COMPLEXITY,
+                            error_report=ErrorReport(
+                                message=f"Target method '{target}' not found in refactored code."
+                            ),
+                            recovery_hint="Preserve the target method name in the refactored output.",
+                        ),
+                        orig_cc,
+                        None,
+                    )
+            return (None, orig_cc, orig_cc)
+
+        refac_cc = self.get_complexity(working_code)
+        threshold = orig_cc + (1 if cc_rule == "LOOSENED" else 0)
+        if refac_cc > threshold:
+            return (
+                ValidationFinding(
+                    failure_tier=FailureTier.TIER_2_A_COMPLEXITY,
+                    error_report=ErrorReport(
+                        message=f"CC increased from {orig_cc} to {refac_cc} (limit: {threshold})"
+                    ),
+                    recovery_hint="Simplify logic to maintain or reduce complexity.",
+                ),
+                orig_cc,
+                refac_cc,
+            )
+        return (None, orig_cc, refac_cc)

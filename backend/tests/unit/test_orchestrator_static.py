@@ -2,6 +2,7 @@
 import unittest
 
 from app.modules.orchestrator import Orchestrator
+from app.modules.validator import Validator
 from app.utils.types import RefactorIntent
 
 
@@ -21,7 +22,7 @@ class TestCCRules(unittest.TestCase):
             RefactorIntent.EXTRACT_CONSTANT,
             RefactorIntent.RENAME_SYMBOL,
         }
-        self.assertEqual(set(Orchestrator.CC_RULES.keys()), expected_intents)
+        self.assertEqual(set(Validator.CC_RULES.keys()), expected_intents)
 
     def test_get_cc_rule_returns_correct_rules(self):
         cases = [
@@ -40,10 +41,10 @@ class TestCCRules(unittest.TestCase):
         ]
         for intent, expected in cases:
             with self.subTest(intent=intent):
-                self.assertEqual(Orchestrator._get_cc_rule(intent), expected)
+                self.assertEqual(Validator.get_cc_rule(intent), expected)
 
     def test_get_cc_rule_defaults_to_strict(self):
-        self.assertEqual(Orchestrator._get_cc_rule("UNKNOWN_INTENT"), "STRICT")
+        self.assertEqual(Validator.get_cc_rule("UNKNOWN_INTENT"), "STRICT")
 
 
 class TestOrderMutations(unittest.TestCase):

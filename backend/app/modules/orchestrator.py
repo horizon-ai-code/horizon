@@ -20,11 +20,9 @@ from app.utils.response_parser import ResponseParser
 from app.utils.schemas import (
     ArchitectAnalysisResponse,
     ASTArchitectResponse,
-    ErrorReport,
     IntentClassifierResponse,
     RefactorInsightsResponse,
     StructuralAuditorResponse,
-    ValidationFinding,
 )
 from app.utils.types import ExitStatus, FailureTier, RefactorIntent, Role
 
@@ -849,53 +847,13 @@ class Orchestrator:
         # Step 8: Tier 2 - Structural
         findings = []
 
-        # Check A: Complexity (per-intent routing)
+        # Check A: Complexity
         assert state.intent_packet is not None
-        intent_enum = RefactorIntent(state.intent_packet["specific_intent"])
-        cc_rule = self._get_cc_rule(intent_enum)
-        current_cc = state.original_complexity
-
-        if cc_rule == "SKIP":
-            pass
-        elif cc_rule == "EXTRACT_RULE":
-            target_method = state.intent_packet.get("scope_anchor", {}).get("member", "")
-            if target_method:
-                orig_method_cc = self.validator.get_method_complexity(state.base_code, target_method)
-                refac_method_cc = self.validator.get_method_complexity(state.working_code, target_method)
-                if orig_method_cc is not None and refac_method_cc is not None:
-                    if refac_method_cc > orig_method_cc:
-                        findings.append(
-                            ValidationFinding(
-                                failure_tier=FailureTier.TIER_2_A_COMPLEXITY,
-                                error_report=ErrorReport(
-                                    message=f"CC of target method '{target_method}' increased from {orig_method_cc} to {refac_method_cc}"
-                                ),
-                                recovery_hint="Ensure the source method's complexity decreases or stays the same after extraction.",
-                            )
-                        )
-                elif refac_method_cc is None:
-                    findings.append(
-                        ValidationFinding(
-                            failure_tier=FailureTier.TIER_2_A_COMPLEXITY,
-                            error_report=ErrorReport(
-                                message=f"Target method '{target_method}' not found in refactored code."
-                            ),
-                            recovery_hint="Preserve the target method name in the refactored output.",
-                        )
-                    )
-        else:
-            current_cc = self.validator.get_complexity(state.working_code)
-            threshold = state.original_complexity + (1 if cc_rule == "LOOSENED" else 0)
-            if current_cc > threshold:
-                findings.append(
-                    ValidationFinding(
-                        failure_tier=FailureTier.TIER_2_A_COMPLEXITY,
-                        error_report=ErrorReport(
-                            message=f"CC increased from {state.original_complexity} to {current_cc} (limit: {threshold})"
-                        ),
-                        recovery_hint="Simplify logic to maintain or reduce complexity.",
-                    )
-                )
+        cc_finding, orig_cc_val, refac_cc_val = self.validator.verify_complexity(
+            state.base_code, state.working_code, state.intent_packet
+        )
+        if cc_finding:
+            findings.append(cc_finding)
 
         # Check B: Boundary Verification
         target_scopes = []
@@ -935,9 +893,8 @@ class Orchestrator:
             if intent_finding:
                 findings.append(intent_finding)
 
-        current_cc_val = current_cc if cc_rule not in ("SKIP", "EXTRACT_RULE") else state.original_complexity
         print(
-            f"\n--- Validator Structural Checks ---\nComplexity Check: {current_cc_val} (Original: {state.original_complexity})\nBoundary check found issue: {bool(boundary_finding)}\nIntent check found issue: {bool(intent_finding)}\nTotal findings: {len(findings)}\n-----------------------------------"
+            f"\n--- Validator Structural Checks ---\nComplexity Check: {refac_cc_val or orig_cc_val} (Original: {orig_cc_val})\nBoundary check found issue: {bool(boundary_finding)}\nIntent check found issue: {bool(intent_finding)}\nTotal findings: {len(findings)}\n-----------------------------------"
         )
         if findings:
             current_fault_count = len(findings)
@@ -1349,26 +1306,6 @@ class Orchestrator:
             exit_status="SUCCESS",
             mode="single",
         )
-
-    CC_RULES: dict[RefactorIntent, str] = {
-        RefactorIntent.FLATTEN_CONDITIONAL: "LOOSENED",
-        RefactorIntent.DECOMPOSE_CONDITIONAL: "EXTRACT_RULE",
-        RefactorIntent.CONSOLIDATE_CONDITIONAL: "STRICT",
-        RefactorIntent.REMOVE_CONTROL_FLAG: "STRICT",
-        RefactorIntent.REPLACE_LOOP_WITH_PIPELINE: "STRICT",
-        RefactorIntent.SPLIT_LOOP: "LOOSENED",
-        RefactorIntent.EXTRACT_METHOD: "EXTRACT_RULE",
-        RefactorIntent.INLINE_METHOD: "SKIP",
-        RefactorIntent.EXTRACT_VARIABLE: "STRICT",
-        RefactorIntent.INLINE_VARIABLE: "STRICT",
-        RefactorIntent.EXTRACT_CONSTANT: "STRICT",
-        RefactorIntent.RENAME_SYMBOL: "STRICT",
-    }
-
-    @staticmethod
-    def _get_cc_rule(intent: RefactorIntent) -> str:
-        """Returns the CC rule for an intent: STRICT, LOOSENED, SKIP, or EXTRACT_RULE."""
-        return Orchestrator.CC_RULES.get(intent, "STRICT")
 
     @staticmethod
     def _repair_generator_output(original: str, generated: str) -> str:
