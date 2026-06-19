@@ -11,6 +11,9 @@ export interface StatusMessage {
   role: "Planner" | "Generator" | "Judge" | "Validator" | "System" | "Monolith";
   content: string;
   phase?: number;
+  planner_model?: string;
+  generator_model?: string;
+  judge_model?: string;
 }
 
 export interface ConnectionIdMessage {

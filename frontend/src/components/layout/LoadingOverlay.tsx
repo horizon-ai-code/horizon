@@ -10,30 +10,30 @@ interface LoadingOverlayProps {
 
 export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
   const [greetingText, setGreetingText] = useState("");
+  const [fading, setFading] = useState(false);
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const fullGreeting = "Welcome to Horizon AI";
 
   useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
     let i = 0;
     const typingInterval = setInterval(() => {
       setGreetingText(fullGreeting.slice(0, i + 1));
       i++;
       if (i >= fullGreeting.length) {
         clearInterval(typingInterval);
-        setTimeout(onComplete, 2000);
+        setTimeout(() => {
+          setFading(true);
+          setTimeout(onComplete, 400);
+        }, 900);
       }
-    }, 40);
+    }, 30);
     return () => clearInterval(typingInterval);
   }, [onComplete]);
 
-  const isDark = mounted ? resolvedTheme === "dark" : true;
-
-  if (!mounted) return null;
+  const isDark = resolvedTheme === "dark" || resolvedTheme === undefined;
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background">
+    <div className={`fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background transition-opacity duration-[400ms] ${fading ? 'opacity-0' : 'opacity-100'}`}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
         <div className={`w-[600px] h-[600px] rounded-full blur-[120px] transition-colors duration-1000 ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-400/40'}`}></div>
       </div>

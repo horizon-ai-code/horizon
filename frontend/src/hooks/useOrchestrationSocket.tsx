@@ -137,6 +137,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         }
         if (faults !== null) next.validationFaultCount = faults;
         if (decision !== null) next.judgeDecision = decision;
+        if (msg.planner_model) next.plannerModel = msg.planner_model;
+        if (msg.generator_model) next.generatorModel = msg.generator_model;
+        if (msg.judge_model) next.judgeModel = msg.judge_model;
         return next;
       });
 

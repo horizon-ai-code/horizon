@@ -1,26 +1,22 @@
 "use client"
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useTheme } from "next-themes";
-import { useChatStore } from "@/store/useChatStore";
 
 import LoadingOverlay from "@/components/layout/LoadingOverlay";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const hasInitialLoaded = useChatStore((state) => state.hasInitialLoaded);
-  const setHasInitialLoaded = useChatStore((state) => state.setHasInitialLoaded);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [overlayDone, setOverlayDone] = useState(false);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
-
-  const handleLoadComplete = useCallback(() => setHasInitialLoaded(true), [setHasInitialLoaded]);
 
   if (!mounted) {
     return (
@@ -36,9 +32,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
+  const showOverlay = !overlayDone;
+
   return (
     <>
-      {!hasInitialLoaded && <LoadingOverlay onComplete={handleLoadComplete} />}
+      {!overlayDone && <LoadingOverlay onComplete={() => setOverlayDone(true)} />}
       
       <div className={`flex h-screen overflow-hidden transition-colors duration-500 relative ${isDark ? 'bg-jb-bg text-jb-text' : 'bg-[#ffffff] text-[#080808]'}`}>
         <Sidebar />

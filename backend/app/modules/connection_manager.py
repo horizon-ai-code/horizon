@@ -79,10 +79,19 @@ class ClientConnection:
             "created_at": datetime.utcnow().isoformat() + "Z",
         })
 
-    async def send_status(self, role: Role, content: str, phase: int | None = None) -> None:
+    async def send_status(self, role: Role, content: str, phase: int | None = None,
+                          planner_model: str | None = None,
+                          generator_model: str | None = None,
+                          judge_model: str | None = None) -> None:
         msg: dict[str, str | Role | int] = {"type": "status", "role": role, "content": content}
         if phase is not None:
             msg["phase"] = phase
+        if planner_model is not None:
+            msg["planner_model"] = planner_model
+        if generator_model is not None:
+            msg["generator_model"] = generator_model
+        if judge_model is not None:
+            msg["judge_model"] = judge_model
         await self._safe_send(msg)
 
     async def send_halt_notification(self) -> None:

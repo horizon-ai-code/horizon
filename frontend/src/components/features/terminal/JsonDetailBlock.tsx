@@ -23,7 +23,7 @@ export default function JsonDetailBlock({ data, isDark }: JsonDetailBlockProps) 
 
 function JsonValue({ value, isDark, depth }: { value: unknown; isDark: boolean; depth: number }) {
   if (value === null || value === undefined) {
-    return <span className={nullCls(isDark)}>null</span>;
+    return <span className={nullCls(isDark)}>None</span>;
   }
 
   if (typeof value === "boolean") {
@@ -35,11 +35,12 @@ function JsonValue({ value, isDark, depth }: { value: unknown; isDark: boolean; 
   }
 
   if (typeof value === "string") {
+    if (value === "") return <span className={nullCls(isDark)}>None</span>;
     return <span className={stringCls(isDark)}>"{value}"</span>;
   }
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return <span className={mutedCls(isDark)}>[]</span>;
+    if (value.length === 0) return <span className={mutedCls(isDark)}>None</span>;
     return (
       <div className="flex flex-col gap-0.5">
         {value.map((item, i) => (
