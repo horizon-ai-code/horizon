@@ -1,6 +1,7 @@
 import asyncio
 import json
 import re
+import time as _time
 from typing import Any
 
 import javalang
@@ -159,7 +160,7 @@ class Orchestrator:
             )
 
             # --- PHASE 1: Baseline ---
-            await self._notify(client, Role.Validator, "Ph1: Baselining code structure...", phase=1)
+            await self._notify(client, Role.Validator, "Baseline: Analyzing code structure...", phase=1)
             state.original_complexity = self.validator.get_complexity(state.base_code)
             state.current_phase = 2
 
@@ -238,7 +239,7 @@ class Orchestrator:
             await self._notify(
                 client,
                 Role.Planner,
-                f"Ph2: Classifying intent (Strategy Iter {state.strategy_iter})...",
+                f"Strategy: Classifying intent (Strategy Iter {state.strategy_iter})...",
                 phase=2,
             )
             await self.agent_service.swap(self.model_config["planner"])
@@ -273,7 +274,7 @@ class Orchestrator:
         await self.agent_service.clear_context()
 
         # Step 5a: Architect ANALYSIS (NEW)
-        await self._notify(client, Role.Planner, "Ph2: Analyzing code structure...", phase=2)
+        await self._notify(client, Role.Planner, "Strategy: Analyzing code structure...", phase=2)
 
         analysis_prompt = (
             f"Intent Packet: {json.dumps(state.intent_packet)}\n"
@@ -322,7 +323,7 @@ class Orchestrator:
         await self.agent_service.clear_context()
 
         # Step 5c: Architect SYNTHESIS (MODIFIED)
-        await self._notify(client, Role.Planner, "Ph2: Designing mutation plan...", phase=2)
+        await self._notify(client, Role.Planner, "Strategy: Designing mutation plan...", phase=2)
 
         arch_prompt = (
             f"Analysis: {json.dumps(state.architect_analysis)}\n"
@@ -484,7 +485,7 @@ class Orchestrator:
 
     async def _run_phase_3(self, client: ClientConnection, state: OrchestrationState) -> None:
         """Phase 3: Plan Execution (Inference 3)."""
-        await self._notify(client, Role.Generator, "Ph3: Implementing plan...", phase=3)
+        await self._notify(client, Role.Generator, "Execution: Implementing plan...", phase=3)
         await self.agent_service.swap(self.model_config["generator"])
         await self.agent_service.clear_context()
 
@@ -519,6 +520,7 @@ class Orchestrator:
 
         # Multi-sample generation — try 3 temperatures, pick best
         samples: list[dict[str, Any]] = []
+        gen_t0 = _time.time()
         for sample_temp in (retry_temp, 0.3, 0.5) if not state.syntax_error_context else (retry_temp,):
             raw = await self.agent_service.generate(messages, temp=sample_temp, max_tokens=gen_max_tokens)  # type: ignore[arg-type]
             coder_text = raw["choices"][0]["message"].get("content") or ""
@@ -564,8 +566,9 @@ class Orchestrator:
                 state.working_code = best["code"]
                 state.syntax_iter = 0
                 state.syntax_error_context = None
-                await self._notify(client, Role.Generator, "Code refactored.", content=best["code"])
-                print(best["code"])
+                gen_time_ms = int((_time.time() - gen_t0) * 1000)
+                await self._notify(client, Role.Generator,
+                    f"Code refactored — 1 pass. {gen_time_ms}ms\n\n{best['code']}")
                 state.current_phase = 4
                 return
             else:
@@ -625,8 +628,6 @@ class Orchestrator:
         is sent to the generator individually with the current code.
         Falls back to single-shot generation if this stalls.
         """
-        import time as _time
-
         if state.active_plan is None:
             print("No active plan for sequential execution. Falling through to single-shot.")
             state.current_phase = 4
@@ -637,7 +638,7 @@ class Orchestrator:
         state.sequential_attempts = 0
         state.gen_timings = []
 
-        await self._notify(client, Role.Generator, f"Ph3: Sequential editing ({len(mutations)} mutations)...", phase=3)
+        await self._notify(client, Role.Generator, "Execution: Implementing plan...", phase=3)
         await self.agent_service.swap(self.model_config["generator"])
         await self.agent_service.clear_context()
 
@@ -760,11 +761,6 @@ class Orchestrator:
                 timing_entry["error"] = boundary_finding.error_report.message
                 state.gen_timings.append(timing_entry)
                 if state.sequential_attempts <= 3:
-                    await self._notify(
-                        client,
-                        Role.Generator,
-                        f"Boundary violation on {action} {target}. Retrying (attempt {state.sequential_attempts}/3)...",
-                    )
                     continue
                 state.working_code = state.base_code
                 return
@@ -779,18 +775,14 @@ class Orchestrator:
 
             print(f"\n--- Sequential Step {state.mutation_index}/{len(state.mutation_queue)} ---")
             print(f"Action: {action} {target} | Time: {gen_time_ms}ms | Status: OK")
-            await self._notify(
-                client,
-                Role.Generator,
-                f"Applied {action} {target} ({state.mutation_index}/{len(state.mutation_queue)}). {gen_time_ms}ms",
-            )
 
         state.syntax_iter = 0
         state.syntax_error_context = None
         total_time = sum(e["time_ms"] for e in state.gen_timings)
-        await self._notify(
-            client, Role.Generator, f"All {len(state.mutation_queue)} mutations applied. Total gen time: {total_time}ms"
-        )
+        applied = state.mutation_index
+        total = len(state.mutation_queue)
+        await self._notify(client, Role.Generator,
+            f"Code refactored — {applied}/{total} mutations. {total_time}ms\n\n{state.working_code}")
 
     # ============================================================
     # SECTION 6: Phase 4 — Validation
@@ -801,7 +793,7 @@ class Orchestrator:
         await self._notify(
             client,
             Role.Validator,
-            f"Ph4: Validating (Strategy {state.strategy_iter}, Syntax {state.syntax_iter})...",
+            f"Validation: Validating (Strategy {state.strategy_iter}, Syntax {state.syntax_iter})...",
             phase=4,
         )
 
@@ -842,7 +834,7 @@ class Orchestrator:
                 state.current_phase = 2
                 return
 
-        await self._notify(client, Role.Validator, "Syntax OK. Running Structural Checks...")
+        await self._notify(client, Role.Validator, f"Syntax OK.\n\n{json.dumps({'syntax': {'passed': True}})}")
 
         # Step 8: Tier 2 - Structural
         findings = []
@@ -893,16 +885,57 @@ class Orchestrator:
             if intent_finding:
                 findings.append(intent_finding)
 
+        # Build CC detail based on rule context
+        cc_detail = None
+        if state.intent_packet:
+            intent_enum = RefactorIntent(state.intent_packet["specific_intent"])
+            cc_rule = Validator.get_cc_rule(intent_enum)
+            target = state.intent_packet.get("scope_anchor", {}).get("member", "")
+            if cc_rule == "EXTRACT_RULE" and target:
+                if cc_finding:
+                    cc_detail = f"Target method '{target}' CC increased: {orig_cc_val} → {refac_cc_val}"
+                else:
+                    overall = self.validator.get_complexity(state.working_code)
+                    cc_detail = f"Target method '{target}' extracted (CC: {refac_cc_val}). Overall code CC: {overall}"
+            elif cc_rule in ("STRICT", "LOOSENED"):
+                if cc_finding:
+                    limit = orig_cc_val + (1 if cc_rule == "LOOSENED" else 0)
+                    cc_detail = f"Overall code CC increased: {orig_cc_val} → {refac_cc_val} (limit: {limit})"
+                elif refac_cc_val == orig_cc_val:
+                    cc_detail = f"Overall code complexity unchanged ({orig_cc_val})"
+                else:
+                    cc_detail = f"Overall code CC: {orig_cc_val} → {refac_cc_val}"
+
+        checks = [
+            {
+                "name": "Cyclomatic Complexity",
+                "passed": cc_finding is None,
+                "before": orig_cc_val,
+                "after": refac_cc_val,
+                "details": cc_detail,
+            },
+            {
+                "name": "Boundary Preservation",
+                "passed": boundary_finding is None,
+            },
+            {
+                "name": "Intent Match",
+                "passed": intent_finding is None,
+                "details": intent_finding.error_report.message[:200] if intent_finding else None,
+            },
+        ]
+
         print(
             f"\n--- Validator Structural Checks ---\nComplexity Check: {refac_cc_val or orig_cc_val} (Original: {orig_cc_val})\nBoundary check found issue: {bool(boundary_finding)}\nIntent check found issue: {bool(intent_finding)}\nTotal findings: {len(findings)}\n-----------------------------------"
         )
         if findings:
             current_fault_count = len(findings)
+            passed = sum(1 for c in checks if c["passed"])
+            failed = len(checks) - passed
             await self._notify(
                 client,
                 Role.Validator,
-                f"Structural Checks Failed ({current_fault_count} issues).",
-                content=json.dumps([f.model_dump() for f in findings]),
+                f"Structural Checks — {passed}/{len(checks)} passed · {failed} failed\n\n{json.dumps({'checks': checks})}",
             )
             state.extend_feedback([f.model_dump() for f in findings])
 
@@ -933,7 +966,9 @@ class Orchestrator:
             state.structural_fix_attempts = 0
             state.current_phase = 2
         else:
-            await self._notify(client, Role.Validator, "Structural Checks Passed.")
+            passed = sum(1 for c in checks if c["passed"])
+            await self._notify(client, Role.Validator,
+                f"Structural Checks — {passed}/{len(checks)} passed\n\n{json.dumps({'checks': checks})}")
             if (
                 state.active_plan
                 and state.active_plan.get("ast_mutations")
@@ -990,7 +1025,7 @@ class Orchestrator:
 
     async def _run_phase_5(self, client: ClientConnection, state: OrchestrationState) -> None:
         """Phase 5: Heuristic Adjudication (Inference 4)."""
-        await self._notify(client, Role.Judge, "Ph5: Running final audit...", phase=5)
+        await self._notify(client, Role.Judge, "Adjudication: Running final audit...", phase=5)
         await self.agent_service.swap(self.model_config["judge"])
 
         # Normalize both sides for judge comparison:
@@ -1129,7 +1164,7 @@ class Orchestrator:
         await self._notify(
             client,
             Role.System,
-            f"Ph6: Finalizing session (Status: {state.exit_status})...",
+            f"Finalization: Finalizing session (Status: {state.exit_status})...",
             phase=6,
         )
 

@@ -2,11 +2,17 @@ import type { AgentRole, IntentDetail, MutationItem, RetryInfo, ValidationFindin
 
 const PHASE_PATTERNS: Record<string, number> = {
   "Ph1": 1,
+  "Baseline": 1,
   "Ph2": 2,
+  "Strategy": 2,
   "Ph3": 3,
+  "Execution": 3,
   "Ph4": 4,
+  "Validation": 4,
   "Ph5": 5,
+  "Adjudication": 5,
   "Ph6": 6,
+  "Finalization": 6,
 };
 
 export function parsePhaseNumber(content: string): number | null {
@@ -14,7 +20,7 @@ export function parsePhaseNumber(content: string): number | null {
     if (content.includes(prefix)) return num;
   }
   if (content.toLowerCase().includes("baseline")) return 1;
-  if (content.toLowerCase().includes("audit") || content.toLowerCase().includes("adjudication")) return 5;
+  if (content.toLowerCase().includes("audit")) return 5;
   if (content.toLowerCase().includes("finalizing") || content.toLowerCase().includes("result")) return 6;
   return null;
 }

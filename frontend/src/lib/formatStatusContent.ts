@@ -19,7 +19,7 @@ function flattenJson(obj: unknown, indent: number = 0): string {
   }
 
   if (Array.isArray(obj)) {
-    if (obj.length === 0) return "";
+    if (obj.length === 0) return "None";
     const items = obj.map((v) =>
       typeof v === "object" && v !== null
         ? flattenJson(v, indent)
@@ -46,8 +46,12 @@ function flattenJson(obj: unknown, indent: number = 0): string {
         } else {
           lines.push(`${pad}${label}: ${val.join(", ")}`);
         }
+      } else {
+        lines.push(`${pad}${label}: None`);
       }
-    } else if (val !== undefined && val !== null && val !== "") {
+    } else if (val === null || val === undefined || val === "") {
+      lines.push(`${pad}${label}: None`);
+    } else {
       lines.push(`${pad}${label}: ${val}`);
     }
   }
@@ -117,6 +121,21 @@ export function formatStatusContent(raw: string): FormattedContent {
       } catch {
         // Not valid JSON after prefix, fall through
       }
+    }
+  }
+
+  // 1d. Detect "summary\n\n<java code>" — renders code in collapsible <pre>
+  if (!details) {
+    const codeBlockMatch = text.match(
+      /^(.*?)\n\n((?:public|private|protected|class|void|int|boolean|String|if|for|while|try|return|import|package)\b[\s\S]*)$/s
+    );
+    if (codeBlockMatch) {
+      return {
+        summary: codeBlockMatch[1].trim(),
+        tags: [],
+        details: codeBlockMatch[2],
+        rawData: undefined,
+      };
     }
   }
 
