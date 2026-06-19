@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useTheme } from "next-themes";
+import { AnimatePresence, motion } from "framer-motion";
 
 import LoadingOverlay from "@/components/layout/LoadingOverlay";
 import Navbar from "@/components/layout/Navbar";
@@ -36,7 +37,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      {showOverlay && <LoadingOverlay onComplete={() => setOverlayDone(true)} />}
+      <AnimatePresence>
+        {showOverlay && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.4 } }}
+          >
+            <LoadingOverlay onComplete={() => setOverlayDone(true)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <div className={`flex h-screen overflow-hidden transition-colors duration-500 relative ${isDark ? 'bg-jb-bg text-jb-text' : 'bg-[#ffffff] text-[#080808]'}`}>
         <Sidebar />
