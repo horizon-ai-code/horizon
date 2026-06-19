@@ -11,11 +11,9 @@ interface LoadingOverlayProps {
 export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
   const [greetingText, setGreetingText] = useState("");
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const fullGreeting = "Welcome to Horizon AI";
 
   useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
     let i = 0;
     const typingInterval = setInterval(() => {
       setGreetingText(fullGreeting.slice(0, i + 1));
@@ -28,9 +26,7 @@ export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
     return () => clearInterval(typingInterval);
   }, [onComplete]);
 
-  const isDark = mounted ? resolvedTheme === "dark" : true;
-
-  if (!mounted) return null;
+  const isDark = resolvedTheme === "dark" || resolvedTheme === undefined;
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background">
