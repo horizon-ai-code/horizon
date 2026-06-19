@@ -33,9 +33,10 @@ COPY --from=builder /venv/lib/python3.10/site-packages /usr/local/lib/python3.10
 
 COPY app/ ./app/
 COPY model_config.yaml prompts.yaml ./
+COPY scripts/ ./scripts/
 
 RUN mkdir -p /app/db
 
 EXPOSE 8000
 
-CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/scripts/entrypoint.sh"]

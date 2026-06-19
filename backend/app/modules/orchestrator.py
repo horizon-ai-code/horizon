@@ -160,7 +160,11 @@ class Orchestrator:
             )
 
             # --- PHASE 1: Baseline ---
-            await self._notify(client, Role.Validator, "Baseline: Analyzing code structure...", phase=1)
+            await self._notify(client, Role.Validator, "Baseline: Analyzing code structure...",
+                               phase=1,
+                               planner_model=self.model_config["planner"].get("name"),
+                               generator_model=self.model_config["generator"].get("name"),
+                               judge_model=self.model_config["judge"].get("name"))
             state.original_complexity = self.validator.get_complexity(state.base_code)
             state.current_phase = 2
 
@@ -1405,6 +1409,9 @@ class Orchestrator:
         phase: int | None = None,
         outer_loop: int = 0,
         inner_loop: int = 0,
+        planner_model: str | None = None,
+        generator_model: str | None = None,
+        judge_model: str | None = None,
     ) -> None:
         """Helper to print to terminal, persist to DB, and notify frontend."""
         print(f"[{role}] {message}")
@@ -1434,4 +1441,7 @@ class Orchestrator:
         else:
             formatted_message = message
 
-        await effective.send_status(role=role, content=formatted_message)
+        await effective.send_status(role=role, content=formatted_message,
+                                     planner_model=planner_model,
+                                     generator_model=generator_model,
+                                     judge_model=judge_model)

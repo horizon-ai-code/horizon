@@ -5,7 +5,6 @@ __pycache__/
 tests/
 benchmark/
 docs/
-scripts/
 models/
 db/
 conda.yaml

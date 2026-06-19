@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Loader2 } from "lucide-react";
 import { useChatStore } from "@/store/useChatStore";
 import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import type { SessionData } from "@/types/session";
@@ -264,7 +265,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const handleFlowchartChange = useCallback((val: boolean) => updateLocal({ showFlowchartModal: val }), [updateLocal]);
   const handleTerminalCollapse = useCallback((val: boolean) => updateLocal({ isTerminalCollapsed: val }), [updateLocal]);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="h-full flex items-center justify-center bg-jb-panel">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={24} className="text-jb-accent animate-spin" />
+          <span className="text-[12px] text-jb-text-muted">Loading workspace...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

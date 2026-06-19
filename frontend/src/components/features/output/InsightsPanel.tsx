@@ -235,7 +235,7 @@ export default function InsightsPanel({
                 className={`p-4 rounded-[16px] border ${theme.border} ${theme.bg} flex flex-col gap-3 group hover:scale-[1.02] transition-transform duration-300`}
               >
                 <div
-                  className={`p-2.5 w-max mx-auto rounded-[12px] border ${theme.border} ${theme.color} bg-background shadow-sm group-hover:scale-110 transition-transform flex items-center gap-2`}
+                  className={`p-2.5 w-max mr-auto rounded-[12px] border ${theme.border} ${theme.color} bg-background shadow-sm group-hover:scale-110 transition-transform flex items-center gap-2`}
                 >
                   <MetricIcon size={18} />
                   {!isComplexity &&
@@ -246,7 +246,7 @@ export default function InsightsPanel({
                     ) : null)}
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 text-center ${isDark ? "text-gray-500" : "text-slate-500"}`}>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 text-left ${isDark ? "text-gray-500" : "text-slate-500"}`}>
                     {displayTitle}
                   </p>
                   {isGpuMetric ? (
@@ -266,7 +266,7 @@ export default function InsightsPanel({
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-baseline gap-2 justify-center">
+                    <div className="flex items-baseline gap-2 justify-start">
                       <p className={`text-[16px] font-bold ${isDark ? "text-gray-200" : "text-slate-900"}`}>
                         {isComplexity && m.before && m.before !== "—"
                           ? `${m.before} → ${m.after}`

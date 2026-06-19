@@ -95,4 +95,7 @@ export interface GlassboxState {
   phaseSummaries: Record<number, PhaseSummary>;
   phaseDurations: PhaseDuration[];
   totalDurationMs: number | null;
+  plannerModel?: string;
+  generatorModel?: string;
+  judgeModel?: string;
 }

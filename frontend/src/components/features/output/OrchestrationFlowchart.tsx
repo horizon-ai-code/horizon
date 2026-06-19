@@ -13,9 +13,10 @@ interface FlowNodeProps {
   desc: string;
   status: NodeStatus;
   colorCode: string;
+  modelName?: string;
 }
 
-const FlowNode = ({ icon: Icon, title, desc, status, colorCode }: FlowNodeProps) => {
+const FlowNode = ({ icon: Icon, title, desc, status, colorCode, modelName }: FlowNodeProps) => {
   const getColors = () => {
     if (status === "active") return "bg-jb-bg ring-1 ring-jb-accent/50 shadow-[0_0_20px_rgba(53,116,240,0.15)] text-jb-accent";
     return "bg-jb-panel/50 ring-1 ring-jb-border text-jb-text-muted";
@@ -25,6 +26,9 @@ const FlowNode = ({ icon: Icon, title, desc, status, colorCode }: FlowNodeProps)
       {status === "active" && <div className="absolute inset-0 rounded-[20px] animate-ping opacity-10" style={{ backgroundColor: colorCode }} />}
       <Icon size={26} className={`mb-3 ${status === "active" ? "animate-bounce" : ""}`} style={{ color: status !== "waiting" ? colorCode : "" }} />
       <h4 className="text-[11px] font-bold text-center mb-1 leading-tight tracking-wide">{title}</h4>
+      {modelName && (
+        <span className="text-[8px] font-mono text-jb-text-muted text-center leading-tight mb-1">{modelName}</span>
+      )}
       <p className="text-[9px] text-center leading-tight px-1 opacity-70 font-medium">{desc}</p>
     </div>
   );
@@ -60,6 +64,7 @@ export default function OrchestrationFlowchart({
   const liveNode = currentAgent ? getNodeForAgent(currentAgent) : activeStep;
   const strategyIter = glassboxState?.strategyIteration ?? 1;
   const hasRetry = strategyIter > 1;
+  const { plannerModel, generatorModel, judgeModel } = glassboxState ?? {};
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full p-4 animate-in fade-in zoom-in-95 duration-500">
@@ -75,6 +80,7 @@ export default function OrchestrationFlowchart({
           icon={Cpu}
           title="Planner"
           desc="Analyzing architecture"
+          modelName={plannerModel}
           status={liveNode === 2 ? "active" : activeStep > 2 ? "done" : "waiting"}
           colorCode="#56a8f5"
         />
@@ -83,6 +89,7 @@ export default function OrchestrationFlowchart({
           icon={Layers}
           title="Generator"
           desc="Drafting optimizations"
+          modelName={generatorModel}
           status={liveNode === 3 ? "active" : activeStep > 3 ? "done" : "waiting"}
           colorCode="#2aacb8"
         />
@@ -99,6 +106,7 @@ export default function OrchestrationFlowchart({
           icon={CheckCircle2}
           title="Judge"
           desc="Final validation"
+          modelName={judgeModel}
           status={liveNode === 5 ? "active" : activeStep > 5 ? "done" : "waiting"}
           colorCode="#27c93f"
         />
