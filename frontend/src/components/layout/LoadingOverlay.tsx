@@ -20,9 +20,9 @@ export default function LoadingOverlay({ onComplete }: LoadingOverlayProps) {
       i++;
       if (i >= fullGreeting.length) {
         clearInterval(typingInterval);
-        setTimeout(onComplete, 2000);
+        setTimeout(onComplete, 900);
       }
-    }, 40);
+    }, 30);
     return () => clearInterval(typingInterval);
   }, [onComplete]);
 
