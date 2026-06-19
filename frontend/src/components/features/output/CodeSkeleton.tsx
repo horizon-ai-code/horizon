@@ -9,7 +9,7 @@ interface CodeSkeletonProps {
 export default function CodeSkeleton({ sourceCode }: CodeSkeletonProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark" || resolvedTheme === undefined;
-  const bg = isDark ? "bg-jb-border/20" : "bg-slate-200";
+  const bg = isDark ? "bg-jb-border/40" : "bg-slate-300";
 
   let lines = sourceCode ? sourceCode.split("\n") : [];
   lines = lines.slice(0, 20);
@@ -25,7 +25,7 @@ export default function CodeSkeleton({ sourceCode }: CodeSkeletonProps) {
           : 5;
         return (
           <div key={i} className="flex items-center" style={{ height: "24px" }}>
-            <span className="w-14 text-right text-[11px] text-jb-text-muted/30 pr-4 select-none shrink-0">
+            <span className="w-14 text-right text-[11px] text-jb-text-muted/50 pr-4 select-none shrink-0">
               {i + 1}
             </span>
             <div
