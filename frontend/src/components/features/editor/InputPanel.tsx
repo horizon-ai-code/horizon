@@ -202,7 +202,7 @@ export default function InputPanel({
                   </div>
                   <div className="flex flex-col items-center gap-1">
                     <p className={`text-[14px] font-bold tracking-tight ${isDark ? 'text-jb-text' : 'text-slate-900'}`}>Processing...</p>
-                    <p className={`text-[11px] font-medium opacity-60 ${isDark ? 'text-jb-text' : 'text-slate-500'}`}>Applying swarm optimizations</p>
+                    <p className={`text-[11px] font-medium opacity-60 ${isDark ? 'text-jb-text' : 'text-slate-500'}`}>Refactoring the Code</p>
                   </div>
                 </div>
               </motion.div>

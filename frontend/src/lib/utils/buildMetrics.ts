@@ -51,7 +51,7 @@ export function buildMetrics(
 
     metrics.push({
       title: "GPU Memory",
-      before: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB (${memPercent}%)`,
+      before: `${(memUsed / (1024 * 1024 * 1024)).toFixed(2)} GB`,
       after: `${(peakMemUsed / (1024 * 1024 * 1024)).toFixed(2)} GB`,
       direction: "neutral" as const,
       iconKey: "Layers",

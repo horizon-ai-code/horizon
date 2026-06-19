@@ -22,14 +22,14 @@ const FlowNode = ({ icon: Icon, title, desc, status, colorCode, modelName }: Flo
     return "bg-jb-panel/50 ring-1 ring-jb-border text-jb-text-muted";
   };
   return (
-    <div className={`relative flex flex-col items-center justify-center p-3 w-32 h-32 rounded-[20px] transition-transform duration-700 ${getColors()} ${status === "active" ? "scale-105 z-10" : "scale-95 z-0 opacity-60"}`}>
+    <div className={`relative flex flex-col items-center justify-center p-3 w-36 h-36 rounded-[20px] transition-transform duration-700 ${getColors()} ${status === "active" ? "scale-105 z-10" : "scale-95 z-0 opacity-60"}`}>
       {status === "active" && <div className="absolute inset-0 rounded-[20px] animate-ping opacity-10" style={{ backgroundColor: colorCode }} />}
-      <Icon size={26} className={`mb-3 ${status === "active" ? "animate-bounce" : ""}`} style={{ color: status !== "waiting" ? colorCode : "" }} />
-      <h4 className="text-[11px] font-bold text-center mb-1 leading-tight tracking-wide">{title}</h4>
+      <Icon size={30} className={`mb-3 ${status === "active" ? "animate-bounce" : ""}`} style={{ color: status !== "waiting" ? colorCode : "" }} />
+      <h4 className="text-[13px] font-bold text-center mb-1 leading-tight tracking-wide">{title}</h4>
       {modelName && (
-        <span className="text-[8px] font-mono text-jb-text-muted text-center leading-tight mb-1">{modelName}</span>
+        <span className="text-[9px] font-mono text-jb-text-muted text-center leading-tight mb-1">{modelName}</span>
       )}
-      <p className="text-[9px] text-center leading-tight px-1 opacity-70 font-medium">{desc}</p>
+      <p className="text-[10px] text-center leading-tight px-1 opacity-70 font-medium">{desc}</p>
     </div>
   );
 };
