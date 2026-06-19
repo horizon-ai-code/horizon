@@ -1,7 +1,7 @@
 "use client"
 
 import { useTheme } from "next-themes";
-import { Copy, Layers, X, Loader2, Clock, AlertCircle } from "lucide-react";
+import { Copy, Layers, Clock, AlertCircle } from "lucide-react";
 
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
 import { formatJavaCode } from "@/lib/utils/javaFormatter";
@@ -10,33 +10,28 @@ import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
 import RefactoringReplay from "@/components/features/output/RefactoringReplay";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
-import OrchestrationFlowchart from "@/components/features/output/OrchestrationFlowchart";
-import MonolithFlowchart from "@/components/features/output/MonolithFlowchart";
+import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
   setRefactoredOutput: (val: string) => void;
-  showFlowchartModal: boolean;
-  setShowFlowchartModal: (val: boolean) => void;
+  sourceCode: string;
   activeStep: number;
   isTerminalCollapsed: boolean;
   appState: AppState;
   orchestrationResult: OrchestrationResult;
   glassboxState?: GlassboxState;
-  isMonolith?: boolean;
 }
 
 export default function RefactoredOutput({
   refactoredOutput,
   setRefactoredOutput,
-  showFlowchartModal,
-  setShowFlowchartModal,
+  sourceCode,
   activeStep,
   isTerminalCollapsed,
   appState,
   orchestrationResult,
   glassboxState,
-  isMonolith,
 }: RefactoredOutputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -161,19 +156,7 @@ export default function RefactoredOutput({
              </p>
           </div>
         ) : appState === 'analyzing' ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 pointer-events-none z-10 transition-colors duration-300">
-             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300 relative
-                ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
-                <Loader2 size={36} className="text-jb-accent animate-spin" strokeWidth={1.5} />
-                <div className="absolute inset-0 bg-jb-accent/10 blur-2xl rounded-full scale-150 animate-pulse"></div>
-             </div>
-             <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-                Synthesis Engine Active
-             </p>
-             <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-                Generating consensus from Swarm nodes...
-             </p>
-           </div>
+          <CodeSkeleton sourceCode={sourceCode} />
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
@@ -214,24 +197,7 @@ export default function RefactoredOutput({
           )
         )}
 
-        {showFlowchartModal && (appState === 'analyzing' || appState === 'done') && (
-           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-jb-panel/95 backdrop-blur-2xl">
-              <div className="flex justify-end p-5 absolute top-0 right-0 w-full z-40">
-                 {appState === 'done' && <button onClick={() => setShowFlowchartModal(false)} className="p-2 rounded-full ring-1 transition-transform cursor-pointer bg-secondary hover:bg-secondary/80 ring-border text-foreground"><X size={18} /></button>}
-              </div>
-              
-              {isMonolith ? (
-                <MonolithFlowchart
-                  glassboxState={glassboxState}
-                  originalComplexity={orchestrationResult.original_complexity}
-                  refactoredComplexity={orchestrationResult.refactored_complexity}
-                  inferenceTime={orchestrationResult.performance?.inference_time}
-                />
-              ) : (
-                <OrchestrationFlowchart activeStep={activeStep} glassboxState={glassboxState} />
-              )}
-           </div>
-        )}
+        
       </div>
     </div>
   );

@@ -262,7 +262,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const handleOutputChange = useCallback((val: string) => updateLocal({ refactoredOutput: val }), [updateLocal]);
   const handleSourceErrorChange = useCallback((val: boolean) => setLocalSourceError(val), [setLocalSourceError]);
   const handleInputErrorChange = useCallback((val: boolean) => setLocalInputError(val), [setLocalInputError]);
-  const handleFlowchartChange = useCallback((val: boolean) => updateLocal({ showFlowchartModal: val }), [updateLocal]);
   const handleTerminalCollapse = useCallback((val: boolean) => updateLocal({ isTerminalCollapsed: val }), [updateLocal]);
 
   if (!mounted) {
@@ -312,14 +311,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
             <RefactoredOutput 
               refactoredOutput={refactoredOutput} 
               setRefactoredOutput={handleOutputChange}
-              showFlowchartModal={showFlowchartModal} 
-              setShowFlowchartModal={handleFlowchartChange}
+              sourceCode={sourceCode}
               activeStep={activeStep} 
               isTerminalCollapsed={isTerminalCollapsed}
               appState={appState}
               orchestrationResult={orchestrationResult}
               glassboxState={glassboxState}
-              isMonolith={isMonolith}
             />
           </Panel>
         </PanelGroup>
