@@ -996,8 +996,7 @@ class Orchestrator:
     def _strip_outer_wrapper(code: str, base_code: str) -> str:
         """Strip the outermost class wrapper if base had none and refactored has one.
 
-        Handles only the top-level class — inner/nested classes preserved.
-        Fields, constants, and helper methods inside the wrapper stay in the output.
+        Preserves import lines and inner class content.
         """
         if "class" in base_code:
             return code
@@ -1008,6 +1007,10 @@ class Orchestrator:
         brace_start = text.find("{", class_match.end())
         if brace_start == -1:
             return code
+
+        import_lines = [line for line in code.splitlines()
+                        if line.strip().startswith("import ")]
+
         depth = 0
         for i in range(brace_start, len(text)):
             if text[i] == "{":
@@ -1016,6 +1019,8 @@ class Orchestrator:
                 depth -= 1
                 if depth == 0:
                     inner = text[brace_start + 1 : i].strip()
+                    if import_lines:
+                        inner = "\n".join(import_lines) + "\n\n" + inner
                     return inner
         return code
 
