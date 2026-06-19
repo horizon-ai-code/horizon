@@ -4,9 +4,10 @@ import { useTheme } from "next-themes";
 import { Copy, Layers, X, Loader2, Clock, AlertCircle } from "lucide-react";
 
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
+import { formatJavaCode } from "@/lib/utils/javaFormatter";
 import type { AppState, OrchestrationResult } from "@/types/session";
 import type { GlassboxState } from "@/types/glassbox";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import RefactoringReplay from "@/components/features/output/RefactoringReplay";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import OrchestrationFlowchart from "@/components/features/output/OrchestrationFlowchart";
@@ -42,10 +43,21 @@ export default function RefactoredOutput({
   
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'replay' | 'insights'>('output');
+  const hasFormatted = useRef(false);
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
+
+  useEffect(() => {
+    if (refactoredOutput && !hasFormatted.current) {
+      hasFormatted.current = true;
+      const formatted = formatJavaCode(refactoredOutput);
+      if (formatted !== refactoredOutput) {
+        setRefactoredOutput(formatted);
+      }
+    }
+  }, [refactoredOutput, setRefactoredOutput]);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
