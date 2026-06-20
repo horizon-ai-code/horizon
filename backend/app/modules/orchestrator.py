@@ -13,6 +13,7 @@ from app.modules.agent_service import AgentService
 from app.modules.connection_manager import ClientConnection
 from app.modules.context_manager import DatabaseManager
 from app.modules.orchestration_config import OrchestrationConfig
+from app.modules.phases.phase2_strategy import Phase2Strategy
 from app.modules.validator import Validator
 from app.utils.ast_matcher import ASTMatcher
 from app.utils.formatters import format_plan_for_generator
@@ -114,6 +115,11 @@ class Orchestrator:
         except (yaml.YAMLError, FileNotFoundError, PermissionError) as e:
             print(f"Fatal: Failed to load config: {e}")
             raise
+
+        self._phase2 = Phase2Strategy(
+            self.agent_service, self._config, self.prompts,
+            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=2),
+        )
 
     @staticmethod
     def _order_mutations(mutations: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -237,252 +243,7 @@ class Orchestrator:
     # ============================================================
 
     async def _run_phase_2(self, client: ClientConnection, state: OrchestrationState) -> None:
-        """Phase 2: The Strategy Block (Inference 1, 2, 3)."""
-        state.strategy_iter_incremented = False
-        # Step 3: Classifier
-        if not state.intent_packet:
-            await self._notify(
-                client,
-                Role.Planner,
-                f"Strategy: Classifying intent (Strategy Iter {state.strategy_iter})...",
-                phase=2,
-            )
-            await self.agent_service.swap(self._config.planner)
-
-            prompt = f"<code>{state.base_code}</code>\n<instruction>{state.user_instruction}</instruction>"
-
-            messages: list[ChatCompletionRequestMessage] = [
-                {"role": "system", "content": self.prompts["planner"]["classifier"]},
-                {"role": "user", "content": prompt},
-            ]
-
-            raw = await self.agent_service.generate(
-                messages,  # type: ignore[arg-type]
-                temp=0.1,
-                max_tokens=500,
-                response_model=IntentClassifierResponse,
-            )
-            response_text = raw["choices"][0]["message"].get("content") or ""
-            print(f"\n--- Planner Classifier Output ---\n{response_text}\n-------------------------------")
-
-            classifier_res = ResponseParser.extract_json(response_text, IntentClassifierResponse)
-            state.intent_packet = classifier_res.intent_packet.model_dump()
-
-            await self._notify(
-                client,
-                Role.Planner,
-                f"Intent Classified: {state.intent_packet['specific_intent']}",
-                content=json.dumps(state.intent_packet),
-            )
-
-        # Step 4: Cognitive Reset
-        await self.agent_service.clear_context()
-
-        # Step 5a: Architect ANALYSIS (NEW)
-        await self._notify(client, Role.Planner, "Strategy: Analyzing code structure...", phase=2)
-
-        analysis_prompt = (
-            f"Intent Packet: {json.dumps(state.intent_packet)}\n"
-            f"User Instruction: {state.user_instruction}\n"
-            f"Code: <code>{state.base_code}</code>"
-        )
-
-        system_content = self.prompts["planner"]["architect_analysis"]
-        if state.intent_packet:
-            intent_key = state.intent_packet.get("specific_intent", "")
-            guidance = self.prompts["planner"]["analysis_guidance"].get(intent_key, "")
-            if guidance:
-                system_content += "\n" + guidance
-
-        messages = [
-            {
-                "role": "system",
-                "content": system_content,
-            },
-            {"role": "user", "content": analysis_prompt},
-        ]
-
-        raw = await self.agent_service.generate(
-            messages,  # type: ignore[arg-type]
-            temp=0.1,
-            max_tokens=1024,
-            response_model=ArchitectAnalysisResponse,
-        )
-        analysis_text = raw["choices"][0]["message"].get("content") or ""
-        print(f"\n--- Planner Analysis Output ---\n{analysis_text}\n-------------------------------")
-
-        try:
-            analysis_model = ResponseParser.extract_json(analysis_text, ArchitectAnalysisResponse)
-            state.architect_analysis = analysis_model.model_dump()
-        except (ValidationError, ValueError, json.JSONDecodeError):
-            state.architect_analysis = {}
-
-        await self._notify(
-            client,
-            Role.Planner,
-            "Structure analysis complete.",
-            content=json.dumps(state.architect_analysis),
-        )
-
-        # Step 4b: Cognitive Reset between sub-steps
-        await self.agent_service.clear_context()
-
-        # Step 5c: Architect SYNTHESIS (MODIFIED)
-        await self._notify(client, Role.Planner, "Strategy: Designing mutation plan...", phase=2)
-
-        arch_prompt = (
-            f"Analysis: {json.dumps(state.architect_analysis)}\n"
-            f"Intent: {json.dumps(state.intent_packet)}\n"
-            f"Instruction: {state.user_instruction}\n"
-            f"Code: <code>{state.base_code}</code>"
-        )
-        if state.cumulative_feedback:
-            arch_prompt += f"\n\n### PREVIOUS ATTEMPT FEEDBACK\n{json.dumps(state.cumulative_feedback, indent=2)}"
-            # Translate failure tiers into actionable suggestions
-            suggestions = []
-            for fb in state.cumulative_feedback:
-                tier = str(fb.get("failure_tier", ""))
-                err = str(fb.get("error", "") or fb.get("error_report", {}).get("message", ""))
-                if "INTENT_MATH" in tier:
-                    if "conditional" in err.lower() or "consolidat" in err.lower():
-                        suggestions.append(
-                            "- INTENT_MATH FAILED: Conditional count did not change. "
-                            "Try a different approach to consolidation — merge the loop bodies "
-                            "into a single pass rather than keeping them separate. "
-                            "Use MODIFY_METHOD with a specific body_abstract describing the merge."
-                        )
-                    elif "loop" in err.lower() or "split" in err.lower():
-                        suggestions.append(
-                            "- INTENT_MATH FAILED: Loop count did not increase. "
-                            "Create explicit separate methods or loops using SPLIT_BODY "
-                            "for each operation you want to split from the original loop."
-                        )
-                    elif "nesting" in err.lower() or "flatten" in err.lower():
-                        suggestions.append(
-                            "- INTENT_MATH FAILED: Nesting depth did not decrease. "
-                            "Move nested conditions to the method top as guard clauses "
-                            "using early return/throw. Invert the conditions."
-                        )
-                    elif "variable" in err.lower() or "extract" in err.lower():
-                        suggestions.append(
-                            "- INTENT_MATH FAILED: Variable/constant count did not change. "
-                            "Use ADD_DECLARATION with scope='local' for variables "
-                            "or scope='static_final' for constants. Declare before use."
-                        )
-                    else:
-                        suggestions.append(
-                            "- INTENT_MATH FAILED: The structural changes were not detected. "
-                            "Try a different mutation strategy — change scope (local vs field), "
-                            "use ADD_DECLARATION or SPLIT_BODY instead of ADD_FIELD."
-                        )
-                elif "COMPLEXITY" in tier:
-                    suggestions.append(
-                        "- CC INCREASED: Reduce unnecessary class-level fields or helper methods. "
-                        "Use local variables inside the method body instead. "
-                        f"Original CC was {state.original_complexity}."
-                    )
-                elif "BOUNDARY" in tier:
-                    suggestions.append(
-                        "- BOUNDARY VIOLATION: A method outside the target scope was modified. "
-                        "Restrict ALL mutations to only the methods listed in primary_targets. "
-                        "Do not touch any other method."
-                    )
-                elif "SYNTAX" in tier:
-                    suggestions.append(
-                        "- SYNTAX ERROR: Generated code had invalid Java syntax. "
-                        "Ensure all braces, semicolons, and type declarations are correct."
-                    )
-            if suggestions:
-                arch_prompt += "\n\n### HOW TO FIX\n" + "\n".join(suggestions)
-
-        system_content = self.prompts["planner"]["architect"]
-        if state.intent_packet:
-            intent_key = state.intent_packet.get("specific_intent", "")
-            guidance = self.prompts["planner"]["synthesis_guidance"].get(intent_key, "")
-            if guidance:
-                system_content += "\n" + guidance
-
-        messages = [
-            {"role": "system", "content": system_content},
-            {"role": "user", "content": arch_prompt},
-        ]
-
-        for _attempt in range(2):
-            temp = 0.2 if _attempt == 0 else 0.5
-            try:
-                raw = await self.agent_service.generate(
-                    messages,  # type: ignore[arg-type]
-                    temp=temp,
-                    max_tokens=4096,
-                    response_model=ASTArchitectResponse,
-                )
-                arch_text = raw["choices"][0]["message"].get("content") or ""
-                header = "--- Planner Architect Output ---"
-                if _attempt > 0:
-                    header = f"--- Planner Architect Output (Retry {_attempt}) ---"
-                print(f"\n{header}\n{arch_text}\n------------------------------")
-                architect_res = ResponseParser.extract_json(arch_text, ASTArchitectResponse)
-                plan = architect_res.ast_modification_plan.model_dump()
-                # Defensive cap: never execute >20 mutations (Architect hallucination guard)
-                mutations = plan.get("ast_mutations", [])
-                if len(mutations) > 20:
-                    plan["ast_mutations"] = mutations[:10]
-                    print(f"  WARNING: Architect generated {len(mutations)} mutations — truncated to 10")
-                state.active_plan = plan
-                break
-            except (ValidationError, ValueError):
-                if _attempt == 0:
-                    print("  Architect attempt 1 failed. Retrying with temp=0.5...")
-                    await self.agent_service.clear_context()
-                else:
-                    print("  Architect failed on both attempts. Falling back to strategy retry.")
-                    state.add_feedback(
-                        {
-                            "failure_tier": FailureTier.TIER_1_SYNTAX,
-                            "error": "Architect failed to produce valid mutation plan on both attempts.",
-                        }
-                    )
-                    if not state.strategy_iter_incremented:
-                        state.strategy_iter += 1
-                        state.strategy_iter_incremented = True
-                    state.current_phase = 2
-                    return
-
-        # Enrich plan with concrete mutation details from code analysis
-        if state.active_plan is None:
-            raise RuntimeError("Architect produced no plan but pipeline continued")
-        intent_key = state.intent_packet.get("specific_intent", "") if state.intent_packet else None
-        target_method = state.intent_packet.get("scope_anchor", {}).get("member", "") if state.intent_packet else None
-        enriched = ASTMatcher.enrich_mutations(
-            state.base_code,
-            state.active_plan.get("ast_mutations", []),
-            intent=intent_key,
-            target_method=target_method,
-        )
-        state.active_plan["ast_mutations"] = enriched
-        state.active_plan["enriched_by"] = "ASTMatcher"
-
-        # Safety: deduplicate identical (action, target) pairs + cap at 8
-        deduped = []
-        seen = set()
-        for m in state.active_plan.get("ast_mutations", []):
-            key = (m.get("action"), m.get("target"))
-            if key not in seen:
-                seen.add(key)
-                deduped.append(m)
-        if len(deduped) > 8:
-            print(f"WARNING: Truncated plan: {len(deduped)} → 8 mutations")
-            deduped = deduped[:8]
-        state.active_plan["ast_mutations"] = deduped
-
-        await self._notify(
-            client,
-            Role.Planner,
-            "Modification plan generated.",
-            content=json.dumps(state.active_plan),
-        )
-
-        state.current_phase = 3
+        await self._phase2.run(client, state)
 
     # ============================================================
     # SECTION 5: Phase 3 — Execution
