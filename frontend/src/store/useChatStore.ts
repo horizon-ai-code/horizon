@@ -26,6 +26,7 @@ interface HistoryItemResponse {
 interface SessionDetailResponse {
   id?: string;
   user_instruction?: string;
+  title?: string;
   original_code?: string;
   refactored_code?: string;
   status?: string;
@@ -445,7 +446,10 @@ export const useChatStore = create<ChatStore>((set) => ({
            activeStep = visuals.step;
         }
         
-        const safeTitle = (detail.user_instruction || "").trim() || "Previous Session";
+        const storedTitle = (detail.title || "").trim();
+        const safeTitle = storedTitle
+          || (detail.user_instruction || "").trim()
+          || "Previous Session";
 
         return {
           ...state,
