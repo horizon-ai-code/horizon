@@ -7,7 +7,17 @@ name = "horizon-code"
 version = "0.1.0"
 description = "AI-driven Java refactoring pipeline"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "fastapi>=0.109.0,<1.0.0",
+    "uvicorn[standard]>=0.25.0,<1.0.0",
+    "pydantic>=2.5.0,<3.0.0",
+    "llama-cpp-python>=0.2.0",
+    "javalang>=0.13.0",
+    "pyyaml>=6.0",
+    "peewee>=3.17.0",
+    "coloredlogs>=15.0",
+    "httpx>=0.25.0",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -38,6 +48,7 @@ testpaths = ["tests/unit"]
 markers = [
     "unit: Fast isolated tests",
     "slow: Requires loaded models",
+    "manual: One-off research tests",
 ]
 
 [tool.coverage.run]

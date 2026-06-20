@@ -154,17 +154,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [appState]);
 
-  const startAnalysis = useCallback(async () => {
+  const executeRefactor = useCallback(async (isMulti: boolean) => {
     if (!validateBeforeSubmit()) return;
     if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
-    updateLocal({ isMonolith: false });
+    updateLocal({ isMonolith: !isMulti });
 
     const instruction = inputInstruction.trim();
     const code = sourceCode.trim();
     if (!code || !instruction) return;
 
     const sessionTarget = id || "draft";
-
     const commandId = Date.now().toString();
     const newEntry = { id: commandId, type: 'command' as const, text: instruction };
 
@@ -196,12 +195,15 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       return;
     }
 
-    sendRefactorRequest({
-      type: "multi",
-      code,
-      user_instruction: instruction,
-    }, commandId);
-  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendRefactorRequest]);
+    if (isMulti) {
+      sendRefactorRequest({ type: "multi", code, user_instruction: instruction }, commandId);
+    } else {
+      sendSingleRefactor(code, instruction);
+    }
+  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendRefactorRequest, sendSingleRefactor]);
+
+  const startAnalysis = useCallback(() => executeRefactor(true), [executeRefactor]);
+  const startSingleRefactor = useCallback(() => executeRefactor(false), [executeRefactor]);
 
   const stopAnalysis = useCallback(() => {
     sendHaltRequest();
@@ -211,51 +213,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       showFlowchartModal: false
     });
   }, [sendHaltRequest, updateLocal]);
-
-  const startSingleRefactor = useCallback(async () => {
-    if (!validateBeforeSubmit()) return;
-    if (appState === 'analyzing' || appState === 'waiting' || appState === 'done') return;
-    updateLocal({ isMonolith: true });
-
-    const instruction = inputInstruction.trim();
-    const code = sourceCode.trim();
-    if (!code || !instruction) return;
-
-    const sessionTarget = id || "draft";
-
-    const commandId = Date.now().toString();
-    const newEntry = { id: commandId, type: 'command' as const, text: instruction };
-
-    updateLocal({
-      terminalEntries: [...terminalEntries, newEntry],
-      appState: "analyzing" as const,
-      isTerminalCollapsed: false,
-      showFlowchartModal: true,
-      activeStep: 1,
-      refactoredOutput: "",
-      orchestrationResult: EMPTY_ORCHESTRATION_RESULT,
-    });
-    setLocalInputError(false);
-    setLocalSourceError(false);
-
-    connect(sessionTarget);
-
-    const connected = await waitForOpen();
-    if (!connected) {
-      const currentEntries = useChatStore.getState().sessions[sessionTarget]?.terminalEntries ?? [];
-      updateLocal({
-        terminalEntries: [
-          ...currentEntries,
-          { id: crypto.randomUUID(), type: 'log' as const, text: "Failed to connect to orchestrator. Check if the backend is running.", timestamp: new Date().toISOString() },
-        ],
-        appState: "idle" as const,
-        showFlowchartModal: false,
-      });
-      return;
-    }
-
-    sendSingleRefactor(code, instruction);
-  }, [validateBeforeSubmit, appState, id, inputInstruction, sourceCode, terminalEntries, updateLocal, connect, waitForOpen, sendSingleRefactor]);
 
   const handleSourceChange = useCallback((val: string) => updateLocal({ sourceCode: val }), [updateLocal]);
   const handleInputChange = useCallback((val: string) => updateLocal({ inputInstruction: val }), [updateLocal]);
@@ -317,6 +274,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               appState={appState}
               orchestrationResult={orchestrationResult}
               glassboxState={glassboxState}
+              isMonolith={isMonolith}
             />
           </Panel>
         </PanelGroup>

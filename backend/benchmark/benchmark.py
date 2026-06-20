@@ -612,7 +612,7 @@ def cmd_halstead(args: argparse.Namespace) -> None:
 # ═══════════════════════════════════════════════════════════════════
 
 async def _run_multi_cmd(args: argparse.Namespace) -> None:
-    from app.modules.agent_service import AgentService
+    from app.modules.agent import AgentService
     from app.modules.validator import Validator
     from app.utils.performance import PerformanceTracker
 
@@ -667,7 +667,7 @@ async def _run_multi_cmd(args: argparse.Namespace) -> None:
 
 
 async def _run_single_cmd(args: argparse.Namespace) -> None:
-    from app.modules.agent_service import AgentService
+    from app.modules.agent import AgentService
     from app.modules.validator import Validator
     from app.utils.performance import PerformanceTracker
     from app.utils.response_parser import ResponseParser

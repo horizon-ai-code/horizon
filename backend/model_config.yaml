@@ -29,3 +29,20 @@ single:
   context_size: 4096
   layers: 20
   filename: "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+
+orchestration:
+  classifier_max_tokens: 500
+  analysis_max_tokens: 1024
+  judge_max_tokens: 1536
+  judge_max_retries: 3
+  deduplication_cap: 8
+  feedback_cap: 3
+  strategy_loop_cap: 3
+  syntax_retry_cap: 3
+  mutation_cap: 20
+  truncation_size: 10
+  broken_code_truncation: 2000
+  status_truncation: 200
+  syntax_error_truncation: 150
+  verifier_crash_truncation: 100
+  repeat_penalty: 1.2

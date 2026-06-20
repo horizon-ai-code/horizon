@@ -63,9 +63,10 @@ describe("session CRUD", () => {
     expect(useChatStore.getState().sessions["test-1"]).toBeUndefined();
   });
 
-  it("renames a session", () => {
+  it("renames a session", async () => {
     act(() => { useChatStore.getState().createSession("test-1"); });
-    act(() => { useChatStore.getState().renameSession("test-1", "New Name"); });
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(new Response(null, { status: 200 }));
+    await act(async () => { await useChatStore.getState().renameSession("test-1", "New Name"); });
 
     expect(useChatStore.getState().sessions["test-1"].title).toBe("New Name");
   });
