@@ -1,8 +1,8 @@
-"""Tests for Orchestrator pure-logic static methods."""
+"""Tests for pure-logic static utilities."""
 import unittest
 
-from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
+from app.utils.code_utils import order_mutations, strip_outer_wrapper
 from app.utils.types import RefactorIntent
 
 
@@ -54,7 +54,7 @@ class TestOrderMutations(unittest.TestCase):
             {"action": "RENAME_SYMBOL", "target": "baz"},
             {"action": "ADD_METHOD", "target": "qux"},
         ]
-        ordered = Orchestrator._order_mutations(mutations)
+        ordered = order_mutations(mutations)
         self.assertEqual(ordered[0]["action"], "RENAME_SYMBOL")
 
     def test_add_before_modify(self):
@@ -62,7 +62,7 @@ class TestOrderMutations(unittest.TestCase):
             {"action": "MODIFY_METHOD", "target": "bar"},
             {"action": "ADD_METHOD", "target": "new_method"},
         ]
-        ordered = Orchestrator._order_mutations(mutations)
+        ordered = order_mutations(mutations)
         self.assertEqual(ordered[0]["action"], "ADD_METHOD")
 
     def test_unknown_action_last(self):
@@ -70,7 +70,7 @@ class TestOrderMutations(unittest.TestCase):
             {"action": "UNKNOWN", "target": "x"},
             {"action": "RENAME_SYMBOL", "target": "y"},
         ]
-        ordered = Orchestrator._order_mutations(mutations)
+        ordered = order_mutations(mutations)
         self.assertEqual(ordered[0]["action"], "RENAME_SYMBOL")
 
     def test_split_body_treated_as_add(self):
@@ -78,13 +78,13 @@ class TestOrderMutations(unittest.TestCase):
             {"action": "MODIFY_METHOD", "target": "bar"},
             {"action": "SPLIT_BODY", "target": "baz"},
         ]
-        ordered = Orchestrator._order_mutations(mutations)
+        ordered = order_mutations(mutations)
         self.assertEqual(ordered[0]["action"], "SPLIT_BODY")
 
 
 class TestStripOuterWrapper(unittest.TestCase):
     def setUp(self):
-        self.strip = Orchestrator._strip_outer_wrapper
+        self.strip = strip_outer_wrapper
 
     def test_strips_class_wrapper_when_base_has_no_class(self):
         base = "void m() { return 1; }"
