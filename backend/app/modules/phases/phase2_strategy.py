@@ -1,5 +1,5 @@
 import json
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable
 
 from llama_cpp import ChatCompletionRequestMessage
 from pydantic import ValidationError
@@ -14,7 +14,7 @@ from app.utils.schemas import (
 )
 from app.utils.types import FailureTier, Role
 
-Notifier = Callable[[Any, Role, str, str | None], None]
+Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class Phase2Strategy:
@@ -41,13 +41,13 @@ class Phase2Strategy:
         self._enrich(state)
         self._deduplicate(state)
 
-        self._notify(
+        await self._notify(
             client, Role.Planner, "Modification plan generated.", json.dumps(state.active_plan),
         )
         state.current_phase = 3
 
     async def _classify(self, client, state) -> None:
-        self._notify(
+        await self._notify(
             client, Role.Planner,
             f"Strategy: Classifying intent (Strategy Iter {state.strategy_iter})...",
             None,
@@ -70,14 +70,14 @@ class Phase2Strategy:
         classifier_res = ResponseParser.extract_json(response_text, IntentClassifierResponse)
         state.intent_packet = classifier_res.intent_packet.model_dump()
 
-        self._notify(
+        await self._notify(
             client, Role.Planner,
             f"Intent Classified: {state.intent_packet['specific_intent']}",
             json.dumps(state.intent_packet),
         )
 
     async def _analyze(self, client, state) -> None:
-        self._notify(client, Role.Planner, "Strategy: Analyzing code structure...", None)
+        await self._notify(client, Role.Planner, "Strategy: Analyzing code structure...", None)
 
         analysis_prompt = (
             f"Intent Packet: {json.dumps(state.intent_packet)}\n"
@@ -110,13 +110,13 @@ class Phase2Strategy:
         except (ValidationError, ValueError, json.JSONDecodeError):
             state.architect_analysis = {}
 
-        self._notify(
+        await self._notify(
             client, Role.Planner, "Structure analysis complete.",
             json.dumps(state.architect_analysis),
         )
 
     async def _synthesize(self, client, state) -> None:
-        self._notify(client, Role.Planner, "Strategy: Designing mutation plan...", None)
+        await self._notify(client, Role.Planner, "Strategy: Designing mutation plan...", None)
 
         arch_prompt = (
             f"Analysis: {json.dumps(state.architect_analysis)}\n"
