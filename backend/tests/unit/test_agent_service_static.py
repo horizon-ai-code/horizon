@@ -1,7 +1,7 @@
 """Tests for AgentService static helpers and exception."""
 import unittest
 
-from app.modules.agent_service import InterruptedError
+from app.modules.agent import InterruptedError
 
 
 class TestInterruptedError(unittest.TestCase):

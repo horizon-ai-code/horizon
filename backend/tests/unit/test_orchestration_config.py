@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from app.modules.orchestration_config import (
+from app.modules.orchestrator.config import (
     ModelEntry,
     OrchestrationConfig,
     OrchestrationSettings,

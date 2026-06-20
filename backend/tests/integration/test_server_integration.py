@@ -40,8 +40,8 @@ async def ws_connect():
 
 def create_db_session(session_id: str, status: str = "Completed"):
     """Create a session directly in the database for reconnect testing."""
-    from app.modules.context_manager import OrchestrationLog, RefactorHistory, SchemaVersion
-    from app.modules.context_manager import db as db_conn
+    from app.modules.context import OrchestrationLog, RefactorHistory, SchemaVersion
+    from app.modules.context import db as db_conn
 
     db_conn.connect(reuse_if_open=True)
     db_conn.create_tables([SchemaVersion, RefactorHistory, OrchestrationLog], safe=True)

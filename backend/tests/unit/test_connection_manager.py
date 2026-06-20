@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.modules.connection_manager import ClientConnection
+from app.modules.connection import ClientConnection
 from app.utils.types import Role
 
 

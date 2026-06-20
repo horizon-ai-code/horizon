@@ -8,10 +8,9 @@ from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconn
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import UUID4
 
-from app.modules.agent_service import AgentService, InterruptedError
-from app.modules.connection_manager import ClientConnection, ConnectionManager
-from app.modules.context_manager import db
-from app.modules.message_router import MessageRouter
+from app.modules.agent import AgentService, InterruptedError
+from app.modules.connection import ClientConnection, ConnectionManager, MessageRouter
+from app.modules.context import db
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
 from app.utils.schemas import (

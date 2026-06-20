@@ -8,14 +8,14 @@ import peewee
 test_db = peewee.SqliteDatabase(':memory:')
 
 # Mock DB_PATH and the global db instance in context_manager
-with patch('app.modules.context_manager.db', test_db):
-    from app.modules.context_manager import DatabaseManager, OrchestrationLog, RefactorHistory
+with patch('app.modules.context.db', test_db):
+    from app.modules.context import DatabaseManager, OrchestrationLog, RefactorHistory
 
 class TestContextManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Save original model bindings and bind to test database
-        from app.modules.context_manager import db as orig_db
+        from app.modules.context import db as orig_db
         cls._orig_refac_db = RefactorHistory._meta.database
         cls._orig_log_db = OrchestrationLog._meta.database
         RefactorHistory._meta.database = test_db

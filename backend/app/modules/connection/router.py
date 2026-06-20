@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from pydantic import ValidationError
 
-from app.modules.connection_manager import ClientConnection
+from . import ClientConnection
 from app.utils.types import RefactorRequest, Role
 
 

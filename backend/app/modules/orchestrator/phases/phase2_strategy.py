@@ -4,7 +4,7 @@ from typing import Any, Awaitable, Callable
 from llama_cpp import ChatCompletionRequestMessage
 from pydantic import ValidationError
 
-from app.modules.orchestration_config import OrchestrationConfig
+from ..config import OrchestrationConfig
 from app.utils.ast_matcher import ASTMatcher
 from app.utils.response_parser import ResponseParser
 from app.utils.schemas import (

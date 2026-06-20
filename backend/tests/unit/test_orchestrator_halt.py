@@ -70,8 +70,8 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
         import uuid
         from datetime import datetime, timedelta
 
-        from app.modules.context_manager import DatabaseManager, RefactorHistory
-        from app.modules.context_manager import db as test_db
+        from app.modules.context import DatabaseManager, RefactorHistory
+        from app.modules.context import db as test_db
 
         mgr = DatabaseManager()
         zombie_id = str(uuid.uuid4())

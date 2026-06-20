@@ -3,9 +3,9 @@ import unittest
 from dataclasses import asdict
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
-from app.modules.agent_service import AgentService
-from app.modules.context_manager import DatabaseManager
-from app.modules.orchestration_config import OrchestrationConfig
+from app.modules.agent import AgentService
+from app.modules.context import DatabaseManager
+from app.modules.orchestrator.config import OrchestrationConfig
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
 

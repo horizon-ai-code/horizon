@@ -4,16 +4,16 @@ from typing import Any
 import yaml
 from pydantic import BaseModel
 
-from app.modules.agent_service import AgentService
-from app.modules.connection_manager import ClientConnection
-from app.modules.context_manager import DatabaseManager
-from app.modules.orchestration_config import OrchestrationConfig
-from app.modules.phases.phase2_strategy import Phase2Strategy
-from app.modules.phases.phase3_execution import Phase3Execution
-from app.modules.phases.phase4_validation import Phase4Validation
-from app.modules.phases.phase5_adjudication import Phase5Adjudication
-from app.modules.phases.phase6_finalization import Phase6Finalization
-from app.modules.phases.single_refactor import SingleRefactor
+from app.modules.agent import AgentService
+from app.modules.connection import ClientConnection
+from app.modules.context import DatabaseManager
+from .config import OrchestrationConfig
+from .phases.phase2_strategy import Phase2Strategy
+from .phases.phase3_execution import Phase3Execution
+from .phases.phase4_validation import Phase4Validation
+from .phases.phase5_adjudication import Phase5Adjudication
+from .phases.phase6_finalization import Phase6Finalization
+from .phases.single_refactor import SingleRefactor
 from app.modules.validator import Validator
 from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
 from app.utils.performance import PerformanceTracker
@@ -108,27 +108,27 @@ class Orchestrator:
 
         self._phase2 = Phase2Strategy(
             self.agent_service, self._config, self.prompts,
-            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=2),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=2),
         )
         self._phase3 = Phase3Execution(
             self.agent_service, self.validator, self._config, self.prompts,
-            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=3),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=3),
         )
         self._phase4 = Phase4Validation(
             self.validator,
-            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=4),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=4),
         )
         self._phase5 = Phase5Adjudication(
             self.agent_service, self.validator, self._config, self.prompts,
-            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=5),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=5),
         )
         self._phase6 = Phase6Finalization(
             self.db, self.agent_service, self.validator, self._config, self.prompts,
-            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=6),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=6),
         )
         self._single = SingleRefactor(
             self.agent_service, self.validator, self.db, self._config, self.prompts,
-            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=1),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=1),
         )
 
     async def execute_orchestration(self, client: ClientConnection, user_code: str, user_instruction: str) -> None:

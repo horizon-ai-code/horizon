@@ -1,7 +1,7 @@
 """Tests for repair_generator_output."""
 import unittest
 
-from app.modules.phases.phase3_execution import repair_generator_output
+from app.modules.orchestrator.phases.phase3_execution import repair_generator_output
 
 
 class TestRepairGeneratorOutput(unittest.TestCase):

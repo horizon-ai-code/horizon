@@ -5,7 +5,7 @@ from typing import Any
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from app.modules.context_manager import DatabaseManager
+from app.modules.context import DatabaseManager
 from app.utils.types import Role
 
 
@@ -158,3 +158,6 @@ class ConnectionManager:
 
     def create_websocket_connection(self, websocket: WebSocket) -> ClientConnection:
         return ClientConnection(websocket=websocket, db=self.db)
+
+
+from .router import MessageRouter  # noqa: E402, F401
