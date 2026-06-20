@@ -3,7 +3,7 @@ import { API_URL } from '@/lib/env';
 
 // ── Import types from dedicated modules ───────────────────────────────────────
 import type { AppState, SessionData, TerminalEntry, OrchestrationResult } from '@/types/session';
-import type { ReplayStep, InsightMetric } from '@/types/insights';
+import type { InsightMetric } from '@/types/insights';
 import type {
   ConnectionIdMessage,
   StatusMessage,

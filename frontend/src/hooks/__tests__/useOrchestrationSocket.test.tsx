@@ -20,7 +20,7 @@ const mockStore = {
     appState: 'idle' as const,
     showFlowchartModal: false,
     orchestrationResult: {
-      replaySteps: [],
+
       metrics: [],
       summary: '',
       diffHighlights: { added: [], removed: [] },

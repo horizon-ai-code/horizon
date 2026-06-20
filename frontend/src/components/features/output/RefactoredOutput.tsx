@@ -8,7 +8,6 @@ import { formatJavaCode } from "@/lib/utils/javaFormatter";
 import type { AppState, OrchestrationResult } from "@/types/session";
 import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
-import RefactoringReplay from "@/components/features/output/RefactoringReplay";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 
@@ -39,7 +38,7 @@ export default function RefactoredOutput({
   const [mounted, setMounted] = useState(false);
   
   // 1. ADD 'output' state and make it the default
-  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'replay' | 'insights'>('output');
+  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights'>('output');
   const hasFormatted = useRef(false);
 
   useEffect(() => {
@@ -154,6 +153,19 @@ export default function RefactoredOutput({
           </div>
         ) : appState === 'analyzing' && isMonolith ? (
           <CodeSkeleton sourceCode={sourceCode} />
+        ) : appState === 'analyzing' ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
+            <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
+              ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
+              <Layers size={36} className="text-jb-accent animate-pulse" strokeWidth={1.5} />
+            </div>
+            <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
+              Orchestration in progress
+            </p>
+            <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+              Follow the terminal for real-time updates
+            </p>
+          </div>
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
@@ -169,21 +181,19 @@ export default function RefactoredOutput({
           </div>
         ) : (
           // 3. RENDER LOGIC UPDATE
-          rightPanelMode === 'output' ? (
-             <CodeEditorPanel 
-               value={refactoredOutput} 
-               onChange={setRefactoredOutput} 
-               highlightLines={{
-                 added: orchestrationResult.diffHighlights.added,
-                 removed: orchestrationResult.diffHighlights.removed,
-               }}
-               showDiff={appState === 'done'}
-               placeholder="" 
-               bottomPadding="48px"
-             />
-          ) : rightPanelMode === 'replay' ? (
-             <RefactoringReplay replaySteps={orchestrationResult.replaySteps} />
-          ) : (
+           rightPanelMode === 'output' ? (
+              <CodeEditorPanel 
+                value={refactoredOutput} 
+                onChange={setRefactoredOutput} 
+                highlightLines={{
+                  added: orchestrationResult.diffHighlights.added,
+                  removed: orchestrationResult.diffHighlights.removed,
+                }}
+                showDiff={appState === 'done'}
+                placeholder="" 
+                bottomPadding="48px"
+              />
+           ) : (
              <InsightsPanel 
                metrics={orchestrationResult.metrics} 
                summary={orchestrationResult.summary} 

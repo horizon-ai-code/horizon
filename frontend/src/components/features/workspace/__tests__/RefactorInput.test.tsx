@@ -15,7 +15,7 @@ vi.mock('@/store/useChatStore', () => ({
         appState: 'idle' as const,
         showFlowchartModal: false,
         orchestrationResult: {
-          replaySteps: [],
+
           metrics: [],
           summary: '',
           diffHighlights: { added: [], removed: [] },
