@@ -32,6 +32,7 @@ class HistoryStub(BaseModel):
 class HistoryDetail(BaseModel):
     id: UUID4
     user_instruction: str
+    title: str | None = None
     original_code: str
     refactored_code: str | None = None
     insights: str | None = None
