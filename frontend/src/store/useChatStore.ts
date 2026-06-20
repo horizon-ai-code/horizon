@@ -20,7 +20,6 @@ import type {
 interface HistoryItemResponse {
   id?: string;
   title?: string;
-  user_instruction?: string;
   created_at?: string;
 }
 
@@ -309,11 +308,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             const id = item?.id;
             if (!id) return;
 
-            const instruction = item.user_instruction || "";
-            const title = (item.title || "").trim()
-              || (instruction.trim().length > 0
-                  ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
-                  : "New Session");
+            const title = (item.title || "").trim() || "New Session";
 
             const createdAt = item.created_at
               ? new Date(item.created_at).getTime()
