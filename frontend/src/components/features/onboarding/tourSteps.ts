@@ -27,7 +27,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targetId: "tour-output",
     title: "Refactored Output",
-    body: "The refactored code appears here with diff highlights showing what changed. Switch between Output, Replay, and Insights tabs.",
+    body: "The refactored code appears here with diff highlights showing what changed. Switch between Output and Insights tabs.",
     position: "bottom",
   },
   {
