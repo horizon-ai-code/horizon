@@ -1,9 +1,11 @@
 import json
 import unittest
+from dataclasses import asdict
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
 from app.modules.agent_service import AgentService
 from app.modules.context_manager import DatabaseManager
+from app.modules.orchestration_config import OrchestrationConfig
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
 
@@ -50,9 +52,10 @@ class TestOrchestratorFlow(unittest.IsolatedAsyncioTestCase):
         self.db = MagicMock(spec=DatabaseManager)
 
         self.mock_config = {
-            "planner": {"name": "p", "filename": "p"},
-            "generator": {"name": "g", "filename": "g"},
-            "judge": {"name": "j", "filename": "j"},
+            "planner": {"name": "p", "filename": "p", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "generator": {"name": "g", "filename": "g", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "judge": {"name": "j", "filename": "j", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
+            "single": {"name": "s", "filename": "s", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
         }
         self.mock_prompts = {
              "planner": {
@@ -387,22 +390,21 @@ class TestConfigLoading(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):
                 Orchestrator(MagicMock(), MagicMock(), MagicMock())
 
-    def test_config_empty_file_sets_defaults(self):
-        """Empty YAML files produce empty dicts, not None."""
+    def test_config_empty_file_raises(self):
+        """Empty YAML files raise ValueError for missing model sections."""
         with patch("builtins.open", mock_open(read_data="")), \
              patch("yaml.safe_load", return_value=None):
-            orch = Orchestrator(MagicMock(), MagicMock(), MagicMock())
-            self.assertEqual(orch.model_config, {})
-            self.assertEqual(orch.prompts, {})
+            with self.assertRaises(ValueError):
+                Orchestrator(MagicMock(), MagicMock(), MagicMock())
 
 
 class TestSingleRefactorFlow(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.mock_config = {
-            "single": {"name": "qwen-7b", "filename": "qwen-7b"},
-            "planner": {"name": "p", "filename": "p"},
-            "generator": {"name": "g", "filename": "g"},
-            "judge": {"name": "j", "filename": "j"},
+            "single": {"name": "qwen-7b", "filename": "qwen-7b", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
+            "planner": {"name": "p", "filename": "p", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "generator": {"name": "g", "filename": "g", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "judge": {"name": "j", "filename": "j", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
         }
         self.mock_prompts = {
             "single": {"coder": "c", "insights": "i"},
@@ -434,9 +436,9 @@ class TestSingleRefactorFlow(unittest.IsolatedAsyncioTestCase):
         orchestrator.db = MagicMock()
 
         # Ensure orchestrator has "single" config/prompts
-        orig_config = orchestrator.model_config.copy()
+        orig_config_dict = asdict(orchestrator._config)
         orig_prompts = orchestrator.prompts.copy()
-        orchestrator.model_config = {**orig_config, **self.mock_config}
+        orchestrator._config = OrchestrationConfig.from_dict({**orig_config_dict, **self.mock_config})
         orchestrator.prompts = {**orig_prompts, **self.mock_prompts}
 
         responses = [
@@ -467,7 +469,7 @@ class TestSingleRefactorFlow(unittest.IsolatedAsyncioTestCase):
 
         orchestrator.agent_service = original_agent
         orchestrator.db = original_db
-        orchestrator.model_config = orig_config
+        orchestrator._config = OrchestrationConfig.from_dict(orig_config_dict)
         orchestrator.prompts = orig_prompts
 
         self.assertIsNotNone(client.results)

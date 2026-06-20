@@ -12,6 +12,7 @@ from pydantic import BaseModel, ValidationError
 from app.modules.agent_service import AgentService
 from app.modules.connection_manager import ClientConnection
 from app.modules.context_manager import DatabaseManager
+from app.modules.orchestration_config import OrchestrationConfig
 from app.modules.validator import Validator
 from app.utils.ast_matcher import ASTMatcher
 from app.utils.formatters import format_plan_for_generator
@@ -98,6 +99,7 @@ class Orchestrator:
         validator: Validator,
         db: DatabaseManager,
         skip_judge: bool = False,
+        config: OrchestrationConfig | None = None,
     ) -> None:
         self.agent_service: AgentService = agent_service
         self.validator: Validator = validator
@@ -106,8 +108,7 @@ class Orchestrator:
         self.skip_judge = skip_judge
 
         try:
-            with open(MODELS_CONFIG_PATH) as config:
-                self.model_config: dict[str, Any] = yaml.safe_load(config) or {}
+            self._config = config or OrchestrationConfig.from_yaml(MODELS_CONFIG_PATH)
             with open(PROMPTS_CONFIG_PATH) as p_config:
                 self.prompts: dict[str, Any] = yaml.safe_load(p_config) or {}
         except (yaml.YAMLError, FileNotFoundError, PermissionError) as e:
@@ -162,9 +163,9 @@ class Orchestrator:
             # --- PHASE 1: Baseline ---
             await self._notify(client, Role.Validator, "Baseline: Analyzing code structure...",
                                phase=1,
-                               planner_model=self.model_config["planner"].get("name"),
-                               generator_model=self.model_config["generator"].get("name"),
-                               judge_model=self.model_config["judge"].get("name"))
+                               planner_model=self._config.planner.name,
+                               generator_model=self._config.generator.name,
+                               judge_model=self._config.judge.name)
             state.original_complexity = self.validator.get_complexity(state.base_code)
             state.current_phase = 2
 
@@ -246,7 +247,7 @@ class Orchestrator:
                 f"Strategy: Classifying intent (Strategy Iter {state.strategy_iter})...",
                 phase=2,
             )
-            await self.agent_service.swap(self.model_config["planner"])
+            await self.agent_service.swap(self._config.planner)
 
             prompt = f"<code>{state.base_code}</code>\n<instruction>{state.user_instruction}</instruction>"
 
@@ -490,7 +491,7 @@ class Orchestrator:
     async def _run_phase_3(self, client: ClientConnection, state: OrchestrationState) -> None:
         """Phase 3: Plan Execution (Inference 3)."""
         await self._notify(client, Role.Generator, "Execution: Implementing plan...", phase=3)
-        await self.agent_service.swap(self.model_config["generator"])
+        await self.agent_service.swap(self._config.generator)
         await self.agent_service.clear_context()
 
         if state.syntax_error_context:
@@ -643,7 +644,7 @@ class Orchestrator:
         state.gen_timings = []
 
         await self._notify(client, Role.Generator, "Execution: Implementing plan...", phase=3)
-        await self.agent_service.swap(self.model_config["generator"])
+        await self.agent_service.swap(self._config.generator)
         await self.agent_service.clear_context()
 
         system_content = self.prompts["generator"]["coder"]
@@ -1035,7 +1036,7 @@ class Orchestrator:
     async def _run_phase_5(self, client: ClientConnection, state: OrchestrationState) -> None:
         """Phase 5: Heuristic Adjudication (Inference 4)."""
         await self._notify(client, Role.Judge, "Adjudication: Running final audit...", phase=5)
-        await self.agent_service.swap(self.model_config["judge"])
+        await self.agent_service.swap(self._config.judge)
 
         # Normalize both sides for judge comparison:
         # 1. Strip imports so parity is consistent
@@ -1186,9 +1187,9 @@ class Orchestrator:
             refactored_complexity=self.validator.get_complexity(final_code),
             performance_metrics=metrics,
             exit_status=state.exit_status.value,
-            planner_model=self.model_config["planner"].get("name"),
-            generator_model=self.model_config["generator"].get("name"),
-            judge_model=self.model_config["judge"].get("name"),
+            planner_model=self._config.planner.name,
+            generator_model=self._config.generator.name,
+            judge_model=self._config.judge.name,
         )
 
         # 2. Generate final insights as follow-up
@@ -1224,9 +1225,9 @@ class Orchestrator:
             final_plan=json.dumps(state.active_plan),
             outer_loops=state.strategy_iter,
             inner_loops=state.syntax_iter,
-            planner_model=self.model_config["planner"].get("name"),
-            generator_model=self.model_config["generator"].get("name"),
-            judge_model=self.model_config["judge"].get("name"),
+            planner_model=self._config.planner.name,
+            generator_model=self._config.generator.name,
+            judge_model=self._config.judge.name,
         )
 
     # ============================================================
@@ -1241,7 +1242,7 @@ class Orchestrator:
         refactored_complexity: int,
     ) -> Any:
         """Generate refactoring insights using the Judge model."""
-        await self.agent_service.swap(self.model_config["judge"])
+        await self.agent_service.swap(self._config.judge)
 
         prompt: str = (
             f"--- ORIGINAL CODE ---\n{user_code}\n\n"
@@ -1277,7 +1278,7 @@ class Orchestrator:
 
     async def run_single_refactor(self, client: ClientConnection, user_code: str, user_instruction: str) -> None:
         """Single-model refactor using the 7B model. No multi-agent pipeline."""
-        cfg = self.model_config["single"]
+        cfg = self._config.single
         prompts = self.prompts["single"]
 
         tracker = PerformanceTracker()
@@ -1336,7 +1337,7 @@ class Orchestrator:
             refactored_complexity=refac_cc,
             performance_metrics=perf,
             exit_status="SUCCESS",
-            generator_model=cfg.get("name"),
+            generator_model=cfg.name,
         )
         await client.send_insights(insight_dicts)
 

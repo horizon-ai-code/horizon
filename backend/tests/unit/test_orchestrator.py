@@ -77,7 +77,19 @@ class TestArchitectException(unittest.IsolatedAsyncioTestCase):
         validator = Validator()
         db = MagicMock()
 
-        with patch("builtins.open", MagicMock()), patch("yaml.safe_load", MagicMock()):
+        mock_config = {
+            "planner": {"name": "p", "filename": "p", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "generator": {"name": "g", "filename": "g", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "judge": {"name": "j", "filename": "j", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
+            "single": {"name": "s", "filename": "s", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
+        }
+        mock_prompts = {
+            "planner": {"classifier": "c", "architect": "a", "architect_analysis": "an", "analysis_guidance": {}, "synthesis_guidance": {}},
+            "generator": {"coder": "co", "coder_guidance": {}},
+            "judge": {"auditor": "au", "insights": "i"},
+            "single": {"coder": "c", "insights": "i"},
+        }
+        with patch("builtins.open", MagicMock()), patch("yaml.safe_load", side_effect=[mock_config, mock_prompts]):
             orch = Orchestrator(agent, validator, db)
             state = OrchestrationState(
                 session_id="t", base_code="", working_code="", user_instruction=""
@@ -110,7 +122,13 @@ class TestArchitectException(unittest.IsolatedAsyncioTestCase):
         validator = Validator()
         db = MagicMock()
 
-        with patch("builtins.open", MagicMock()), patch("yaml.safe_load", MagicMock()):
+        mock_config = {
+            "planner": {"name": "p", "filename": "p", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "generator": {"name": "g", "filename": "g", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "judge": {"name": "j", "filename": "j", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
+            "single": {"name": "s", "filename": "s", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
+        }
+        with patch("builtins.open", MagicMock()), patch("yaml.safe_load", return_value=mock_config):
             orch = Orchestrator(agent, validator, db)
 
             client = AsyncMock()
