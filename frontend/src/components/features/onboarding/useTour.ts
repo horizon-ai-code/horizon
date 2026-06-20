@@ -8,10 +8,12 @@ const STORAGE_KEY = "horizon_tour_completed";
 export function useTour() {
   const [isActive, setIsActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [hasBeenOpened, setHasBeenOpened] = useState(false);
 
   const start = useCallback(() => {
     setCurrentStep(0);
     setIsActive(true);
+    setHasBeenOpened(true);
   }, []);
 
   const next = useCallback(() => {
@@ -33,6 +35,7 @@ export function useTour() {
 
   return {
     isActive,
+    hasBeenOpened,
     currentStep,
     step: TOUR_STEPS[currentStep],
     isLastStep: currentStep >= TOUR_STEPS.length - 1,

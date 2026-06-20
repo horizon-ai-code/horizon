@@ -9,9 +9,10 @@ import { useEffect, useState, useRef } from "react";
 
 interface NavbarProps {
   onStartTour?: () => void;
+  tourOpened?: boolean;
 }
 
-export default function Navbar({ onStartTour }: NavbarProps) {
+export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
@@ -93,8 +94,12 @@ export default function Navbar({ onStartTour }: NavbarProps) {
           {onStartTour && (
             <button
               onClick={onStartTour}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border animate-pulse
-                ${isDark ? 'border-jb-accent/60 text-jb-accent hover:bg-jb-accent/10' : 'border-[#3574f0]/60 text-[#3574f0] hover:bg-[#3574f0]/10'}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border
+                ${!tourOpened ? 'animate-pulse' : ''}
+                ${tourOpened
+                  ? (isDark ? 'border-jb-border/40 text-jb-text-muted' : 'border-[#ddd] text-[#888]')
+                  : (isDark ? 'border-jb-accent/60 text-jb-accent hover:bg-jb-accent/10' : 'border-[#3574f0]/60 text-[#3574f0] hover:bg-[#3574f0]/10')
+                }`}
               title="Take a quick tour"
               aria-label="Take a quick tour"
             >
