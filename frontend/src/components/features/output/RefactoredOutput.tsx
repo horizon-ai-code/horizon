@@ -61,12 +61,7 @@ export default function RefactoredOutput({
     try {
       await navigator.clipboard.writeText(textToCopy);
     } catch {
-      const textArea = document.createElement("textarea");
-      textArea.value = textToCopy;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
+      console.warn("Clipboard API not available");
     }
   };
 

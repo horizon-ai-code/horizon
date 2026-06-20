@@ -112,7 +112,7 @@ interface ChatStore {
 
 // ── Zustand Store ─────────────────────────────────────────────────────────────
 
-export const useChatStore = create<ChatStore>((set) => ({
+export const useChatStore = create<ChatStore>((set, get) => ({
   orchestratorStatus: "connected",
   setOrchestratorStatus: (status) => set({ orchestratorStatus: status }),
   hasInitialLoaded: false,
@@ -207,9 +207,11 @@ export const useChatStore = create<ChatStore>((set) => ({
     return id;
   },
 
-  renameSession: (id, title) => {
+  renameSession: async (id, title) => {
     const trimmed = title.trim();
     if (!trimmed) return;
+
+    const previousTitle = get().sessions[id]?.title;
 
     set((state) => {
       const session = state.sessions[id];
@@ -227,11 +229,27 @@ export const useChatStore = create<ChatStore>((set) => ({
       };
     });
 
-    fetch(`${API_URL}/api/history/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: trimmed }),
-    }).catch((err) => console.error("[ChatStore] Rename failed:", err));
+    try {
+      const res = await fetch(`${API_URL}/api/history/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trimmed }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      console.error("[ChatStore] Rename failed:", err);
+      set((state) => {
+        const session = state.sessions[id];
+        if (!session) return state;
+        return {
+          ...state,
+          sessions: {
+            ...state.sessions,
+            [id]: { ...session, title: previousTitle ?? session.title },
+          },
+        };
+      });
+    }
   },
 
   deleteSession: async (id) => {
