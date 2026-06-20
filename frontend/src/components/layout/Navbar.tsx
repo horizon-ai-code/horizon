@@ -7,7 +7,11 @@ import { API_URL } from "@/lib/env";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
 
-export default function Navbar() {
+interface NavbarProps {
+  onStartTour?: () => void;
+}
+
+export default function Navbar({ onStartTour }: NavbarProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
@@ -80,8 +84,20 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Center Section: Placeholder if needed, currently removed for minimal look */}
-      <div className="flex-1" />
+      {/* Center Section */}
+      <div className="flex-1 flex items-center justify-center">
+        {onStartTour && (
+          <button
+            onClick={onStartTour}
+            className={`w-7 h-7 rounded-full border text-[13px] font-bold cursor-pointer transition-all
+              ${isDark ? 'border-jb-border text-jb-text-muted hover:text-jb-text hover:bg-jb-border/20' : 'border-[#ddd] text-[#999] hover:text-[#333] hover:bg-[#e5e7eb]'}`}
+            title="Take a quick tour"
+            aria-label="Take a quick tour"
+          >
+            ?
+          </button>
+        )}
+      </div>
 
       {/* Right Section: Tools & Window Controls */}
       <div className="flex items-center h-full">

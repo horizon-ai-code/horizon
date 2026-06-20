@@ -280,7 +280,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">
-          <Panel defaultSize={50} minSize={20} className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
+          <Panel defaultSize={50} minSize={20} id="tour-input" className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
             ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf]'}`}>
             <InputPanel 
               sessionId={id}
@@ -306,7 +306,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
             className="w-[1px] bg-transparent hover:bg-jb-accent transition-all duration-200 cursor-col-resize z-20 select-none touch-none" 
           />
 
-          <Panel defaultSize={50} minSize={20} className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
+          <Panel defaultSize={50} minSize={20} id="tour-output" className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
             ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf]'}`}>
             <RefactoredOutput 
               refactoredOutput={refactoredOutput} 
@@ -335,7 +335,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         collapsedSize="5%"
         className={`rounded-xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col
           ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf] shadow-slate-200/50'}`}
-        id="terminal-panel"
+        id="tour-terminal"
       >
         <Terminal 
           isTerminalCollapsed={isTerminalCollapsed} 

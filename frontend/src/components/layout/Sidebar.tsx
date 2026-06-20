@@ -160,7 +160,8 @@ export default function Sidebar() {
   };
 
   return (
-    <motion.aside 
+    <motion.aside
+      id="tour-sidebar"
       initial={false}
       animate={{ width: isOpen ? 240 : 48 }}
       transition={SPRING_CONFIG}
