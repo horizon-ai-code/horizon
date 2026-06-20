@@ -85,23 +85,23 @@ export default function Navbar({ onStartTour }: NavbarProps) {
       </div>
 
       {/* Center Section */}
-      <div className="flex-1 flex items-center justify-center">
-        {onStartTour && (
-          <button
-            onClick={onStartTour}
-            className={`w-7 h-7 rounded-full border text-[13px] font-bold cursor-pointer transition-all
-              ${isDark ? 'border-jb-border text-jb-text-muted hover:text-jb-text hover:bg-jb-border/20' : 'border-[#ddd] text-[#999] hover:text-[#333] hover:bg-[#e5e7eb]'}`}
-            title="Take a quick tour"
-            aria-label="Take a quick tour"
-          >
-            ?
-          </button>
-        )}
-      </div>
+      <div className="flex-1" />
 
       {/* Right Section: Tools & Window Controls */}
       <div className="flex items-center h-full">
         <div className="flex items-center px-4 h-full gap-3">
+          {onStartTour && (
+            <button
+              onClick={onStartTour}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium cursor-pointer transition-all border border-dashed
+                ${isDark ? 'border-jb-border/40 text-jb-text-muted hover:text-jb-accent hover:border-jb-accent/50' : 'border-[#ddd] text-[#888] hover:text-[#3574f0] hover:border-[#3574f0]/50'}`}
+              title="Take a quick tour"
+              aria-label="Take a quick tour"
+            >
+              <span className="text-[13px] font-bold">?</span>
+              New here?
+            </button>
+          )}
           {/* Orchestrator Connection Status */}
           <div className="flex items-center gap-1.5">
             <div className={`h-2 w-2 rounded-full transition-colors duration-300 ${

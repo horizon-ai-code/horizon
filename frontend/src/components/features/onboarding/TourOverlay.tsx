@@ -85,17 +85,11 @@ export default function TourOverlay({
 
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
-      {/* Dark overlay with clip-path hole */}
+      {/* Light overlay */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)",
-          clipPath: `polygon(
-            0% 0%, 100% 0%, 100% 100%, 0% 100%,
-            0% ${rect.top}px, 100% ${rect.top}px,
-            100% ${rect.bottom}px, 0% ${rect.bottom}px,
-            0% ${rect.top}px
-          )`,
+          backgroundColor: "rgba(0,0,0,0.08)",
         }}
       />
 
