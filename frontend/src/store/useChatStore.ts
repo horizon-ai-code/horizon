@@ -206,14 +206,13 @@ export const useChatStore = create<ChatStore>((set) => ({
     return id;
   },
 
-  renameSession: (id, title) =>
+  renameSession: (id, title) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+
     set((state) => {
       const session = state.sessions[id];
       if (!session) return state;
-
-      const trimmed = title.trim();
-      if (!trimmed) return state;
-
       return {
         ...state,
         sessions: {
@@ -225,7 +224,14 @@ export const useChatStore = create<ChatStore>((set) => ({
           },
         },
       };
-    }),
+    });
+
+    fetch(`${API_URL}/api/history/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: trimmed }),
+    }).catch((err) => console.error("[ChatStore] Rename failed:", err));
+  },
 
   deleteSession: async (id) => {
     try {
@@ -284,9 +290,10 @@ export const useChatStore = create<ChatStore>((set) => ({
             if (!id) return;
 
             const instruction = item.user_instruction || "";
-            const title = instruction.trim().length > 0
-              ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
-              : "New Session";
+            const title = (item.title || "").trim()
+              || (instruction.trim().length > 0
+                  ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
+                  : "New Session");
 
             const createdAt = item.created_at
               ? new Date(item.created_at).getTime()

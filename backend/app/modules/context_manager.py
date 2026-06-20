@@ -10,7 +10,7 @@ from app.utils.paths import DB_PATH
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
 
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 
 class SchemaVersion(peewee.Model):
@@ -26,6 +26,7 @@ class RefactorHistory(peewee.Model):
     id = peewee.UUIDField(primary_key=True)
     status = peewee.CharField(default="Processing")
     exit_status = peewee.CharField(null=True) # SUCCESS, ABORT_STRATEGY, etc.
+    title = peewee.CharField(max_length=255, null=True)
     user_instruction = peewee.TextField()
     original_code = peewee.TextField()
     refactored_code = peewee.TextField(null=True)
@@ -114,6 +115,14 @@ class DatabaseManager:
                     print(f"DB Migration: Adding column {col} to refactorhistory...")
                     db.execute_sql(f'ALTER TABLE refactorhistory ADD COLUMN {col} REAL')
 
+        # Migration v4 -> v5: add title column
+        if current_version < 5:
+            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
+            if "title" not in existing_cols:
+                print("DB Migration: Adding column title to refactorhistory...")
+                db.execute_sql('ALTER TABLE refactorhistory ADD COLUMN title VARCHAR(255)')
+                db.execute_sql("UPDATE refactorhistory SET title = substr(user_instruction, 1, 255) WHERE title IS NULL")
+
         self._set_schema_version(SCHEMA_VERSION)
 
     def _get_schema_version(self) -> int:
@@ -133,6 +142,7 @@ class DatabaseManager:
             RefactorHistory.create(
                 id=id,
                 user_instruction=instruction,
+                title=instruction[:255],
                 original_code=original_code,
                 mode=mode,
             )
@@ -222,6 +232,16 @@ class DatabaseManager:
             return model_to_dict(h, backrefs=True)
         except RefactorHistory.DoesNotExist:
             return None
+
+    def rename_session(self, session_id: str, new_title: str) -> bool:
+        """Updates the title of a session."""
+        try:
+            RefactorHistory.update(title=new_title).where(
+                RefactorHistory.id == session_id
+            ).execute()
+            return True
+        except RefactorHistory.DoesNotExist:
+            return False
 
     def cleanup_zombie_sessions(self, max_age_hours: int = 1) -> int:
         """Marks sessions stuck in 'Processing' for >max_age_hours as 'Zombie'."""

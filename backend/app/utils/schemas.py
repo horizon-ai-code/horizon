@@ -24,6 +24,7 @@ class LogEntry(BaseModel):
 class HistoryStub(BaseModel):
     id: UUID4
     user_instruction: str
+    title: str | None = None
     created_at: datetime
     status: str | None = None
 

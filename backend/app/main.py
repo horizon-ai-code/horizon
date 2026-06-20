@@ -353,3 +353,20 @@ async def delete_history_detail(
         "status": "history_deleted",
         "message": f"Refactor history {history_id} deleted",
     }
+
+
+@app.patch(
+    "/api/history/{history_id}",
+    dependencies=[Depends(get_db)],
+)
+async def rename_history(
+    history_id: UUID4,
+    body: dict,
+):
+    new_title = body.get("title", "").strip()
+    if not new_title:
+        raise HTTPException(status_code=400, detail="title is required")
+    success = await connection.rename_history(str(history_id), new_title)
+    if not success:
+        raise HTTPException(status_code=404, detail="Refactor history not found")
+    return {"status": "ok", "title": new_title}
