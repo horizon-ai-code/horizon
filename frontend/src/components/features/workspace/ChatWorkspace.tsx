@@ -274,6 +274,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               appState={appState}
               orchestrationResult={orchestrationResult}
               glassboxState={glassboxState}
+              isMonolith={isMonolith}
             />
           </Panel>
         </PanelGroup>

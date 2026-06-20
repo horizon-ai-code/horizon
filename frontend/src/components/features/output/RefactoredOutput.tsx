@@ -21,6 +21,7 @@ interface RefactoredOutputProps {
   appState: AppState;
   orchestrationResult: OrchestrationResult;
   glassboxState?: GlassboxState;
+  isMonolith: boolean;
 }
 
 export default function RefactoredOutput({
@@ -32,6 +33,7 @@ export default function RefactoredOutput({
   appState,
   orchestrationResult,
   glassboxState,
+  isMonolith,
 }: RefactoredOutputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -150,7 +152,7 @@ export default function RefactoredOutput({
                 Waiting for other requests to complete...
              </p>
           </div>
-        ) : appState === 'analyzing' ? (
+        ) : appState === 'analyzing' && isMonolith ? (
           <CodeSkeleton sourceCode={sourceCode} />
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
