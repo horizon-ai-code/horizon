@@ -10,6 +10,7 @@ import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
+import OrchestrationFlowchart from "@/components/features/output/OrchestrationFlowchart";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -154,18 +155,7 @@ export default function RefactoredOutput({
         ) : appState === 'analyzing' && isMonolith ? (
           <CodeSkeleton sourceCode={sourceCode} />
         ) : appState === 'analyzing' ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
-            <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
-              ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
-              <Layers size={36} className="text-jb-accent animate-pulse" strokeWidth={1.5} />
-            </div>
-            <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-              Orchestration in progress
-            </p>
-            <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-              Follow the terminal for real-time updates
-            </p>
-          </div>
+          <OrchestrationFlowchart activeStep={activeStep} glassboxState={glassboxState} />
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
