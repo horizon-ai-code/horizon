@@ -15,6 +15,8 @@ from app.modules.context_manager import DatabaseManager
 from app.modules.orchestration_config import OrchestrationConfig
 from app.modules.phases.phase2_strategy import Phase2Strategy
 from app.modules.phases.phase3_execution import Phase3Execution
+from app.modules.phases.phase4_validation import Phase4Validation
+from app.modules.phases.phase5_adjudication import Phase5Adjudication
 from app.modules.validator import Validator
 from app.utils.ast_matcher import ASTMatcher
 from app.utils.formatters import format_plan_for_generator
@@ -124,6 +126,14 @@ class Orchestrator:
         self._phase3 = Phase3Execution(
             self.agent_service, self.validator, self._config, self.prompts,
             lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=3),
+        )
+        self._phase4 = Phase4Validation(
+            self.validator,
+            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=4),
+        )
+        self._phase5 = Phase5Adjudication(
+            self.agent_service, self.validator, self._config, self.prompts,
+            lambda c, r, m, ct: self._notify(c, r, m, content=ct, phase=5),
         )
 
     @staticmethod
@@ -267,208 +277,7 @@ class Orchestrator:
     # ============================================================
 
     async def _run_phase_4(self, client: ClientConnection, state: OrchestrationState) -> None:
-        """Phase 4: Deterministic Validation (Tier 1 & 2)."""
-        await self._notify(
-            client,
-            Role.Validator,
-            f"Validation: Validating (Strategy {state.strategy_iter}, Syntax {state.syntax_iter})...",
-            phase=4,
-        )
-
-        # Step 7: Tier 1 - Syntax
-        syntax_res = self.validator.check_syntax(state.working_code)
-        print(
-            f"\n--- Validator Syntax Check ---\nIs Valid: {syntax_res['is_valid']}\nError: {syntax_res.get('error')}\n------------------------------"
-        )
-        if not syntax_res["is_valid"]:
-            state.syntax_iter += 1
-            if state.syntax_iter <= 3:
-                await self._notify(
-                    client,
-                    Role.Validator,
-                    f"Syntax Fail (Attempt {state.syntax_iter}). Healing...",
-                )
-                raw_errors = syntax_res.get("errors", [])
-                raw_error = raw_errors[0] if raw_errors else "Unknown syntax error"
-                state.syntax_error_context = {
-                    "attempt": state.syntax_iter,
-                    "error": self.validator.format_syntax_error(raw_error),
-                    "broken_code": state.working_code,
-                }
-                state.current_phase = 3
-                return
-            else:
-                await self._notify(client, Role.Validator, "Syntax Unrecoverable. Revising strategy.")
-                state.add_feedback(
-                    {
-                        "failure_tier": FailureTier.TIER_1_SYNTAX,
-                        "error": "Persistent syntax errors after 3 heals.",
-                    }
-                )
-                if not state.strategy_iter_incremented:
-                    state.strategy_iter += 1
-                    state.strategy_iter_incremented = True
-                state.syntax_iter = 0
-                state.current_phase = 2
-                return
-
-        await self._notify(client, Role.Validator, f"Syntax OK.\n\n{json.dumps({'syntax': {'passed': True}})}")
-
-        # Step 8: Tier 2 - Structural
-        findings = []
-
-        # Check A: Complexity
-        assert state.intent_packet is not None
-        cc_finding, orig_cc_val, refac_cc_val = self.validator.verify_complexity(
-            state.base_code, state.working_code, state.intent_packet
-        )
-        if cc_finding:
-            findings.append(cc_finding)
-
-        # Check B: Boundary Verification
-        target_scopes = []
-        if state.intent_packet and "scope_anchor" in state.intent_packet:
-            member = state.intent_packet["scope_anchor"].get("member", "")
-            if member:
-                target_scopes.append(member)
-            target_class = state.intent_packet["scope_anchor"].get("target_class", "")
-            if target_class:
-                target_scopes.append(target_class)
-
-        if state.active_plan and "ast_mutations" in state.active_plan:
-            for mutation in state.active_plan["ast_mutations"]:
-                target = mutation.get("target", "")
-                # Extract method name if it has a signature
-                name = target.split("(")[0].strip()
-                if name and name not in target_scopes:
-                    target_scopes.append(name)
-
-        if state.active_plan and "target_class" in state.active_plan:
-            if state.active_plan["target_class"] not in target_scopes:
-                target_scopes.append(state.active_plan["target_class"])
-
-        boundary_finding = self.validator.verify_boundary(state.base_code, state.working_code, target_scopes)
-        if boundary_finding:
-            findings.append(boundary_finding)
-
-        # Check C: Intent Math
-        intent_finding = None
-        if state.intent_packet:
-            intent_enum = RefactorIntent(state.intent_packet["specific_intent"])
-            try:
-                intent_finding = self.validator.verify_intent(intent_enum, state.base_code, state.working_code)
-            except Exception as e:
-                print(f"  Intent verifier crashed for {intent_enum}: {e}")
-                intent_finding = None
-            if intent_finding:
-                findings.append(intent_finding)
-
-        # Build CC detail based on rule context
-        cc_detail = None
-        if state.intent_packet:
-            intent_enum = RefactorIntent(state.intent_packet["specific_intent"])
-            cc_rule = Validator.get_cc_rule(intent_enum)
-            target = state.intent_packet.get("scope_anchor", {}).get("member", "")
-            if cc_rule == "EXTRACT_RULE" and target:
-                if cc_finding:
-                    cc_detail = f"Target method '{target}' CC increased: {orig_cc_val} → {refac_cc_val}"
-                else:
-                    overall = self.validator.get_complexity(state.working_code)
-                    cc_detail = f"Target method '{target}' extracted (CC: {refac_cc_val}). Overall code CC: {overall}"
-            elif cc_rule in ("STRICT", "LOOSENED"):
-                if cc_finding:
-                    limit = orig_cc_val + (1 if cc_rule == "LOOSENED" else 0)
-                    cc_detail = f"Overall code CC increased: {orig_cc_val} → {refac_cc_val} (limit: {limit})"
-                elif refac_cc_val == orig_cc_val:
-                    cc_detail = f"Overall code complexity unchanged ({orig_cc_val})"
-                else:
-                    cc_detail = f"Overall code CC: {orig_cc_val} → {refac_cc_val}"
-
-        checks = [
-            {
-                "name": "Cyclomatic Complexity",
-                "passed": cc_finding is None,
-                "before": orig_cc_val,
-                "after": refac_cc_val,
-                "details": cc_detail,
-            },
-            {
-                "name": "Boundary Preservation",
-                "passed": boundary_finding is None,
-            },
-            {
-                "name": "Intent Match",
-                "passed": intent_finding is None,
-                "details": intent_finding.error_report.message[:200] if intent_finding else None,
-            },
-        ]
-
-        print(
-            f"\n--- Validator Structural Checks ---\nComplexity Check: {refac_cc_val or orig_cc_val} (Original: {orig_cc_val})\nBoundary check found issue: {bool(boundary_finding)}\nIntent check found issue: {bool(intent_finding)}\nTotal findings: {len(findings)}\n-----------------------------------"
-        )
-        if findings:
-            current_fault_count = len(findings)
-            passed = sum(1 for c in checks if c["passed"])
-            failed = len(checks) - passed
-            await self._notify(
-                client,
-                Role.Validator,
-                f"Structural Checks — {passed}/{len(checks)} passed · {failed} failed\n\n{json.dumps({'checks': checks})}",
-            )
-            state.extend_feedback([f.model_dump() for f in findings])
-
-            # Try structural fix — send errors to Generator for targeted fix
-            if state.structural_fix_attempts < 1:
-                state.structural_fix_attempts += 1
-                # Build error context for Generator from findings
-                error_msgs = []
-                for f in findings:
-                    error_msgs.append(f.error_report.message[:200])
-                state.syntax_error_context = {
-                    "attempt": state.structural_fix_attempts,
-                    "error": "Structural issues: " + "; ".join(error_msgs[:2]),
-                    "broken_code": state.working_code,
-                }
-                await self._notify(
-                    client,
-                    Role.Validator,
-                    "Routing to Generator for targeted fix...",
-                )
-                state.current_phase = 3
-                return
-
-            if not state.strategy_iter_incremented:
-                state.strategy_iter += 1
-                state.strategy_iter_incremented = True
-            state.syntax_iter = 0
-            state.structural_fix_attempts = 0
-            state.current_phase = 2
-        else:
-            passed = sum(1 for c in checks if c["passed"])
-            await self._notify(client, Role.Validator,
-                f"Structural Checks — {passed}/{len(checks)} passed\n\n{json.dumps({'checks': checks})}")
-            if (
-                state.active_plan
-                and state.active_plan.get("ast_mutations")
-                and state.working_code.strip() == state.base_code.strip()
-            ):
-                await self._notify(
-                    client,
-                    Role.Validator,
-                    "Plan not executed — code unchanged.",
-                )
-                state.add_feedback(
-                    {
-                        "failure_tier": FailureTier.TIER_3_JUDGE,
-                        "error": "Plan was not executed: code unchanged.",
-                    }
-                )
-                if not state.strategy_iter_incremented:
-                    state.strategy_iter += 1
-                    state.strategy_iter_incremented = True
-                state.current_phase = 2
-                return
-            state.current_phase = 5
+        await self._phase4.run(client, state)
 
     @staticmethod
     def _strip_outer_wrapper(code: str, base_code: str) -> str:
@@ -507,128 +316,7 @@ class Orchestrator:
     # ============================================================
 
     async def _run_phase_5(self, client: ClientConnection, state: OrchestrationState) -> None:
-        """Phase 5: Heuristic Adjudication (Inference 4)."""
-        await self._notify(client, Role.Judge, "Adjudication: Running final audit...", phase=5)
-        await self.agent_service.swap(self._config.judge)
-
-        # Normalize both sides for judge comparison:
-        # 1. Strip imports so parity is consistent
-        # 2. Strip outer class wrapper if original had none
-        def _normalize_for_judge(code: str) -> str:
-            no_imports = "\n".join(line for line in code.splitlines() if not line.strip().startswith("import "))
-            return self._strip_outer_wrapper(no_imports, state.base_code)
-
-        judge_base = _normalize_for_judge(state.base_code)
-        judge_refac = _normalize_for_judge(state.working_code)
-
-        # Build plan context summary for the auditor
-        intent = ""
-        target_class = ""
-        target_method = ""
-        if state.intent_packet:
-            intent = state.intent_packet.get("specific_intent", "")
-            scope = state.intent_packet.get("scope_anchor", {})
-            target_class = scope.get("target_class", "")
-            target_method = scope.get("member", "")
-
-        mutations = state.active_plan.get("ast_mutations", []) if state.active_plan else []
-        mutation_actions = [m.get("action", "?") for m in mutations]
-        mutation_targets = [m.get("target", "?") for m in mutations]
-
-        plan_summary = f"Intent: {intent}. Target: {target_class}.{target_method}."
-        mutations_list = (
-            f"Mutations: {', '.join(f'{a}({t})' for a, t in zip(mutation_actions, mutation_targets, strict=False))}"
-            if mutation_actions
-            else "Mutations: none"
-        )
-
-        audit_prompt = (
-            f"## Plan Context\n{plan_summary}\n{mutations_list}\n\n"
-            f"## Code\n"
-            f"Original: <code>{judge_base}</code>\n"
-            f"Refactored: <code>{judge_refac}</code>\n"
-            f"Intent: {json.dumps(state.intent_packet)}"
-        )
-        system_content = self.prompts["judge"]["auditor"]
-        if state.intent_packet:
-            intent_key = state.intent_packet.get("specific_intent", "")
-            guidance = self.prompts["judge"].get("auditor_guidance", {}).get(intent_key, "")
-            if guidance:
-                system_content += "\n" + guidance
-
-        messages: list[ChatCompletionRequestMessage] = [
-            {"role": "system", "content": system_content},
-            {"role": "user", "content": audit_prompt},
-        ]
-
-        for _jattempt in range(2):
-            jtemp = 0.1 if _jattempt == 0 else 0.3
-            jmax = 1500 if _jattempt == 0 else 2048
-            try:
-                raw = await self.agent_service.generate(
-                    messages,  # type: ignore[arg-type]
-                    temp=jtemp,
-                    max_tokens=jmax,
-                    response_model=StructuralAuditorResponse,
-                )
-                audit_text = raw["choices"][0]["message"].get("content") or ""
-                jheader = "--- Judge Auditor Output ---"
-                if _jattempt > 0:
-                    jheader = f"--- Judge Auditor Output (Retry {_jattempt}) ---"
-                print(f"\n{jheader}\n{audit_text}\n--------------------------")
-                audit_res = ResponseParser.extract_json(audit_text, StructuralAuditorResponse)
-                break
-            except (ValidationError, ValueError):
-                if _jattempt == 0:
-                    print("  Judge attempt 1 failed (truncated). Retrying with temp=0.3, max_tokens=2048...")
-                    await self.agent_service.clear_context()
-                else:
-                    print("  Judge failed on both attempts. Falling back to strategy retry.")
-                    state.add_feedback(
-                        {
-                            "failure_tier": FailureTier.TIER_3_JUDGE,
-                            "error": "Judge auditor failed to produce valid verdict on both attempts.",
-                        }
-                    )
-                    if not state.strategy_iter_incremented:
-                        state.strategy_iter += 1
-                        state.strategy_iter_incremented = True
-                    state.current_phase = 2
-                    return
-
-        # Override: judge hallucinated IDENTICAL_CODE or LOGIC_DRIFT
-        if audit_res.verdict == "REVISE" and audit_res.issues:
-            issue = audit_res.issues[0]
-            if issue.issue_type == "IDENTICAL_CODE":
-                if self.validator.has_structural_change(state.base_code, state.working_code):
-                    print("WARNING: Judge hallucinated IDENTICAL_CODE — overriding to ACCEPT")
-                    audit_res.verdict = "ACCEPT"
-                    audit_res.issues = []
-            elif issue.issue_type == "LOGIC_DRIFT":
-                if not self.validator.has_structural_change(state.base_code, state.working_code):
-                    print("WARNING: Judge hallucinated LOGIC_DRIFT — overriding to ACCEPT")
-                    audit_res.verdict = "ACCEPT"
-                    audit_res.issues = []
-
-        await self._notify(
-            client,
-            Role.Judge,
-            f"Audit Finished: {audit_res.verdict}",
-            content=json.dumps(audit_res.model_dump()),
-        )
-
-        if audit_res.verdict == "ACCEPT":
-            state.exit_status = ExitStatus.SUCCESS
-            state.current_phase = 6
-        else:
-            await self._notify(client, Role.Judge, "Audit requested revision.")
-            state.add_feedback(
-                {"failure_tier": FailureTier.TIER_3_JUDGE, "error": [i.model_dump() for i in audit_res.issues]}
-            )
-            if not state.strategy_iter_incremented:
-                state.strategy_iter += 1
-                state.strategy_iter_incremented = True
-            state.current_phase = 2
+        await self._phase5.run(client, state)
 
     # ============================================================
     # SECTION 8: Phase 6 — Finalization
