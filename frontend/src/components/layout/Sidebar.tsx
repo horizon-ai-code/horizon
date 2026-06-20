@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Plus, MessageSquare, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
+import { Menu, Plus, FileCode2, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useChatStore } from "@/store/useChatStore";
 import {
@@ -272,7 +272,7 @@ export default function Sidebar() {
                        router.push(`/${session.id}`);
                      }}
                   >
-                   <MessageSquare size={18} strokeWidth={1.5} className="shrink-0" />
+                   <FileCode2 size={18} strokeWidth={1.5} className="shrink-0" />
                    <div className="flex items-center gap-2 min-w-0 flex-1">
                      {isEditing ? (
                        <input
