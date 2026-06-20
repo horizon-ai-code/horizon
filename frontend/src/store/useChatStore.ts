@@ -19,6 +19,7 @@ import type {
 
 interface HistoryItemResponse {
   id?: string;
+  title?: string;
   user_instruction?: string;
   created_at?: string;
 }
