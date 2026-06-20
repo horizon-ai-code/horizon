@@ -281,16 +281,17 @@ export default function Sidebar() {
                          onChange={(e) => setEditValue(e.target.value)}
                          onClick={(e) => e.stopPropagation()}
                          onBlur={cancelInlineRename}
-                         onKeyDown={(e) => {
-                           if (e.key === "Enter") {
-                             e.preventDefault();
-                             saveInlineRename(session.id);
-                           }
-                           if (e.key === "Escape") {
-                             e.preventDefault();
-                             cancelInlineRename();
-                           }
-                         }}
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              saveInlineRename(session.id);
+                            }
+                            if (e.key === "Escape") {
+                              e.preventDefault();
+                              cancelInlineRename();
+                            }
+                          }}
                          autoFocus
                          className={`w-full min-w-0 bg-transparent text-[13px] text-left outline-none border-0 border-b px-0.5 py-0.5 ${isDark ? 'border-jb-border text-jb-text' : 'border-[#d4d8e0] text-[#080808]'} focus:ring-1 focus:ring-cyan-500/50 rounded-sm`}
                        />
