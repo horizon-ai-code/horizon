@@ -93,13 +93,12 @@ export default function Navbar({ onStartTour }: NavbarProps) {
           {onStartTour && (
             <button
               onClick={onStartTour}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border animate-pulse
                 ${isDark ? 'border-jb-accent/60 text-jb-accent hover:bg-jb-accent/10' : 'border-[#3574f0]/60 text-[#3574f0] hover:bg-[#3574f0]/10'}`}
               title="Take a quick tour"
               aria-label="Take a quick tour"
             >
-              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isDark ? 'bg-jb-accent' : 'bg-[#3574f0]'}`} />
-              <span className="text-[13px] font-bold mr-0.5">?</span>
+              <span className="text-[13px] font-bold">?</span>
               New here?
             </button>
           )}
