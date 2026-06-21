@@ -1,5 +1,5 @@
 
-import type { ReplayStep, InsightMetric } from "./insights";
+import type { InsightMetric } from "./insights";
 import type { PerformanceMetrics, ExitStatus } from "./websocket";
 
 export type AppState = "idle" | "analyzing" | "waiting" | "done";
@@ -14,7 +14,6 @@ export interface TerminalEntry {
 }
 
 export interface OrchestrationResult {
-  replaySteps: ReplayStep[];
   metrics: InsightMetric[];
   summary: string;
   diffHighlights: {

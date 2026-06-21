@@ -7,6 +7,7 @@ RUN apt-get update && \
 WORKDIR /build
 COPY requirements.txt .
 
+RUN pip install --no-cache-dir llama-cpp-python
 RUN pip install --no-cache-dir -r requirements.txt
 
 FROM python:3.10-slim
@@ -21,6 +22,7 @@ COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/pytho
 COPY app/ ./app/
 COPY model_config.yaml prompts.yaml ./
 COPY scripts/ ./scripts/
+COPY models/ /app/models/
 
 RUN mkdir -p /app/db
 

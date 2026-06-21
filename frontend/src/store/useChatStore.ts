@@ -3,7 +3,7 @@ import { API_URL } from '@/lib/env';
 
 // ── Import types from dedicated modules ───────────────────────────────────────
 import type { AppState, SessionData, TerminalEntry, OrchestrationResult } from '@/types/session';
-import type { ReplayStep, InsightMetric } from '@/types/insights';
+import type { InsightMetric } from '@/types/insights';
 import type {
   ConnectionIdMessage,
   StatusMessage,
@@ -19,13 +19,14 @@ import type {
 
 interface HistoryItemResponse {
   id?: string;
-  user_instruction?: string;
+  title?: string;
   created_at?: string;
 }
 
 interface SessionDetailResponse {
   id?: string;
   user_instruction?: string;
+  title?: string;
   original_code?: string;
   refactored_code?: string;
   status?: string;
@@ -111,7 +112,7 @@ interface ChatStore {
 
 // ── Zustand Store ─────────────────────────────────────────────────────────────
 
-export const useChatStore = create<ChatStore>((set) => ({
+export const useChatStore = create<ChatStore>((set, get) => ({
   orchestratorStatus: "connected",
   setOrchestratorStatus: (status) => set({ orchestratorStatus: status }),
   hasInitialLoaded: false,
@@ -206,14 +207,15 @@ export const useChatStore = create<ChatStore>((set) => ({
     return id;
   },
 
-  renameSession: (id, title) =>
+  renameSession: async (id, title) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+
+    const previousTitle = get().sessions[id]?.title;
+
     set((state) => {
       const session = state.sessions[id];
       if (!session) return state;
-
-      const trimmed = title.trim();
-      if (!trimmed) return state;
-
       return {
         ...state,
         sessions: {
@@ -225,7 +227,30 @@ export const useChatStore = create<ChatStore>((set) => ({
           },
         },
       };
-    }),
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/api/history/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trimmed }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      console.error("[ChatStore] Rename failed:", err);
+      set((state) => {
+        const session = state.sessions[id];
+        if (!session) return state;
+        return {
+          ...state,
+          sessions: {
+            ...state.sessions,
+            [id]: { ...session, title: previousTitle ?? session.title },
+          },
+        };
+      });
+    }
+  },
 
   deleteSession: async (id) => {
     try {
@@ -283,10 +308,7 @@ export const useChatStore = create<ChatStore>((set) => ({
             const id = item?.id;
             if (!id) return;
 
-            const instruction = item.user_instruction || "";
-            const title = instruction.trim().length > 0
-              ? (instruction.trim().length > 48 ? `${instruction.trim().slice(0, 48)}...` : instruction.trim())
-              : "New Session";
+            const title = (item.title || "").trim() || "New Session";
 
             const createdAt = item.created_at
               ? new Date(item.created_at).getTime()
@@ -438,7 +460,10 @@ export const useChatStore = create<ChatStore>((set) => ({
            activeStep = visuals.step;
         }
         
-        const safeTitle = (detail.user_instruction || "").trim() || "Previous Session";
+        const storedTitle = (detail.title || "").trim();
+        const safeTitle = storedTitle
+          || (detail.user_instruction || "").trim()
+          || "Previous Session";
 
         return {
           ...state,

@@ -1,14 +1,14 @@
-"""Tests for Orchestrator._repair_generator_output."""
+"""Tests for repair_generator_output."""
 import unittest
 
-from app.modules.orchestrator import Orchestrator
+from app.modules.orchestrator.phases.phase3_execution import repair_generator_output
 
 
 class TestRepairGeneratorOutput(unittest.TestCase):
     """Validates the regex/line-based Java output repair logic."""
 
     def setUp(self):
-        self.repair = Orchestrator._repair_generator_output
+        self.repair = repair_generator_output
 
     def test_unchanged_code_passes_through(self):
         code = "class A { void m() { return 1; } }"

@@ -10,22 +10,12 @@ from app.utils.paths import DB_PATH
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
 
 
-SCHEMA_VERSION = 4
-
-
-class SchemaVersion(peewee.Model):
-    version = peewee.IntegerField(default=1)
-
-    class Meta:
-        database = db
-        table_name = "schema_version"
-
-
 # 2. Define the Database Schema
 class RefactorHistory(peewee.Model):
     id = peewee.UUIDField(primary_key=True)
     status = peewee.CharField(default="Processing")
     exit_status = peewee.CharField(null=True) # SUCCESS, ABORT_STRATEGY, etc.
+    title = peewee.CharField(max_length=255, null=True)
     user_instruction = peewee.TextField()
     original_code = peewee.TextField()
     refactored_code = peewee.TextField(null=True)
@@ -75,57 +65,9 @@ class DatabaseManager:
         self._initialize_db()
 
     def _initialize_db(self) -> None:
-        """Creates tables and runs migrations based on schema version."""
+        """Creates tables from Peewee model definitions."""
         db.connect(reuse_if_open=True)
-        db.create_tables([SchemaVersion, RefactorHistory, OrchestrationLog], safe=True)
-
-        current_version = self._get_schema_version()
-        if current_version >= SCHEMA_VERSION:
-            return
-
-        # Migration v1 -> v2: add columns
-        if current_version < 2:
-            columns = {
-                "refactorhistory": ["exit_status", "final_intent", "final_plan", "total_outer_loops", "total_inner_loops"],
-                "orchestrationlog": ["phase", "outer_loop", "inner_loop"]
-            }
-            for table, cols in columns.items():
-                existing_cols = [c.name for c in db.get_columns(table)]
-                for col in cols:
-                    if col not in existing_cols:
-                        print(f"DB Migration: Adding column {col} to {table}...")
-                        if col in ("total_outer_loops", "total_inner_loops", "outer_loop", "inner_loop", "phase"):
-                            db.execute_sql(f'ALTER TABLE {table} ADD COLUMN {col} INTEGER DEFAULT 0')
-                        else:
-                            db.execute_sql(f'ALTER TABLE {table} ADD COLUMN {col} TEXT')
-
-        # Migration v2 -> v3: add mode column
-        if current_version < 3:
-            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
-            if "mode" not in existing_cols:
-                print("DB Migration: Adding column mode to refactorhistory...")
-                db.execute_sql('ALTER TABLE refactorhistory ADD COLUMN mode TEXT DEFAULT "multi"')
-
-        # Migration v3 -> v4: add peak GPU columns
-        if current_version < 4:
-            existing_cols = [c.name for c in db.get_columns("refactorhistory")]
-            for col in ["peak_gpu_utilization", "peak_gpu_memory_used"]:
-                if col not in existing_cols:
-                    print(f"DB Migration: Adding column {col} to refactorhistory...")
-                    db.execute_sql(f'ALTER TABLE refactorhistory ADD COLUMN {col} REAL')
-
-        self._set_schema_version(SCHEMA_VERSION)
-
-    def _get_schema_version(self) -> int:
-        try:
-            row = SchemaVersion.select().first()
-            return row.version if row else 0
-        except peewee.OperationalError:
-            return 0
-
-    def _set_schema_version(self, version: int) -> None:
-        SchemaVersion.delete().execute()
-        SchemaVersion.create(version=version)
+        db.create_tables([RefactorHistory, OrchestrationLog], safe=True)
 
     def create_session(self, id: str, instruction: str, original_code: str, mode: str = "multi") -> None:
         """Initializes a refactoring session in the database."""
@@ -133,6 +75,7 @@ class DatabaseManager:
             RefactorHistory.create(
                 id=id,
                 user_instruction=instruction,
+                title=instruction[:255],
                 original_code=original_code,
                 mode=mode,
             )
@@ -222,6 +165,16 @@ class DatabaseManager:
             return model_to_dict(h, backrefs=True)
         except RefactorHistory.DoesNotExist:
             return None
+
+    def rename_session(self, session_id: str, new_title: str) -> bool:
+        """Updates the title of a session."""
+        try:
+            RefactorHistory.update(title=new_title).where(
+                RefactorHistory.id == session_id
+            ).execute()
+            return True
+        except RefactorHistory.DoesNotExist:
+            return False
 
     def cleanup_zombie_sessions(self, max_age_hours: int = 1) -> int:
         """Marks sessions stuck in 'Processing' for >max_age_hours as 'Zombie'."""

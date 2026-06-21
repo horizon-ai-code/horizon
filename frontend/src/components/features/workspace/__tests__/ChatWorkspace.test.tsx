@@ -43,7 +43,7 @@ vi.mock('@/store/useChatStore', () => {
       appState: 'idle' as const,
       showFlowchartModal: false,
       orchestrationResult: {
-        replaySteps: [],
+
         metrics: [],
         summary: '',
         diffHighlights: { added: [], removed: [] },
@@ -78,7 +78,7 @@ describe('ChatWorkspace', () => {
     });
     // The terminal panel should be in the DOM
     await waitFor(() => {
-      expect(document.getElementById('terminal-panel')).toBeInTheDocument();
+      expect(document.getElementById('tour-terminal')).toBeInTheDocument();
     });
   });
 
@@ -88,7 +88,7 @@ describe('ChatWorkspace', () => {
       await new Promise((r) => requestAnimationFrame(r));
     });
     await waitFor(() => {
-      expect(document.getElementById('terminal-panel')).toBeInTheDocument();
+      expect(document.getElementById('tour-terminal')).toBeInTheDocument();
     });
   });
 });

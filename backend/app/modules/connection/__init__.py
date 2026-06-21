@@ -5,7 +5,7 @@ from typing import Any
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from app.modules.context_manager import DatabaseManager
+from app.modules.context import DatabaseManager
 from app.utils.types import Role
 
 
@@ -153,5 +153,11 @@ class ConnectionManager:
     async def delete_history_by_id(self, id: str) -> bool:
         return self.db.delete_history_by_id(id)
 
+    async def rename_history(self, history_id: str, new_title: str) -> bool:
+        return self.db.rename_session(history_id, new_title)
+
     def create_websocket_connection(self, websocket: WebSocket) -> ClientConnection:
         return ClientConnection(websocket=websocket, db=self.db)
+
+
+from .router import MessageRouter  # noqa: E402, F401

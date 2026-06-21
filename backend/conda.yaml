@@ -166,4 +166,4 @@ dependencies:
       - xxhash==3.6.0
       - yarl==1.23.0
       - zipp==3.23.0
-prefix: /home/pugario/.conda/envs/horizon_env
+# prefix: /home/pugario/.conda/envs/horizon_env  # machine-specific; set at clone time

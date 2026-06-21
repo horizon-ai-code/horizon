@@ -13,7 +13,7 @@ describe('constants', () => {
 
   it('EMPTY_ORCHESTRATION_RESULT has expected shape', () => {
     expect(EMPTY_ORCHESTRATION_RESULT).toEqual({
-      replaySteps: [],
+
       metrics: [],
       summary: '',
       diffHighlights: { added: [], removed: [] },

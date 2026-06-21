@@ -6,11 +6,11 @@ from datetime import datetime
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import UUID4, ValidationError
+from pydantic import UUID4
 
-from app.modules.agent_service import AgentService, InterruptedError
-from app.modules.connection_manager import ClientConnection, ConnectionManager
-from app.modules.context_manager import db
+from app.modules.agent import AgentService, InterruptedError
+from app.modules.connection import ClientConnection, ConnectionManager, MessageRouter
+from app.modules.context import db
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
 from app.utils.schemas import (
@@ -28,6 +28,7 @@ connection: ConnectionManager = ConnectionManager()
 orchestrator: Orchestrator = Orchestrator(
     agent_service=agent_service, validator=validator, db=connection.db
 )
+router: MessageRouter = MessageRouter(agent_service)
 
 # Global lock to serialize all orchestration (model & DB) operations
 orchestration_lock = asyncio.Lock()
@@ -103,34 +104,34 @@ async def entrypoint(websocket: WebSocket) -> None:
     await client_conn.start_heartbeat()
     active_tasks: set[asyncio.Task] = set()
 
-    async def run_orchestration(validated_data: RefactorRequest):
+    async def run_orchestration(client, validated_data: RefactorRequest):
         try:
             try:
                 await asyncio.wait_for(orchestration_lock.acquire(), timeout=600)
             except asyncio.TimeoutError:
-                await client_conn.send_status(
+                await client.send_status(
                     Role.System,
                     "Orchestration timed out after 10 minutes.",
                 )
                 return
             try:
-                client_conn.reset_id()
-                await client_conn.send_connection_id()
+                client.reset_id()
+                await client.send_connection_id()
                 await orchestrator.execute_orchestration(
-                    client=client_conn,
+                    client=client,
                     user_code=validated_data.code,
                     user_instruction=validated_data.user_instruction,
                 )
             finally:
                 orchestration_lock.release()
         except (asyncio.CancelledError, InterruptedError):
-            connection.db.mark_as_halted(client_conn.id)
-            await client_conn.send_halt_notification()
+            connection.db.mark_as_halted(client.id)
+            await client.send_halt_notification()
             raise
         except Exception as e:
-            print(f"Orchestration Task Failure (ID: {client_conn.id}): {e}")
+            print(f"Orchestration Task Failure (ID: {client.id}): {e}")
             try:
-                await client_conn.send_status(
+                await client.send_status(
                     Role.System,
                     f"Orchestration failed: {str(e)[:200]}",
                 )
@@ -147,85 +148,12 @@ async def entrypoint(websocket: WebSocket) -> None:
                 )
                 continue
 
-            if data.get("type") == "pong":
-                client_conn.handle_pong()
-                continue
-
-            if data.get("type") == "reconnect":
-                await _handle_reconnect(data.get("session_id", ""), websocket)
-                continue
-
-            if data.get("type") == "single":
-                code = data.get("code", "")
-                instruction = data.get("user_instruction", "")
-                if len(code.strip()) < 10:
-                    await websocket.send_json({"type": "error", "message": "Code must be at least 10 characters"})
-                    continue
-                if len(instruction.strip()) < 3:
-                    await websocket.send_json({"type": "error", "message": "Instruction must be at least 3 characters"})
-                    continue
-
-                if any(not t.done() for t in active_tasks):
-                    await client_conn.send_status(Role.System, "A refactor is already in progress. Please halt it first.")
-                    continue
-
-                task = asyncio.create_task(
-                    run_single_refactor(client_conn, code, instruction)
-                )
-                active_tasks.add(task)
-                task.add_done_callback(active_tasks.discard)
-                continue
-
-            if data.get("type") == "multi":
-                try:
-                    validated = RefactorRequest(**data)
-                except ValidationError as e:
-                    await websocket.send_json(
-                        {"type": "error", "message": "Invalid data format", "details": e.errors()}
-                    )
-                    continue
-
-                if any(not t.done() for t in active_tasks):
-                    await client_conn.send_status(
-                        role=Role.System,
-                        content="A refactor is already in progress. Please halt it first if you want to start a new one.",
-                    )
-                    continue
-
-                if orchestration_lock.locked():
-                    await client_conn.send_status(
-                        role=Role.System,
-                        content="Server is currently busy with another request. Your request is in the queue and will start automatically when ready...",
-                    )
-
-                task = asyncio.create_task(run_orchestration(validated))
-                active_tasks.add(task)
-                task.add_done_callback(active_tasks.discard)
-
-                async def notify_when_starting():
-                    while True:
-                        if not orchestration_lock.locked():
-                            await client_conn.send_status(
-                                Role.System,
-                                "Your request is now being processed...",
-                            )
-                            break
-                        await asyncio.sleep(0.5)
-                nt = asyncio.create_task(notify_when_starting())
-                active_tasks.add(nt)
-                nt.add_done_callback(active_tasks.discard)
-                continue
-
-            if data.get("type") == "halt":
-                agent_service.stop()
-                for task in active_tasks.copy():
-                    if not task.done():
-                        task.cancel()
-                print(f"Halt triggered for session {client_conn.id}")
-                await websocket.send_json({
-                    "type": "halt_acknowledged",
-                    "id": client_conn.id,
-                })
+            handled = await router.dispatch(
+                data, client_conn, active_tasks,
+                run_single_refactor, run_orchestration,
+                reconnect_handler=_handle_reconnect,
+            )
+            if handled:
                 continue
 
     except WebSocketDisconnect as e:
@@ -353,3 +281,20 @@ async def delete_history_detail(
         "status": "history_deleted",
         "message": f"Refactor history {history_id} deleted",
     }
+
+
+@app.patch(
+    "/api/history/{history_id}",
+    dependencies=[Depends(get_db)],
+)
+async def rename_history(
+    history_id: UUID4,
+    body: dict,
+):
+    new_title = body.get("title", "").strip()
+    if not new_title:
+        raise HTTPException(status_code=400, detail="title is required")
+    success = await connection.rename_history(str(history_id), new_title)
+    if not success:
+        raise HTTPException(status_code=404, detail="Refactor history not found")
+    return {"status": "ok", "title": new_title}

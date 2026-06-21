@@ -24,9 +24,10 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
 
         # Mocking model_config and prompts loading
         self.mock_config = {
-            "planner": {"filename": "p", "name": "p"},
-            "generator": {"filename": "g", "name": "g"},
-            "judge": {"filename": "j", "name": "j"}
+            "planner": {"name": "p", "filename": "p", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "generator": {"name": "g", "filename": "g", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+            "judge": {"name": "j", "filename": "j", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
+            "single": {"name": "s", "filename": "s", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
         }
         self.mock_prompts = {
             "planner": {"classifier": "c", "architect": "a"},
@@ -69,8 +70,8 @@ class TestOrchestratorHalt(unittest.IsolatedAsyncioTestCase):
         import uuid
         from datetime import datetime, timedelta
 
-        from app.modules.context_manager import DatabaseManager, RefactorHistory
-        from app.modules.context_manager import db as test_db
+        from app.modules.context import DatabaseManager, RefactorHistory
+        from app.modules.context import db as test_db
 
         mgr = DatabaseManager()
         zombie_id = str(uuid.uuid4())

@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 from fastapi import WebSocketDisconnect
 
-from app.modules.connection_manager import ClientConnection
-from app.modules.context_manager import DatabaseManager
+from app.modules.connection import ClientConnection
+from app.modules.context import DatabaseManager
 
 
 class TestSafeSend(unittest.IsolatedAsyncioTestCase):

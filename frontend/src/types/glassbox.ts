@@ -1,4 +1,4 @@
-export type AgentRole = "Planner" | "Generator" | "Validator" | "Judge" | "System";
+export type AgentRole = "Planner" | "Generator" | "Validator" | "Judge" | "System" | "Monolith";
 
 export interface RetryInfo {
   current: number;

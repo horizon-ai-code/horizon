@@ -96,7 +96,7 @@ export default function RefactorInput({
   const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing" || appState === "waiting";
 
   return (
-    <div className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
+    <div id="tour-refactor-input" className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
       <motion.div
         layout
         animate={controls}

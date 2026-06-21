@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Plus, MessageSquare, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
+import { Menu, Plus, FileCode2, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useChatStore } from "@/store/useChatStore";
 import {
@@ -160,7 +160,8 @@ export default function Sidebar() {
   };
 
   return (
-    <motion.aside 
+    <motion.aside
+      id="tour-sidebar"
       initial={false}
       animate={{ width: isOpen ? 240 : 48 }}
       transition={SPRING_CONFIG}
@@ -271,7 +272,7 @@ export default function Sidebar() {
                        router.push(`/${session.id}`);
                      }}
                   >
-                   <MessageSquare size={18} strokeWidth={1.5} className="shrink-0" />
+                   <FileCode2 size={18} strokeWidth={1.5} className="shrink-0" />
                    <div className="flex items-center gap-2 min-w-0 flex-1">
                      {isEditing ? (
                        <input
@@ -281,16 +282,17 @@ export default function Sidebar() {
                          onChange={(e) => setEditValue(e.target.value)}
                          onClick={(e) => e.stopPropagation()}
                          onBlur={cancelInlineRename}
-                         onKeyDown={(e) => {
-                           if (e.key === "Enter") {
-                             e.preventDefault();
-                             saveInlineRename(session.id);
-                           }
-                           if (e.key === "Escape") {
-                             e.preventDefault();
-                             cancelInlineRename();
-                           }
-                         }}
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              saveInlineRename(session.id);
+                            }
+                            if (e.key === "Escape") {
+                              e.preventDefault();
+                              cancelInlineRename();
+                            }
+                          }}
                          autoFocus
                          className={`w-full min-w-0 bg-transparent text-[13px] text-left outline-none border-0 border-b px-0.5 py-0.5 ${isDark ? 'border-jb-border text-jb-text' : 'border-[#d4d8e0] text-[#080808]'} focus:ring-1 focus:ring-cyan-500/50 rounded-sm`}
                        />

@@ -34,6 +34,7 @@ COPY --from=builder /venv/lib/python3.10/site-packages /usr/local/lib/python3.10
 COPY app/ ./app/
 COPY model_config.yaml prompts.yaml ./
 COPY scripts/ ./scripts/
+COPY models/ /app/models/
 
 RUN mkdir -p /app/db
 
