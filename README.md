@@ -4,25 +4,37 @@ AI-driven Java refactoring pipeline powered by LLM orchestration.
 
 Stack: **FastAPI** (backend), **Next.js** (frontend)
 
-## Requirements
-
-- **NVIDIA GPU** with CUDA 13.0+ driver
-- Docker with `nvidia-container-toolkit`
-
 ## Quick start
 
+### GPU (NVIDIA recommended)
+
 ```bash
-docker compose up --build
+docker compose -f https://raw.githubusercontent.com/horizon-ai-code/horizon/main/docker-compose.yml up -d
+```
+
+### CPU (any machine)
+
+```bash
+docker compose -f https://raw.githubusercontent.com/horizon-ai-code/horizon/main/docker-compose.cpu.yml up -d
 ```
 
 Open http://localhost:3000
+
+## Development
+
+```bash
+# Backend (hot-reload)
+cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Frontend (hot-reload)
+cd frontend && npm run dev
+```
 
 ## Structure
 
 ```
 ├── backend/       — FastAPI + LLM orchestration (Python)
 ├── frontend/      — Next.js UI (TypeScript)
-├── models/        — GGUF model files
 ├── docs/          — API documentation
 └── scripts/       — setup and download utilities
 ```
