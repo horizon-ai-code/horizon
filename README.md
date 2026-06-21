@@ -4,7 +4,7 @@
 
 # Horizon
 
-*AI-driven Java refactoring pipeline powered by multi-agent LLM orchestration.*
+_AI-driven Java refactoring pipeline powered by multi-agent LLM orchestration._
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](backend/pyproject.toml)
@@ -55,26 +55,27 @@ Open [http://localhost:3000](http://localhost:3000)
 │  Next.js │ ◄──────────────► │  FastAPI │    │     LLM Orchestration       │
 │  Frontend│                  │  Backend │    │                             │
 │  :3000   │                  │  :8000   │    │  ┌────────┐  ┌───────────┐  │
-└──────────┘                  └────┬─────┘    │  │Planner  │  │ Generator │  │
-                                   │          │  └────────┘  └───────────┘  │
-                                   │          │  ┌──────────────────────┐   │
-                                   │          │  │  Judge (Verifier)    │   │
-                                   │          │  └──────────────────────┘   │
-                                   │          └─────────────────────────────┘
-                                   │
-                              ┌────▼─────┐
-                              │  Models  │
-                              │ (GGUF)   │
-                              └──────────┘
+└──────────┘                  └──────────┘    │  │Planner │  │ Generator │  │
+                                              │  └────────┘  └───────────┘  │
+                                              │  ┌──────────────────────┐   │
+                                              │  │  Judge (Verifier)    │   │
+                                              │  └──────────────────────┘   │
+                                              └─────────────┬───────────────┘
+                                                            │
+                                                            │
+                                                      ┌─────▼─────┐
+                                                      │   Models  │
+                                                      │  (GGUF)   │
+                                                      └───────────┘
 ```
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python 3.10, FastAPI, llama-cpp-python, uvicorn |
-| Frontend | Next.js 16, TypeScript, Tailwind CSS, Framer Motion |
-| AI Models | Qwen2.5-Coder (3B, 7B), Llama-3.2 (3B) — GGUF quantized |
+| Layer        | Technology                                               |
+| ------------ | -------------------------------------------------------- |
+| Backend      | Python 3.10, FastAPI, llama-cpp-python, uvicorn          |
+| Frontend     | Next.js 16, TypeScript, Tailwind CSS, Framer Motion      |
+| AI Models    | Qwen2.5-Coder (3B, 7B), Llama-3.2 (3B) — GGUF quantized  |
 | Distribution | Docker, GitHub Container Registry (GHCR), NVIDIA CUDA 13 |
 
 ## Structure
