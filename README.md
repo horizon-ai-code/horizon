@@ -16,7 +16,7 @@
 <br>
 
 <div align="center">
-  <img src="UI.png" width="800" alt="Horizon AI Screenshot">
+  <img src="screenshots/UI.png" width="800" alt="Horizon AI Screenshot">
 </div>
 
 <br>
@@ -87,6 +87,12 @@ Open [http://localhost:3000](http://localhost:3000)
 ├── docker-compose.yml      — GPU bundle
 └── docker-compose.cpu.yml  — CPU bundle
 ```
+
+## Contributors
+
+<a href="https://github.com/horizon-ai-code/horizon/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=horizon-ai-code/horizon" />
+</a>
 
 ## License
 
