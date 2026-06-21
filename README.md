@@ -16,7 +16,7 @@
 <br>
 
 <div align="center">
-  <i>Screenshot coming soon</i>
+  <img src="UI.png" width="800" alt="Horizon AI Screenshot">
 </div>
 
 <br>
