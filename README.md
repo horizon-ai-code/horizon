@@ -88,11 +88,22 @@ Open [http://localhost:3000](http://localhost:3000)
 └── docker-compose.cpu.yml  — CPU bundle
 ```
 
+## Star History
+
+<a href="https://star-history.com/#horizon-ai-code/horizon&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=horizon-ai-code/horizon&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=horizon-ai-code/horizon&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=horizon-ai-code/horizon&type=Date" />
+  </picture>
+</a>
+
 ## Contributors
 
-<a href="https://github.com/horizon-ai-code/horizon/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=horizon-ai-code/horizon" />
-</a>
+- **Joshua Lopez** — Lead/Fullstack Developer ([@pugarioo](https://github.com/pugarioo))
+- **Jericho Varde** — Frontend Developer ([@vardzz](https://github.com/vardzz))
+- **Christian Balinado** — Contributor ([@blueztian](https://github.com/blueztian))
+- **Andrew Dejito** — Contributor ([@andrewdejito](https://github.com/andrewdejito))
 
 ## License
 
