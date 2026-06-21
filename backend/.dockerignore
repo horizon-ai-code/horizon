@@ -5,7 +5,6 @@ __pycache__/
 tests/
 benchmark/
 docs/
-models/
 db/
 conda.yaml
 skills-lock.json

@@ -1,22 +1,14 @@
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.cpu
+    image: ghcr.io/horizon-ai-code/horizon-backend:cpu
     ports:
       - "8000:8000"
     volumes:
-      - ./models:/app/models
       - horizon_data:/app/db
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - NEXT_PUBLIC_API_URL=http://localhost:8000
-        - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+    image: ghcr.io/horizon-ai-code/horizon-frontend:latest
     ports:
       - "3000:3000"
     depends_on:
