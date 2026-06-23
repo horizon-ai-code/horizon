@@ -89,7 +89,7 @@ function LogEntry({ entry, isDark }: EntryProps) {
   const badge = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
   const label = AGENT_LABEL[iconKey] ?? "AGENT";
   const { summary, tags, details, rawData } = formatStatusContent(entry.text);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(details !== null);
 
   const tagLine = tags
     .map((t) => (t.label ? `${t.label}: ${t.value}` : t.value))
