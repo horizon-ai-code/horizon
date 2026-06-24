@@ -14,8 +14,9 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="module")
 def test_app():
-    import app.main as main_module
     from contextlib import asynccontextmanager
+
+    import app.main as main_module
 
     # Mock all DB-connected services for isolation
     mock_conn = MagicMock()

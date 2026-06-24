@@ -3,7 +3,7 @@ from typing import Any
 
 import peewee
 from playhouse.shortcuts import model_to_dict
-from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from app.utils.paths import DB_PATH
 

@@ -1,7 +1,7 @@
 """Tests for format_plan_for_generator — mutation plan to text."""
 
 from app.utils.formatters import format_plan_for_generator
-from tests.fixtures.plan_samples import SINGLE_MODIFY, THREE_MUTATIONS, EMPTY_MUTATIONS
+from tests.fixtures.plan_samples import EMPTY_MUTATIONS, SINGLE_MODIFY, THREE_MUTATIONS
 
 
 class TestFormatPlanForGenerator:

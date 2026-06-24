@@ -1,6 +1,6 @@
 """Tests for code_utils — wrapper stripping and mutation ordering."""
 
-from app.utils.code_utils import strip_outer_wrapper, order_mutations
+from app.utils.code_utils import order_mutations, strip_outer_wrapper
 from app.utils.types import MutationAction
 
 

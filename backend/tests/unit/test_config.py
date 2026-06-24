@@ -1,7 +1,8 @@
 """Tests for OrchestrationConfig — config loading and validation."""
 
 import pytest
-from app.modules.orchestrator.config import OrchestrationConfig, ModelEntry
+
+from app.modules.orchestrator.config import ModelEntry, OrchestrationConfig
 
 
 class TestOrchestrationConfig:
@@ -23,7 +24,7 @@ class TestOrchestrationConfig:
 
     def test_model_entry_frozen(self):
         entry = ModelEntry(name="m", filename="m.gguf", temperature=0.1, max_tokens=4096, context_size=4096, layers=20)
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — frozen dataclass raises type-dependent error
             entry.temperature = 0.5
 
 

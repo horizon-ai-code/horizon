@@ -1,7 +1,7 @@
 """Tests for ResponseParser — XML/JSON extraction from LLM output."""
 
 import json
-import pytest
+
 from app.utils.response_parser import ResponseParser, detect_repetition
 from app.utils.schemas import IntentPacket
 

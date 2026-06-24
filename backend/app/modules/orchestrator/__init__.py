@@ -7,6 +7,11 @@ from pydantic import BaseModel
 from app.modules.agent import AgentService
 from app.modules.connection import ClientConnection
 from app.modules.context import DatabaseManager
+from app.modules.validator import Validator
+from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
+from app.utils.performance import PerformanceTracker
+from app.utils.types import ExitStatus, Role
+
 from .config import OrchestrationConfig
 from .phases.phase2_strategy import Phase2Strategy
 from .phases.phase3_execution import Phase3Execution
@@ -14,10 +19,6 @@ from .phases.phase4_validation import Phase4Validation
 from .phases.phase5_adjudication import Phase5Adjudication
 from .phases.phase6_finalization import Phase6Finalization
 from .phases.single_refactor import SingleRefactor
-from app.modules.validator import Validator
-from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
-from app.utils.performance import PerformanceTracker
-from app.utils.types import ExitStatus, Role
 
 # ============================================================
 # SECTION 1: OrchestrationState

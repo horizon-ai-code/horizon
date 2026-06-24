@@ -1,10 +1,12 @@
 import asyncio
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import ValidationError
 
-from . import ClientConnection
 from app.utils.types import RefactorRequest, Role
+
+from . import ClientConnection
 
 
 class MessageRouter:

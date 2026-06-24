@@ -14,12 +14,11 @@ import pytest
 from peewee import SqliteDatabase
 
 from app.modules.agent import AgentService, InterruptedError
-from app.modules.context import DatabaseManager, RefactorHistory, OrchestrationLog
+from app.modules.context import DatabaseManager, OrchestrationLog, RefactorHistory
 from app.modules.orchestrator import Orchestrator
 from app.modules.orchestrator.config import OrchestrationConfig
 from app.modules.validator import Validator
 from app.utils.types import ExitStatus
-
 
 # ─── Canned JSON responses per phase ────────────────────────────────────────
 
@@ -95,8 +94,11 @@ class MockAgentService(AgentService):
     async def generate(self, messages, temp=0.1, max_tokens=4096, stream=False,
                        response_model=None, check_repetition=None):
         from app.utils.schemas import (
-            IntentClassifierResponse, ArchitectAnalysisResponse,
-            ASTArchitectResponse, StructuralAuditorResponse, RefactorInsightsResponse,
+            ArchitectAnalysisResponse,
+            ASTArchitectResponse,
+            IntentClassifierResponse,
+            RefactorInsightsResponse,
+            StructuralAuditorResponse,
         )
         model_map = {
             IntentClassifierResponse: INTENT_CLASSIFIER,
@@ -275,7 +277,7 @@ class TestFullMockPipeline:
         orch = build_orchestrator(agent, db_mgr)
         client = make_client()
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — InterruptedError wraps through generic handler
             await orch.execute_orchestration(client=client, user_code=BASE_CODE, user_instruction=INSTRUCTION)
 
         # InterruptedError propagates. The state was never set to SUCCESS or ABORT.

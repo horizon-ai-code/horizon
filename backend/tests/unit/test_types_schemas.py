@@ -2,8 +2,9 @@
 
 import pytest
 from pydantic import ValidationError
-from app.utils.types import RefactorRequest, HaltRequest
+
 from app.utils.schemas import IntentPacket, ScopeAnchor
+from app.utils.types import HaltRequest, RefactorRequest
 
 
 class TestRefactorRequest:

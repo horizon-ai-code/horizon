@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.modules.agent import InterruptedError, AgentService
+from app.modules.agent import AgentService, InterruptedError
 
 
 class TestCountTokens:
@@ -22,7 +22,7 @@ class TestCountTokens:
 @pytest.mark.asyncio
 class TestGenerate:
     async def test_stop_raises_interrupted(self):
-        with patch("app.modules.agent.Llama") as mock_llama:
+        with patch("app.modules.agent.Llama") as _:
             agent = AgentService()
             await agent.load({"filename": "test.gguf", "layers": 0, "context_size": 4096})
             agent.model = MagicMock()
