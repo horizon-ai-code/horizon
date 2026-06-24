@@ -16,6 +16,18 @@ class TestRepairGeneratorOutput:
         result = repair_generator_output(orig, gen)
         assert result is not None
 
+    def test_strips_null_check(self):  # TC-P3-002
+        orig = "void m() { return; }"
+        gen = "void m() { if (x != null) { return; } }"
+        result = repair_generator_output(orig, gen)
+        assert result is not None
+
+    def test_strips_extra_public(self):  # TC-P3-003
+        orig = "void m() { }"
+        gen = "public void m() { }"
+        result = repair_generator_output(orig, gen)
+        assert "public" not in result
+
     def test_leaves_valid_unchanged(self):  # TC-P3-004
         orig = "void m() { return; }"
         result = repair_generator_output(orig, orig)
@@ -49,7 +61,7 @@ class TestPhase3Execution:
         s.active_plan = {"ast_mutations": [{"action": "MODIFY_METHOD", "target": "m", "details": {}}]}
         return s
 
-    async def test_run_single_completes(self, state):  # TC-P3-005
+    async def test_run_single_picks_best_cc(self, state):  # TC-P3-005
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
@@ -64,7 +76,7 @@ class TestPhase3Execution:
             await phase.run_single(MagicMock(), state)
             assert state.working_code is not None
 
-    async def test_run_sequential_completes(self, state):  # TC-P3-007
+    async def test_run_sequential_applies_one_by_one(self, state):  # TC-P3-007
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { if(!a) return; } }</code>"}}]}

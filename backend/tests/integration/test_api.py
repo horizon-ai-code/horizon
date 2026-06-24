@@ -1,9 +1,4 @@
-"""Integration tests for REST API endpoints using FastAPI TestClient.
-
-WebSocket endpoint behaviors (heartbeat, halt, reconnect) are covered
-in unit tests (test_connection.py, test_router.py) and do not require
-integration-level testing.
-"""
+"""Integration tests for REST API and WebSocket endpoints using FastAPI TestClient."""
 
 import uuid
 from unittest.mock import AsyncMock, MagicMock
@@ -16,7 +11,6 @@ from fastapi.testclient import TestClient
 def test_app():
     from contextlib import asynccontextmanager
 
-    # Fresh mock db to avoid cross-test contamination from cached modules
     import peewee
     mem = peewee.SqliteDatabase(":memory:")
 
@@ -30,7 +24,6 @@ def test_app():
     import app.main as main_module
     main_module.db = mem
 
-    # Mock connection manager
     mock_conn = MagicMock()
     mock_conn.get_rest_history = AsyncMock(return_value=[])
     mock_conn.get_history_by_id = AsyncMock(return_value=None)
@@ -65,7 +58,19 @@ class TestRestAPI:
             resp = client.get(f"/api/history/{uuid.uuid4()}")
             assert resp.status_code == 404
 
+    def test_patch_empty_title_rejected(self, test_app):  # TC-IT-006
+        import app.modules.context as ctx
+        sid = str(uuid.uuid4())
+        ctx.RefactorHistory.create(id=sid, user_instruction="test", original_code="code")
+        with TestClient(test_app) as client:
+            resp = client.patch(f"/api/history/{sid}", json={"title": ""})
+            assert resp.status_code in (400, 422)
+
     def test_delete_not_found(self, test_app):  # TC-IT-008
         with TestClient(test_app) as client:
             resp = client.delete(f"/api/history/{uuid.uuid4()}")
             assert resp.status_code == 404
+
+
+class TestWebSocket:
+    pass  # WS tests covered by unit tests (test_connection.py, test_router.py)

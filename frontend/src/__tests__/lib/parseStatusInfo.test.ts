@@ -1,81 +1,49 @@
 import { describe, it, expect } from 'vitest';
 import {
-  parsePhaseNumber,
-  parseStrategyIteration,
-  parseRetryInfo,
-  parseValidationFaults,
-  parseJudgeDecision,
-  parseIntentDetail,
-  parseMutationPlan,
-  parsePhaseAction,
+  parsePhaseNumber, parseStrategyIteration, parseRetryInfo,
+  parseValidationFaults, parseJudgeDecision, parseIntentDetail,
+  parseMutationPlan, parsePhaseAction,
 } from '@/lib/parseStatusInfo';
 
 describe('parsePhaseNumber', () => {
-  it('detects Ph1 pattern', () => {
-    expect(parsePhaseNumber('Ph1: Analyzing baseline...')).toBe(1);
-  });
-
-  it('detects Baseline keyword', () => {
-    expect(parsePhaseNumber('Starting Baseline phase')).toBe(1);
-  });
-
-  it('detects Strategy keyword', () => {
-    expect(parsePhaseNumber('Strategy phase analyzing...')).toBe(2);
-  });
+  it('detects Ph1 pattern', () => { expect(parsePhaseNumber('Ph1: x')).toBe(1); });
+  it('detects Baseline', () => { expect(parsePhaseNumber('Starting Baseline')).toBe(1); });
+  it('detects Strategy', () => { expect(parsePhaseNumber('Strategy phase')).toBe(2); });
 });
 
 describe('parseStrategyIteration', () => {
-  it('extracts iteration number', () => {
-    expect(parseStrategyIteration('Strategy Iter 2')).toBe(2);
-  });
+  it('extracts iteration number', () => { expect(parseStrategyIteration('Strategy Iter 2')).toBe(2); });
 });
 
 describe('parseRetryInfo', () => {
-  it('detects syntax heal attempts', () => {
+  it('detects syntax heal', () => {
     const r = parseRetryInfo('Syntax heal attempt 2/3');
-    expect(r).toBeDefined();
-    expect(r!.current).toBe(2);
-    expect(r!.max).toBe(3);
+    expect(r!.current).toBe(2); expect(r!.max).toBe(3);
   });
-
-  it('detects sequential mutation retry', () => {
-    const r = parseRetryInfo('Retry mutation 1/5');
-    expect(r).toBeDefined();
-  });
+  it('detects sequential retry', () => { expect(parseRetryInfo('Retry mutation 1/5')).toBeDefined(); });
 });
 
 describe('parseValidationFaults', () => {
-  it('extracts fault count', () => {
-    expect(parseValidationFaults('Total Faults: 3')).toBe(3);
-  });
+  it('extracts fault count', () => { expect(parseValidationFaults('Total Faults: 3')).toBe(3); });
 });
 
 describe('parseJudgeDecision', () => {
-  it('detects ACCEPT', () => {
-    expect(parseJudgeDecision('Decision: ACCEPT')).toBe('ACCEPT');
-  });
-
-  it('detects REVISE', () => {
-    expect(parseJudgeDecision('Verdict: REVISE')).toBe('REVISE');
-  });
+  it('detects ACCEPT', () => { expect(parseJudgeDecision('Decision: ACCEPT')).toBe('ACCEPT'); });
+  it('detects REVISE', () => { expect(parseJudgeDecision('Verdict: REVISE')).toBe('REVISE'); });
 });
 
 describe('parseIntentDetail', () => {
-  it('returns undefined for unmatched input', () => {
-    const result = parseIntentDetail('unmatched content');
-    expect(result).toBeUndefined();
+  it('returns undefined for unmatched', () => {
+    expect(parseIntentDetail('unmatched')).toBeUndefined();
   });
 });
 
 describe('parseMutationPlan', () => {
-  it('returns undefined for unmatched input', () => {
-    const result = parseMutationPlan('unmatched content');
-    expect(result).toBeUndefined();
+  it('returns undefined for unmatched', () => {
+    expect(parseMutationPlan('unmatched')).toBeUndefined();
   });
 });
 
 describe('parsePhaseAction', () => {
-  it('extracts action description', () => {
-    expect(parsePhaseAction('Ph2: Analyzing code structure')).toBe('Analyzing code structure');
-  });
+  it('extracts action', () => { expect(parsePhaseAction('Ph2: Analyzing code')).toBe('Analyzing code'); });
 });

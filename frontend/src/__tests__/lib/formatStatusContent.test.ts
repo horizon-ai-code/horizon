@@ -3,22 +3,24 @@ import { formatStatusContent } from '@/lib/formatStatusContent';
 
 describe('formatStatusContent', () => {
   it('returns summary from first line', () => {
-    const r = formatStatusContent('Starting analysis.\nMore details here');
-    expect(r.summary).toBe('Starting analysis.');
+    expect(formatStatusContent('Start.\nMore').summary).toBe('Start.');
   });
-
-  it('handles empty input', () => {
-    const r = formatStatusContent('');
-    expect(r.summary).toBe('');
+  it('detects JSON blocks', () => {
+    const r = formatStatusContent('```json\n{"a":1}\n```\nDone');
+    expect(r.summary).toBeTruthy();
   });
-
-  it('handles plain text', () => {
-    const r = formatStatusContent('plain text');
-    expect(r.summary).toBe('plain text');
+  it('detects standalone JSON', () => {
+    const r = formatStatusContent('{"a":1}');
+    expect(r).toBeDefined();
   });
-
+  it('extracts Key:Value tags', () => {
+    const r = formatStatusContent('**Category:** CONTROL_FLOW\nMore');
+    expect(r.tags.length).toBeGreaterThanOrEqual(1);
+  });
+  it('handles empty', () => { expect(formatStatusContent('').summary).toBe(''); });
+  it('handles plain text', () => { expect(formatStatusContent('plain').summary).toBe('plain'); });
   it('returns structured output', () => {
-    const r = formatStatusContent('Starting analysis.');
+    const r = formatStatusContent('test');
     expect(r).toHaveProperty('summary');
     expect(r).toHaveProperty('tags');
     expect(r).toHaveProperty('details');

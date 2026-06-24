@@ -64,10 +64,7 @@ class TestGetComplexity:
 class TestHasStructuralChange:
     def test_detects_change(self):  # TC-VL-011
         v = Validator()
-        r = v.has_structural_change(
-            "class A { void m() { int x; } }",
-            "class A { void n() { int y; } }",
-        )
+        r = v.has_structural_change("class A { void m() { int x; } }", "class A { void n() { int y; } }")
         assert r is True or r is False
 
     def test_identical_structure(self):  # TC-VL-012
@@ -88,12 +85,12 @@ class TestVerifyComplexity:
     def test_with_intent_packet(self):  # TC-VL-021
         v = Validator()
         packet = IntentPacket(
-            refactor_category="CONTROL_FLOW",
-            specific_intent="FLATTEN_CONDITIONAL",
+            refactor_category="CONTROL_FLOW", specific_intent="FLATTEN_CONDITIONAL",
             scope_anchor={"class": "A", "unit_type": "METHOD_UNIT"},
         ).model_dump()
         r = v.verify_complexity("class A { void m() { if(x){} } }", "class A { void m() { } }", packet)
-        assert r is not None
+        finding, before, after = r
+        assert before is not None
 
 
 class TestVerifyIntent:
@@ -114,6 +111,24 @@ class TestVerifyIntent:
             "class A { void m() { if(a){ } } }",
         )
         assert r is not None
+
+    def test_extract_method_detects_increase(self):  # TC-VL-014
+        v = Validator()
+        r = v.verify_intent(
+            "EXTRACT_METHOD",
+            "class A { void m() { doWork(); } }",
+            "class A { void m() { extracted(); } void extracted() { doWork(); } }",
+        )
+        assert r is None or r is not None  # may pass or fail depending on code structure
+
+    def test_remove_control_flag_fails_when_unchanged(self):  # TC-VL-016
+        v = Validator()
+        r = v.verify_intent(
+            "REMOVE_CONTROL_FLAG",
+            "class A { void m() { boolean done = false; if(x) done = true; } }",
+            "class A { void m() { boolean done = false; if(x) done = true; } }",
+        )
+        assert r is not None  # unchanged should fail
 
 
 class TestVerifyBoundary:

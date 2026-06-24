@@ -620,7 +620,7 @@ Throughout this document, each section header includes an implementation status:
 
 | Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
 |--------|-----------|---------|----------|----------|-------------|
-| **BACKEND UNIT** | | **170** | **125** | | |
+| **BACKEND UNIT** | | **170** | **154** | | |
 | OrchestrationConfig | `test_config.py` | 5 | 4 | High | YAML file |
 | Types & Schemas | `test_types_schemas.py` | 8 | 8 | High | None |
 | ResponseParser | `test_response_parser.py` | 20 | 20 | High | None |
@@ -630,33 +630,33 @@ Throughout this document, each section header includes an implementation status:
 | ClientConnection | `test_connection.py` | 8 | 7 | High | WebSocket (mocked) |
 | DatabaseManager | `test_context.py` | 12 | 9 | Critical | In-memory SQLite |
 | MessageRouter | `test_router.py` | 8 | 7 | Medium | Agent + Connection |
-| Orchestrator | `test_orchestrator.py` | 12 | 3 | Critical | Agent, DB, Connection (mocked) |
-| Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | 7 | Critical | AgentService (mocked) |
-| Phase 3 — Execution | `test_phase3_execution.py` | 10 | 6 | Critical | AgentService (mocked) |
-| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 3 | Critical | Validator (real) |
-| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | 3 | Critical | AgentService (mocked) |
-| Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | 2 | Critical | AgentService, DB (mocked) |
+| Orchestrator | `test_orchestrator.py` | 12 | 6 | Critical | Agent, DB, Connection (mocked) |
+| Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | 12 | Critical | AgentService (mocked) |
+| Phase 3 — Execution | `test_phase3_execution.py` | 10 | 7 | Critical | AgentService (mocked) |
+| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 6 | Critical | Validator (real) |
+| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | 6 | Critical | AgentService (mocked) |
+| Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | 6 | Critical | AgentService, DB (mocked) |
 | Formatters | `test_formatters.py` | 5 | 5 | High | None (pure) |
 | Code Utils | `test_code_utils.py` | 6 | 5 | Medium | None (pure) |
 | **BACKEND INTEGRATION** | | **12** | **8** | | |
 | REST API (mocked) | `test_api.py` | 12 | 4 | Critical | Mocked ConnectionManager + DB |
 | Full Pipeline | `test_full_mock_pipeline.py` | — | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
-| **FRONTEND UNIT** | | **99** | **75** | | |
+| **FRONTEND UNIT** | | **99** | **82** | | |
 | lib/utils (cn) | `utils.test.ts` | 6 | 6 | Low | None (pure) |
 | lib/constants | `constants.test.ts` | 5 | 5 | Low | None (read-only) |
-| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 14 | 9 | High | None (pure) |
-| lib/formatStatusContent | `formatStatusContent.test.ts` | 8 | 4 | High | None (pure) |
+| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 14 | 10 | High | None (pure) |
+| lib/formatStatusContent | `formatStatusContent.test.ts` | 8 | 7 | High | None (pure) |
 | lib/javaFormatter | `javaFormatter.test.ts` | 10 | 8 | Medium | None (pure) |
 | lib/indentation | `indentation.test.ts` | 8 | 7 | Medium | None (pure) |
 | lib/buildMetrics | `buildMetrics.test.ts` | 6 | 6 | Medium | None (pure) |
 | lib/schemas (Zod) | `websocket.test.ts` | 8 | 8 | Medium | None (pure) |
-| store/useChatStore | `useChatStore.test.ts` | 14 | 8 | Critical | fetch (mocked) |
-| hooks/useOrchestrationSocket | `useOrchestrationSocket.test.tsx` | 10 | 2 | Critical | WebSocket, store |
+| store/useChatStore | `useChatStore.test.ts` | 14 | 14 | Critical | fetch (mocked) |
+| hooks/useOrchestrationSocket | `useOrchestrationSocket.test.tsx` | 10 | 3 | Critical | WebSocket, store |
 | ErrorBoundary | `ErrorBoundary.test.tsx` | 4 | 4 | Medium | React rendering |
 | **FRONTEND INTEGRATION** | | **6** | **4** | | |
 | Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
-| ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 1 | High | Store + Hook + RTL |
-| | | **287 planned** | **212 done** | | |
+| ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 2 | High | Store + Hook + RTL |
+| | | **287 planned** | **246 done** | | |
 
 ---
 
