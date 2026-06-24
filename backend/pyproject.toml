@@ -17,6 +17,7 @@ dependencies = [
     "peewee>=3.17.0",
     "coloredlogs>=15.0",
     "httpx>=0.25.0",
+    "lizard>=1.21.0",
 ]
 
 [project.optional-dependencies]
