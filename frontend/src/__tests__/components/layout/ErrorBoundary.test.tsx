@@ -1,5 +1,5 @@
 /// <reference types="vitest/globals" />
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ErrorBoundary from '@/components/layout/ErrorBoundary';
 
@@ -41,5 +41,21 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     expect(screen.getByText('Custom Error')).toBeInTheDocument();
+  });
+
+  it('resets error state when children change', () => {
+    const { rerender } = render(
+      <ErrorBoundary key="1">
+        <ThrowError />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary key="2">
+        <div>recovered</div>
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('recovered')).toBeInTheDocument();
   });
 });

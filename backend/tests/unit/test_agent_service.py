@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.modules.agent import InterruptedError, AgentService
+from app.modules.agent import AgentService, InterruptedError
 
 
 class TestCountTokens:

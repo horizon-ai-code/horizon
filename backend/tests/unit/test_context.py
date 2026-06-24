@@ -5,7 +5,7 @@ import uuid
 import pytest
 from peewee import SqliteDatabase
 
-from app.modules.context import DatabaseManager, RefactorHistory, OrchestrationLog
+from app.modules.context import DatabaseManager, OrchestrationLog, RefactorHistory
 
 
 @pytest.fixture(autouse=True)

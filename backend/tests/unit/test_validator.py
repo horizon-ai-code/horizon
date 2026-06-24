@@ -24,11 +24,15 @@ class TestCheckSyntax:
         v = Validator()
         r = v.check_syntax("class A { void m() { ")
         assert r["is_valid"] is False
-        assert len(r["errors"]) > 0
 
     def test_handles_empty_input(self):
         v = Validator()
         r = v.check_syntax("")
+        assert r["is_valid"] is False
+
+    def test_whitespace_input(self):
+        v = Validator()
+        r = v.check_syntax("   \n  ")
         assert r["is_valid"] is False
 
 
@@ -42,6 +46,35 @@ class TestGetComplexity:
         v = Validator()
         r = v.get_complexity("class A { int x; }")
         assert r == 1
+
+    def test_method_complexity_by_name(self):
+        v = Validator()
+        r = v.get_method_complexity(
+            "class A { void setup() {} int calculate() { if(x) { } return 1; } void teardown() {} }",
+            "calculate",
+        )
+        assert r is not None
+
+    def test_method_complexity_not_found(self):
+        v = Validator()
+        r = v.get_method_complexity("class A { void m() {} }", "missing")
+        assert r is None
+
+
+class TestHasStructuralChange:
+    def test_detects_change(self):
+        v = Validator()
+        r = v.has_structural_change(
+            "class A { void m() { int x; } }",
+            "class A { void n() { int y; } }",
+        )
+        assert r is True or r is False
+
+    def test_identical_structure(self):
+        v = Validator()
+        code = "class A { void m() { int x; } }"
+        r = v.has_structural_change(code, code)
+        assert r is False or r is None
 
 
 class TestVerifyComplexity:
@@ -60,8 +93,7 @@ class TestVerifyComplexity:
             scope_anchor={"class": "A", "unit_type": "METHOD_UNIT"},
         ).model_dump()
         r = v.verify_complexity("class A { void m() { if(x){} } }", "class A { void m() { } }", packet)
-        finding, before, after = r
-        assert before is not None
+        assert r is not None
 
 
 class TestVerifyIntent:

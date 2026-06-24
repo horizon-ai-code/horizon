@@ -689,7 +689,7 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 
 | Module | Test File | Test Cases | Priority | Dependencies |
 |--------|-----------|-----------|----------|-------------|
-| **BACKEND UNIT** | | **107** | | |
+| **BACKEND UNIT** | | **125** | | |
 | OrchestrationConfig | `test_config.py` | 5 | High | YAML file |
 | Types & Schemas | `test_types_schemas.py` | 8 | High | None |
 | ResponseParser | `test_response_parser.py` | 20 | High | None |
@@ -710,7 +710,7 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 | **BACKEND INTEGRATION** | | **6** | | |
 | REST API (mocked) | `test_api.py` | 4 | Critical | Mocked ConnectionManager + DB |
 | Full Pipeline | `test_full_mock_pipeline.py` | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
-| **FRONTEND UNIT** | | **73** | | |
+| **FRONTEND UNIT** | | **75** | | |
 | lib/utils (cn) | `utils.test.ts` | 6 | Low | None (pure) |
 | lib/parseStatusInfo | `parseStatusInfo.test.ts` | 9 | High | None (pure) |
 | lib/formatStatusContent | `formatStatusContent.test.ts` | 4 | High | None (pure) |
@@ -722,7 +722,7 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 | **FRONTEND INTEGRATION** | | **4** | | |
 | Terminal | `Terminal.test.tsx` | 3 | High | Store + RTL |
 | ChatWorkspace | `ChatWorkspace.test.tsx` | 1 | High | Store + Hook + RTL |
-| | | **192 total** | | |
+| | | **212 total** | | |
 
 ---
 

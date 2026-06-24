@@ -37,6 +37,11 @@ describe('parseRetryInfo', () => {
     expect(r!.current).toBe(2);
     expect(r!.max).toBe(3);
   });
+
+  it('detects sequential mutation retry', () => {
+    const r = parseRetryInfo('Retry mutation 1/5');
+    expect(r).toBeDefined();
+  });
 });
 
 describe('parseValidationFaults', () => {

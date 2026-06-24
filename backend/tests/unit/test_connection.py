@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
 from app.modules.connection import ClientConnection
 from app.utils.types import Role
 

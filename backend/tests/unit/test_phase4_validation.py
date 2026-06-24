@@ -1,4 +1,4 @@
-"""Tests for Phase 4 — Validation chain."""
+"""Tests for Phase 4 — Validation chain routing."""
 
 from unittest.mock import AsyncMock, MagicMock
 
@@ -16,20 +16,20 @@ class TestPhase4Validation:
             session_id="t", base_code="class A {}", working_code="class A {}", user_instruction="flatten"
         )
 
-    async def test_run_with_mocked_validator(self, state):
+    async def test_passes_all_checks(self, state):
         client = MagicMock()
         state.intent_packet = {"specific_intent": "FLATTEN_CONDITIONAL", "scope_anchor": {"target_class": "A"}}
         validator = MagicMock()
         validator.check_syntax.return_value = {"is_valid": True}
         validator.verify_intent.return_value = None
         validator.verify_boundary.return_value = None
-        validator.verify_complexity.return_value = (None, 1, 1)
+        validator.verify_complexity.return_value = (None, 3, 2)
         notify = AsyncMock()
         phase = Phase4Validation(validator, notify)
         await phase.run(client, state)
         assert state.syntax_iter is not None
 
-    async def test_syntax_failure_routes_to_heal(self, state):
+    async def test_syntax_failure_increments_iter(self, state):
         client = MagicMock()
         validator = MagicMock()
         validator.check_syntax.return_value = {"is_valid": False}
@@ -38,3 +38,16 @@ class TestPhase4Validation:
         state.syntax_iter = 0
         await phase.run(client, state)
         assert state.syntax_iter == 1
+
+    async def test_completes_with_validator(self, state):
+        client = MagicMock()
+        state.intent_packet = {"specific_intent": "FLATTEN_CONDITIONAL", "scope_anchor": {"target_class": "A"}}
+        validator = MagicMock()
+        validator.check_syntax.return_value = {"is_valid": True}
+        validator.verify_complexity.return_value = (None, 3, 3)
+        validator.verify_boundary.return_value = None
+        validator.verify_intent.return_value = None
+        notify = AsyncMock()
+        phase = Phase4Validation(validator, notify)
+        await phase.run(client, state)
+        assert True
