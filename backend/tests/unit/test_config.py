@@ -54,7 +54,7 @@ class TestOrchestrationConfig:
             except Exception:
                 pass
 
-    def test_creation(self):
+    def test_creation(self):  # TC-CFG-001b
         entry = ModelEntry(name="test", filename="t.gguf", temperature=0.2, max_tokens=2048, context_size=4096, layers=32)
         assert entry.name == "test"
         assert entry.layers == 32

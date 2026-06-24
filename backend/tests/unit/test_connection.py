@@ -15,11 +15,11 @@ class TestClientConnection:
         ws = AsyncMock()
         return ClientConnection(ws, MagicMock())
 
-    async def test_send_status(self, client):
+    async def test_send_status(self, client):  # TC-CC-001
         await client.send_status(Role.Planner, "Analyzing...")
         client.websocket.send_json.assert_awaited()
 
-    async def test_send_result_includes_models(self, client):
+    async def test_send_result_includes_models(self, client):  # TC-CC-002
         await client.send_result(
             final_code="code",
             original_complexity=10,
@@ -31,7 +31,7 @@ class TestClientConnection:
         )
         client.websocket.send_json.assert_awaited()
 
-    async def test_send_halt_notification(self, client):
+    async def test_send_halt_notification(self, client):  # TC-CC-003
         await client.send_halt_notification()
         client.websocket.send_json.assert_awaited()
 
@@ -53,7 +53,7 @@ class TestClientConnection:
         assert client._heartbeat_task is not None
         await client.stop_heartbeat()
 
-    async def test_send_status_proceeds_when_fresh(self, client):
+    async def test_send_status_proceeds_when_fresh(self, client):  # TC-CC-008
         client._missed_pongs = 0
         await client.send_status(Role.System, "test")
         client.websocket.send_json.assert_awaited()

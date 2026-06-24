@@ -21,19 +21,19 @@ describe('useOrchestrationSocket', () => {
     useChatStore.setState({});
   });
 
-  it('returns connection status', () => {
+  it('returns connection status', () => {  // TC-WS-001
     const { result } = renderHook(() => useOrchestrationSocket(), { wrapper: Wrapper });
     expect(result.current.connectionStatus).toBeDefined();
   });
 
-  it('has required methods', () => {
+  it('has required methods', () => {  // TC-WS-001b
     const { result } = renderHook(() => useOrchestrationSocket(), { wrapper: Wrapper });
     expect(typeof result.current.connect).toBe('function');
     expect(typeof result.current.sendRefactorRequest).toBe('function');
     expect(typeof result.current.sendHaltRequest).toBe('function');
   });
 
-  it('disconnect changes status', () => {
+  it('disconnect changes status', () => {  // TC-WS-002
     const { result } = renderHook(() => useOrchestrationSocket(), { wrapper: Wrapper });
     expect(result.current.connectionStatus).toBeDefined();
   });

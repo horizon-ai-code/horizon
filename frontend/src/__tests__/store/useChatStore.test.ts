@@ -105,7 +105,7 @@ describe('orchestrator status', () => {
     expect(useChatStore.getState().orchestratorStatus).toBe('connected');
   });
 
-  it('tracks initial load state', () => {
+  it('tracks initial load state', () => {  // TC-ST-014b
     expect(useChatStore.getState().hasInitialLoaded).toBe(false);
     act(() => { useChatStore.getState().setHasInitialLoaded(true); });
     expect(useChatStore.getState().hasInitialLoaded).toBe(true);
