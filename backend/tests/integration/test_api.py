@@ -12,28 +12,39 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def test_app():
     from contextlib import asynccontextmanager
 
-    import app.main as main_module
+    # Fresh mock db to avoid cross-test contamination from cached modules
+    import peewee
+    mem = peewee.SqliteDatabase(":memory:")
 
-    # Mock all DB-connected services for isolation
+    import app.modules.context as ctx
+    mem.bind([ctx.RefactorHistory, ctx.OrchestrationLog])
+    mem.connect()
+    mem.create_tables([ctx.RefactorHistory, ctx.OrchestrationLog])
+    original_db = ctx.db
+    ctx.db = mem
+
+    import app.main as main_module
+    main_module.db = mem
+
+    # Mock connection manager
     mock_conn = MagicMock()
     mock_conn.get_rest_history = AsyncMock(return_value=[])
     mock_conn.get_history_by_id = AsyncMock(return_value=None)
     mock_conn.delete_history_by_id = AsyncMock(return_value=None)
     mock_conn.rename_history = AsyncMock()
     main_module.connection = mock_conn
-    main_module.db = MagicMock()
-    main_module.db.connect = MagicMock()
-    main_module.db.execute_sql = MagicMock()
 
     @asynccontextmanager
     async def noop_lifespan(_app):
         yield {}
     main_module.app.router.lifespan_context = noop_lifespan
     yield main_module.app
+    mem.close()
+    ctx.db = original_db
 
 
 class TestRestAPI:
