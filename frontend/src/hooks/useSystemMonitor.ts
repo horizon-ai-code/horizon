@@ -65,7 +65,7 @@ export function useSystemMonitor(): SystemMonitorState {
             });
           }
         } catch {
-          // Ignore malformed JSON
+          console.warn("[SystemMonitor] Failed to parse metrics message");
         }
       };
     }
