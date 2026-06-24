@@ -620,34 +620,36 @@ Throughout this document, each section header includes an implementation status:
 
 | Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
 |--------|-----------|---------|----------|----------|-------------|
-| **BACKEND UNIT** | | **170** | **167** | | |
-| OrchestrationConfig | `test_config.py` | 5 | 4 | High | YAML file |
+| Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
+|--------|-----------|---------|----------|----------|-------------|
+| **BACKEND UNIT** | | **170** | **170** | | |
+| OrchestrationConfig | `test_config.py` | 5 | 5 | High | YAML file |
 | Types & Schemas | `test_types_schemas.py` | 8 | 8 | High | None |
 | ResponseParser | `test_response_parser.py` | 20 | 20 | High | None |
-| ASTMatcher | `test_ast_matcher.py` | 12 | 10 | High | Java source |
-| Validator | `test_validator.py` | 22 | 16 | Critical | javalang, lizard |
-| AgentService | `test_agent_service.py` | 10 | 7 | High | llama_cpp (mocked) |
-| ClientConnection | `test_connection.py` | 8 | 7 | High | WebSocket (mocked) |
-| DatabaseManager | `test_context.py` | 12 | 9 | Critical | In-memory SQLite |
-| MessageRouter | `test_router.py` | 8 | 7 | Medium | Agent + Connection |
-| Orchestrator | `test_orchestrator.py` | 12 | 6 | Critical | Agent, DB, Connection (mocked) |
+| ASTMatcher | `test_ast_matcher.py` | 12 | 11 | High | Java source |
+| Validator | `test_validator.py` | 22 | 20 | Critical | javalang, lizard |
+| AgentService | `test_agent_service.py` | 10 | 9 | High | llama_cpp (mocked) |
+| ClientConnection | `test_connection.py` | 8 | 8 | High | WebSocket (mocked) |
+| DatabaseManager | `test_context.py` | 12 | 12 | Critical | In-memory SQLite |
+| MessageRouter | `test_router.py` | 8 | 8 | Medium | Agent + Connection |
+| Orchestrator | `test_orchestrator.py` | 12 | 12 | Critical | Agent, DB, Connection (mocked) |
 | Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | 12 | Critical | AgentService (mocked) |
-| Phase 3 — Execution | `test_phase3_execution.py` | 10 | 7 | Critical | AgentService (mocked) |
-| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 6 | Critical | Validator (real) |
+| Phase 3 — Execution | `test_phase3_execution.py` | 10 | 10 | Critical | AgentService (mocked) |
+| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 8 | Critical | Validator (real) |
 | Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | 6 | Critical | AgentService (mocked) |
 | Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | 6 | Critical | AgentService, DB (mocked) |
 | Formatters | `test_formatters.py` | 5 | 5 | High | None (pure) |
-| Code Utils | `test_code_utils.py` | 6 | 5 | Medium | None (pure) |
+| Code Utils | `test_code_utils.py` | 6 | 6 | Medium | None (pure) |
 | **BACKEND INTEGRATION** | | **12** | **12** | | |
 | REST + WS API | `test_api.py` | 12 | 12 | Critical | Mocked ConnectionManager + DB |
 | Full Pipeline | `test_full_mock_pipeline.py` | — | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
-| **FRONTEND UNIT** | | **99** | **85** | | |
+| **FRONTEND UNIT** | | **99** | **89** | | |
 | lib/utils (cn) | `utils.test.ts` | 6 | 6 | Low | None (pure) |
 | lib/constants | `constants.test.ts` | 5 | 5 | Low | None (read-only) |
 | lib/parseStatusInfo | `parseStatusInfo.test.ts` | 14 | 10 | High | None (pure) |
 | lib/formatStatusContent | `formatStatusContent.test.ts` | 8 | 7 | High | None (pure) |
-| lib/javaFormatter | `javaFormatter.test.ts` | 10 | 8 | Medium | None (pure) |
-| lib/indentation | `indentation.test.ts` | 8 | 7 | Medium | None (pure) |
+| lib/javaFormatter | `javaFormatter.test.ts` | 10 | 9 | Medium | None (pure) |
+| lib/indentation | `indentation.test.ts` | 8 | 8 | Medium | None (pure) |
 | lib/buildMetrics | `buildMetrics.test.ts` | 6 | 6 | Medium | None (pure) |
 | lib/schemas (Zod) | `websocket.test.ts` | 8 | 8 | Medium | None (pure) |
 | store/useChatStore | `useChatStore.test.ts` | 14 | 14 | Critical | fetch (mocked) |
@@ -656,7 +658,7 @@ Throughout this document, each section header includes an implementation status:
 | **FRONTEND INTEGRATION** | | **6** | **4** | | |
 | Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
 | ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 2 | High | Store + Hook + RTL |
-| | | **287 planned** | **272 done** | | |
+| | | **287 planned** | **281 done** | | |
 
 ---
 
