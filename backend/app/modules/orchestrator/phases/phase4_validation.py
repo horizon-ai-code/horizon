@@ -1,8 +1,9 @@
 import json
-from typing import Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
-from app.utils.types import FailureTier, RefactorIntent, Role
 from app.modules.validator import Validator
+from app.utils.types import FailureTier, RefactorIntent, Role
 
 Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
@@ -127,7 +128,6 @@ class Phase4Validation:
         )
 
         if findings:
-            current_fault_count = len(findings)
             passed = sum(1 for c in checks if c["passed"])
             failed = len(checks) - passed
             await self._notify(

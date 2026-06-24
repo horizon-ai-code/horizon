@@ -92,6 +92,7 @@ interface ChatStore {
   setOrchestratorStatus: (status: OrchestratorStatus) => void;
   hasInitialLoaded: boolean;
   setHasInitialLoaded: (loaded: boolean) => void;
+  historyLoadError: boolean;
   sessions: Record<string, SessionData>;
   draftSession: Omit<SessionData, "id">;
   updateDraftSession: (
@@ -117,6 +118,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setOrchestratorStatus: (status) => set({ orchestratorStatus: status }),
   hasInitialLoaded: false,
   setHasInitialLoaded: (loaded) => set({ hasInitialLoaded: loaded }),
+  historyLoadError: false,
   sessions: {},
   draftSession: DEFAULT_SESSION,
 
@@ -297,7 +299,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   fetchHistory: async () => {
     try {
       const res = await fetch(`${API_URL}/api/history`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        set((state) => ({ ...state, historyLoadError: true, hasInitialLoaded: true }));
+        return;
+      }
       
       const items: HistoryItemResponse[] = await res.json();
       
@@ -328,12 +333,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           ...state,
           sessions: newSessions,
           hasInitialLoaded: true,
+          historyLoadError: false,
         };
       });
     } catch (e) {
       console.error("[ChatStore] Error fetching history:", e);
-    } finally {
-      set((state) => ({ ...state, hasInitialLoaded: true }));
+      set((state) => ({ ...state, historyLoadError: true, hasInitialLoaded: true }));
     }
   },
 
@@ -399,9 +404,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
                    `${i.title || ""}: ${i.details || ""}`
                  ).join("\n");
                }
-             } catch {
-               // Not valid JSON, use as-is
-             }
+              } catch {
+                console.warn("[ChatStore] Failed to parse insights JSON, using raw string");
+              }
            }
            oResult.summary = parsedInsights;
            oResult.insights = parsedInsights;

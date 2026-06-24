@@ -52,7 +52,7 @@ export default function TourOverlay({
   }, [step.targetId]);
 
   useEffect(() => {
-    updatePosition();
+    updatePosition(); // eslint-disable-line react-hooks/set-state-in-effect
     window.addEventListener("scroll", updatePosition, true);
     window.addEventListener("resize", updatePosition);
     return () => {

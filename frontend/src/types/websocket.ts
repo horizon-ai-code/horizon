@@ -102,16 +102,25 @@ export interface PydanticError {
 export interface ValidationErrorMessage {
   type: "error";
   message: "Invalid data format";
+  code?: string;
   details: PydanticError[];
 }
 
 export interface MalformedJsonErrorMessage {
   type: "error";
   message: "Malformed JSON payload";
+  code?: string;
   details: string;
 }
 
-export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage;
+export interface GenericErrorMessage {
+  type: "error";
+  message: string;
+  code?: string;
+  details?: string | PydanticError[];
+}
+
+export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage | GenericErrorMessage;
 
 // ── Structured Glassbox Messages ───────────────────────────────────────────
 
@@ -221,6 +230,25 @@ export interface GeneratorProgressMessage {
   total_samples?: number;
 }
 
+export interface SystemMetricsPayload {
+  gpu_utilization: number;
+  gpu_memory_percent: number;
+  gpu_memory_used_gb: number;
+  gpu_memory_total_gb: number;
+  has_gpu: boolean;
+  cpu_percent: number;
+  memory_percent: number;
+  memory_used_gb: number;
+  memory_total_gb: number;
+  elapsed_seconds: number;
+  pid: number;
+}
+
+export interface SystemMetricsMessage {
+  type: "system_metrics";
+  metrics: SystemMetricsPayload;
+}
+
 export interface PhaseTimingPayload {
   phase: number;
   duration_ms: number;
@@ -233,6 +261,7 @@ export interface PhaseTimingSummaryMessage {
 }
 
 export type StructuredMessage =
+  | SystemMetricsMessage
   | PhaseStartedMessage
   | PhaseCompletedMessage
   | MutationPlanMessage

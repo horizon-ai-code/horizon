@@ -14,6 +14,7 @@ import { EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from "
 import { DEFAULT_GLASSBOX_STATE } from "@/lib/orchestrationDefaults";
 import { buildMetrics } from "@/lib/utils/buildMetrics";
 import { WS_URL } from "@/lib/env";
+import { ErrorMessageSchema } from "@/lib/schemas/websocket";
 import type { GlassboxState, CurrentStatusDetail } from "@/types/glassbox";
 import {
   parsePhaseNumber,
@@ -450,6 +451,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   const handleError = useCallback(
     (msg: ServerMessage & { type: "error" }, targetId: string) => {
+      if (msg.code) console.warn("[WS] Error:", msg.code, msg.message);
       let errorText: string;
 
       if (typeof msg.details === "string") {
@@ -586,7 +588,18 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
     ws.onmessage = (event) => {
       try {
-        const msg: ServerMessage = JSON.parse(event.data);
+        const parsed: unknown = JSON.parse(event.data);
+        if (!parsed || typeof parsed !== "object" || typeof (parsed as Record<string, unknown>).type !== "string") {
+          console.warn("[WS] Invalid message format: missing or invalid type");
+          return;
+        }
+        if ((parsed as Record<string, unknown>).type === "error") {
+          const errorResult = ErrorMessageSchema.safeParse(parsed);
+          if (!errorResult.success) {
+            console.warn("[WS] Malformed error message:", errorResult.error.flatten());
+          }
+        }
+        const msg: ServerMessage = parsed as ServerMessage;
         const targetId = sessionIdRef.current;
         if (!targetId) {
           messageBufferRef.current.push(msg);
@@ -713,6 +726,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   }, [clearReconnectTimer]);
 
   const connectRef = useRef(connect);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: sync latest connect value
   connectRef.current = connect;
 
   // ── Disconnect ───────────────────────────────────────────────────────────

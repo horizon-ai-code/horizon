@@ -1,9 +1,11 @@
 import asyncio
 import json
+import os
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 
+import sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import UUID4
@@ -18,7 +20,14 @@ from app.utils.schemas import (
     HistoryDetail,
     HistoryStub,
 )
+from app.utils.system_monitor import SystemMonitor
 from app.utils.types import RefactorRequest, Role
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    environment=os.getenv("APP_ENV", "development"),
+    traces_sample_rate=0.1,
+)
 
 # Module-level singletons — initialized at import (lightweight, no model loaded).
 # Override in tests by assigning to these variables directly.
@@ -29,6 +38,7 @@ orchestrator: Orchestrator = Orchestrator(
     agent_service=agent_service, validator=validator, db=connection.db
 )
 router: MessageRouter = MessageRouter(agent_service)
+system_monitor: SystemMonitor = SystemMonitor()
 
 # Global lock to serialize all orchestration (model & DB) operations
 orchestration_lock = asyncio.Lock()
@@ -39,14 +49,20 @@ async def lifespan(app: FastAPI):
     """Startup: ensure DB connection, clean zombie sessions.
     Shutdown: close DB, release model VRAM.
     """
-    db.connect(reuse_if_open=True)
+    try:
+        db.connect(reuse_if_open=True)
+    except Exception as e:
+        print(f"Warning: Database connection failed at startup: {e}")
+
     cleaned = connection.db.cleanup_zombie_sessions()
     if cleaned:
         print(f"Cleaned {cleaned} zombie sessions")
     deleted = connection.db.cleanup_halted_sessions()
     if deleted:
         print(f"Deleted {deleted} halted sessions")
+    await system_monitor.start()
     yield
+    await system_monitor.stop()
     db.close()
     await agent_service.unload()
 
@@ -91,7 +107,17 @@ async def log_requests(request, call_next):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "timestamp": datetime.utcnow().isoformat() + "Z"}
+    db_status = "ok"
+    try:
+        db.connect(reuse_if_open=True)
+        db.execute_sql("SELECT 1")
+    except Exception:
+        db_status = "error"
+    return {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "db": db_status,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+    }
 
 
 @app.websocket("/ws")
@@ -144,9 +170,12 @@ async def entrypoint(websocket: WebSocket) -> None:
                 data = await websocket.receive_json()
             except (json.JSONDecodeError, TypeError, ValueError) as e:
                 await websocket.send_json(
-                    {"type": "error", "message": "Malformed JSON payload", "details": str(e)}
+                    {"type": "error", "code": "MALFORMED_JSON", "message": "Malformed JSON payload", "details": str(e)}
                 )
                 continue
+
+            if data.get("type") in ("multi", "single") and orchestration_lock.locked():
+                await client_conn.send_status(Role.System, "System is busy. Your request has been queued and will start automatically.")
 
             handled = await router.dispatch(
                 data, client_conn, active_tasks,
@@ -172,15 +201,30 @@ async def entrypoint(websocket: WebSocket) -> None:
                 task.cancel()
 
 
+@app.websocket("/ws/system")
+async def system_monitor_ws(websocket: WebSocket) -> None:
+    await websocket.accept()
+    try:
+        while True:
+            metrics = system_monitor.get_current_metrics()
+            await websocket.send_json({
+                "type": "system_metrics",
+                "metrics": metrics,
+            })
+            await asyncio.sleep(2)
+    except WebSocketDisconnect:
+        pass
+
+
 async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
     """Handle frontend reconnection to an existing session."""
     if not session_id:
-        await ws.send_json({"type": "error", "message": "Missing session_id"})
+        await ws.send_json({"type": "error", "code": "MISSING_SESSION_ID", "message": "Missing session_id"})
         return
 
     record = await connection.get_history_by_id(session_id)
     if not record:
-        await ws.send_json({"type": "error", "message": "Session not found"})
+        await ws.send_json({"type": "error", "code": "SESSION_NOT_FOUND", "message": "Session not found"})
         return
 
     new_conn = connection.create_websocket_connection(ws)
@@ -218,7 +262,7 @@ async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
                 "Session lost due to server restart. Please start a new refactor.",
             )
     else:
-        await ws.send_json({"type": "error", "message": f"Unknown session status: {record.get('status')}"})
+        await ws.send_json({"type": "error", "code": "UNKNOWN_SESSION_STATUS", "message": f"Unknown session status: {record.get('status')}"})
 
 
 async def run_single_refactor(

@@ -19,6 +19,7 @@ export function useTour() {
   const next = useCallback(() => {
     if (currentStep >= TOUR_STEPS.length - 1) {
       setIsActive(false);
+      // localStorage unavailable (private browsing, quota exceeded)
       try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
     } else {
       setCurrentStep((s) => s + 1);

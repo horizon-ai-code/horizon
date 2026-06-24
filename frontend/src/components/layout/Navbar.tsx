@@ -6,6 +6,9 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import { API_URL } from "@/lib/env";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
+import { useSystemMonitor } from "@/hooks/useSystemMonitor";
+import SystemMonitorPanel from "@/components/features/terminal/SystemMonitorPanel";
+import { CpuIcon, MemoryIcon, GpuIcon, VramIcon } from "@/components/ui/SystemIcons";
 
 interface NavbarProps {
   onStartTour?: () => void;
@@ -17,6 +20,8 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
   const [mounted, setMounted] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { systemMetrics, samples, connected } = useSystemMonitor();
+  const [showSystemPanel, setShowSystemPanel] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -57,6 +62,7 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   return (
+    <>
     <nav className={`relative z-40 border-b flex justify-between items-center shrink-0 h-[44px] select-none transition-all duration-300
       ${isDark ? 'bg-jb-bg border-jb-border/50' : 'bg-[#f7f8fa] border-[#ebecf0]'} font-sans`}>
       
@@ -124,11 +130,66 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
                "Disconnected"}
             </span>
           </div>
+
+          {/* System Monitor Strip */}
+          {systemMetrics && (
+            <button
+              onClick={() => setShowSystemPanel((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-mono cursor-pointer transition-colors ${
+                showSystemPanel
+                  ? (isDark ? "bg-jb-panel text-jb-text" : "bg-[#ebecf0] text-[#080808]")
+                  : (isDark ? "text-jb-text-muted hover:bg-jb-panel/50" : "text-[#666] hover:bg-[#ebecf0]/50")
+              }`}
+              aria-label="Toggle system monitor"
+            >
+              <CpuIcon size={14} className="text-[#e09c3b]" />
+              <span className={isDark ? "text-jb-text-muted" : "text-[#666]"}>
+                {Math.round(systemMetrics.cpu_percent)}%
+              </span>
+
+              <span className="opacity-30 mx-0.5">·</span>
+
+              <MemoryIcon size={14} className="text-[#4ec97e]" />
+              <span className={isDark ? "text-jb-text-muted" : "text-[#666]"}>
+                {Math.round(systemMetrics.memory_percent)}%
+              </span>
+
+              {systemMetrics.has_gpu && (
+                <>
+                  <span className="opacity-30 mx-0.5">·</span>
+                  <GpuIcon size={14} className="text-[#5a8cf8]" />
+                  <span className={isDark ? "text-jb-text-muted" : "text-[#666]"}>
+                    {Math.round(systemMetrics.gpu_utilization)}%
+                  </span>
+
+                  <span className="opacity-30 mx-0.5">·</span>
+                  <VramIcon size={14} className="text-[#3dd6c8]" />
+                  <span className={isDark ? "text-jb-text-muted" : "text-[#666]"}>
+                    {systemMetrics.gpu_memory_used_gb}GB
+                  </span>
+                </>
+              )}
+            </button>
+          )}
+
           <ThemeToggle />
         </div>
         
       </div>
 
     </nav>
+
+    {showSystemPanel && systemMetrics && (
+      <div className="relative z-50">
+        <SystemMonitorPanel
+          samples={samples}
+          systemMetrics={systemMetrics}
+          connected={connected}
+          isDark={isDark}
+          onClose={() => setShowSystemPanel(false)}
+        />
+      </div>
+    )}
+    </>
   );
 }

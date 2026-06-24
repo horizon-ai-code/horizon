@@ -1,5 +1,6 @@
 import json
-from typing import Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from app.utils.performance import PerformanceTracker
 from app.utils.response_parser import ResponseParser

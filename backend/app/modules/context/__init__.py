@@ -3,11 +3,18 @@ from typing import Any
 
 import peewee
 from playhouse.shortcuts import model_to_dict
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from app.utils.paths import DB_PATH
 
 # 1. Initialize the SQLite database connection
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
+
+DB_RETRY = retry(
+    stop=stop_after_attempt(3),
+    wait=wait_fixed(0.5),
+    retry=retry_if_exception_type(peewee.OperationalError),
+)
 
 
 # 2. Define the Database Schema
@@ -69,6 +76,7 @@ class DatabaseManager:
         db.connect(reuse_if_open=True)
         db.create_tables([RefactorHistory, OrchestrationLog], safe=True)
 
+    @DB_RETRY
     def create_session(self, id: str, instruction: str, original_code: str, mode: str = "multi") -> None:
         """Initializes a refactoring session in the database."""
         with db.atomic():
@@ -80,6 +88,7 @@ class DatabaseManager:
                 mode=mode,
             )
 
+    @DB_RETRY
     def log_status(
         self,
         session_id: str,
@@ -102,6 +111,7 @@ class DatabaseManager:
                 inner_loop=inner_loop
             )
 
+    @DB_RETRY
     def mark_as_halted(self, id: str) -> None:
         """Updates session status to Halted."""
         with db.atomic():
@@ -109,6 +119,7 @@ class DatabaseManager:
                 RefactorHistory.id == id
             ).execute()
 
+    @DB_RETRY
     def complete_session(
         self,
         id: str,
@@ -166,16 +177,19 @@ class DatabaseManager:
         except RefactorHistory.DoesNotExist:
             return None
 
+    @DB_RETRY
     def rename_session(self, session_id: str, new_title: str) -> bool:
         """Updates the title of a session."""
         try:
-            RefactorHistory.update(title=new_title).where(
-                RefactorHistory.id == session_id
-            ).execute()
+            with db.atomic():
+                RefactorHistory.update(title=new_title).where(
+                    RefactorHistory.id == session_id
+                ).execute()
             return True
         except RefactorHistory.DoesNotExist:
             return False
 
+    @DB_RETRY
     def cleanup_zombie_sessions(self, max_age_hours: int = 1) -> int:
         """Marks sessions stuck in 'Processing' for >max_age_hours as 'Zombie'."""
         cutoff = datetime.datetime.now() - datetime.timedelta(hours=max_age_hours)
@@ -190,6 +204,7 @@ class DatabaseManager:
             )
             return query.execute()
 
+    @DB_RETRY
     def cleanup_halted_sessions(self, max_age_hours: int = 5) -> int:
         """Deletes halted/interrupted sessions older than max_age_hours."""
         cutoff = datetime.datetime.now() - datetime.timedelta(hours=max_age_hours)
@@ -200,6 +215,7 @@ class DatabaseManager:
             )
             return query.execute()
 
+    @DB_RETRY
     def delete_history_by_id(self, id: str) -> bool:
         """
         Deletes a history record and its associated logs.

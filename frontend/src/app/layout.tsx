@@ -6,6 +6,11 @@ import ScrollHandler from "@/components/ui/ScrollHandler";
 import { OrchestrationProvider } from "@/hooks/useOrchestrationSocket";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import { cn } from "@/lib/utils";
+import { initSentry } from "@/lib/sentry.client";
+
+if (typeof window !== "undefined") {
+  initSentry();
+}
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const firaCode = Fira_Code({ subsets: ["latin"], variable: "--font-fira-code" });

@@ -1,6 +1,8 @@
 import asyncio
+import os
 import time
 
+import psutil
 import pynvml
 
 
@@ -15,6 +17,10 @@ class PerformanceTracker:
         self._is_running = False
         self._task: asyncio.Task | None = None
         self._has_gpu = False
+        self._current_gpu_util: float = 0
+        self._current_gpu_mem_percent: float = 0
+        self._current_gpu_mem_used: float = 0
+        self._current_gpu_mem_total: float = 0
 
     async def start_tracking(self):
         self._is_running = True
@@ -57,17 +63,36 @@ class PerformanceTracker:
                     util = pynvml.nvmlDeviceGetUtilizationRates(handle)
                     mem = pynvml.nvmlDeviceGetMemoryInfo(handle)
 
-                    self._gpu_utilizations.append(float(util.gpu))
+                    self._current_gpu_util = float(util.gpu)
+                    self._gpu_utilizations.append(self._current_gpu_util)
                     # Memory usage as percentage
                     mem_percent = (float(mem.used) / float(mem.total) * 100.0) if mem.total > 0 else 0
+                    self._current_gpu_mem_percent = mem_percent
+                    self._current_gpu_mem_used = float(mem.used)
+                    self._current_gpu_mem_total = float(mem.total)
                     self._gpu_memory_usage_percent.append(mem_percent)
-                    self._gpu_memory_usage_used.append(float(mem.used))
+                    self._gpu_memory_usage_used.append(self._current_gpu_mem_used)
                 except pynvml.NVMLError as err:
                     print(f"[PerformanceTracker] NVML Error during polling: {err}")
 
                 await asyncio.sleep(self.interval)
         except Exception as e:
             print(f"[PerformanceTracker] Polling background task error: {e}")
+
+    def get_current_metrics(self) -> dict[str, float | bool]:
+        return {
+            "gpu_utilization": self._current_gpu_util,
+            "gpu_memory_percent": self._current_gpu_mem_percent,
+            "gpu_memory_used_gb": round(self._current_gpu_mem_used / (1024**3), 1),
+            "gpu_memory_total_gb": round(self._current_gpu_mem_total / (1024**3), 1),
+            "has_gpu": self._has_gpu,
+            "cpu_percent": psutil.cpu_percent(interval=None),
+            "memory_percent": psutil.virtual_memory().percent,
+            "memory_used_gb": round(psutil.virtual_memory().used / (1024**3), 1),
+            "memory_total_gb": round(psutil.virtual_memory().total / (1024**3), 1),
+            "elapsed_seconds": round(time.perf_counter() - self._start_time, 1),
+            "pid": os.getpid(),
+        }
 
     def get_metrics(self) -> dict[str, float]:
         avg_util = sum(self._gpu_utilizations) / len(self._gpu_utilizations) if self._gpu_utilizations else 0

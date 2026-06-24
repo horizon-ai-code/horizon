@@ -1,6 +1,7 @@
 import json
 import time as _time
-from typing import Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import javalang
 from llama_cpp import ChatCompletionRequestMessage

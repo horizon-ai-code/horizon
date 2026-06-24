@@ -1,10 +1,10 @@
 import json
-from typing import Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from llama_cpp import ChatCompletionRequestMessage
 from pydantic import ValidationError
 
-from ..config import OrchestrationConfig
 from app.utils.ast_matcher import ASTMatcher
 from app.utils.response_parser import ResponseParser
 from app.utils.schemas import (
@@ -13,6 +13,8 @@ from app.utils.schemas import (
     IntentClassifierResponse,
 )
 from app.utils.types import FailureTier, Role
+
+from ..config import OrchestrationConfig
 
 Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 

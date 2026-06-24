@@ -1,10 +1,12 @@
 import asyncio
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import ValidationError
 
-from . import ClientConnection
 from app.utils.types import RefactorRequest, Role
+
+from . import ClientConnection
 
 
 class MessageRouter:
@@ -53,7 +55,7 @@ class MessageRouter:
             return True
 
         if any(not t.done() for t in active_tasks):
-            await client.send_status(Role.System, "A refactor is already in progress. Please halt it first.")
+            await client._safe_send({"type": "error", "code": "SYSTEM_BUSY", "message": "A refactor is already in progress. Please halt it first."})
             return True
 
         task = asyncio.create_task(run_single_refactor(client, code, instruction))
@@ -69,10 +71,7 @@ class MessageRouter:
             return True
 
         if any(not t.done() for t in active_tasks):
-            await client.send_status(
-                Role.System,
-                "A refactor is already in progress. Please halt it first if you want to start a new one.",
-            )
+            await client._safe_send({"type": "error", "code": "SYSTEM_BUSY", "message": "A refactor is already in progress. Please halt it first."})
             return True
 
         task = asyncio.create_task(run_orchestration(client, validated))
