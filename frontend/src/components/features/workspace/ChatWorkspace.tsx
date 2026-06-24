@@ -1,15 +1,15 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle, X } from "lucide-react";
 import { useChatStore } from "@/store/useChatStore";
 import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useTheme } from "next-themes";
-import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 import { useRouter } from "next/navigation";
+import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 
 import InputPanel from "@/components/features/editor/InputPanel";
 import RefactoredOutput from "@/components/features/output/RefactoredOutput";
@@ -29,6 +29,9 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const [mounted, setMounted] = useState(false);
   const [localSourceError, setLocalSourceError] = useState(false);
   const [localInputError, setLocalInputError] = useState(false);
+  const [notFoundAlert, setNotFoundAlert] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('error') === 'session_not_found'
+  );
   
   const terminalPanelRef = useRef<PanelImperativeHandle | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -71,7 +74,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       if (success) {
         fetchedSessionIdsRef.current.add(id);
       } else {
-        router.push('/');
+        router.replace('/?error=session_not_found');
       }
     };
     
@@ -234,6 +237,26 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   return (
     <>
+    {notFoundAlert && (
+      <div className="flex items-start gap-3 p-3 mx-4 mt-4 rounded-lg border animate-in fade-in slide-in-from-top-2 duration-300 bg-red-500/5 border-red-500/20">
+        <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
+            Session Not Found
+          </span>
+          <p className="text-[12px] leading-relaxed text-jb-text-muted mt-0.5">
+            This session does not exist or may have been deleted.
+          </p>
+        </div>
+        <button
+          onClick={() => { setNotFoundAlert(false); router.replace('/'); }}
+          aria-label="Dismiss"
+          className="p-0.5 rounded hover:bg-red-500/10"
+        >
+          <X size={14} className="text-red-500" />
+        </button>
+      </div>
+    )}
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">
