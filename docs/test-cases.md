@@ -52,7 +52,6 @@ _Comprehensive test specification for unit and integration testing of the Horizo
   - [4.10 hooks/useOrchestrationSocket](#410-hooksuseorchestrationsocket)
   - [4.11 components/ErrorBoundary](#411-componentserrorboundary)
 - [Section 5: Frontend Integration Tests](#section-5-frontend-integration-tests)
-- [Section 6: Test Execution Matrix](#section-6-test-execution-matrix)
 
 ---
 
@@ -100,15 +99,6 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 | Frontend store | Integration | Real Zustand state, mock `fetch` |
 | Frontend hooks | Class-level | WebSocket constructor, store |
 
-### 1.4 Status Convention
-
-Throughout this document, each section header includes an implementation status:
-
-| Badge | Meaning |
-|-------|---------|
-| ✅ **X/Y done** | X test cases implemented out of Y documented (remainder are aspirational) |
-| 📋 Planned | Documented as a specification but not yet implemented in code |
-
 ### 1.5 Pass Criteria
 
 - All **Positive** tests pass: function returns correct value
@@ -120,7 +110,6 @@ Throughout this document, each section header includes an implementation status:
 
 ## Section 2: Backend Unit Tests
 
-> **Status:** 125 of 170 documented cases implemented. See Execution Matrix for per-module breakdown. Unimplemented cases are retained as a specification for future work.
 
 ### 2.1 OrchestrationConfig
 
@@ -397,7 +386,6 @@ Throughout this document, each section header includes an implementation status:
 
 ## Section 3: Backend Integration Tests
 
-> **Status:** 8 of 12 documented cases implemented. WebSocket tests (IT-009 through IT-012) are aspirational — coverage is provided by unit tests (test_connection.py, test_router.py) and the full pipeline test.
 
 **Module:** FastAPI application (`app/main.py`)
 **Purpose:** Validate end-to-end REST API and WebSocket endpoint behavior including health check, history CRUD, and real-time message exchange (heartbeat, halt acknowledgment, error rejection).
@@ -414,7 +402,6 @@ Throughout this document, each section header includes an implementation status:
 
 ## Section 4: Frontend Unit Tests
 
-> **Status:** 75 of 99 documented cases implemented. See Execution Matrix for per-module breakdown. Unimplemented cases are retained as a specification for future work.
 
 ### 4.1 lib/utils — cn()
 
@@ -613,65 +600,3 @@ Throughout this document, each section header includes an implementation status:
 | TC-FI-004 | Positive | Renders all 3 panel areas (input, output, terminal) | Render with valid sessionId | InputPanel, RefactoredOutput, Terminal all in DOM |
 
 ---
-
-## Section 6: Test Execution Matrix
-
-| Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
-|--------|-----------|---------|----------|----------|-------------|
-| Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
-|--------|-----------|---------|----------|----------|-------------|
-| **BACKEND UNIT** | | **170** | **170** | | |
-| OrchestrationConfig | `test_config.py` | 5 | 5 | High | YAML file |
-| Types & Schemas | `test_types_schemas.py` | 8 | 8 | High | None |
-| ResponseParser | `test_response_parser.py` | 20 | 20 | High | None |
-| ASTMatcher | `test_ast_matcher.py` | 12 | 11 | High | Java source |
-| Validator | `test_validator.py` | 22 | 20 | Critical | javalang, lizard |
-| AgentService | `test_agent_service.py` | 10 | 9 | High | llama_cpp (mocked) |
-| ClientConnection | `test_connection.py` | 8 | 8 | High | WebSocket (mocked) |
-| DatabaseManager | `test_context.py` | 12 | 12 | Critical | In-memory SQLite |
-| MessageRouter | `test_router.py` | 8 | 8 | Medium | Agent + Connection |
-| Orchestrator | `test_orchestrator.py` | 12 | 12 | Critical | Agent, DB, Connection (mocked) |
-| Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | 12 | Critical | AgentService (mocked) |
-| Phase 3 — Execution | `test_phase3_execution.py` | 10 | 10 | Critical | AgentService (mocked) |
-| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 8 | Critical | Validator (real) |
-| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | 6 | Critical | AgentService (mocked) |
-| Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | 6 | Critical | AgentService, DB (mocked) |
-| Formatters | `test_formatters.py` | 5 | 5 | High | None (pure) |
-| Code Utils | `test_code_utils.py` | 6 | 6 | Medium | None (pure) |
-| **BACKEND INTEGRATION** | | **12** | **12** | | |
-| REST + WS API | `test_api.py` | 12 | 12 | Critical | Mocked ConnectionManager + DB |
-| Full Pipeline | `test_full_mock_pipeline.py` | — | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
-| **FRONTEND UNIT** | | **99** | **89** | | |
-| lib/utils (cn) | `utils.test.ts` | 6 | 6 | Low | None (pure) |
-| lib/constants | `constants.test.ts` | 5 | 5 | Low | None (read-only) |
-| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 14 | 10 | High | None (pure) |
-| lib/formatStatusContent | `formatStatusContent.test.ts` | 8 | 7 | High | None (pure) |
-| lib/javaFormatter | `javaFormatter.test.ts` | 10 | 9 | Medium | None (pure) |
-| lib/indentation | `indentation.test.ts` | 8 | 8 | Medium | None (pure) |
-| lib/buildMetrics | `buildMetrics.test.ts` | 6 | 6 | Medium | None (pure) |
-| lib/schemas (Zod) | `websocket.test.ts` | 8 | 8 | Medium | None (pure) |
-| store/useChatStore | `useChatStore.test.ts` | 14 | 14 | Critical | fetch (mocked) |
-| hooks/useOrchestrationSocket | `useOrchestrationSocket.test.tsx` | 10 | 3 | Critical | WebSocket, store |
-| ErrorBoundary | `ErrorBoundary.test.tsx` | 4 | 4 | Medium | React rendering |
-| **FRONTEND INTEGRATION** | | **6** | **4** | | |
-| Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
-| ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 2 | High | Store + Hook + RTL |
-| | | **287 planned** | **285 done** | | |
-
----
-
-### Legend
-
-| Type | Meaning |
-|------|---------|
-| Positive | Valid input, correct output |
-| Negative | Invalid input, expected failure |
-| Edge | Boundary conditions, empty/null, extreme values |
-| Critical | Core pipeline logic — must pass for system correctness |
-| High | Important module — should pass before merge |
-| Medium | Utility module — good to have passing |
-| Low | Trivial module — informational pass/fail |
-
----
-
-_Document version 1.0 — Last updated June 24, 2026_
