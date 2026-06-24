@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle, X } from "lucide-react";
 import { useChatStore } from "@/store/useChatStore";
 import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 
 import InputPanel from "@/components/features/editor/InputPanel";
@@ -22,12 +22,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const updateDraftSession = useChatStore((s) => s.updateDraftSession);
   const fetchSessionDetails = useChatStore((s) => s.fetchSessionDetails);
   const id = sessionId;
+  const router = useRouter();
 
   const { resolvedTheme } = useTheme();
   
   const [mounted, setMounted] = useState(false);
   const [localSourceError, setLocalSourceError] = useState(false);
   const [localInputError, setLocalInputError] = useState(false);
+  const [notFoundAlert, setNotFoundAlert] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('error') === 'session_not_found'
+  );
   
   const terminalPanelRef = useRef<PanelImperativeHandle | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -66,12 +70,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }
     
     const fetchAndHandle = async () => {
-      await fetchSessionDetails(id);
-      fetchedSessionIdsRef.current.add(id);
+      const success = await fetchSessionDetails(id);
+      if (success) {
+        fetchedSessionIdsRef.current.add(id);
+      } else {
+        router.replace('/?error=session_not_found');
+      }
     };
     
     fetchAndHandle();
-  }, [id, fetchSessionDetails]);
+  }, [id, router, fetchSessionDetails]);
 
   const activeSession = id
     ? (sessions[id] ?? {
@@ -227,28 +235,28 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     );
   }
 
-  if (id && activeSession.error === "not_found") {
-    return (
-      <div className="h-full flex items-center justify-center bg-jb-panel">
-        <div className="flex flex-col items-center gap-3 text-center px-8">
-          <span className="text-4xl font-bold text-jb-text-muted/30">404</span>
-          <h2 className="text-lg font-semibold text-jb-text">Session not found</h2>
-          <p className="text-sm text-jb-text-muted max-w-sm">
-            This session does not exist or may have been deleted.
-          </p>
-          <Link
-            href="/"
-            className="mt-2 px-6 py-2 rounded-xl bg-jb-accent text-white font-semibold hover:opacity-90 transition-opacity"
-          >
-            Start New Session
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
+    {notFoundAlert && (
+      <div className="flex items-start gap-3 p-3 mx-4 mt-4 rounded-lg border animate-in fade-in slide-in-from-top-2 duration-300 bg-red-500/5 border-red-500/20">
+        <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
+            Session Not Found
+          </span>
+          <p className="text-[12px] leading-relaxed text-jb-text-muted mt-0.5">
+            This session does not exist or may have been deleted.
+          </p>
+        </div>
+        <button
+          onClick={() => { setNotFoundAlert(false); router.replace('/'); }}
+          aria-label="Dismiss"
+          className="p-0.5 rounded hover:bg-red-500/10"
+        >
+          <X size={14} className="text-red-500" />
+        </button>
+      </div>
+    )}
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">
