@@ -48,6 +48,11 @@ class TestClientConnection:
         client.handle_pong()
         assert client._missed_pongs == 0
 
+    async def test_heartbeat_starts(self, client):  # TC-CC-004
+        await client.start_heartbeat()
+        assert client._heartbeat_task is not None
+        await client.stop_heartbeat()
+
     async def test_send_status_proceeds_when_fresh(self, client):
         client._missed_pongs = 0
         await client.send_status(Role.System, "test")

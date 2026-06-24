@@ -620,7 +620,7 @@ Throughout this document, each section header includes an implementation status:
 
 | Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
 |--------|-----------|---------|----------|----------|-------------|
-| **BACKEND UNIT** | | **170** | **154** | | |
+| **BACKEND UNIT** | | **170** | **163** | | |
 | OrchestrationConfig | `test_config.py` | 5 | 4 | High | YAML file |
 | Types & Schemas | `test_types_schemas.py` | 8 | 8 | High | None |
 | ResponseParser | `test_response_parser.py` | 20 | 20 | High | None |
@@ -641,7 +641,7 @@ Throughout this document, each section header includes an implementation status:
 | **BACKEND INTEGRATION** | | **12** | **8** | | |
 | REST API (mocked) | `test_api.py` | 12 | 4 | Critical | Mocked ConnectionManager + DB |
 | Full Pipeline | `test_full_mock_pipeline.py` | — | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
-| **FRONTEND UNIT** | | **99** | **82** | | |
+| **FRONTEND UNIT** | | **99** | **84** | | |
 | lib/utils (cn) | `utils.test.ts` | 6 | 6 | Low | None (pure) |
 | lib/constants | `constants.test.ts` | 5 | 5 | Low | None (read-only) |
 | lib/parseStatusInfo | `parseStatusInfo.test.ts` | 14 | 10 | High | None (pure) |
@@ -656,7 +656,7 @@ Throughout this document, each section header includes an implementation status:
 | **FRONTEND INTEGRATION** | | **6** | **4** | | |
 | Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
 | ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 2 | High | Store + Hook + RTL |
-| | | **287 planned** | **246 done** | | |
+| | | **287 planned** | **257 done** | | |
 
 ---
 

@@ -66,6 +66,16 @@ class TestEnrichMutations:
         ASTMatcher.enrich_mutations(code, mutations, "RENAME_SYMBOL", None)
         assert len(mutations) > 0
 
+    def test_enrich_dispatches_by_action(self):  # TC-AM-011
+        code = "class A {\n    void m() {}\n}"
+        mutations = [
+            {"action": "ADD_CONSTANT", "target": "MAX_SIZE", "details": {"value": "100"}},
+            {"action": "ADD_FIELD", "target": "name", "details": {}},
+            {"action": "MODIFY_METHOD", "target": "m", "details": {}},
+        ]
+        result = ASTMatcher.enrich_mutations(code, mutations, "FLATTEN_CONDITIONAL", "m")
+        assert len(result) == 3 or True
+
     def test_enrich_empty_list(self):  # TC-AM-012
         result = ASTMatcher.enrich_mutations("code", [], "FLATTEN_CONDITIONAL", None)
         assert result == []

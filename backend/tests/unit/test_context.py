@@ -88,6 +88,32 @@ class TestDatabaseManager:
         entry = RefactorHistory.get_by_id(sid)
         assert entry.title == "New Title"
 
+    def test_cleanup_zombie_sessions(self, memory_db):  # TC-DB-009
+        sid = str(uuid.uuid4())
+        mgr = DatabaseManager()
+        mgr.create_session(id=sid, instruction="x", original_code="x")
+        import datetime
+        entry = RefactorHistory.get_by_id(sid)
+        entry.status = "Processing"
+        entry.created_at = datetime.datetime.now() - datetime.timedelta(hours=48)
+        entry.save()
+        mgr.cleanup_zombie_sessions(max_age_hours=1)
+        updated = RefactorHistory.get_by_id(sid)
+        assert updated.status == "Zombie"
+
+    def test_cleanup_halted_sessions(self, memory_db):  # TC-DB-010
+        sid = str(uuid.uuid4())
+        mgr = DatabaseManager()
+        mgr.create_session(id=sid, instruction="x", original_code="x")
+        import datetime
+        entry = RefactorHistory.get_by_id(sid)
+        entry.status = "Halted"
+        entry.created_at = datetime.datetime.now() - datetime.timedelta(hours=48)
+        entry.save()
+        mgr.cleanup_halted_sessions(max_age_hours=1)
+        with pytest.raises(RefactorHistory.DoesNotExist):
+            RefactorHistory.get_by_id(sid)
+
     def test_delete_history_by_id(self, memory_db):  # TC-DB-011
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
@@ -95,3 +121,10 @@ class TestDatabaseManager:
         mgr.delete_history_by_id(sid)
         with pytest.raises(RefactorHistory.DoesNotExist):
             RefactorHistory.get_by_id(sid)
+
+    def test_retry_on_operational_error(self, memory_db):  # TC-DB-012
+        sid = str(uuid.uuid4())
+        mgr = DatabaseManager()
+        mgr.create_session(id=sid, instruction="x", original_code="x")
+        entry = RefactorHistory.get_by_id(sid)
+        assert entry.user_instruction == "x"

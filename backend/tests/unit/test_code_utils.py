@@ -40,6 +40,15 @@ class TestOrderMutations:
         assert result[0]["target"] == "a"
         assert result[1]["target"] == "b"
 
+    def test_stable_sort_three(self):  # TC-CU-006
+        mutations = [
+            {"action": MutationAction.MODIFY_METHOD, "target": "a", "details": {}},
+            {"action": MutationAction.MODIFY_METHOD, "target": "b", "details": {}},
+        ]
+        result = order_mutations(mutations)
+        assert result[0]["target"] == "a"
+        assert result[1]["target"] == "b"
+
     def test_add_before_modify(self):  # TC-CU-005
         mutations = [
             {"action": MutationAction.REMOVE_METHOD, "target": "old", "details": {}},

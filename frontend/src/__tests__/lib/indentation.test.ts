@@ -38,4 +38,9 @@ describe('handleClosingBrace', () => {
     const result = handleClosingBrace('}', 1);
     expect(result).toBeNull();
   });
+
+  it('handles closing brace input', () => {  // TC-IN-007
+    const result = handleClosingBrace('}', 1);
+    expect(result).toBeNull();  // null means no adjustment needed
+  });
 });

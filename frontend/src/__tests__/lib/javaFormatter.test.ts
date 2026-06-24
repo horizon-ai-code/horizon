@@ -40,4 +40,10 @@ describe('formatJavaCode', () => {
     const result = formatJavaCode('class A {\n\n\nvoid m() { } }');
     expect(result).toBeTruthy();
   });
+
+  it('handles long method with mixed constructs', () => {  // TC-JF-010
+    const code = `class A { void m() { if(x) { for(int i=0;i<10;i++) { try { doWork(); } catch(Exception e) {} } } } }`;
+    const result = formatJavaCode(code);
+    expect(result).toBeTruthy();
+  });
 });

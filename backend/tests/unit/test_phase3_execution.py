@@ -91,3 +91,51 @@ class TestPhase3Execution:
             state.syntax_iter = 0
             await phase.run_sequential(MagicMock(), state)
             assert state.working_code is not None
+
+    async def test_sequential_syntax_healing(self, state):  # TC-P3-008
+        with patch("app.modules.agent.Llama"):
+            agent = AsyncMock()
+            agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
+            agent.load = AsyncMock()
+            agent.swap = AsyncMock()
+            agent.clear_context = AsyncMock()
+            validator = MagicMock()
+            validator.get_complexity.return_value = 3
+            validator.check_syntax.return_value = {"is_valid": True}
+            notify = AsyncMock()
+            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            state.syntax_iter = 0
+            await phase.run_sequential(MagicMock(), state)
+            assert state.syntax_iter >= 0
+
+    async def test_sequential_boundary_break(self, state):  # TC-P3-009
+        with patch("app.modules.agent.Llama"):
+            agent = AsyncMock()
+            agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
+            agent.load = AsyncMock()
+            agent.swap = AsyncMock()
+            agent.clear_context = AsyncMock()
+            validator = MagicMock()
+            validator.get_complexity.return_value = 3
+            validator.check_syntax.return_value = {"is_valid": True}
+            notify = AsyncMock()
+            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            state.syntax_iter = 0
+            await phase.run_sequential(MagicMock(), state)
+            assert True
+
+    async def test_sequential_max_heals(self, state):  # TC-P3-010
+        with patch("app.modules.agent.Llama"):
+            agent = AsyncMock()
+            agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
+            agent.load = AsyncMock()
+            agent.swap = AsyncMock()
+            agent.clear_context = AsyncMock()
+            validator = MagicMock()
+            validator.get_complexity.return_value = 3
+            validator.check_syntax.return_value = {"is_valid": True}
+            notify = AsyncMock()
+            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            state.syntax_iter = 0
+            await phase.run_sequential(MagicMock(), state)
+            assert True

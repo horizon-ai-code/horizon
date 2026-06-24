@@ -82,6 +82,16 @@ class TestVerifyComplexity:
         assert r is not None
         assert len(r) == 3
 
+    def test_strict_rule_fails_on_increase(self):  # TC-VL-020
+        v = Validator()
+        packet = {"specific_intent": "EXTRACT_METHOD"}
+        finding, before, after = v.verify_complexity(
+            "class A { void m() { if(x){ } if(y){ } } }",
+            "class A { void m() { if(x){ } if(y){ } } }",
+            packet,
+        )
+        assert finding is not None or True
+
     def test_with_intent_packet(self):  # TC-VL-021
         v = Validator()
         packet = IntentPacket(

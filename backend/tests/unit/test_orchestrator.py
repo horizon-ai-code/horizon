@@ -5,7 +5,27 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from app.modules.orchestrator import OrchestrationState, Orchestrator
+from app.modules.orchestrator.config import OrchestrationConfig
 from app.utils.types import Role
+
+
+def _make_config():
+    return OrchestrationConfig.from_dict({
+        "planner": {"name": "p", "filename": "p.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+        "generator": {"name": "g", "filename": "g.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+        "judge": {"name": "j", "filename": "j.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
+        "single": {"name": "s", "filename": "s.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
+        "settings": {"deduplication_cap": 5, "max_strategy_iter": 3, "max_syntax_heal": 1, "sequential_retry_limit": 1},
+    })
+
+
+def _make_prompts():
+    return {
+        "planner": {"classifier": "c", "architect_analysis": "aa", "analysis_guidance": {}, "architect": "a", "synthesis_guidance": {}},
+        "generator": {"coder": "g", "coder_guidance": {}},
+        "judge": {"auditor": "au", "auditor_guidance": {}, "insights": "i"},
+        "single": {"coder": "g", "insights": "i"},
+    }
 
 
 class TestOrchestrationState:
@@ -18,25 +38,19 @@ class TestOrchestrationState:
         assert state.exit_status == "PROCESSING"
 
     def test_add_feedback_appends(self):  # TC-OR-002
-        state = OrchestrationState(
-            session_id="t", base_code="", working_code="", user_instruction=""
-        )
+        state = OrchestrationState(session_id="t", base_code="", working_code="", user_instruction="")
         state.add_feedback("hint 1")
         assert len(state.cumulative_feedback) == 1
 
     def test_add_feedback_ring_buffer_capped(self):  # TC-OR-003
-        state = OrchestrationState(
-            session_id="t", base_code="", working_code="", user_instruction=""
-        )
+        state = OrchestrationState(session_id="t", base_code="", working_code="", user_instruction="")
         for i in range(5):
             state.add_feedback(f"hint {i}")
         assert len(state.cumulative_feedback) == 3
         assert state.cumulative_feedback[-1] == "hint 4"
 
     def test_extend_feedback_with_cap(self):  # TC-OR-004
-        state = OrchestrationState(
-            session_id="t", base_code="", working_code="", user_instruction=""
-        )
+        state = OrchestrationState(session_id="t", base_code="", working_code="", user_instruction="")
         state.extend_feedback(["a", "b", "c", "d", "e"])
         assert len(state.cumulative_feedback) == 3
         assert state.cumulative_feedback[-1] == "e"
@@ -52,13 +66,8 @@ class TestNotify:
         agent = AsyncMock()
         db = MagicMock()
         validator = MagicMock()
-        config = MagicMock()
-        config.planner.name = "p"
-        config.generator.name = "g"
-        config.judge.name = "j"
-        prompts = {}
-        orch = Orchestrator(agent, validator, db, skip_judge=False, config=config)
-        orch.prompts = prompts
+        orch = Orchestrator(agent, validator, db, skip_judge=False, config=_make_config())
+        orch.prompts = _make_prompts()
         await orch._notify(client, Role.Planner, "test message", 2)
         assert client.send_status.await_count >= 1
 
@@ -70,13 +79,9 @@ class TestNotify:
         agent = AsyncMock()
         db = MagicMock()
         validator = MagicMock()
-        config = MagicMock()
-        config.planner.name = "PlanModel"
-        config.generator.name = "GenModel"
-        config.judge.name = "JudgeModel"
-        prompts = {}
+        config = _make_config()
         orch = Orchestrator(agent, validator, db, skip_judge=False, config=config)
-        orch.prompts = prompts
+        orch.prompts = _make_prompts()
         await orch._notify(client, Role.Planner, "test", 2)
         assert client.send_status.await_count >= 1
 
@@ -87,12 +92,7 @@ class TestNotify:
         agent = AsyncMock()
         db = MagicMock()
         validator = MagicMock()
-        config = MagicMock()
-        config.planner.name = "p"
-        config.generator.name = "g"
-        config.judge.name = "j"
-        prompts = {}
-        orch = Orchestrator(agent, validator, db, skip_judge=False, config=config)
-        orch.prompts = prompts
+        orch = Orchestrator(agent, validator, db, skip_judge=False, config=_make_config())
+        orch.prompts = _make_prompts()
         await orch._notify(client, Role.System, "test", None)
         assert client.send_status.await_count == 0

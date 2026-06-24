@@ -47,6 +47,13 @@ class TestMessageRouter:
         await router.dispatch(data, client, set(), None, None, None)
         router._agent_service.stop.assert_called_once()
 
+    async def test_dispatch_malformed_json_rejected(self, router):  # TC-MR-007
+        client = AsyncMock()
+        client._safe_send = AsyncMock()
+        data = {"type": None}
+        result = await router.dispatch(data, client, set(), None, None, None)
+        assert result is False
+
     async def test_dispatch_invalid_request_sends_error(self, router):
         client = AsyncMock()
         data = {"type": "multi", "code": ""}
