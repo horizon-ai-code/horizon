@@ -50,7 +50,7 @@ class TestOrchestrationConfig:
             f.flush()
             try:
                 OrchestrationConfig.from_yaml(f.name)
-                assert False, "Expected exception"
+                raise AssertionError("Expected exception")  # noqa: B011
             except Exception:
                 pass
 
