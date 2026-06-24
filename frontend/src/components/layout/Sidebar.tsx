@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Plus, FileCode2, MoreVertical, Pencil, Trash, Check, X } from "lucide-react";
+import { Menu, Plus, FileCode2, MoreVertical, Pencil, Trash, Check, X, AlertCircle } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useChatStore } from "@/store/useChatStore";
 import {
@@ -39,6 +39,7 @@ export default function Sidebar() {
   const renameSession = useChatStore((state) => state.renameSession);
   const deleteSession = useChatStore((state) => state.deleteSession);
   const fetchHistory = useChatStore((state) => state.fetchHistory);
+  const historyLoadError = useChatStore((state) => state.historyLoadError);
 
   // ── Confirm Dialog State ──────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -224,10 +225,23 @@ export default function Sidebar() {
               className="flex flex-col gap-1 mt-2"
             >
                <div className={`px-2 py-1 text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-jb-text/50' : 'text-[#818594]'}`}>
-                 Recent
-               </div>
+                  Recent
+                </div>
 
-               {recentSessions.map((session) => {
+                {historyLoadError && (
+                  <div className={`flex items-center gap-2 px-2 py-2 rounded-md text-[11px] ${isDark ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-50 text-yellow-600'}`}>
+                    <AlertCircle size={12} className="shrink-0" />
+                    <span className="flex-1">Failed to load sessions</span>
+                    <button
+                      onClick={fetchHistory}
+                      className="font-semibold underline hover:no-underline cursor-pointer"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                {recentSessions.map((session) => {
                   const isEditing = editingSessionId === session.id;
 
                   return (

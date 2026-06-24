@@ -102,16 +102,24 @@ export interface PydanticError {
 export interface ValidationErrorMessage {
   type: "error";
   message: "Invalid data format";
+  code?: string;
   details: PydanticError[];
 }
 
 export interface MalformedJsonErrorMessage {
   type: "error";
   message: "Malformed JSON payload";
+  code?: string;
   details: string;
 }
 
-export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage;
+export interface GenericErrorMessage {
+  type: "error";
+  message: string;
+  code?: string;
+}
+
+export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage | GenericErrorMessage;
 
 // ── Structured Glassbox Messages ───────────────────────────────────────────
 

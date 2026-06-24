@@ -148,9 +148,12 @@ async def entrypoint(websocket: WebSocket) -> None:
                 data = await websocket.receive_json()
             except (json.JSONDecodeError, TypeError, ValueError) as e:
                 await websocket.send_json(
-                    {"type": "error", "message": "Malformed JSON payload", "details": str(e)}
+                    {"type": "error", "code": "MALFORMED_JSON", "message": "Malformed JSON payload", "details": str(e)}
                 )
                 continue
+
+            if data.get("type") in ("multi", "single") and orchestration_lock.locked():
+                await client_conn.send_status(Role.System, "System is busy. Your request has been queued and will start automatically.")
 
             handled = await router.dispatch(
                 data, client_conn, active_tasks,
@@ -194,12 +197,12 @@ async def system_monitor_ws(websocket: WebSocket) -> None:
 async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
     """Handle frontend reconnection to an existing session."""
     if not session_id:
-        await ws.send_json({"type": "error", "message": "Missing session_id"})
+        await ws.send_json({"type": "error", "code": "MISSING_SESSION_ID", "message": "Missing session_id"})
         return
 
     record = await connection.get_history_by_id(session_id)
     if not record:
-        await ws.send_json({"type": "error", "message": "Session not found"})
+        await ws.send_json({"type": "error", "code": "SESSION_NOT_FOUND", "message": "Session not found"})
         return
 
     new_conn = connection.create_websocket_connection(ws)
@@ -237,7 +240,7 @@ async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
                 "Session lost due to server restart. Please start a new refactor.",
             )
     else:
-        await ws.send_json({"type": "error", "message": f"Unknown session status: {record.get('status')}"})
+        await ws.send_json({"type": "error", "code": "UNKNOWN_SESSION_STATUS", "message": f"Unknown session status: {record.get('status')}"})
 
 
 async def run_single_refactor(
