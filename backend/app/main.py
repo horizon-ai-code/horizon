@@ -18,6 +18,7 @@ from app.utils.schemas import (
     HistoryDetail,
     HistoryStub,
 )
+from app.utils.system_monitor import SystemMonitor
 from app.utils.types import RefactorRequest, Role
 
 # Module-level singletons — initialized at import (lightweight, no model loaded).
@@ -29,6 +30,7 @@ orchestrator: Orchestrator = Orchestrator(
     agent_service=agent_service, validator=validator, db=connection.db
 )
 router: MessageRouter = MessageRouter(agent_service)
+system_monitor: SystemMonitor = SystemMonitor()
 
 # Global lock to serialize all orchestration (model & DB) operations
 orchestration_lock = asyncio.Lock()
@@ -46,7 +48,9 @@ async def lifespan(app: FastAPI):
     deleted = connection.db.cleanup_halted_sessions()
     if deleted:
         print(f"Deleted {deleted} halted sessions")
+    await system_monitor.start()
     yield
+    await system_monitor.stop()
     db.close()
     await agent_service.unload()
 
@@ -170,6 +174,21 @@ async def entrypoint(websocket: WebSocket) -> None:
         for task in active_tasks.copy():
             if not task.done():
                 task.cancel()
+
+
+@app.websocket("/ws/system")
+async def system_monitor_ws(websocket: WebSocket) -> None:
+    await websocket.accept()
+    try:
+        while True:
+            metrics = system_monitor.get_current_metrics()
+            await websocket.send_json({
+                "type": "system_metrics",
+                "metrics": metrics,
+            })
+            await asyncio.sleep(2)
+    except WebSocketDisconnect:
+        pass
 
 
 async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
