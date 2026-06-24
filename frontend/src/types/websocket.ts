@@ -117,6 +117,7 @@ export interface GenericErrorMessage {
   type: "error";
   message: string;
   code?: string;
+  details?: string | PydanticError[];
 }
 
 export type ErrorMessage = ValidationErrorMessage | MalformedJsonErrorMessage | GenericErrorMessage;
