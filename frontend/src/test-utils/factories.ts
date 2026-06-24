@@ -5,8 +5,8 @@ export function createMockSession(overrides?: Partial<SessionData>): SessionData
   return {
     id: 'test-session',
     title: 'Test Session',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
     sourceCode: '',
     refactoredOutput: '',
     activeStep: 0,

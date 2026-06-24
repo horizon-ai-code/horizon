@@ -36,7 +36,7 @@ function JsonValue({ value, isDark, depth }: { value: unknown; isDark: boolean; 
 
   if (typeof value === "string") {
     if (value === "") return <span className={nullCls(isDark)}>None</span>;
-    return <span className={stringCls(isDark)}>"{value}"</span>;
+    return <span className={stringCls(isDark)}>{'\u201C'}{value}{'\u201D'}</span>;
   }
 
   if (Array.isArray(value)) {

@@ -5,7 +5,7 @@ import { createMockTerminalEntry } from '@/test-utils/factories';
 
 describe('Terminal', () => {
   it('renders boot header', () => {
-    render(<Terminal isTerminalCollapsed={false} setIsTerminalCollapsed={() => {}} terminalEndRef={{ current: null }} />);
+    render(<Terminal isTerminalCollapsed={false} setIsTerminalCollapsed={() => {}} terminalEndRef={{ current: null }} appState="idle" />);
     expect(screen.getByText(/Welcome to Horizon AI/i)).toBeInTheDocument();
   });
 
@@ -20,13 +20,14 @@ describe('Terminal', () => {
         setIsTerminalCollapsed={() => {}}
         terminalEndRef={{ current: null }}
         terminalEntries={entries}
+        appState="idle"
       />
     );
     expect(screen.getByText('run refactor')).toBeInTheDocument();
   });
 
   it('renders collapsible header', () => {
-    render(<Terminal isTerminalCollapsed={false} setIsTerminalCollapsed={() => {}} terminalEndRef={{ current: null }} />);
+    render(<Terminal isTerminalCollapsed={false} setIsTerminalCollapsed={() => {}} terminalEndRef={{ current: null }} appState="idle" />);
     expect(screen.getByText('Terminal')).toBeInTheDocument();
   });
 });

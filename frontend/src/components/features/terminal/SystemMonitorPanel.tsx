@@ -142,7 +142,7 @@ function UptimeCard({ elapsedSeconds, isDark }: UptimeCardProps) {
 
   useEffect(() => {
     if (Math.abs(elapsedSeconds - localElapsed) > 3) {
-      setLocalElapsed(elapsedSeconds);
+      setLocalElapsed(elapsedSeconds); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [elapsedSeconds, localElapsed]);
 

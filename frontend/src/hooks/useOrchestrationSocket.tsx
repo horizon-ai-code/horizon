@@ -726,6 +726,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   }, [clearReconnectTimer]);
 
   const connectRef = useRef(connect);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: sync latest connect value
   connectRef.current = connect;
 
   // ── Disconnect ───────────────────────────────────────────────────────────
