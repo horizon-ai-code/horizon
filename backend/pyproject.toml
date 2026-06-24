@@ -21,6 +21,7 @@ dependencies = [
     "tenacity>=8.0.0",
     "psutil>=6.0.0",
     "sentry-sdk>=2.0.0",
+    "nvidia-ml-py>=13.0.0",
 ]
 
 [project.optional-dependencies]
