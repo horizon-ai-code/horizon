@@ -70,10 +70,9 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }
     
     const fetchAndHandle = async () => {
-      const success = await fetchSessionDetails(id);
-      if (success) {
-        fetchedSessionIdsRef.current.add(id);
-      } else {
+      await fetchSessionDetails(id);
+      const session = useChatStore.getState().sessions[id];
+      if (session?.error === "not_found") {
         router.replace('/?error=session_not_found');
       }
     };
@@ -224,6 +223,13 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const handleInputErrorChange = useCallback((val: boolean) => setLocalInputError(val), [setLocalInputError]);
   const handleTerminalCollapse = useCallback((val: boolean) => updateLocal({ isTerminalCollapsed: val }), [updateLocal]);
 
+  const retrySessionFetch = useCallback(() => {
+    if (!id) return;
+    fetchSessionDetails(id);
+  }, [id, fetchSessionDetails]);
+
+  const sessionError = id ? (sessions[id]?.errorCode || sessions[id]?.error) : undefined;
+
   if (!mounted) {
     return (
       <div className="h-full flex items-center justify-center bg-jb-panel">
@@ -257,6 +263,27 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         </button>
       </div>
     )}
+
+    {sessionError === "unknown" && (
+      <div className="flex items-start gap-3 p-3 mx-4 mt-4 rounded-lg border animate-in fade-in slide-in-from-top-2 duration-300 bg-yellow-500/5 border-yellow-500/20">
+        <AlertCircle size={16} className="text-yellow-500 mt-0.5 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-yellow-500">
+            Connection Error
+          </span>
+          <p className="text-[12px] leading-relaxed text-jb-text-muted mt-0.5">
+            Failed to load session. The server may be unavailable.
+          </p>
+        </div>
+        <button
+          onClick={retrySessionFetch}
+          className="px-3 py-1 text-[11px] font-semibold rounded-md bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 cursor-pointer"
+        >
+          Retry
+        </button>
+      </div>
+    )}
+
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">

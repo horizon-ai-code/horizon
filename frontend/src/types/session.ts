@@ -47,4 +47,5 @@ export interface SessionData {
   orchestrationResult: OrchestrationResult;
   isLoaded?: boolean;
   error?: string;
+  errorCode?: string;
 }
