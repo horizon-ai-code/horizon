@@ -114,3 +114,4 @@ zipp
 # conda-only deps (not in original pip freeze)
 lizard
 peewee
+sentry-sdk

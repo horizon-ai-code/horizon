@@ -1,9 +1,11 @@
 import asyncio
 import json
+import os
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 
+import sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import UUID4
@@ -20,6 +22,12 @@ from app.utils.schemas import (
 )
 from app.utils.system_monitor import SystemMonitor
 from app.utils.types import RefactorRequest, Role
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    environment=os.getenv("APP_ENV", "development"),
+    traces_sample_rate=0.1,
+)
 
 # Module-level singletons — initialized at import (lightweight, no model loaded).
 # Override in tests by assigning to these variables directly.
@@ -41,7 +49,11 @@ async def lifespan(app: FastAPI):
     """Startup: ensure DB connection, clean zombie sessions.
     Shutdown: close DB, release model VRAM.
     """
-    db.connect(reuse_if_open=True)
+    try:
+        db.connect(reuse_if_open=True)
+    except Exception as e:
+        print(f"Warning: Database connection failed at startup: {e}")
+
     cleaned = connection.db.cleanup_zombie_sessions()
     if cleaned:
         print(f"Cleaned {cleaned} zombie sessions")
@@ -95,7 +107,17 @@ async def log_requests(request, call_next):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "timestamp": datetime.utcnow().isoformat() + "Z"}
+    db_status = "ok"
+    try:
+        db.connect(reuse_if_open=True)
+        db.execute_sql("SELECT 1")
+    except Exception:
+        db_status = "error"
+    return {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "db": db_status,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+    }
 
 
 @app.websocket("/ws")
