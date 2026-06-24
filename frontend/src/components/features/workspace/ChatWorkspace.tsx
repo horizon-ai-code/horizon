@@ -7,9 +7,9 @@ import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
-import { useRouter } from "next/navigation";
 
 import InputPanel from "@/components/features/editor/InputPanel";
 import RefactoredOutput from "@/components/features/output/RefactoredOutput";
@@ -22,7 +22,6 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const updateDraftSession = useChatStore((s) => s.updateDraftSession);
   const fetchSessionDetails = useChatStore((s) => s.fetchSessionDetails);
   const id = sessionId;
-  const router = useRouter();
 
   const { resolvedTheme } = useTheme();
   
@@ -67,16 +66,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     }
     
     const fetchAndHandle = async () => {
-      const success = await fetchSessionDetails(id);
-      if (success) {
-        fetchedSessionIdsRef.current.add(id);
-      } else {
-        router.push('/');
-      }
+      await fetchSessionDetails(id);
+      fetchedSessionIdsRef.current.add(id);
     };
     
     fetchAndHandle();
-  }, [id, router, fetchSessionDetails]);
+  }, [id, fetchSessionDetails]);
 
   const activeSession = id
     ? (sessions[id] ?? {
@@ -227,6 +222,26 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         <div className="flex flex-col items-center gap-3">
           <Loader2 size={24} className="text-jb-accent animate-spin" />
           <span className="text-[12px] text-jb-text-muted">Loading workspace...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (id && activeSession.error === "not_found") {
+    return (
+      <div className="h-full flex items-center justify-center bg-jb-panel">
+        <div className="flex flex-col items-center gap-3 text-center px-8">
+          <span className="text-4xl font-bold text-jb-text-muted/30">404</span>
+          <h2 className="text-lg font-semibold text-jb-text">Session not found</h2>
+          <p className="text-sm text-jb-text-muted max-w-sm">
+            This session does not exist or may have been deleted.
+          </p>
+          <Link
+            href="/"
+            className="mt-2 px-6 py-2 rounded-xl bg-jb-accent text-white font-semibold hover:opacity-90 transition-opacity"
+          >
+            Start New Session
+          </Link>
         </div>
       </div>
     );
