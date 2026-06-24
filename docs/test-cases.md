@@ -100,7 +100,16 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 | Frontend store | Integration | Real Zustand state, mock `fetch` |
 | Frontend hooks | Class-level | WebSocket constructor, store |
 
-### 1.4 Pass Criteria
+### 1.4 Status Convention
+
+Throughout this document, each section header includes an implementation status:
+
+| Badge | Meaning |
+|-------|---------|
+| ✅ **X/Y done** | X test cases implemented out of Y documented (remainder are aspirational) |
+| 📋 Planned | Documented as a specification but not yet implemented in code |
+
+### 1.5 Pass Criteria
 
 - All **Positive** tests pass: function returns correct value
 - All **Negative** tests pass: function raises or returns error as expected
@@ -110,6 +119,8 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 ---
 
 ## Section 2: Backend Unit Tests
+
+> **Status:** 125 of 170 documented cases implemented. See Execution Matrix for per-module breakdown. Unimplemented cases are retained as a specification for future work.
 
 ### 2.1 OrchestrationConfig
 
@@ -438,6 +449,8 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 
 ## Section 3: Backend Integration Tests
 
+> **Status:** 8 of 12 documented cases implemented. WebSocket tests (IT-009 through IT-012) are aspirational — coverage is provided by unit tests (test_connection.py, test_router.py) and the full pipeline test.
+
 **Module:** FastAPI application (`app/main.py`)
 **Purpose:** Validate end-to-end REST API and WebSocket endpoint behavior including health check, history CRUD, and real-time message exchange (heartbeat, halt acknowledgment, error rejection).
 **Approach:** FastAPI `TestClient` with real in-memory SQLite database. WebSocket tested via ASGI transport.
@@ -460,6 +473,8 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 ---
 
 ## Section 4: Frontend Unit Tests
+
+> **Status:** 75 of 99 documented cases implemented. See Execution Matrix for per-module breakdown. Unimplemented cases are retained as a specification for future work.
 
 ### 4.1 lib/utils — cn()
 
@@ -687,42 +702,45 @@ This test suite follows the **AAA (Arrange-Act-Assert)** pattern:
 
 ## Section 6: Test Execution Matrix
 
-| Module | Test File | Test Cases | Priority | Dependencies |
-|--------|-----------|-----------|----------|-------------|
-| **BACKEND UNIT** | | **125** | | |
-| OrchestrationConfig | `test_config.py` | 5 | High | YAML file |
-| Types & Schemas | `test_types_schemas.py` | 8 | High | None |
-| ResponseParser | `test_response_parser.py` | 20 | High | None |
-| ASTMatcher | `test_ast_matcher.py` | 12 | High | Java source |
-| Validator | `test_validator.py` | 22 | Critical | javalang, lizard |
-| AgentService | `test_agent_service.py` | 10 | High | llama_cpp (mocked) |
-| ClientConnection | `test_connection.py` | 8 | High | WebSocket (mocked) |
-| DatabaseManager | `test_context.py` | 12 | Critical | In-memory SQLite |
-| MessageRouter | `test_router.py` | 8 | Medium | Agent + Connection |
-| Orchestrator | `test_orchestrator.py` | 12 | Critical | Agent, DB, Connection (mocked) |
-| Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | Critical | AgentService (mocked) |
-| Phase 3 — Execution | `test_phase3_execution.py` | 10 | Critical | AgentService (mocked) |
-| Phase 4 — Validation | `test_phase4_validation.py` | 8 | Critical | Validator (real) |
-| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | Critical | AgentService (mocked) |
-| Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | Critical | AgentService, DB (mocked) |
-| Formatters | `test_formatters.py` | 5 | High | None (pure) |
-| Code Utils | `test_code_utils.py` | 6 | Medium | None (pure) |
-| **BACKEND INTEGRATION** | | **6** | | |
-| REST API (mocked) | `test_api.py` | 4 | Critical | Mocked ConnectionManager + DB |
-| Full Pipeline | `test_full_mock_pipeline.py` | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
-| **FRONTEND UNIT** | | **75** | | |
-| lib/utils (cn) | `utils.test.ts` | 6 | Low | None (pure) |
-| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 9 | High | None (pure) |
-| lib/formatStatusContent | `formatStatusContent.test.ts` | 4 | High | None (pure) |
-| lib/javaFormatter | `javaFormatter.test.ts` | 4 | Medium | None (pure) |
-| lib/indentation | `indentation.test.ts` | 4 | Medium | None (pure) |
-| store/useChatStore | `useChatStore.test.ts` | 8 | Critical | fetch (mocked) |
-| hooks/useOrchestrationSocket | `useOrchestrationSocket.test.tsx` | 2 | Critical | WebSocket, store |
-| ErrorBoundary | `ErrorBoundary.test.tsx` | 3 | Medium | React rendering |
-| **FRONTEND INTEGRATION** | | **4** | | |
-| Terminal | `Terminal.test.tsx` | 3 | High | Store + RTL |
-| ChatWorkspace | `ChatWorkspace.test.tsx` | 1 | High | Store + Hook + RTL |
-| | | **212 total** | | |
+| Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
+|--------|-----------|---------|----------|----------|-------------|
+| **BACKEND UNIT** | | **170** | **125** | | |
+| OrchestrationConfig | `test_config.py` | 5 | 4 | High | YAML file |
+| Types & Schemas | `test_types_schemas.py` | 8 | 8 | High | None |
+| ResponseParser | `test_response_parser.py` | 20 | 20 | High | None |
+| ASTMatcher | `test_ast_matcher.py` | 12 | 10 | High | Java source |
+| Validator | `test_validator.py` | 22 | 16 | Critical | javalang, lizard |
+| AgentService | `test_agent_service.py` | 10 | 7 | High | llama_cpp (mocked) |
+| ClientConnection | `test_connection.py` | 8 | 7 | High | WebSocket (mocked) |
+| DatabaseManager | `test_context.py` | 12 | 9 | Critical | In-memory SQLite |
+| MessageRouter | `test_router.py` | 8 | 7 | Medium | Agent + Connection |
+| Orchestrator | `test_orchestrator.py` | 12 | 3 | Critical | Agent, DB, Connection (mocked) |
+| Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | 7 | Critical | AgentService (mocked) |
+| Phase 3 — Execution | `test_phase3_execution.py` | 10 | 6 | Critical | AgentService (mocked) |
+| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 3 | Critical | Validator (real) |
+| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | 3 | Critical | AgentService (mocked) |
+| Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | 2 | Critical | AgentService, DB (mocked) |
+| Formatters | `test_formatters.py` | 5 | 5 | High | None (pure) |
+| Code Utils | `test_code_utils.py` | 6 | 5 | Medium | None (pure) |
+| **BACKEND INTEGRATION** | | **12** | **8** | | |
+| REST API (mocked) | `test_api.py` | 12 | 4 | Critical | Mocked ConnectionManager + DB |
+| Full Pipeline | `test_full_mock_pipeline.py` | — | 4 | Critical | Real Validator, in-memory DB, mocked AgentService |
+| **FRONTEND UNIT** | | **99** | **75** | | |
+| lib/utils (cn) | `utils.test.ts` | 6 | 6 | Low | None (pure) |
+| lib/constants | `constants.test.ts` | 5 | 5 | Low | None (read-only) |
+| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 14 | 9 | High | None (pure) |
+| lib/formatStatusContent | `formatStatusContent.test.ts` | 8 | 4 | High | None (pure) |
+| lib/javaFormatter | `javaFormatter.test.ts` | 10 | 8 | Medium | None (pure) |
+| lib/indentation | `indentation.test.ts` | 8 | 7 | Medium | None (pure) |
+| lib/buildMetrics | `buildMetrics.test.ts` | 6 | 6 | Medium | None (pure) |
+| lib/schemas (Zod) | `websocket.test.ts` | 8 | 8 | Medium | None (pure) |
+| store/useChatStore | `useChatStore.test.ts` | 14 | 8 | Critical | fetch (mocked) |
+| hooks/useOrchestrationSocket | `useOrchestrationSocket.test.tsx` | 10 | 2 | Critical | WebSocket, store |
+| ErrorBoundary | `ErrorBoundary.test.tsx` | 4 | 4 | Medium | React rendering |
+| **FRONTEND INTEGRATION** | | **6** | **4** | | |
+| Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
+| ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 1 | High | Store + Hook + RTL |
+| | | **287 planned** | **212 done** | | |
 
 ---
 
