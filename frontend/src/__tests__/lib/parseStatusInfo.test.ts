@@ -37,10 +37,12 @@ describe('parseJudgeDecision', () => {
 
 describe('parseIntentDetail', () => {
   it('undefined unmatched', () => { expect(parseIntentDetail('x')).toBeUndefined(); });
+
 });
 
 describe('parseMutationPlan', () => {
   it('undefined unmatched', () => { expect(parseMutationPlan('x')).toBeUndefined(); });
+
 });
 
 describe('parsePhaseAction', () => {

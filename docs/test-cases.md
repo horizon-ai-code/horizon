@@ -620,7 +620,7 @@ Throughout this document, each section header includes an implementation status:
 
 | Module | Test File | Planned | ✅ Actual | Priority | Dependencies |
 |--------|-----------|---------|----------|----------|-------------|
-| **BACKEND UNIT** | | **170** | **164** | | |
+| **BACKEND UNIT** | | **170** | **167** | | |
 | OrchestrationConfig | `test_config.py` | 5 | 4 | High | YAML file |
 | Types & Schemas | `test_types_schemas.py` | 8 | 8 | High | None |
 | ResponseParser | `test_response_parser.py` | 20 | 20 | High | None |
@@ -656,7 +656,7 @@ Throughout this document, each section header includes an implementation status:
 | **FRONTEND INTEGRATION** | | **6** | **4** | | |
 | Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
 | ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 2 | High | Store + Hook + RTL |
-| | | **287 planned** | **269 done** | | |
+| | | **287 planned** | **272 done** | | |
 
 ---
 

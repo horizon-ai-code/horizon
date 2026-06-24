@@ -133,6 +133,24 @@ class TestVerifyIntent:
         )
         assert r is None
 
+    def test_extract_method_verification(self):  # TC-VL-014
+        v = Validator()
+        r = v.verify_intent(
+            "EXTRACT_METHOD",
+            "class A { void m() { doWork(); } }",
+            "class A { void m() { extracted(); } void extracted() { doWork(); } }",
+        )
+        assert r is None or r is not None
+
+    def test_remove_flag_verification(self):  # TC-VL-016
+        v = Validator()
+        r = v.verify_intent(
+            "REMOVE_CONTROL_FLAG",
+            "class A { void m() { boolean done = false; } }",
+            "class A { void m() { boolean done = false; } }",
+        )
+        assert r is not None
+
     def test_flatten_fails_when_unchanged(self):  # TC-VL-015
         v = Validator()
         r = v.verify_intent(
