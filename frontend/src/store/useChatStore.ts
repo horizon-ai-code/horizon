@@ -399,9 +399,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
                    `${i.title || ""}: ${i.details || ""}`
                  ).join("\n");
                }
-             } catch {
-               // Not valid JSON, use as-is
-             }
+              } catch {
+                console.warn("[ChatStore] Failed to parse insights JSON, using raw string");
+              }
            }
            oResult.summary = parsedInsights;
            oResult.insights = parsedInsights;

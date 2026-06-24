@@ -75,6 +75,7 @@ export function formatStatusContent(raw: string): FormattedContent {
       if (formatted) parsedBlocks.push(formatted);
       if (!parsedBlock) parsedBlock = parsed;
     } catch {
+      // Not valid JSON, render as raw text
       parsedBlocks.push(json.trim());
     }
     return "";
@@ -100,7 +101,7 @@ export function formatStatusContent(raw: string): FormattedContent {
       text = "";
       if (!rawData) rawData = parsed;
     } catch {
-      // Not valid JSON, fall through
+      // Not valid JSON, fall through to other extractors
     }
   }
 
@@ -119,7 +120,7 @@ export function formatStatusContent(raw: string): FormattedContent {
         }
         if (!rawData) rawData = parsed;
       } catch {
-        // Not valid JSON after prefix, fall through
+        // Not valid JSON after prefix, fall through to code extraction
       }
     }
   }

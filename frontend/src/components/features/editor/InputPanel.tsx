@@ -74,7 +74,7 @@ export default function InputPanel({
           setClipboardPreview("");
         }
       } catch (err) {
-        console.debug("Clipboard access denied or unavailable:", err);
+        console.warn("Clipboard access denied or unavailable:", err);
       }
     };
 
