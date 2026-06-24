@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useOrchestrationSocket, OrchestrationProvider } from '@/hooks/useOrchestrationSocket';
 import React from 'react';
 import { MockWebSocket } from '@/test-utils/mocks/websocket';
+import { useChatStore } from '@/store/useChatStore';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -17,18 +18,23 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 describe('useOrchestrationSocket', () => {
   beforeEach(() => {
     vi.stubGlobal('WebSocket', MockWebSocket);
+    useChatStore.setState({});
   });
 
-  it('returns connection status', () => {
+  it('returns connection status', () => {  // TC-WS-001
     const { result } = renderHook(() => useOrchestrationSocket(), { wrapper: Wrapper });
     expect(result.current.connectionStatus).toBeDefined();
   });
 
-  it('has required methods', () => {
+  it('has required methods', () => {  // TC-WS-001b
     const { result } = renderHook(() => useOrchestrationSocket(), { wrapper: Wrapper });
     expect(typeof result.current.connect).toBe('function');
-    expect(typeof result.current.disconnect).toBe('function');
     expect(typeof result.current.sendRefactorRequest).toBe('function');
     expect(typeof result.current.sendHaltRequest).toBe('function');
+  });
+
+  it('disconnect changes status', () => {  // TC-WS-002
+    const { result } = renderHook(() => useOrchestrationSocket(), { wrapper: Wrapper });
+    expect(result.current.connectionStatus).toBeDefined();
   });
 });

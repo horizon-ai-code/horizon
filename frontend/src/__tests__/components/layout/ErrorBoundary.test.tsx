@@ -1,5 +1,5 @@
 /// <reference types="vitest/globals" />
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ErrorBoundary from '@/components/layout/ErrorBoundary';
 
@@ -16,7 +16,7 @@ describe('ErrorBoundary', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders children when no error', () => {
+  it('renders children when no error', () => {  // TC-EB-001
     render(
       <ErrorBoundary>
         <div>ok</div>
@@ -25,7 +25,7 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('ok')).toBeInTheDocument();
   });
 
-  it('catches error and shows fallback', () => {
+  it('catches error and shows fallback', () => {  // TC-EB-002
     render(
       <ErrorBoundary>
         <ThrowError />
@@ -34,12 +34,28 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
   });
 
-  it('shows custom fallback when provided', () => {
+  it('shows custom fallback when provided', () => {  // TC-EB-003
     render(
       <ErrorBoundary fallback={<div>Custom Error</div>}>
         <ThrowError />
       </ErrorBoundary>
     );
     expect(screen.getByText('Custom Error')).toBeInTheDocument();
+  });
+
+  it('resets error state when children change', () => {  // TC-EB-004
+    const { rerender } = render(
+      <ErrorBoundary key="1">
+        <ThrowError />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary key="2">
+        <div>recovered</div>
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('recovered')).toBeInTheDocument();
   });
 });

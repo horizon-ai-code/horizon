@@ -238,7 +238,7 @@ def memory_db():
 
 @pytest.mark.asyncio
 class TestFullMockPipeline:
-    async def test_success_persists_to_db(self, memory_db):
+    async def test_success_persists_to_db(self, memory_db):  # TC-PL-SUCCESS
         """Pipeline completes → ExitStatus.SUCCESS → session in DB."""
         db_mgr, _ = memory_db
         orch = build_orchestrator(MockAgentService(), db_mgr)
@@ -252,7 +252,7 @@ class TestFullMockPipeline:
         detail = db_mgr.get_history_by_id(history[0]["id"])
         assert detail.get("status") == "Completed"
 
-    async def test_rename_and_delete(self, memory_db):
+    async def test_rename_and_delete(self, memory_db):  # TC-PL-RENAME
         """After pipeline: rename session title, then delete it."""
         db_mgr, _ = memory_db
         orch = build_orchestrator(MockAgentService(), db_mgr)
@@ -270,7 +270,7 @@ class TestFullMockPipeline:
         db_mgr.delete_history_by_id(session_id)
         assert db_mgr.get_history_by_id(session_id) is None
 
-    async def test_abort_on_user_halt(self, memory_db):
+    async def test_abort_on_user_halt(self, memory_db):  # TC-PL-HALT
         """User halt during phase 2/3 InterruptedError propagated, exit_status PROCESSING."""
         db_mgr, _ = memory_db
         agent = AbortingAgentService(halt_after=3)
@@ -283,7 +283,7 @@ class TestFullMockPipeline:
         # InterruptedError propagates. The state was never set to SUCCESS or ABORT.
         assert orch.state.exit_status == ExitStatus.PROCESSING
 
-    async def test_abort_on_max_retries(self, memory_db):
+    async def test_abort_on_max_retries(self, memory_db):  # TC-PL-ABORT
         """Validation keeps failing → strategy_iter > 3 → ABORT_STRATEGY."""
         db_mgr, _ = memory_db
         agent = BrokenCodeAgentService()
