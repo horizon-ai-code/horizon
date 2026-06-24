@@ -30,9 +30,10 @@ function setup() {
   useChatStore.setState({
     sessions: {},
     draftSession: {
-      sourceCode: '', refactoredOutput: '', activeStep: 0, inputInstruction: '',
-      terminalEntries: [], isTerminalCollapsed: false, appState: 'idle',
-      orchestrationResult: { metrics: [], summary: '', diffHighlights: { added: [], removed: [] } },
+    sourceCode: '', refactoredOutput: '', activeStep: 0, inputInstruction: '',
+    terminalEntries: [], isTerminalCollapsed: false, appState: 'idle',
+    showFlowchartModal: false, isMonolith: false, title: '', createdAt: 0, updatedAt: 0,
+    orchestrationResult: { metrics: [], summary: '', diffHighlights: { added: [], removed: [] } },
     },
     orchestratorStatus: 'disconnected', hasInitialLoaded: false,
   });
