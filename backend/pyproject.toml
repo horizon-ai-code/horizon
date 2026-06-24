@@ -18,6 +18,9 @@ dependencies = [
     "coloredlogs>=15.0",
     "httpx>=0.25.0",
     "lizard>=1.21.0",
+    "tenacity>=8.0.0",
+    "psutil>=6.0.0",
+    "sentry-sdk>=2.0.0",
 ]
 
 [project.optional-dependencies]
