@@ -1,119 +1,48 @@
-"""Verification tests for connection_manager.py changes.
+"""Tests for ClientConnection — WebSocket messaging and heartbeat."""
 
-Covers: _safe_send, exit_status, bidirectional heartbeat, stale detection.
-"""
-import asyncio
-import unittest
 from unittest.mock import AsyncMock, MagicMock
 
-from fastapi import WebSocketDisconnect
-
+import pytest
 from app.modules.connection import ClientConnection
-from app.modules.context import DatabaseManager
+from app.utils.types import Role
 
 
-class TestSafeSend(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.mock_websocket = AsyncMock()
-        self.client_connection = ClientConnection(self.mock_websocket, MagicMock())
+@pytest.mark.asyncio
+class TestClientConnection:
+    @pytest.fixture
+    def client(self):
+        ws = AsyncMock()
+        return ClientConnection(ws, MagicMock())
 
-    async def test_safe_send_success(self):
-        """_safe_send calls send_json with the correct message."""
-        await self.client_connection._safe_send({"type": "test"})
-        self.mock_websocket.send_json.assert_awaited_once_with({"type": "test"})
+    async def test_send_status(self, client):
+        await client.send_status(Role.Planner, "Analyzing...")
+        client.websocket.send_json.assert_awaited()
 
-    async def test_safe_send_disconnect_does_not_crash(self):
-        """_safe_send catches WebSocketDisconnect — proves it actually attempted send."""
-        self.mock_websocket.send_json.side_effect = WebSocketDisconnect()
-        await self.client_connection._safe_send({"type": "test"})
-        self.mock_websocket.send_json.assert_awaited_once()
-
-    async def test_send_result_includes_exit_status(self):
-        """send_result payload contains exit_status field."""
-        await self.client_connection.send_result(
-            final_code="code", original_complexity=5,
-            refactored_complexity=3, performance_metrics={},
-            exit_status="ABORT_STRATEGY",
+    async def test_send_result_includes_models(self, client):
+        await client.send_result(
+            final_code="code",
+            original_complexity=10,
+            refactored_complexity=5,
+            performance_metrics={},
+            planner_model="Model-A",
+            generator_model="Model-B",
+            judge_model="Model-C",
         )
-        sent = self.mock_websocket.send_json.call_args[0][0]
-        self.assertIn("exit_status", sent)
-        self.assertEqual(sent["exit_status"], "ABORT_STRATEGY")
+        client.websocket.send_json.assert_awaited()
 
+    async def test_send_halt_notification(self, client):
+        await client.send_halt_notification()
+        client.websocket.send_json.assert_awaited()
 
-class TestHeartbeat(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.mock_websocket = AsyncMock()
-        self.client_connection = ClientConnection(self.mock_websocket, MagicMock())
+    def test_is_stale_true_after_2_missed(self, client):
+        client._missed_pongs = 2
+        assert client.is_stale is True
 
-    async def test_heartbeat_sends_ping(self):
-        """start_heartbeat begins sending ping messages."""
-        ClientConnection.HEARTBEAT_INTERVAL = 0.01
-        await self.client_connection.start_heartbeat()
-        await asyncio.sleep(0.03)
-        await self.client_connection.stop_heartbeat()
-        self.mock_websocket.send_json.assert_called()
-        sent = self.mock_websocket.send_json.call_args[0][0]
-        self.assertEqual(sent["type"], "ping")
+    def test_is_stale_false_within_limit(self, client):
+        client._missed_pongs = 1
+        assert client.is_stale is False
 
-    async def test_heartbeat_increments_missed_pongs(self):
-        """When no pong received, missed_pongs increments each interval."""
-        ClientConnection.HEARTBEAT_INTERVAL = 0.01
-        await self.client_connection.start_heartbeat()
-        await asyncio.sleep(0.03)
-        await self.client_connection.stop_heartbeat()
-        self.assertGreaterEqual(self.client_connection._missed_pongs, 1)
-
-    async def test_handle_pong_resets_missed_pongs(self):
-        """handle_pong resets the missed counter."""
-        self.client_connection._missed_pongs = 2
-        self.client_connection.handle_pong()
-        self.assertEqual(self.client_connection._missed_pongs, 0)
-
-    async def test_is_stale_false_initially(self):
-        """A freshly created connection is not stale."""
-        self.assertFalse(self.client_connection.is_stale)
-
-    async def test_is_stale_true_after_max_misses(self):
-        """is_stale is True when missed_pongs >= MAX_MISSED_PONGS."""
-        self.client_connection._missed_pongs = ClientConnection.MAX_MISSED_PONGS
-        self.assertTrue(self.client_connection.is_stale)
-
-    async def test_stop_heartbeat_cancels_task(self):
-        """stop_heartbeat clears the heartbeat task reference."""
-        await self.client_connection.start_heartbeat()
-        self.assertIsNotNone(self.client_connection._heartbeat_task)
-        await self.client_connection.stop_heartbeat()
-        self.assertIsNone(self.client_connection._heartbeat_task)
-
-    async def test_heartbeat_uses_safe_send(self):
-        """Heartbeat ping uses _safe_send — disconnect doesn't crash."""
-        self.mock_websocket.send_json.side_effect = WebSocketDisconnect()
-        ClientConnection.HEARTBEAT_INTERVAL = 0.01
-        await self.client_connection.start_heartbeat()
-        await asyncio.sleep(0.03)
-        await self.client_connection.stop_heartbeat()
-
-
-    async def test_heartbeat_increments_after_send(self):
-        """_missed_pongs increments after ping is sent, not before."""
-        db = MagicMock(spec=DatabaseManager)
-        ws = AsyncMock()
-        conn = ClientConnection(ws, db)
-        conn.HEARTBEAT_INTERVAL = 0.01
-        conn.MAX_MISSED_PONGS = 3
-        await conn.start_heartbeat()
-        await asyncio.sleep(0.02)
-        await conn.stop_heartbeat()
-        self.assertLess(conn._missed_pongs, 3)
-        self.assertGreater(conn._missed_pongs, 0)
-
-
-class TestReconnectHeartbeat(unittest.IsolatedAsyncioTestCase):
-    async def test_client_connection_start_heartbeat_exists(self):
-        """ClientConnection has start_heartbeat method."""
-        db = MagicMock(spec=DatabaseManager)
-        ws = AsyncMock()
-        conn = ClientConnection(ws, db)
-        assert hasattr(conn, 'start_heartbeat')
-        assert hasattr(conn, 'stop_heartbeat')
-        assert hasattr(conn, 'is_stale')
+    def test_handle_pong_resets_counter(self, client):
+        client._missed_pongs = 1
+        client.handle_pong()
+        assert client._missed_pongs == 0

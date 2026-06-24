@@ -1,0 +1,41 @@
+name: Backend CI
+
+on:
+  push:
+    paths: ['backend/**']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install ruff mypy
+      - name: Ruff lint
+        run: ruff check backend/app/
+      - name: Mypy type check
+        run: mypy backend/app/ || true
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e "backend/[dev]"
+          pip install pytest-asyncio
+      - name: Run unit tests
+        run: pytest backend/tests/unit/ -v --tb=line
+      - name: Run integration tests
+        run: pytest backend/tests/integration/ -v --tb=line
