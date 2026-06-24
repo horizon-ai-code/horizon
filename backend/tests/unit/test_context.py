@@ -24,14 +24,14 @@ def memory_db():
 
 
 class TestDatabaseManager:
-    def test_create_session(self, memory_db):
+    def test_create_session(self, memory_db):  # TC-DB-001
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="refactor", original_code="class A {}")
         entry = RefactorHistory.get_by_id(sid)
         assert entry.user_instruction == "refactor"
 
-    def test_complete_session(self, memory_db):
+    def test_complete_session(self, memory_db):  # TC-DB-002
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="test", original_code="a")
@@ -43,7 +43,7 @@ class TestDatabaseManager:
         entry = RefactorHistory.get_by_id(sid)
         assert entry.exit_status == "SUCCESS"
 
-    def test_log_status(self, memory_db):
+    def test_log_status(self, memory_db):  # TC-DB-003
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="x", original_code="x")
@@ -51,7 +51,7 @@ class TestDatabaseManager:
         logs = list(OrchestrationLog.select().where(OrchestrationLog.session == sid))
         assert len(logs) == 1
 
-    def test_mark_as_halted(self, memory_db):
+    def test_mark_as_halted(self, memory_db):  # TC-DB-004
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="x", original_code="x")
@@ -59,13 +59,13 @@ class TestDatabaseManager:
         entry = RefactorHistory.get_by_id(sid)
         assert entry.status == "Halted"
 
-    def test_get_history_returns_list(self, memory_db):
+    def test_get_history_returns_list(self, memory_db):  # TC-DB-005
         mgr = DatabaseManager()
         mgr.create_session(id=str(uuid.uuid4()), instruction="x", original_code="x")
         history = mgr.get_history()
         assert len(history) >= 1
 
-    def test_get_history_by_id_with_details(self, memory_db):
+    def test_get_history_by_id_with_details(self, memory_db):  # TC-DB-006
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="test", original_code="code")
@@ -75,12 +75,12 @@ class TestDatabaseManager:
         assert detail is not None
         assert len(detail.get("logs", [])) == 2
 
-    def test_get_history_by_id_not_found(self, memory_db):
+    def test_get_history_by_id_not_found(self, memory_db):  # TC-DB-007
         mgr = DatabaseManager()
         result = mgr.get_history_by_id(str(uuid.uuid4()))
         assert result is None
 
-    def test_rename_session(self, memory_db):
+    def test_rename_session(self, memory_db):  # TC-DB-008
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="x", original_code="x")
@@ -88,7 +88,7 @@ class TestDatabaseManager:
         entry = RefactorHistory.get_by_id(sid)
         assert entry.title == "New Title"
 
-    def test_delete_history_by_id(self, memory_db):
+    def test_delete_history_by_id(self, memory_db):  # TC-DB-011
         sid = str(uuid.uuid4())
         mgr = DatabaseManager()
         mgr.create_session(id=sid, instruction="x", original_code="x")

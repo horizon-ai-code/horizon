@@ -4,7 +4,7 @@ from app.modules.orchestrator import OrchestrationState
 
 
 class TestOrchestrationState:
-    def test_initial_defaults(self):
+    def test_initial_defaults(self):  # TC-OR-001
         state = OrchestrationState(
             session_id="t", base_code="class A {}", working_code="class A {}", user_instruction="refactor"
         )
@@ -12,14 +12,14 @@ class TestOrchestrationState:
         assert state.cumulative_feedback == []
         assert state.exit_status == "PROCESSING"
 
-    def test_add_feedback_appends(self):
+    def test_add_feedback_appends(self):  # TC-OR-002
         state = OrchestrationState(
             session_id="t", base_code="", working_code="", user_instruction=""
         )
         state.add_feedback("hint 1")
         assert len(state.cumulative_feedback) == 1
 
-    def test_extend_feedback(self):
+    def test_extend_feedback(self):  # TC-OR-004
         state = OrchestrationState(
             session_id="t", base_code="", working_code="", user_instruction=""
         )

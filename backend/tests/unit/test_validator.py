@@ -5,49 +5,49 @@ from app.utils.schemas import IntentPacket
 
 
 class TestCheckSyntax:
-    def test_valid_java_class(self):
+    def test_valid_java_class(self):  # TC-VL-001
         v = Validator()
         r = v.check_syntax("class A { void m() { int x = 1; } }")
         assert r["is_valid"] is True
 
-    def test_wraps_bare_statement(self):
+    def test_wraps_bare_statement(self):  # TC-VL-002
         v = Validator()
         r = v.check_syntax("int x = 1;")
         assert r["is_valid"] is True
 
-    def test_wraps_bare_method(self):
+    def test_wraps_bare_method(self):  # TC-VL-003
         v = Validator()
         r = v.check_syntax("void m() { return; }")
         assert r["is_valid"] is True
 
-    def test_rejects_malformed(self):
+    def test_rejects_malformed(self):  # TC-VL-004
         v = Validator()
         r = v.check_syntax("class A { void m() { ")
         assert r["is_valid"] is False
 
-    def test_handles_empty_input(self):
+    def test_handles_empty_input(self):  # TC-VL-005
         v = Validator()
         r = v.check_syntax("")
         assert r["is_valid"] is False
 
-    def test_whitespace_input(self):
+    def test_whitespace_input(self):  # TC-VL-006
         v = Validator()
         r = v.check_syntax("   \n  ")
         assert r["is_valid"] is False
 
 
 class TestGetComplexity:
-    def test_cc_with_conditionals(self):
+    def test_cc_with_conditionals(self):  # TC-VL-007
         v = Validator()
         r = v.get_complexity("class A { void m() { if(x) { } if(y) { } } }")
         assert r == 3
 
-    def test_cc_no_methods(self):
+    def test_cc_no_methods(self):  # TC-VL-008
         v = Validator()
         r = v.get_complexity("class A { int x; }")
         assert r == 1
 
-    def test_method_complexity_by_name(self):
+    def test_method_complexity_by_name(self):  # TC-VL-009
         v = Validator()
         r = v.get_method_complexity(
             "class A { void setup() {} int calculate() { if(x) { } return 1; } void teardown() {} }",
@@ -55,14 +55,14 @@ class TestGetComplexity:
         )
         assert r is not None
 
-    def test_method_complexity_not_found(self):
+    def test_method_complexity_not_found(self):  # TC-VL-010
         v = Validator()
         r = v.get_method_complexity("class A { void m() {} }", "missing")
         assert r is None
 
 
 class TestHasStructuralChange:
-    def test_detects_change(self):
+    def test_detects_change(self):  # TC-VL-011
         v = Validator()
         r = v.has_structural_change(
             "class A { void m() { int x; } }",
@@ -70,7 +70,7 @@ class TestHasStructuralChange:
         )
         assert r is True or r is False
 
-    def test_identical_structure(self):
+    def test_identical_structure(self):  # TC-VL-012
         v = Validator()
         code = "class A { void m() { int x; } }"
         r = v.has_structural_change(code, code)
@@ -78,14 +78,14 @@ class TestHasStructuralChange:
 
 
 class TestVerifyComplexity:
-    def test_can_call_verify(self):
+    def test_can_call_verify(self):  # TC-VL-019
         v = Validator()
         packet = {"specific_intent": "FLATTEN_CONDITIONAL"}
         r = v.verify_complexity("class A { void m() {} }", "class A { void m() {} }", packet)
         assert r is not None
         assert len(r) == 3
 
-    def test_with_intent_packet(self):
+    def test_with_intent_packet(self):  # TC-VL-021
         v = Validator()
         packet = IntentPacket(
             refactor_category="CONTROL_FLOW",
@@ -97,7 +97,7 @@ class TestVerifyComplexity:
 
 
 class TestVerifyIntent:
-    def test_flatten_detects_decrease(self):
+    def test_flatten_detects_decrease(self):  # TC-VL-013
         v = Validator()
         r = v.verify_intent(
             "FLATTEN_CONDITIONAL",
@@ -106,7 +106,7 @@ class TestVerifyIntent:
         )
         assert r is None
 
-    def test_flatten_fails_when_unchanged(self):
+    def test_flatten_fails_when_unchanged(self):  # TC-VL-015
         v = Validator()
         r = v.verify_intent(
             "FLATTEN_CONDITIONAL",
@@ -117,13 +117,13 @@ class TestVerifyIntent:
 
 
 class TestVerifyBoundary:
-    def test_no_leak(self):
+    def test_no_leak(self):  # TC-VL-017
         v = Validator()
         code = "class A { void m() { int x; } void n() { } }"
         result = v.verify_boundary(code, code, [])
         assert result is not False
 
-    def test_leak_detected(self):
+    def test_leak_detected(self):  # TC-VL-018
         v = Validator()
         orig = "class A { void m() { int x; } void n() { } }"
         refac = "class A { void m() { int y; } void n() { int z; } }"

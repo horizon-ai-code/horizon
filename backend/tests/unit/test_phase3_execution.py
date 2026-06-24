@@ -10,13 +10,13 @@ from app.modules.orchestrator.phases.phase3_execution import Phase3Execution, re
 
 
 class TestRepairGeneratorOutput:
-    def test_removes_throws(self):
+    def test_removes_throws(self):  # TC-P3-001
         orig = "void m() { return; }"
         gen = "void m() throws Exception { return; }"
         result = repair_generator_output(orig, gen)
         assert result is not None
 
-    def test_leaves_valid_unchanged(self):
+    def test_leaves_valid_unchanged(self):  # TC-P3-004
         orig = "void m() { return; }"
         result = repair_generator_output(orig, orig)
         assert result == orig
@@ -49,7 +49,7 @@ class TestPhase3Execution:
         s.active_plan = {"ast_mutations": [{"action": "MODIFY_METHOD", "target": "m", "details": {}}]}
         return s
 
-    async def test_run_single_completes(self, state):
+    async def test_run_single_completes(self, state):  # TC-P3-005
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
@@ -64,7 +64,7 @@ class TestPhase3Execution:
             await phase.run_single(MagicMock(), state)
             assert state.working_code is not None
 
-    async def test_run_sequential_completes(self, state):
+    async def test_run_sequential_completes(self, state):  # TC-P3-007
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { if(!a) return; } }</code>"}}]}

@@ -35,15 +35,15 @@ class TestClientConnection:
         await client.send_halt_notification()
         client.websocket.send_json.assert_awaited()
 
-    def test_is_stale_true_after_2_missed(self, client):
+    def test_is_stale_true_after_2_missed(self, client):  # TC-CC-006
         client._missed_pongs = 2
         assert client.is_stale is True
 
-    def test_is_stale_false_within_limit(self, client):
+    def test_is_stale_false_within_limit(self, client):  # TC-CC-007
         client._missed_pongs = 1
         assert client.is_stale is False
 
-    def test_handle_pong_resets_counter(self, client):
+    def test_handle_pong_resets_counter(self, client):  # TC-CC-005
         client._missed_pongs = 1
         client.handle_pong()
         assert client._missed_pongs == 0

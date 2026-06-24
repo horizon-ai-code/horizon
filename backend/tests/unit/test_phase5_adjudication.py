@@ -18,7 +18,7 @@ class TestPhase5Adjudication:
             user_instruction="flatten"
         )
 
-    async def test_accept_routes_forward(self, state):
+    async def test_accept_routes_forward(self, state):  # TC-P5-001
         client = MagicMock()
         agent = AsyncMock()
         config = MagicMock()
@@ -32,7 +32,7 @@ class TestPhase5Adjudication:
         await phase.run(client, state)
         assert state.current_phase is not None
 
-    async def test_revise_returns_to_strategy(self, state):
+    async def test_revise_returns_to_strategy(self, state):  # TC-P5-002
         client = MagicMock()
         agent = AsyncMock()
         config = MagicMock()
@@ -46,7 +46,7 @@ class TestPhase5Adjudication:
         await phase.run(client, state)
         assert state.current_phase is not None
 
-    async def test_missing_response_handled(self, state):
+    async def test_missing_response_handled(self, state):  # TC-P5-005
         client = MagicMock()
         agent = AsyncMock()
         config = MagicMock()

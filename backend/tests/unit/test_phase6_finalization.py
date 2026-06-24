@@ -22,7 +22,7 @@ class TestPhase6Finalization:
         s.original_complexity = 5
         return s
 
-    async def test_sends_result(self, state):
+    async def test_sends_result(self, state):  # TC-P6-002
         client = AsyncMock()
         db = MagicMock()
         agent = AsyncMock()
@@ -37,7 +37,7 @@ class TestPhase6Finalization:
         await phase.run(client, state, MagicMock())
         client.send_result.assert_called()
 
-    async def test_completes_without_crash(self, state):
+    async def test_completes_without_crash(self, state):  # TC-P6-001
         client = AsyncMock()
         db = MagicMock()
         agent = AsyncMock()

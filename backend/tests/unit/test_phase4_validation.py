@@ -16,7 +16,7 @@ class TestPhase4Validation:
             session_id="t", base_code="class A {}", working_code="class A {}", user_instruction="flatten"
         )
 
-    async def test_passes_all_checks(self, state):
+    async def test_passes_all_checks(self, state):  # TC-P4-001
         client = MagicMock()
         state.intent_packet = {"specific_intent": "FLATTEN_CONDITIONAL", "scope_anchor": {"target_class": "A"}}
         validator = MagicMock()
@@ -29,7 +29,7 @@ class TestPhase4Validation:
         await phase.run(client, state)
         assert state.syntax_iter is not None
 
-    async def test_syntax_failure_increments_iter(self, state):
+    async def test_syntax_failure_increments_iter(self, state):  # TC-P4-002
         client = MagicMock()
         validator = MagicMock()
         validator.check_syntax.return_value = {"is_valid": False}
@@ -39,7 +39,7 @@ class TestPhase4Validation:
         await phase.run(client, state)
         assert state.syntax_iter == 1
 
-    async def test_completes_with_validator(self, state):
+    async def test_completes_with_validator(self, state):  # TC-P4-001
         client = MagicMock()
         state.intent_packet = {"specific_intent": "FLATTEN_CONDITIONAL", "scope_anchor": {"target_class": "A"}}
         validator = MagicMock()

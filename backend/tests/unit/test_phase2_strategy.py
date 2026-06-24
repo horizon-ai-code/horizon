@@ -60,7 +60,7 @@ def phase():
 
 class TestClassify:
     @pytest.mark.asyncio
-    async def test_returns_intent_packet(self, state, phase):
+    async def test_returns_intent_packet(self, state, phase):  # TC-P2-001
         phase._agent.generate.return_value = INTENT_CLASSIFIER_RESPONSE
         phase._agent.load = AsyncMock()
         phase._agent.swap = AsyncMock()
@@ -82,7 +82,7 @@ class TestClassify:
 
 class TestAnalyze:
     @pytest.mark.asyncio
-    async def test_stores_analysis(self, state, phase):
+    async def test_stores_analysis(self, state, phase):  # TC-P2-003
         phase._agent.generate.return_value = ARCHITECT_ANALYSIS_RESPONSE
         phase._agent.load = AsyncMock()
         phase._agent.swap = AsyncMock()
@@ -103,7 +103,7 @@ class TestAnalyze:
 
 class TestSynthesize:
     @pytest.mark.asyncio
-    async def test_returns_plan(self, state, phase):
+    async def test_returns_plan(self, state, phase):  # TC-P2-005
         phase._agent.generate.return_value = AST_ARCHITECT_RESPONSE
         phase._agent.load = AsyncMock()
         phase._agent.swap = AsyncMock()
@@ -113,7 +113,7 @@ class TestSynthesize:
 
 
 class TestDeduplicate:
-    def test_removes_duplicates(self, state, phase):
+    def test_removes_duplicates(self, state, phase):  # TC-P2-009
         state.active_plan = {
             "ast_mutations": [
                 {"action": "MODIFY_METHOD", "target": "calculate", "details": {}},
@@ -124,7 +124,7 @@ class TestDeduplicate:
         phase._deduplicate(state)
         assert len(state.active_plan["ast_mutations"]) == 2
 
-    def test_preserves_unique(self, state, phase):
+    def test_preserves_unique(self, state, phase):  # TC-P2-010
         state.active_plan = {
             "ast_mutations": [
                 {"action": "MODIFY_METHOD", "target": "a", "details": {}},
@@ -136,7 +136,7 @@ class TestDeduplicate:
 
 
 class TestTranslateFeedback:
-    def test_tier1_syntax(self, state):
+    def test_tier1_syntax(self, state):  # TC-P2-011
         state.cumulative_feedback = [
             {"failure_tier": "TIER_1_SYNTAX", "error": "Syntax error", "recovery_hint": "Fix syntax"}
         ]

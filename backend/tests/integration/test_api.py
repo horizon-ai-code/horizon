@@ -48,24 +48,24 @@ def test_app():
 
 
 class TestRestAPI:
-    def test_health(self, test_app):
+    def test_health(self, test_app):  # TC-IT-001
         with TestClient(test_app) as client:
             resp = client.get("/health")
             assert resp.status_code == 200
             assert "timestamp" in resp.json()
 
-    def test_get_history_empty(self, test_app):
+    def test_get_history_empty(self, test_app):  # TC-IT-002
         with TestClient(test_app) as client:
             resp = client.get("/api/history")
             assert resp.status_code == 200
             assert resp.json() == []
 
-    def test_get_history_by_id_not_found(self, test_app):
+    def test_get_history_by_id_not_found(self, test_app):  # TC-IT-004
         with TestClient(test_app) as client:
             resp = client.get(f"/api/history/{uuid.uuid4()}")
             assert resp.status_code == 404
 
-    def test_delete_not_found(self, test_app):
+    def test_delete_not_found(self, test_app):  # TC-IT-008
         with TestClient(test_app) as client:
             resp = client.delete(f"/api/history/{uuid.uuid4()}")
             assert resp.status_code == 404
