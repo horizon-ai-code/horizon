@@ -20,8 +20,8 @@ describe('formatStatusContent', () => {
     const r = formatStatusContent('- **Intent:** FLATTEN_CONDITIONAL');
     expect(r).toBeDefined();
   });
-  it('empty', () => { expect(formatStatusContent('').summary).toBe(''); });
-  it('plain text', () => { expect(formatStatusContent('plain').summary).toBe('plain'); });
+  it('empty', () => { expect(formatStatusContent('').summary).toBe(''); });  // TC-FS-007
+  it('plain text', () => { expect(formatStatusContent('plain').summary).toBe('plain'); });  // TC-FS-008
   it('structured output', () => {
     const r = formatStatusContent('test');
     expect(r).toHaveProperty('summary');

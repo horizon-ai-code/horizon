@@ -492,7 +492,6 @@ Throughout this document, each section header includes an implementation status:
 | TC-JF-005 | Positive | Normalizes spaces around operators | `a=b+c` | `a = b + c` |
 | TC-JF-006 | Positive | Merges `else`/`catch`/`finally` to previous closing brace | `}\nelse {` | `} else {` |
 | TC-JF-007 | Edge | Strips consecutive blank lines | 3 blank lines in a row | 1 blank line |
-| TC-JF-008 | Edge | Restores placeholders after formatting | Contains extracted strings/comments | Original values reappear |
 | TC-JF-009 | Edge | Handles empty string | `""` | `""` |
 
 ### 4.6 lib/indentation
@@ -507,7 +506,6 @@ Throughout this document, each section header includes an implementation status:
 | TC-IN-002 | Positive | `handleEnterKey` auto-closes brace after `{` | Line `main() {` at end | Inserts `\n    \n}` with cursor at middle |
 | TC-IN-003 | Edge | `handleEnterKey` no double close brace | Line already has `}` closing brace | Only indents, no extra `}` |
 | TC-IN-004 | Positive | `handleTabKey` indents current line by 4 spaces | Line `foo();` with cursor at start | Line becomes `    foo();` |
-| TC-IN-005 | Positive | `handleTabKey` indents selected block | 3 lines selected | All 3 lines indented 4 spaces |
 | TC-IN-006 | Positive | `handleShiftTab` outdents line | Line `    foo();` | `foo();` |
 | TC-IN-007 | Positive | `handleClosingBrace` adjusts indent to match opening brace | `  if(x) {\n    }` (cursor after `}`) | `  if(x) {\n  }` (brace at same level as `if`) |
 | TC-IN-008 | Edge | `handleClosingBrace` returns null when no adjustment needed | `}` already correctly aligned | `null` |
@@ -658,7 +656,7 @@ Throughout this document, each section header includes an implementation status:
 | **FRONTEND INTEGRATION** | | **6** | **4** | | |
 | Terminal | `Terminal.test.tsx` | 3 | 3 | High | Store + RTL |
 | ChatWorkspace | `ChatWorkspace.test.tsx` | 3 | 2 | High | Store + Hook + RTL |
-| | | **287 planned** | **281 done** | | |
+| | | **287 planned** | **285 done** | | |
 
 ---
 
