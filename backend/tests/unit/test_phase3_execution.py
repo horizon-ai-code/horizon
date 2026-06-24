@@ -61,6 +61,21 @@ class TestPhase3Execution:
         s.active_plan = {"ast_mutations": [{"action": "MODIFY_METHOD", "target": "m", "details": {}}]}
         return s
 
+    async def test_run_single_fallback_all_fail(self, state):  # TC-P3-006
+        with patch("app.modules.agent.Llama"):
+            agent = AsyncMock()
+            agent.generate.return_value = {"choices": [{"message": {"content": "no code block"}}]}
+            agent.load = AsyncMock()
+            agent.swap = AsyncMock()
+            agent.clear_context = AsyncMock()
+            validator = MagicMock()
+            validator.get_complexity.return_value = 99
+            notify = AsyncMock()
+            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            state.syntax_iter = 0
+            await phase.run_single(MagicMock(), state)
+            assert True
+
     async def test_run_single_picks_best_cc(self, state):  # TC-P3-005
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()

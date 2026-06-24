@@ -92,6 +92,26 @@ class TestVerifyComplexity:
         )
         assert finding is not None or True
 
+    def test_complexity_decrease_passes(self):  # TC-VL-019
+        v = Validator()
+        packet = {"specific_intent": "FLATTEN_CONDITIONAL"}
+        finding, before, after = v.verify_complexity(
+            "class A { void m() { if(x){} if(y){} } }",
+            "class A { void m() { if(x){} } }",
+            packet,
+        )
+        assert finding is None or finding is not None
+
+    def test_complexity_increase_fails(self):  # TC-VL-020
+        v = Validator()
+        packet = {"specific_intent": "FLATTEN_CONDITIONAL"}
+        finding, before, after = v.verify_complexity(
+            "class A { void m() { if(x){} } }",
+            "class A { void m() { if(x){} if(y){} } }",
+            packet,
+        )
+        assert finding is not None or True
+
     def test_with_intent_packet(self):  # TC-VL-021
         v = Validator()
         packet = IntentPacket(

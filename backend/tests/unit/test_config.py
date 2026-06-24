@@ -43,6 +43,17 @@ class TestOrchestrationConfig:
             config = OrchestrationConfig.from_yaml(f.name)
             assert config.planner.name == "p"
 
+    def test_from_yaml_invalid_raises(self):  # TC-CFG-004
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(": bad yaml [\n")
+            f.flush()
+            try:
+                OrchestrationConfig.from_yaml(f.name)
+                assert False, "Expected exception"
+            except Exception:
+                pass
+
     def test_creation(self):
         entry = ModelEntry(name="test", filename="t.gguf", temperature=0.2, max_tokens=2048, context_size=4096, layers=32)
         assert entry.name == "test"

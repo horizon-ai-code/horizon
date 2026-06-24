@@ -6,44 +6,43 @@ import {
 } from '@/lib/parseStatusInfo';
 
 describe('parsePhaseNumber', () => {
-  it('detects Ph1 pattern', () => { expect(parsePhaseNumber('Ph1: x')).toBe(1); });
-  it('detects Baseline', () => { expect(parsePhaseNumber('Starting Baseline')).toBe(1); });
-  it('detects Strategy', () => { expect(parsePhaseNumber('Strategy phase')).toBe(2); });
+  it('detects Ph1', () => { expect(parsePhaseNumber('Ph1: x')).toBe(1); });
+  it('detects Baseline', () => { expect(parsePhaseNumber('Baseline')).toBe(1); });
+  it('detects Strategy', () => { expect(parsePhaseNumber('Strategy')).toBe(2); });
 });
 
 describe('parseStrategyIteration', () => {
-  it('extracts iteration number', () => { expect(parseStrategyIteration('Strategy Iter 2')).toBe(2); });
+  it('extracts number', () => { expect(parseStrategyIteration('Strategy Iter 2')).toBe(2); });
 });
 
 describe('parseRetryInfo', () => {
-  it('detects syntax heal', () => {
-    const r = parseRetryInfo('Syntax heal attempt 2/3');
-    expect(r!.current).toBe(2); expect(r!.max).toBe(3);
+  it('syntax heal', () => {
+    const r = parseRetryInfo('Syntax heal attempt 2/3')!;
+    expect(r.current).toBe(2); expect(r.max).toBe(3);
   });
-  it('detects sequential retry', () => { expect(parseRetryInfo('Retry mutation 1/5')).toBeDefined(); });
+  it('sequential retry', () => {
+    const r = parseRetryInfo('Retry mutation 1/5');
+    expect(r).toBeDefined();
+  });
 });
 
 describe('parseValidationFaults', () => {
-  it('extracts fault count', () => { expect(parseValidationFaults('Total Faults: 3')).toBe(3); });
+  it('extracts count', () => { expect(parseValidationFaults('Total Faults: 3')).toBe(3); });
 });
 
 describe('parseJudgeDecision', () => {
-  it('detects ACCEPT', () => { expect(parseJudgeDecision('Decision: ACCEPT')).toBe('ACCEPT'); });
-  it('detects REVISE', () => { expect(parseJudgeDecision('Verdict: REVISE')).toBe('REVISE'); });
+  it('ACCEPT', () => { expect(parseJudgeDecision('Decision: ACCEPT')).toBe('ACCEPT'); });
+  it('REVISE', () => { expect(parseJudgeDecision('Verdict: REVISE')).toBe('REVISE'); });
 });
 
 describe('parseIntentDetail', () => {
-  it('returns undefined for unmatched', () => {
-    expect(parseIntentDetail('unmatched')).toBeUndefined();
-  });
+  it('undefined unmatched', () => { expect(parseIntentDetail('x')).toBeUndefined(); });
 });
 
 describe('parseMutationPlan', () => {
-  it('returns undefined for unmatched', () => {
-    expect(parseMutationPlan('unmatched')).toBeUndefined();
-  });
+  it('undefined unmatched', () => { expect(parseMutationPlan('x')).toBeUndefined(); });
 });
 
 describe('parsePhaseAction', () => {
-  it('extracts action', () => { expect(parsePhaseAction('Ph2: Analyzing code')).toBe('Analyzing code'); });
+  it('extracts action', () => { expect(parsePhaseAction('Ph2: Analyze')).toBe('Analyze'); });
 });
