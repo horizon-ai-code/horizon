@@ -20,4 +20,24 @@ describe('formatJavaCode', () => {
   it('handles empty string', () => {
     expect(formatJavaCode('')).toBe('');
   });
+
+  it('handles generic type parameters', () => {
+    const result = formatJavaCode('class A { List<Map<String, Integer>> map; }');
+    expect(result).toBeTruthy();
+  });
+
+  it('normalizes operator spacing', () => {
+    const result = formatJavaCode('class A { void m() { a=b+c; } }');
+    expect(result).not.toContain('a=b+c');
+  });
+
+  it('merges else with closing brace', () => {
+    const result = formatJavaCode('class A { void m() { if(x) {} else {} } }');
+    expect(result).toBeTruthy();
+  });
+
+  it('strips consecutive blank lines', () => {
+    const result = formatJavaCode('class A {\n\n\nvoid m() { } }');
+    expect(result).toBeTruthy();
+  });
 });

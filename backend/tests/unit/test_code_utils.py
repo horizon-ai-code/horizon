@@ -16,6 +16,11 @@ class TestStripOuterWrapper:
         result = strip_outer_wrapper(code, code)
         assert result == code
 
+    def test_class_body_only_unchanged(self):
+        code = "class A { void m() {} }"
+        result = strip_outer_wrapper(code, code)
+        assert result == code
+
 
 class TestOrderMutations:
     def test_rename_first(self):
@@ -34,3 +39,17 @@ class TestOrderMutations:
         result = order_mutations(mutations)
         assert result[0]["target"] == "a"
         assert result[1]["target"] == "b"
+
+    def test_add_before_modify(self):
+        mutations = [
+            {"action": MutationAction.REMOVE_METHOD, "target": "old", "details": {}},
+            {"action": MutationAction.ADD_DECLARATION, "target": "tmp", "details": {}},
+            {"action": MutationAction.MODIFY_METHOD, "target": "calc", "details": {}},
+        ]
+        result = order_mutations(mutations)
+        actions = [m["action"] for m in result]
+        add_idx = actions.index(MutationAction.ADD_DECLARATION)
+        modify_idx = actions.index(MutationAction.MODIFY_METHOD)
+        remove_idx = actions.index(MutationAction.REMOVE_METHOD)
+        assert add_idx < modify_idx
+        assert add_idx < remove_idx

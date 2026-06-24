@@ -3,7 +3,6 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from app.modules.connection import ClientConnection
 from app.utils.types import Role
 
@@ -47,3 +46,8 @@ class TestClientConnection:
         client._missed_pongs = 1
         client.handle_pong()
         assert client._missed_pongs == 0
+
+    async def test_send_status_proceeds_when_fresh(self, client):
+        client._missed_pongs = 0
+        await client.send_status(Role.System, "test")
+        client.websocket.send_json.assert_awaited()

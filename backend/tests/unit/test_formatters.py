@@ -17,6 +17,10 @@ class TestFormatPlanForGenerator:
         result = format_plan_for_generator(EMPTY_MUTATIONS, "class A {}")
         assert "No mutations" in result
 
+    def test_empty_mutations_edge(self):
+        result = format_plan_for_generator({"ast_mutations": []}, "class A {}")
+        assert result is not None
+
     def test_orders_mutations_logically(self):
         result = format_plan_for_generator(THREE_MUTATIONS, "class A { int oldName; }")
         assert result is not None

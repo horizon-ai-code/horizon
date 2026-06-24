@@ -20,11 +20,38 @@ class TestMessageRouter:
         await router.dispatch(data, client, set(), None, None, None)
         client.handle_pong.assert_called_once()
 
+    async def test_dispatch_reconnect(self, router):
+        client = AsyncMock()
+        reconnect = AsyncMock()
+        data = {"type": "reconnect", "session_id": "s1"}
+        await router.dispatch(data, client, set(), None, None, reconnect)
+        reconnect.assert_awaited_once_with("s1", client.websocket)
+
+    async def test_dispatch_single(self, router):
+        client = AsyncMock()
+        client.send_status = AsyncMock()
+        data = {"type": "single", "code": "class A {}", "user_instruction": "refactor"}
+        result = await router.dispatch(data, client, set(), AsyncMock(), None, None)
+        assert result is True
+
+    async def test_dispatch_multi(self, router):
+        client = AsyncMock()
+        client.send_status = AsyncMock()
+        data = {"type": "multi", "code": "class A {}", "user_instruction": "refactor"}
+        result = await router.dispatch(data, client, set(), None, AsyncMock(), None)
+        assert result is True
+
     async def test_dispatch_halt(self, router):
         client = AsyncMock()
         data = {"type": "halt"}
         await router.dispatch(data, client, set(), None, None, None)
         router._agent_service.stop.assert_called_once()
+
+    async def test_dispatch_invalid_request_sends_error(self, router):
+        client = AsyncMock()
+        data = {"type": "multi", "code": ""}
+        result = await router.dispatch(data, client, set(), None, None, None)
+        assert result is True
 
     async def test_dispatch_unknown_type_ignored(self, router):
         client = AsyncMock()

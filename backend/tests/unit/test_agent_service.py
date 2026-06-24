@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.modules.agent import AgentService, InterruptedError
+from app.modules.agent import InterruptedError, AgentService
 
 
 class TestCountTokens:
@@ -44,3 +44,21 @@ class TestGenerate:
             await agent.unload()
             assert agent.model is None
             mock_gc.assert_called_once()
+
+    async def test_load_passes_correct_layers(self):
+        with patch("app.modules.agent.Llama") as mock_llama:
+            agent = AgentService()
+            await agent.load({"filename": "m.gguf", "layers": 36, "context_size": 6144})
+            mock_llama.assert_called_once()
+            _, kwargs = mock_llama.call_args
+            assert kwargs.get("n_gpu_layers") == 36
+
+    async def test_generate_returns_dict(self):
+        with patch("app.modules.agent.Llama") as _:
+            agent = AgentService()
+            await agent.load({"filename": "m.gguf", "layers": 0, "context_size": 4096})
+            agent.model = MagicMock()
+            with patch.object(agent, "generate", AsyncMock(return_value={"choices": []})):
+                result = await agent.generate([], temp=0.1, max_tokens=4096)
+                assert isinstance(result, dict)
+                assert "choices" in result

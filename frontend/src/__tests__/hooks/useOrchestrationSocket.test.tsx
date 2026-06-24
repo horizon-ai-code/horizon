@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useOrchestrationSocket, OrchestrationProvider } from '@/hooks/useOrchestrationSocket';
 import React from 'react';
 import { MockWebSocket } from '@/test-utils/mocks/websocket';
+import { useChatStore } from '@/store/useChatStore';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -17,6 +18,7 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 describe('useOrchestrationSocket', () => {
   beforeEach(() => {
     vi.stubGlobal('WebSocket', MockWebSocket);
+    useChatStore.setState({ sessions: {}, orchestratorStatus: 'disconnected' });
   });
 
   it('returns connection status', () => {

@@ -6,6 +6,17 @@ describe('handleEnterKey', () => {
     const result = handleEnterKey('  if (x) {', 10, 10);
     expect(result.value).toContain('\n    ');
   });
+
+  it('auto-closes brace after opening brace', () => {
+    const result = handleEnterKey('void m() {', 10, 10);
+    expect(result.value).toContain('}');
+  });
+
+  it('no double close brace', () => {
+    const line = '  if (x) {';
+    const result = handleEnterKey(line + '\n  }', line.length, line.length);
+    expect(result.value).toContain('}');
+  });
 });
 
 describe('handleTabKey', () => {
