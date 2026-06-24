@@ -23,10 +23,10 @@ export function useSystemMonitor(): SystemMonitorState {
   const [samples, setSamples] = useState<SystemMetricsPayload[]>([]);
   const [connected, setConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let active = true;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
     function connect() {
       if (!active) return;
@@ -42,13 +42,17 @@ export function useSystemMonitor(): SystemMonitorState {
         setConnected(true);
       };
 
+      ws.onerror = () => {
+        console.warn("[SystemMonitor] WebSocket transport error");
+      };
+
       ws.onclose = () => {
         if (!active) return;
 
         setConnected(false);
         setSystemMetrics(null);
 
-        reconnectTimer = setTimeout(connect, RECONNECT_DELAY);
+        reconnectTimerRef.current = setTimeout(connect, RECONNECT_DELAY);
       };
 
       ws.onmessage = (event: MessageEvent) => {
@@ -74,9 +78,9 @@ export function useSystemMonitor(): SystemMonitorState {
 
     return () => {
       active = false;
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
-        reconnectTimer = null;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
       }
       if (wsRef.current) {
         wsRef.current.close();
