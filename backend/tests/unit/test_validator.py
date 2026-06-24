@@ -75,14 +75,14 @@ class TestHasStructuralChange:
 
 
 class TestVerifyComplexity:
-    def test_can_call_verify(self):  # TC-VL-019
+    def test_can_call_verify(self):  # TC-VL-019a
         v = Validator()
         packet = {"specific_intent": "FLATTEN_CONDITIONAL"}
         r = v.verify_complexity("class A { void m() {} }", "class A { void m() {} }", packet)
         assert r is not None
         assert len(r) == 3
 
-    def test_strict_rule_fails_on_increase(self):  # TC-VL-020
+    def test_strict_rule_fails_on_increase(self):  # TC-VL-020a
         v = Validator()
         packet = {"specific_intent": "EXTRACT_METHOD"}
         finding, before, after = v.verify_complexity(
@@ -92,7 +92,7 @@ class TestVerifyComplexity:
         )
         assert finding is not None or True
 
-    def test_complexity_decrease_passes(self):  # TC-VL-019
+    def test_complexity_decrease_passes(self):  # TC-VL-019b
         v = Validator()
         packet = {"specific_intent": "FLATTEN_CONDITIONAL"}
         finding, before, after = v.verify_complexity(
@@ -102,7 +102,7 @@ class TestVerifyComplexity:
         )
         assert finding is None or finding is not None
 
-    def test_complexity_increase_fails(self):  # TC-VL-020
+    def test_complexity_increase_fails(self):  # TC-VL-020b
         v = Validator()
         packet = {"specific_intent": "FLATTEN_CONDITIONAL"}
         finding, before, after = v.verify_complexity(
@@ -133,7 +133,7 @@ class TestVerifyIntent:
         )
         assert r is None
 
-    def test_extract_method_verification(self):  # TC-VL-014
+    def test_extract_method_verification(self):  # TC-VL-014a
         v = Validator()
         r = v.verify_intent(
             "EXTRACT_METHOD",
@@ -142,7 +142,7 @@ class TestVerifyIntent:
         )
         assert r is None or r is not None
 
-    def test_remove_flag_verification(self):  # TC-VL-016
+    def test_remove_flag_verification(self):  # TC-VL-016a
         v = Validator()
         r = v.verify_intent(
             "REMOVE_CONTROL_FLAG",
@@ -160,7 +160,7 @@ class TestVerifyIntent:
         )
         assert r is not None
 
-    def test_extract_method_detects_increase(self):  # TC-VL-014
+    def test_extract_method_detects_increase(self):  # TC-VL-014b
         v = Validator()
         r = v.verify_intent(
             "EXTRACT_METHOD",
@@ -169,7 +169,7 @@ class TestVerifyIntent:
         )
         assert r is None or r is not None  # may pass or fail depending on code structure
 
-    def test_remove_control_flag_fails_when_unchanged(self):  # TC-VL-016
+    def test_remove_control_flag_fails_when_unchanged(self):  # TC-VL-016b
         v = Validator()
         r = v.verify_intent(
             "REMOVE_CONTROL_FLAG",

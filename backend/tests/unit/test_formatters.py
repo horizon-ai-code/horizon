@@ -26,7 +26,7 @@ class TestFormatPlanForGenerator:
         result = format_plan_for_generator(plan, "class A { final int MAX_SIZE = 100; }")
         assert result is not None
 
-    def test_empty_mutations_edge(self):
+    def test_empty_mutations_edge(self):  # TC-FMT-006
         result = format_plan_for_generator({"ast_mutations": []}, "class A {}")
         assert result is not None
 

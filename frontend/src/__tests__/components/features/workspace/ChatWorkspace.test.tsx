@@ -43,12 +43,12 @@ vi.mock('@/store/useChatStore', () => {
 });
 
 describe('ChatWorkspace', () => {
-  it('renders without crashing', () => {  // TC-FI-004
+  it('renders without crashing', () => {  // TC-FI-004a
     render(<ChatWorkspace sessionId="test-session" />);
     expect(document.body).toBeTruthy();
   });
 
-  it('renders with null sessionId', () => {  // TC-FI-004
+  it('renders with null sessionId', () => {  // TC-FI-004b
     render(<ChatWorkspace sessionId={null} />);
     expect(document.body).toBeTruthy();
   });
