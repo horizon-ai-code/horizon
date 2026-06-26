@@ -400,9 +400,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
              try {
                const parsed = JSON.parse(parsedInsights);
                if (Array.isArray(parsed)) {
-                 parsedInsights = parsed.map((i: { title?: string; details?: string }) =>
-                   `${i.title || ""}: ${i.details || ""}`
-                 ).join("\n");
+                  parsedInsights = parsed.map((i: { title?: string; details?: string }) =>
+                    `• **${i.title || ""}**: ${i.details || ""}`
+                  ).join("\n");
                }
               } catch {
                 console.warn("[ChatStore] Failed to parse insights JSON, using raw string");
@@ -424,18 +424,19 @@ export const useChatStore = create<ChatStore>((set, get) => ({
                 inference_time: detail.inference_time || 0
            };
 
-           oResult.metrics = buildMetrics(
-              detail.original_complexity ?? null,
-              detail.refactored_complexity ?? null,
-              {
-                avg_gpu_utilization: detail.avg_gpu_utilization ?? 0,
-                avg_gpu_memory: detail.avg_gpu_memory ?? 0,
-                avg_gpu_memory_used: detail.avg_gpu_memory_used ?? 0,
-                peak_gpu_utilization: detail.peak_gpu_utilization ?? undefined,
-                peak_gpu_memory_used: detail.peak_gpu_memory_used ?? undefined,
-                inference_time: detail.inference_time ?? 0,
-              }
-           );
+            oResult.metrics = buildMetrics(
+               detail.original_complexity ?? null,
+               detail.refactored_complexity ?? null,
+               {
+                 avg_gpu_utilization: detail.avg_gpu_utilization ?? 0,
+                 avg_gpu_memory: detail.avg_gpu_memory ?? 0,
+                 avg_gpu_memory_used: detail.avg_gpu_memory_used ?? 0,
+                 peak_gpu_utilization: detail.peak_gpu_utilization ?? undefined,
+                 peak_gpu_memory_used: detail.peak_gpu_memory_used ?? undefined,
+                 inference_time: detail.inference_time ?? 0,
+               },
+               detail.planner_model && detail.judge_model ? "multi" : "single"
+            );
         } else if (isHalted) {
            activeStep = 0;
            appState = "done";
