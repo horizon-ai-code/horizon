@@ -1,9 +1,12 @@
 import asyncio
+import logging
 import os
 import time
 
 import psutil
 import pynvml
+
+logger = logging.getLogger(__name__)
 
 
 class PerformanceTracker:
@@ -34,7 +37,7 @@ class PerformanceTracker:
             self._has_gpu = True
             self._task = asyncio.create_task(self._poll_gpu())
         except pynvml.NVMLError as e:
-            print(f"[PerformanceTracker] NVML initialization failed: {e}")
+            logger.warning("NVML initialization failed: %s", e)
             self._has_gpu = False
 
     async def stop_tracking(self):
@@ -73,11 +76,11 @@ class PerformanceTracker:
                     self._gpu_memory_usage_percent.append(mem_percent)
                     self._gpu_memory_usage_used.append(self._current_gpu_mem_used)
                 except pynvml.NVMLError as err:
-                    print(f"[PerformanceTracker] NVML Error during polling: {err}")
+                     logger.warning("NVML Error during polling: %s", err)
 
                 await asyncio.sleep(self.interval)
         except Exception as e:
-            print(f"[PerformanceTracker] Polling background task error: {e}")
+             logger.error("Polling background task error: %s", e)
 
     def get_current_metrics(self) -> dict[str, float | bool]:
         return {
