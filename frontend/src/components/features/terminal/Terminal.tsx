@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 import { AlertCircle, ChevronDown, Plus, Minus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
@@ -9,26 +9,7 @@ import { formatStatusContent } from "@/lib/formatStatusContent";
 import JsonDetailBlock from "@/components/features/terminal/JsonDetailBlock";
 import GlassboxBar from "@/components/features/terminal/GlassboxBar";
 import type { GlassboxState } from "@/types/glassbox";
-
-const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
-  Cpu:          { bg: "#1a2f4a", text: "#5a8cf8" },
-  Layers:       { bg: "#1c2e2e", text: "#3dd6c8" },
-  FileCode2:    { bg: "#2e2218", text: "#e09c3b" },
-  CheckCircle2: { bg: "#1a2e1a", text: "#4ec97e" },
-  Clock:        { bg: "#2a2030", text: "#a78bfa" },
-  AlertCircle:  { bg: "#3c1a1a", text: "#e06c75" },
-  Monolith:     { bg: "#1a2f4a", text: "#548af7" },
-};
-
-const AGENT_LABEL: Record<string, string> = {
-  Cpu:          "PLANNER",
-  Layers:       "GENERATOR",
-  FileCode2:    "AST PARSER",
-  CheckCircle2: "JUDGE",
-  Clock:        "SYSTEM",
-  AlertCircle:  "ERROR",
-  Monolith:     "MONOLITH",
-};
+import { AGENT_BADGE, AGENT_LABEL } from "@/lib/agent-registry";
 
 interface TerminalProps {
   isTerminalCollapsed: boolean;
@@ -220,8 +201,7 @@ export default function Terminal({
   appState,
   glassboxState,
 }: TerminalProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme !== "light";
+  const isDark = useIsDark();
   const [fontScale, setFontScale] = useState(1.0);
 
   // Rule 23: Narrow auto-scroll effect dependency to primitives (.length)

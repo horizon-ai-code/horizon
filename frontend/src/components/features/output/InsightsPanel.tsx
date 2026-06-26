@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import {
   Sparkles,
   Layers,
@@ -37,14 +37,8 @@ export default function InsightsPanel({
   generator_model,
   judge_model,
 }: InsightsPanelProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
+  const mounted = useMounted();
+  const isDark = useIsDark();
 
   if (!mounted) return null;
 

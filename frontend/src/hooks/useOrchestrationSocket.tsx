@@ -418,7 +418,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           ...prev.currentDetail,
           judgeVerdict: msg.verdict,
           judgeIssues: (msg.issues || []).map((i) => ({
-            issueType: i.issue_type,
+            issueType: i.issueType,
             description: i.description,
           })),
         },

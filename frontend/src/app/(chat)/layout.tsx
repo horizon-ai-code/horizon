@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react";
-import { useTheme } from "next-themes";
+import { useState, Suspense } from "react";
 
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import LoadingOverlay from "@/components/layout/LoadingOverlay";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
@@ -10,16 +11,10 @@ import TourOverlay from "@/components/features/onboarding/TourOverlay";
 import { useTour } from "@/components/features/onboarding/useTour";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const isDark = useIsDark();
   const [overlayDone, setOverlayDone] = useState(false);
   const tour = useTour();
-
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   if (!mounted) {
     return (

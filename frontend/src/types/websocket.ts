@@ -1,3 +1,5 @@
+import type { AgentRole, MutationItem, ValidationCheck, ArchitectureTarget, JudgeIssue } from "./glassbox";
+
 // ── WebSocket Contract Types (from horizon-api-docs) ──────────────────────
 
 export interface RefactorRequest {
@@ -8,7 +10,7 @@ export interface RefactorRequest {
 
 export interface StatusMessage {
   type: "status";
-  role: "Planner" | "Generator" | "Judge" | "Validator" | "System" | "Monolith";
+  role: AgentRole;
   content: string;
   phase?: number;
   planner_model?: string;
@@ -143,17 +145,10 @@ export interface PhaseCompletedMessage {
   timestamp: string;
 }
 
-export interface MutationItemPayload {
-  action: string;
-  target: string;
-  description?: string;
-  status: "pending" | "in_progress" | "completed" | "failed";
-}
-
 export interface MutationPlanMessage {
   type: "mutation_plan";
   target_class?: string;
-  mutations: MutationItemPayload[];
+  mutations: MutationItem[];
 }
 
 export interface MutationStatusMessage {
@@ -166,19 +161,10 @@ export interface MutationStatusMessage {
   error?: string;
 }
 
-export interface ValidationCheckPayload {
-  tier: string;
-  name: string;
-  passed: boolean;
-  details?: string | null;
-  before_value?: number;
-  after_value?: number;
-}
-
 export interface ValidationResultMessage {
   type: "validation_result";
   strategy_iteration: number;
-  checks: ValidationCheckPayload[];
+  checks: ValidationCheck[];
   total_passed: number;
   total_failed: number;
 }
@@ -193,30 +179,18 @@ export interface IntentClassifiedMessage {
   confidence?: number;
 }
 
-export interface ArchitectureTargetPayload {
-  name: string;
-  kind: string;
-  purpose?: string;
-}
-
 export interface ArchitectureAnalysisMessage {
   type: "architecture_analysis";
-  primary_targets: ArchitectureTargetPayload[];
-  secondary_targets: ArchitectureTargetPayload[];
-  new_structures: ArchitectureTargetPayload[];
-  must_preserve: ArchitectureTargetPayload[];
-}
-
-export interface JudgeIssuePayload {
-  issue_type: string;
-  description: string;
-  severity?: "low" | "medium" | "high";
+  primary_targets: ArchitectureTarget[];
+  secondary_targets: ArchitectureTarget[];
+  new_structures: ArchitectureTarget[];
+  must_preserve: ArchitectureTarget[];
 }
 
 export interface AuditResultMessage {
   type: "audit_result";
   verdict: "ACCEPT" | "REVISE";
-  issues?: JudgeIssuePayload[];
+  issues?: JudgeIssue[];
   attempt: number;
   max_attempts: number;
 }

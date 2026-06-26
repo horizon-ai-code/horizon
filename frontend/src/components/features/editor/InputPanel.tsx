@@ -1,7 +1,8 @@
 "use client"
 
 import { useRef, useEffect, useState, useMemo } from "react";
-import { useTheme } from "next-themes";
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import { FileCode2, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
@@ -45,8 +46,8 @@ export default function InputPanel({
   appState,
   orchestrationResult,
 }: InputProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const isDark = useIsDark();
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const [clipboardPreview, setClipboardPreview] = useState("");
   const sourceCodeRef = useRef(sourceCode);
@@ -56,8 +57,6 @@ export default function InputPanel({
   }, [sourceCode]);
 
   useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-    
     // Function to check clipboard
     const checkClipboard = async () => {
       try {
@@ -88,8 +87,6 @@ export default function InputPanel({
       window.removeEventListener('focus', checkClipboard);
     };
   }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const lineCount = useMemo(() => sourceCode ? sourceCode.split('\n').length : 0, [sourceCode]);
 

@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { API_URL } from "@/lib/env";
-import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import { useSystemMonitor } from "@/hooks/useSystemMonitor";
 import SystemMonitorPanel from "@/components/features/terminal/SystemMonitorPanel";
 import { CpuIcon, MemoryIcon, GpuIcon, VramIcon } from "@/components/ui/SystemIcons";
@@ -16,8 +17,8 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const isDark = useIsDark();
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { systemMetrics, samples, connected } = useSystemMonitor();
@@ -56,10 +57,6 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
       }
     };
   }, []);
-
-  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   return (
     <>

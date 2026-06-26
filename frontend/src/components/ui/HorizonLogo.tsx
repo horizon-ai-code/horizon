@@ -1,18 +1,13 @@
 "use client"
 
 import Image from "next/image";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 
 export default function HorizonLogo({ glowing = false }: { glowing?: boolean }) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
+  const mounted = useMounted();
+  const isDark = useIsDark();
 
   return (
     // Completely stripped of all borders, backgrounds, shadows, and padding

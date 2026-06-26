@@ -1,8 +1,9 @@
 "use client"
 
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useState, useMemo } from "react";
 import type { CSSProperties } from "react";
-import { useTheme } from "next-themes";
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import dynamic from "next/dynamic";
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { motion, AnimatePresence } from "framer-motion";
@@ -96,8 +97,8 @@ export default function CodeEditorPanel({
   onMouseEnter,
   onMouseLeave
 }: CodeEditorPanelProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const isDark = useIsDark();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLDivElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
@@ -105,12 +106,6 @@ export default function CodeEditorPanel({
   const [isScrolling, setIsScrolling] = useState(false);
   const [internalIsFocused, setInternalIsFocused] = useState(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
-
-  const isDark = mounted ? resolvedTheme === 'dark' : true;
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     const { scrollTop, scrollLeft } = e.currentTarget;

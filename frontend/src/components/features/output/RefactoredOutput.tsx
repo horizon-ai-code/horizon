@@ -1,6 +1,5 @@
 "use client"
 
-import { useTheme } from "next-themes";
 import { Copy, Layers, Clock, AlertCircle } from "lucide-react";
 
 import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
@@ -8,6 +7,8 @@ import { formatJavaCode } from "@/lib/utils/javaFormatter";
 import type { AppState, OrchestrationResult } from "@/types/session";
 import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import OrchestrationFlowchart from "@/components/features/output/OrchestrationFlowchart";
@@ -35,16 +36,11 @@ export default function RefactoredOutput({
   glassboxState,
   isMonolith,
 }: RefactoredOutputProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const isDark = useIsDark();
   
-  // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights'>('output');
   const hasFormatted = useRef(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
 
   useEffect(() => {
     if (refactoredOutput && !hasFormatted.current) {
@@ -55,8 +51,6 @@ export default function RefactoredOutput({
       }
     }
   }, [refactoredOutput, setRefactoredOutput]);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleCopy = async () => {
     const textToCopy = refactoredOutput || "// Awaiting code generation...";
@@ -170,7 +164,6 @@ export default function RefactoredOutput({
             </p>
           </div>
         ) : (
-          // 3. RENDER LOGIC UPDATE
            rightPanelMode === 'output' ? (
               <CodeEditorPanel 
                 value={refactoredOutput} 

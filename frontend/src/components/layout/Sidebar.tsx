@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useTheme } from "next-themes";
+
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Plus, FileCode2, MoreVertical, Pencil, Trash, Check, X, AlertCircle } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
@@ -27,8 +29,8 @@ import {
 const SPRING_CONFIG = { type: "spring" as const, stiffness: 450, damping: 40, mass: 0.8 };
 
 export default function Sidebar() {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const isDark = useIsDark();
   const [isOpen, setIsOpen] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -60,7 +62,6 @@ export default function Sidebar() {
     : "this session";
 
   useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
     fetchHistory();
   }, [fetchHistory]);
 
@@ -74,8 +75,6 @@ export default function Sidebar() {
 
     return () => cancelAnimationFrame(focusId);
   }, [editingSessionId]);
-
-  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   // ── Rename Helpers ──────────────────────────────────────────────────────────
   const startInlineRename = (sessionId: string, currentTitle: string) => {

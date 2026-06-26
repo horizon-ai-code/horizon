@@ -1,21 +1,20 @@
 "use client"
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+
+import { useMounted } from "@/hooks/useMounted";
+import { useIsDark } from "@/hooks/useIsDark";
 
 export default function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+  const { setTheme } = useTheme();
+  const mounted = useMounted();
+  const isDark = useIsDark();
 
   if (!mounted) {
     return (
       <div className="w-[52px] h-[28px] rounded-full shrink-0 bg-jb-bg border border-jb-border" />
     );
   }
-
-  const isDark = resolvedTheme === "dark";
 
   return (
     <button
