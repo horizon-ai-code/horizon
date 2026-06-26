@@ -1,9 +1,14 @@
 import json
+import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 from app.modules.validator import Validator
 from app.utils.types import FailureTier, RefactorIntent, Role
+
+from . import PhaseDecision
 
 Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
@@ -13,7 +18,7 @@ class Phase4Validation:
         self._validator = validator
         self._notify = notify
 
-    async def run(self, client, state) -> None:
+    async def run(self, client, state) -> PhaseDecision:
         await self._notify(
             client, Role.Validator,
             f"Validation: Validating (Strategy {state.strategy_iter}, Syntax {state.syntax_iter})...",
@@ -21,8 +26,9 @@ class Phase4Validation:
         )
 
         syntax_res = self._validator.check_syntax(state.working_code)
-        print(
-            f"\n--- Validator Syntax Check ---\nIs Valid: {syntax_res['is_valid']}\nError: {syntax_res.get('error')}\n------------------------------"
+        logger.debug(
+            "--- Validator Syntax Check ---\nIs Valid: %s\nError: %s\n------------------------------",
+            syntax_res['is_valid'], syntax_res.get('error')
         )
         if not syntax_res["is_valid"]:
             state.syntax_iter += 1
@@ -36,8 +42,7 @@ class Phase4Validation:
                     "error": self._validator.format_syntax_error(raw_error),
                     "broken_code": state.working_code,
                 }
-                state.current_phase = 3
-                return
+                return PhaseDecision.RETRY_GENERATION
             else:
                 await self._notify(client, Role.Validator, "Syntax Unrecoverable. Revising strategy.", None)
                 state.add_feedback({
@@ -48,14 +53,15 @@ class Phase4Validation:
                     state.strategy_iter += 1
                     state.strategy_iter_incremented = True
                 state.syntax_iter = 0
-                state.current_phase = 2
-                return
+                return PhaseDecision.RETRY_STRATEGY
 
         await self._notify(client, Role.Validator, f"Syntax OK.\n\n{json.dumps({'syntax': {'passed': True}})}", None)
 
         findings = []
 
-        assert state.intent_packet is not None
+        if state.intent_packet is None:
+            return PhaseDecision.FAIL
+
         cc_finding, orig_cc_val, refac_cc_val = self._validator.verify_complexity(
             state.base_code, state.working_code, state.intent_packet
         )
@@ -92,7 +98,7 @@ class Phase4Validation:
             try:
                 intent_finding = self._validator.verify_intent(intent_enum, state.base_code, state.working_code)
             except Exception as e:
-                print(f"  Intent verifier crashed for {intent_enum}: {e}")
+                logger.error("Intent verifier crashed for %s: %s", intent_enum, e)
                 intent_finding = None
             if intent_finding:
                 findings.append(intent_finding)
@@ -123,8 +129,9 @@ class Phase4Validation:
             {"name": "Intent Match", "passed": intent_finding is None, "details": intent_finding.error_report.message[:200] if intent_finding else None},
         ]
 
-        print(
-            f"\n--- Validator Structural Checks ---\nComplexity Check: {refac_cc_val or orig_cc_val} (Original: {orig_cc_val})\nBoundary check found issue: {bool(boundary_finding)}\nIntent check found issue: {bool(intent_finding)}\nTotal findings: {len(findings)}\n-----------------------------------"
+        logger.debug(
+            "--- Validator Structural Checks ---\nComplexity Check: %s (Original: %s)\nBoundary check found issue: %s\nIntent check found issue: %s\nTotal findings: %d\n-----------------------------------",
+            refac_cc_val or orig_cc_val, orig_cc_val, bool(boundary_finding), bool(intent_finding), len(findings)
         )
 
         if findings:
@@ -148,15 +155,14 @@ class Phase4Validation:
                     "broken_code": state.working_code,
                 }
                 await self._notify(client, Role.Validator, "Routing to Generator for targeted fix...", None)
-                state.current_phase = 3
-                return
+                return PhaseDecision.RETRY_GENERATION
 
             if not state.strategy_iter_incremented:
                 state.strategy_iter += 1
                 state.strategy_iter_incremented = True
             state.syntax_iter = 0
             state.structural_fix_attempts = 0
-            state.current_phase = 2
+            return PhaseDecision.RETRY_STRATEGY
         else:
             passed = sum(1 for c in checks if c["passed"])
             await self._notify(
@@ -177,6 +183,5 @@ class Phase4Validation:
                 if not state.strategy_iter_incremented:
                     state.strategy_iter += 1
                     state.strategy_iter_incremented = True
-                state.current_phase = 2
-                return
-            state.current_phase = 5
+                return PhaseDecision.RETRY_STRATEGY
+            return PhaseDecision.PROCEED

@@ -53,3 +53,31 @@ def valid_code():
 @pytest.fixture
 def valid_code_simple():
     return "class A { int x; }"
+
+
+@pytest.fixture
+def model_config():
+    from app.modules.orchestrator.config import OrchestrationConfig
+    return OrchestrationConfig.from_dict({
+        "planner": {"name": "p", "filename": "p.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+        "generator": {"name": "g", "filename": "g.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
+        "judge": {"name": "j", "filename": "j.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
+        "single": {"name": "s", "filename": "s.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
+        "settings": {"deduplication_cap": 5, "max_strategy_iter": 3, "max_syntax_heal": 3, "sequential_retry_limit": 1},
+    })
+
+
+@pytest.fixture
+def prompt_config():
+    return {
+        "planner": {
+            "classifier": "Classify.",
+            "architect_analysis": "Analyze.",
+            "analysis_guidance": {"FLATTEN_CONDITIONAL": "Reduce."},
+            "architect": "Design.",
+            "synthesis_guidance": {"FLATTEN_CONDITIONAL": "Use early return."},
+        },
+        "generator": {"coder": "Generate code.", "coder_guidance": {"FLATTEN_CONDITIONAL": "Flatten."}},
+        "judge": {"auditor": "Audit.", "auditor_guidance": {}, "insights": "Provide insights."},
+        "single": {"coder": "Generate.", "insights": "Provide insights."},
+    }

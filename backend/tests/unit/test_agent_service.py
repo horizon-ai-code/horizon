@@ -5,18 +5,19 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from app.modules.agent import AgentService, InterruptedError
+from app.utils.token_counter import count_tokens
 
 
 class TestCountTokens:
     def test_from_usage_data(self):  # TC-AS-008
         chunks = [{"usage": {"completion_tokens": 42}}]
-        count = AgentService._count_tokens(chunks, "some content")
-        assert count == 42
+        result = count_tokens(chunks, "some content")
+        assert result == 42
 
     def test_fallback_when_no_usage(self):  # TC-AS-009
         content = "x" * 100
-        count = AgentService._count_tokens([], content)
-        assert count == 25
+        result = count_tokens([], content)
+        assert result == 25
 
 
 @pytest.mark.asyncio

@@ -210,7 +210,7 @@ def build_orchestrator(agent, db_mgr):
         },
     }
     validator = Validator()
-    orch = Orchestrator(agent, validator, db_mgr, skip_judge=False, config=config)
+    orch = Orchestrator(agent, validator, db_mgr, config=config)
     orch.prompts = prompts
     return orch
 

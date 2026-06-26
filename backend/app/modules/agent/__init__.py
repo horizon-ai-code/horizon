@@ -1,7 +1,10 @@
 import asyncio
 import gc
+import logging
 from collections.abc import Callable
 from typing import Any, Literal, TypeVar, cast, overload
+
+logger = logging.getLogger(__name__)
 
 from llama_cpp import Iterator, Llama
 from llama_cpp.llama_types import (
@@ -12,6 +15,7 @@ from llama_cpp.llama_types import (
 from pydantic import BaseModel
 
 from app.utils.paths import MODELS_DIR
+from app.utils.token_counter import count_tokens
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -69,8 +73,8 @@ class AgentService:
 
             self.current_model_path = path
             self._current_n_gpu_layers = n_gpu_layers
-            print(
-                f"Model loaded successfully: {path} (Layers: {n_gpu_layers}, Context: {n_ctx})"
+            logger.info(
+                "Model loaded successfully: %s (Layers: %d, Context: %d)", path, n_gpu_layers, n_ctx
             )
 
     async def unload(self) -> None:
@@ -104,19 +108,6 @@ class AgentService:
         await self.unload()
         await self.load(config)
 
-    @staticmethod
-    def _count_tokens(
-        chunks: list[dict[str, Any]], content: str
-    ) -> int:
-        for chunk in reversed(chunks):
-            usage = chunk.get("usage")
-            if usage:
-                tokens = usage.get("completion_tokens")
-                if tokens:
-                    return tokens
-        # Approximate: ~4 chars per token for code
-        return len(content) // 4
-
     async def clear_context(self) -> None:
         """
         Purges KV cache (context memory) without unloading model weights.
@@ -125,7 +116,7 @@ class AgentService:
             if self.model is not None:
                 # Purge the sequence memory in llama-cpp
                 await asyncio.to_thread(self.model.reset)
-                print("KV Cache purged. Sequence memory cleared.")
+                logger.debug("KV Cache purged. Sequence memory cleared.")
 
     @overload
     async def generate(
@@ -228,7 +219,7 @@ class AgentService:
                         content_so_far += delta
                         last_check_idx = len(chunks)
                         if check_repetition(content_so_far):
-                            print("Repetition loop detected — stopping generation")
+                            logger.warning("Repetition loop detected — stopping generation")
                             break
 
                 if self._stop_event.is_set():
@@ -261,7 +252,7 @@ class AgentService:
                 ],
                 usage={
                     "prompt_tokens": 0,
-                    "completion_tokens": self._count_tokens(chunks, content_so_far),
-                    "total_tokens": self._count_tokens(chunks, content_so_far),
+                    "completion_tokens": count_tokens(chunks, content_so_far),
+                    "total_tokens": count_tokens(chunks, content_so_far),
                 },
             )

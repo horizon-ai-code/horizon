@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -11,7 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import UUID4
 
 from app.modules.agent import AgentService, InterruptedError
-from app.modules.connection import ClientConnection, ConnectionManager, MessageRouter
+from app.modules.connection import ClientConnection, ConnectionManager
+from app.modules.connection.router import MessageRouter
 from app.modules.context import db
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
@@ -23,43 +25,54 @@ from app.utils.schemas import (
 from app.utils.system_monitor import SystemMonitor
 from app.utils.types import RefactorRequest, Role
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
+
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN"),
     environment=os.getenv("APP_ENV", "development"),
     traces_sample_rate=0.1,
 )
 
-# Module-level singletons — initialized at import (lightweight, no model loaded).
-# Override in tests by assigning to these variables directly.
-agent_service: AgentService = AgentService()
-validator: Validator = Validator()
-connection: ConnectionManager = ConnectionManager()
-orchestrator: Orchestrator = Orchestrator(
-    agent_service=agent_service, validator=validator, db=connection.db
-)
-router: MessageRouter = MessageRouter(agent_service)
-system_monitor: SystemMonitor = SystemMonitor()
+def _create_services():
+    agent = AgentService()
+    val = Validator()
+    conn_manager = ConnectionManager()
+    orch = Orchestrator(agent_service=agent, validator=val, db=conn_manager.db)
+    msg_router = MessageRouter(agent)
+    sys_mon = SystemMonitor()
+    lock = asyncio.Lock()
+    return agent, val, conn_manager, orch, msg_router, sys_mon, lock
 
-# Global lock to serialize all orchestration (model & DB) operations
-orchestration_lock = asyncio.Lock()
+
+agent_service: AgentService
+validator: Validator
+connection: ConnectionManager
+orchestrator: Orchestrator
+router: MessageRouter
+system_monitor: SystemMonitor
+orchestration_lock: asyncio.Lock
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: ensure DB connection, clean zombie sessions.
-    Shutdown: close DB, release model VRAM.
-    """
+    global agent_service, validator, connection, orchestrator, router, system_monitor, orchestration_lock
+    (
+        agent_service, validator, connection,
+        orchestrator, router, system_monitor, orchestration_lock,
+    ) = _create_services()
+
     try:
         db.connect(reuse_if_open=True)
     except Exception as e:
-        print(f"Warning: Database connection failed at startup: {e}")
+        logger.warning("Database connection failed at startup: %s", e)
 
     cleaned = connection.db.cleanup_zombie_sessions()
     if cleaned:
-        print(f"Cleaned {cleaned} zombie sessions")
+        logger.info("Cleaned %d zombie sessions", cleaned)
     deleted = connection.db.cleanup_halted_sessions()
     if deleted:
-        print(f"Deleted {deleted} halted sessions")
+        logger.info("Deleted %d halted sessions", deleted)
     await system_monitor.start()
     yield
     await system_monitor.stop()
@@ -101,7 +114,7 @@ async def log_requests(request, call_next):
     start = time.time()
     response = await call_next(request)
     duration = int((time.time() - start) * 1000)
-    print(f"[{request.method}] {request.url.path} — {response.status_code} ({duration}ms)")
+    logger.info("[%s] %s — %s (%sms)", request.method, request.url.path, response.status_code, duration)
     return response
 
 
@@ -155,7 +168,7 @@ async def entrypoint(websocket: WebSocket) -> None:
             await client.send_halt_notification()
             raise
         except Exception as e:
-            print(f"Orchestration Task Failure (ID: {client.id}): {e}")
+            logger.error("Orchestration Task Failure (ID: %s): %s", client.id, e)
             try:
                 await client.send_status(
                     Role.System,
@@ -186,13 +199,13 @@ async def entrypoint(websocket: WebSocket) -> None:
                 continue
 
     except WebSocketDisconnect as e:
-        print(f"Connection disconnected: {e}")
+        logger.info("Connection disconnected: %s", e)
         agent_service.stop()
         for task in active_tasks.copy():
             if not task.done():
                 task.cancel()
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error("An error occurred: %s", e)
     finally:
         await client_conn.stop_heartbeat()
         agent_service.stop()
@@ -282,7 +295,7 @@ async def run_single_refactor(
         await client.send_halt_notification()
         raise
     except Exception as e:
-        print(f"Single Refactor Failure (ID: {client.id}): {e}")
+        logger.error("Single Refactor Failure (ID: %s): %s", client.id, e)
         try:
             await client.send_status(Role.System, f"Single refactor failed: {str(e)[:200]}")
         except Exception:

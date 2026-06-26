@@ -3,7 +3,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from app.utils.performance import PerformanceTracker
-from app.utils.response_parser import ResponseParser
+from app.utils.response_parser import extract_xml, extract_json
 from app.utils.schemas import RefactorInsightsResponse
 from app.utils.types import Role
 
@@ -43,7 +43,7 @@ class SingleRefactor:
         ]
         raw = await self._agent.generate(messages, temp=0.1, max_tokens=4096)
         response_text = raw["choices"][0]["message"].get("content") or ""
-        refactored = ResponseParser.extract_xml(response_text, "code") or user_code
+        refactored = extract_xml(response_text, "code") or user_code
 
         refac_cc = self._validator.get_complexity(refactored)
 
@@ -59,7 +59,7 @@ class SingleRefactor:
             response_model=RefactorInsightsResponse,
         )
         insight_text = raw2["choices"][0]["message"].get("content") or ""
-        insights_res = ResponseParser.extract_json(insight_text, RefactorInsightsResponse)
+        insights_res = extract_json(insight_text, RefactorInsightsResponse)
         insight_dicts = [i.model_dump() for i in insights_res.insights]
 
         await tracker.stop_tracking()

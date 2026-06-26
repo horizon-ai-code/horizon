@@ -22,8 +22,19 @@ def test_app():
     import app.main as main_module
     main_module.db = mem
 
+    # Initialize services (lifespan is bypassed for test isolation)
+    main_module.agent_service = MagicMock()
+    main_module.validator = MagicMock()
+    main_module.orchestrator = MagicMock()
+    main_module.router = MagicMock()
+    main_module.system_monitor = MagicMock()
+    main_module.orchestration_lock = MagicMock()
+    main_module.orchestration_lock.locked = MagicMock(return_value=False)
+    main_module.agent_service.stop = MagicMock()
+
     # Mock connection manager's DB operations
     mock_conn = MagicMock()
+    mock_conn.create_websocket_connection = MagicMock(return_value=MagicMock())
     mock_conn.get_rest_history = AsyncMock(return_value=[])
     mock_conn.get_history_by_id = AsyncMock(return_value=None)
     mock_conn.delete_history_by_id = AsyncMock(return_value=None)

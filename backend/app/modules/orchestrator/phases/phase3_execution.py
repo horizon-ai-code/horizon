@@ -1,32 +1,34 @@
 import json
+import logging
 import time as _time
 from collections.abc import Awaitable, Callable
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import javalang
 from llama_cpp import ChatCompletionRequestMessage
 
 from app.utils.code_utils import order_mutations
 from app.utils.formatters import format_plan_for_generator
-from app.utils.response_parser import ResponseParser
+from app.utils.response_parser import extract_xml
 from app.utils.types import FailureTier, Role
+
+from . import PhaseDecision
 
 Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 def repair_generator_output(original: str, generated: str) -> str:
-    """Strip common defensive additions from Generator output."""
     import re as _re
 
     result = generated
 
-    # 1. Strip throws declarations added to method signatures
     orig_throws = set(_re.findall(r"throws\s+(\w+Exception)", original))
     gen_throws = set(_re.findall(r"throws\s+(\w+Exception)", result))
     for exc in gen_throws - orig_throws:
         result = _re.sub(r"\s*throws\s+" + _re.escape(exc) + r"(?=\s*\{)", "", result)
 
-    # 2. Remove null checks not in original — robust to no-brace bodies
     orig_null_count = len(_re.findall(r"if\s*\(\s*\w+\s*==\s*null\s*\)", original))
     gen_null_checks = list(_re.finditer(r"if\s*\(\s*\w+\s*==\s*null\s*\)", result))
     extra_nulls = len(gen_null_checks) - orig_null_count
@@ -54,7 +56,6 @@ def repair_generator_output(original: str, generated: str) -> str:
             if end > start:
                 result = result[:start] + result[end:]
 
-    # 3. Strip 'public' modifier from bare methods that weren't public
     org_pub_methods = set(_re.findall(r"public\s+\w+\s+(\w+)\s*\(", original))
     gen_pub_methods = set(_re.findall(r"public\s+\w+\s+(\w+)\s*\(", result))
     for method in gen_pub_methods - org_pub_methods:
@@ -71,8 +72,7 @@ class Phase3Execution:
         self._prompts = prompts
         self._notify = notify
 
-    async def run_single(self, client, state) -> None:
-        """Phase 3: Plan Execution (single-shot generation with multi-sample)."""
+    async def run_single(self, client, state) -> PhaseDecision:
         await self._notify(client, Role.Generator, "Execution: Implementing plan...", None)
         await self._agent.swap(self._config.generator)
         await self._agent.clear_context()
@@ -111,7 +111,7 @@ class Phase3Execution:
         for sample_temp in (retry_temp, 0.3, 0.5) if not state.syntax_error_context else (retry_temp,):
             raw = await self._agent.generate(messages, temp=sample_temp, max_tokens=gen_max_tokens)
             coder_text = raw["choices"][0]["message"].get("content") or ""
-            sample_code = ResponseParser.extract_xml(coder_text, "code")
+            sample_code = extract_xml(coder_text, "code")
             if sample_code:
                 sample_code = repair_generator_output(state.base_code, sample_code)
                 syntax_ok = False
@@ -132,10 +132,11 @@ class Phase3Execution:
                 return (0, -cc_delta)
 
             best = max(samples, key=sample_score)
-            print(
-                f"\n--- Generator Multi-Sample ---\n"
-                f"Tried {len(samples)} temps. Best: temp={best['temp']} CC={best['cc']} syntax={'OK' if best['syntax_ok'] else 'FAIL'}\n"
-                f"----------------------------"
+            logger.debug(
+                "--- Generator Multi-Sample ---\n"
+                "Tried %d temps. Best: temp=%s CC=%d syntax=%s\n"
+                "----------------------------",
+                len(samples), best['temp'], best['cc'], 'OK' if best['syntax_ok'] else 'FAIL'
             )
 
             if best["syntax_ok"]:
@@ -145,8 +146,7 @@ class Phase3Execution:
                 gen_time_ms = int((_time.time() - gen_t0) * 1000)
                 await self._notify(client, Role.Generator,
                                    f"Code refactored — 1 pass. {gen_time_ms}ms\n\n{best['code']}")
-                state.current_phase = 4
-                return
+                return PhaseDecision.PROCEED
             else:
                 state.syntax_iter += 1
                 if state.syntax_iter <= 3:
@@ -155,8 +155,7 @@ class Phase3Execution:
                         "error": "Multi-sample: all outputs had syntax errors.",
                         "broken_code": state.working_code or state.base_code,
                     }
-                    state.current_phase = 3
-                    return
+                    return PhaseDecision.RETRY_GENERATION
                 state.add_feedback({
                     "failure_tier": FailureTier.TIER_1_SYNTAX,
                     "error": "Multi-sample: no valid code after multiple attempts.",
@@ -165,10 +164,8 @@ class Phase3Execution:
                     state.strategy_iter += 1
                     state.strategy_iter_incremented = True
                 state.syntax_iter = 0
-                state.current_phase = 2
-                return
+                return PhaseDecision.RETRY_STRATEGY
 
-        # Fallback: no code blocks at all
         state.syntax_iter += 1
         if state.syntax_iter <= 3:
             state.syntax_error_context = {
@@ -176,8 +173,7 @@ class Phase3Execution:
                 "error": "No <code> block found in generator output.",
                 "broken_code": state.working_code,
             }
-            state.current_phase = 3
-            return
+            return PhaseDecision.RETRY_GENERATION
         state.add_feedback({
             "failure_tier": FailureTier.TIER_1_SYNTAX,
             "error": "No <code> block found after 3 attempts.",
@@ -186,14 +182,12 @@ class Phase3Execution:
             state.strategy_iter += 1
             state.strategy_iter_incremented = True
         state.syntax_iter = 0
-        state.current_phase = 2
+        return PhaseDecision.RETRY_STRATEGY
 
-    async def run_sequential(self, client, state) -> None:
-        """Apply mutations one at a time in sequence."""
+    async def run_sequential(self, client, state) -> PhaseDecision:
         if state.active_plan is None:
-            print("No active plan for sequential execution. Falling through to single-shot.")
-            state.current_phase = 4
-            return
+            logger.info("No active plan for sequential execution. Falling through to single-shot.")
+            return PhaseDecision.RETRY_GENERATION
 
         mutations = order_mutations(state.active_plan.get("ast_mutations", []))
         state.mutation_queue = mutations
@@ -262,7 +256,7 @@ class Phase3Execution:
             gen_time_ms = int((_time.time() - t0) * 1000)
 
             coder_text = raw["choices"][0]["message"].get("content") or ""
-            new_code = ResponseParser.extract_xml(coder_text, "code")
+            new_code = extract_xml(coder_text, "code")
 
             timing_entry = {
                 "step": state.mutation_index + 1,
@@ -282,7 +276,7 @@ class Phase3Execution:
                 state.working_code = state.base_code
                 timing_entry["status"] = "EXHAUSTED"
                 state.gen_timings.append(timing_entry)
-                return
+                return PhaseDecision.RETRY_GENERATION
 
             syntax_res = self._validator.check_syntax(new_code)
             if not syntax_res["is_valid"]:
@@ -301,7 +295,7 @@ class Phase3Execution:
                                        f"Syntax fail on {action} {target}. Healing (attempt {state.sequential_attempts}/3)...")
                     continue
                 state.working_code = state.base_code
-                return
+                return PhaseDecision.RETRY_GENERATION
 
             target_scopes = [target]
             if state.intent_packet:
@@ -318,7 +312,7 @@ class Phase3Execution:
                 if state.sequential_attempts <= 3:
                     continue
                 state.working_code = state.base_code
-                return
+                return PhaseDecision.RETRY_GENERATION
 
             state.working_code = new_code
             state.sequential_attempts = 0
@@ -327,8 +321,8 @@ class Phase3Execution:
             state.gen_timings.append(timing_entry)
             state.mutation_index += 1
 
-            print(f"\n--- Sequential Step {state.mutation_index}/{len(state.mutation_queue)} ---")
-            print(f"Action: {action} {target} | Time: {gen_time_ms}ms | Status: OK")
+            logger.info("--- Sequential Step %d/%d ---", state.mutation_index, len(state.mutation_queue))
+            logger.info("Action: %s %s | Time: %sms | Status: OK", action, target, gen_time_ms)
 
         state.syntax_iter = 0
         state.syntax_error_context = None
@@ -337,3 +331,4 @@ class Phase3Execution:
         total = len(state.mutation_queue)
         await self._notify(client, Role.Generator,
                            f"Code refactored — {applied}/{total} mutations. {total_time}ms\n\n{state.working_code}")
+        return PhaseDecision.PROCEED

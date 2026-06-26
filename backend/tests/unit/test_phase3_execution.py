@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from app.modules.orchestrator import OrchestrationState
-from app.modules.orchestrator.config import OrchestrationConfig
 from app.modules.orchestrator.phases.phase3_execution import Phase3Execution, repair_generator_output
 
 
@@ -34,25 +33,6 @@ class TestRepairGeneratorOutput:
         assert result == orig
 
 
-def _make_config():
-    return OrchestrationConfig.from_dict({
-        "planner": {"name": "p", "filename": "p.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
-        "generator": {"name": "g", "filename": "g.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
-        "judge": {"name": "j", "filename": "j.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
-        "single": {"name": "s", "filename": "s.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
-        "settings": {"deduplication_cap": 5, "max_strategy_iter": 3, "max_syntax_heal": 3, "sequential_retry_limit": 1},
-    })
-
-
-def _make_prompts():
-    return {
-        "generator": {"coder": "Generate code.", "coder_guidance": {"FLATTEN_CONDITIONAL": "Flatten."}},
-        "planner": {"classifier": "", "architect_analysis": "", "analysis_guidance": {}, "architect": "", "synthesis_guidance": {}},
-        "judge": {"auditor": "", "auditor_guidance": {}, "insights": ""},
-        "single": {"coder": "", "insights": ""},
-    }
-
-
 @pytest.mark.asyncio
 class TestPhase3Execution:
     @pytest.fixture
@@ -61,7 +41,7 @@ class TestPhase3Execution:
         s.active_plan = {"ast_mutations": [{"action": "MODIFY_METHOD", "target": "m", "details": {}}]}
         return s
 
-    async def test_run_single_fallback_all_fail(self, state):  # TC-P3-006
+    async def test_run_single_fallback_all_fail(self, state, model_config, prompt_config):  # TC-P3-006
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "no code block"}}]}
@@ -71,12 +51,12 @@ class TestPhase3Execution:
             validator = MagicMock()
             validator.get_complexity.return_value = 99
             notify = AsyncMock()
-            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            phase = Phase3Execution(agent, validator, model_config, prompt_config, notify)
             state.syntax_iter = 0
             await phase.run_single(MagicMock(), state)
             assert True
 
-    async def test_run_single_picks_best_cc(self, state):  # TC-P3-005
+    async def test_run_single_picks_best_cc(self, state, model_config, prompt_config):  # TC-P3-005
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
@@ -86,12 +66,12 @@ class TestPhase3Execution:
             validator = MagicMock()
             validator.get_complexity.return_value = 3
             notify = AsyncMock()
-            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            phase = Phase3Execution(agent, validator, model_config, prompt_config, notify)
             state.syntax_iter = 0
             await phase.run_single(MagicMock(), state)
             assert state.working_code is not None
 
-    async def test_run_sequential_applies_one_by_one(self, state):  # TC-P3-007
+    async def test_run_sequential_applies_one_by_one(self, state, model_config, prompt_config):  # TC-P3-007
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { if(!a) return; } }</code>"}}]}
@@ -102,12 +82,12 @@ class TestPhase3Execution:
             validator.get_complexity.return_value = 3
             validator.check_syntax.return_value = {"is_valid": True}
             notify = AsyncMock()
-            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            phase = Phase3Execution(agent, validator, model_config, prompt_config, notify)
             state.syntax_iter = 0
             await phase.run_sequential(MagicMock(), state)
             assert state.working_code is not None
 
-    async def test_sequential_syntax_healing(self, state):  # TC-P3-008
+    async def test_sequential_syntax_healing(self, state, model_config, prompt_config):  # TC-P3-008
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
@@ -118,12 +98,12 @@ class TestPhase3Execution:
             validator.get_complexity.return_value = 3
             validator.check_syntax.return_value = {"is_valid": True}
             notify = AsyncMock()
-            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            phase = Phase3Execution(agent, validator, model_config, prompt_config, notify)
             state.syntax_iter = 0
             await phase.run_sequential(MagicMock(), state)
             assert state.syntax_iter >= 0
 
-    async def test_sequential_boundary_break(self, state):  # TC-P3-009
+    async def test_sequential_boundary_break(self, state, model_config, prompt_config):  # TC-P3-009
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
@@ -134,12 +114,12 @@ class TestPhase3Execution:
             validator.get_complexity.return_value = 3
             validator.check_syntax.return_value = {"is_valid": True}
             notify = AsyncMock()
-            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            phase = Phase3Execution(agent, validator, model_config, prompt_config, notify)
             state.syntax_iter = 0
             await phase.run_sequential(MagicMock(), state)
             assert True
 
-    async def test_sequential_max_heals(self, state):  # TC-P3-010
+    async def test_sequential_max_heals(self, state, model_config, prompt_config):  # TC-P3-010
         with patch("app.modules.agent.Llama"):
             agent = AsyncMock()
             agent.generate.return_value = {"choices": [{"message": {"content": "<code>class A { void m() { return; } }</code>"}}]}
@@ -150,7 +130,7 @@ class TestPhase3Execution:
             validator.get_complexity.return_value = 3
             validator.check_syntax.return_value = {"is_valid": True}
             notify = AsyncMock()
-            phase = Phase3Execution(agent, validator, _make_config(), _make_prompts(), notify)
+            phase = Phase3Execution(agent, validator, model_config, prompt_config, notify)
             state.syntax_iter = 0
             await phase.run_sequential(MagicMock(), state)
             assert True

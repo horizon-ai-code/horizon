@@ -1,14 +1,19 @@
 import json
+import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from llama_cpp import ChatCompletionRequestMessage
 from pydantic import ValidationError
 
 from app.utils.code_utils import strip_outer_wrapper
-from app.utils.response_parser import ResponseParser
+from app.utils.response_parser import extract_json
 from app.utils.schemas import StructuralAuditorResponse
-from app.utils.types import ExitStatus, FailureTier, Role
+from app.utils.types import FailureTier, Role
+
+from . import PhaseDecision
 
 Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
@@ -21,7 +26,7 @@ class Phase5Adjudication:
         self._prompts = prompts
         self._notify = notify
 
-    async def run(self, client, state) -> None:
+    async def run(self, client, state) -> PhaseDecision:
         await self._notify(client, Role.Judge, "Adjudication: Running final audit...", None)
         await self._agent.swap(self._config.judge)
 
@@ -82,15 +87,15 @@ class Phase5Adjudication:
                 jheader = "--- Judge Auditor Output ---"
                 if _jattempt > 0:
                     jheader = f"--- Judge Auditor Output (Retry {_jattempt}) ---"
-                print(f"\n{jheader}\n{audit_text}\n--------------------------")
-                audit_res = ResponseParser.extract_json(audit_text, StructuralAuditorResponse)
+                logger.debug("%s\n%s\n--------------------------", jheader, audit_text)
+                audit_res = extract_json(audit_text, StructuralAuditorResponse)
                 break
             except (ValidationError, ValueError):
                 if _jattempt == 0:
-                    print("  Judge attempt 1 failed (truncated). Retrying with temp=0.3, max_tokens=2048...")
+                    logger.warning("Judge attempt 1 failed (truncated). Retrying with temp=0.3, max_tokens=2048...")
                     await self._agent.clear_context()
                 else:
-                    print("  Judge failed on both attempts. Falling back to strategy retry.")
+                    logger.error("Judge failed on both attempts. Falling back to strategy retry.")
                     state.add_feedback({
                         "failure_tier": FailureTier.TIER_3_JUDGE,
                         "error": "Judge auditor failed to produce valid verdict on both attempts.",
@@ -98,19 +103,18 @@ class Phase5Adjudication:
                     if not state.strategy_iter_incremented:
                         state.strategy_iter += 1
                         state.strategy_iter_incremented = True
-                    state.current_phase = 2
-                    return
+                    return PhaseDecision.RETRY_STRATEGY
 
         if audit_res.verdict == "REVISE" and audit_res.issues:
             issue = audit_res.issues[0]
             if issue.issue_type == "IDENTICAL_CODE":
                 if self._validator.has_structural_change(state.base_code, state.working_code):
-                    print("WARNING: Judge hallucinated IDENTICAL_CODE — overriding to ACCEPT")
+                    logger.warning("Judge hallucinated IDENTICAL_CODE — overriding to ACCEPT")
                     audit_res.verdict = "ACCEPT"
                     audit_res.issues = []
             elif issue.issue_type == "LOGIC_DRIFT":
                 if not self._validator.has_structural_change(state.base_code, state.working_code):
-                    print("WARNING: Judge hallucinated LOGIC_DRIFT — overriding to ACCEPT")
+                    logger.warning("Judge hallucinated LOGIC_DRIFT — overriding to ACCEPT")
                     audit_res.verdict = "ACCEPT"
                     audit_res.issues = []
 
@@ -121,8 +125,7 @@ class Phase5Adjudication:
         )
 
         if audit_res.verdict == "ACCEPT":
-            state.exit_status = ExitStatus.SUCCESS
-            state.current_phase = 6
+            return PhaseDecision.COMPLETE
         else:
             await self._notify(client, Role.Judge, "Audit requested revision.", None)
             state.add_feedback({
@@ -132,4 +135,4 @@ class Phase5Adjudication:
             if not state.strategy_iter_incremented:
                 state.strategy_iter += 1
                 state.strategy_iter_incremented = True
-            state.current_phase = 2
+            return PhaseDecision.RETRY_STRATEGY

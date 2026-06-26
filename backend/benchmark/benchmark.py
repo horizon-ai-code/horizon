@@ -169,7 +169,6 @@ async def _run_multi_entry(entry: dict, agent, validator) -> dict:
     db = MockDB()
     client = MockClient(f"bench-{num}")
     orch = Orchestrator(agent, validator, db)
-    orch.skip_judge = False
 
     original_generate = agent.generate
     llm_calls: list[dict] = []
@@ -670,7 +669,7 @@ async def _run_single_cmd(args: argparse.Namespace) -> None:
     from app.modules.agent import AgentService
     from app.modules.validator import Validator
     from app.utils.performance import PerformanceTracker
-    from app.utils.response_parser import ResponseParser
+    from app.utils.response_parser import extract_xml
 
     import yaml
     from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
@@ -716,7 +715,7 @@ async def _run_single_cmd(args: argparse.Namespace) -> None:
         raw = await agent.generate(messages, temp=0.1, max_tokens=4096)
         agent.generate = original_generate
         response_text = raw.get("choices",[{}])[0].get("message",{}).get("content","")
-        refactored = ResponseParser.extract_xml(response_text, "code") or code
+        refactored = extract_xml(response_text, "code") or code
         refa_cc = validator.get_complexity(refactored)
         cc_delta = refa_cc - orig_cc
         code_unchanged = refactored.strip() == code.strip()

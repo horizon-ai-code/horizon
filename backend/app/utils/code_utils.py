@@ -2,6 +2,13 @@ import re
 from typing import Any
 
 
+def strip_import_lines(snippet: str) -> str:
+    return "\n".join(
+        line for line in snippet.strip().splitlines()
+        if not re.match(r'^\s*import\s+\w', line)
+    )
+
+
 def strip_outer_wrapper(code: str, base_code: str) -> str:
     """Strip the outermost class wrapper if base had none and refactored has one.
 

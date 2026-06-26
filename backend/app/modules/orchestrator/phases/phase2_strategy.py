@@ -1,12 +1,15 @@
 import json
+import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from llama_cpp import ChatCompletionRequestMessage
 from pydantic import ValidationError
 
 from app.utils.ast_matcher import ASTMatcher
-from app.utils.response_parser import ResponseParser
+from app.utils.response_parser import extract_json
 from app.utils.schemas import (
     ArchitectAnalysisResponse,
     ASTArchitectResponse,
@@ -15,6 +18,7 @@ from app.utils.schemas import (
 from app.utils.types import FailureTier, Role
 
 from ..config import OrchestrationConfig
+from . import PhaseDecision
 
 Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
@@ -26,7 +30,7 @@ class Phase2Strategy:
         self._prompts = prompts
         self._notify = notify
 
-    async def run(self, client, state) -> None:
+    async def run(self, client, state) -> PhaseDecision:
         state.strategy_iter_incremented = False
 
         if not state.intent_packet:
@@ -38,7 +42,7 @@ class Phase2Strategy:
         await self._synthesize(client, state)
 
         if state.active_plan is None:
-            return
+            return PhaseDecision.PROCEED
 
         self._enrich(state)
         self._deduplicate(state)
@@ -46,7 +50,7 @@ class Phase2Strategy:
         await self._notify(
             client, Role.Planner, "Modification plan generated.", json.dumps(state.active_plan),
         )
-        state.current_phase = 3
+        return PhaseDecision.PROCEED
 
     async def _classify(self, client, state) -> None:
         await self._notify(
@@ -67,9 +71,9 @@ class Phase2Strategy:
             response_model=IntentClassifierResponse,
         )
         response_text = raw["choices"][0]["message"].get("content") or ""
-        print(f"\n--- Planner Classifier Output ---\n{response_text}\n-------------------------------")
+        logger.debug("--- Planner Classifier Output ---\n%s\n-------------------------------", response_text)
 
-        classifier_res = ResponseParser.extract_json(response_text, IntentClassifierResponse)
+        classifier_res = extract_json(response_text, IntentClassifierResponse)
         state.intent_packet = classifier_res.intent_packet.model_dump()
 
         await self._notify(
@@ -104,10 +108,10 @@ class Phase2Strategy:
             response_model=ArchitectAnalysisResponse,
         )
         analysis_text = raw["choices"][0]["message"].get("content") or ""
-        print(f"\n--- Planner Analysis Output ---\n{analysis_text}\n-------------------------------")
+        logger.debug("--- Planner Analysis Output ---\n%s\n-------------------------------", analysis_text)
 
         try:
-            analysis_model = ResponseParser.extract_json(analysis_text, ArchitectAnalysisResponse)
+            analysis_model = extract_json(analysis_text, ArchitectAnalysisResponse)
             state.architect_analysis = analysis_model.model_dump()
         except (ValidationError, ValueError, json.JSONDecodeError):
             state.architect_analysis = {}
@@ -157,21 +161,21 @@ class Phase2Strategy:
                 header = "--- Planner Architect Output ---"
                 if _attempt > 0:
                     header = f"--- Planner Architect Output (Retry {_attempt}) ---"
-                print(f"\n{header}\n{arch_text}\n------------------------------")
-                architect_res = ResponseParser.extract_json(arch_text, ASTArchitectResponse)
+                logger.debug("%s\n%s\n------------------------------", header, arch_text)
+                architect_res = extract_json(arch_text, ASTArchitectResponse)
                 plan = architect_res.ast_modification_plan.model_dump()
                 mutations = plan.get("ast_mutations", [])
                 if len(mutations) > self._config.orchestration.mutation_cap:
                     plan["ast_mutations"] = mutations[:self._config.orchestration.truncation_size]
-                    print(f"  WARNING: Architect generated {len(mutations)} mutations — truncated to {self._config.orchestration.truncation_size}")
+                    logger.warning("Architect generated %d mutations — truncated to %d", len(mutations), self._config.orchestration.truncation_size)
                 state.active_plan = plan
                 return
             except (ValidationError, ValueError):
                 if _attempt == 0:
-                    print("  Architect attempt 1 failed. Retrying with temp=0.5...")
+                    logger.warning("Architect attempt 1 failed. Retrying with temp=0.5...")
                     await self._agent.clear_context()
                 else:
-                    print("  Architect failed on both attempts. Falling back to strategy retry.")
+                    logger.error("Architect failed on both attempts. Falling back to strategy retry.")
                     state.add_feedback({
                         "failure_tier": FailureTier.TIER_1_SYNTAX,
                         "error": "Architect failed to produce valid mutation plan on both attempts.",
@@ -179,7 +183,6 @@ class Phase2Strategy:
                     if not state.strategy_iter_incremented:
                         state.strategy_iter += 1
                         state.strategy_iter_incremented = True
-                    state.current_phase = 2
                     return
 
     def _enrich(self, state) -> None:
@@ -206,7 +209,7 @@ class Phase2Strategy:
                 deduped.append(m)
         cap = self._config.orchestration.deduplication_cap
         if len(deduped) > cap:
-            print(f"WARNING: Truncated plan: {len(deduped)} → {cap} mutations")
+            logger.warning("Truncated plan: %d → %d mutations", len(deduped), cap)
             deduped = deduped[:cap]
         state.active_plan["ast_mutations"] = deduped
 

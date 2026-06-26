@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from app.modules.orchestrator import OrchestrationState
-from app.modules.orchestrator.config import OrchestrationConfig
 from app.modules.orchestrator.phases.phase2_strategy import Phase2Strategy
 from tests.fixtures.mock_responses import (
     ARCHITECT_ANALYSIS_RESPONSE,
@@ -13,31 +12,6 @@ from tests.fixtures.mock_responses import (
     BAD_JSON_RESPONSE,
     INTENT_CLASSIFIER_RESPONSE,
 )
-
-
-def _make_config():
-    return OrchestrationConfig.from_dict({
-        "planner": {"name": "p", "filename": "p.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
-        "generator": {"name": "g", "filename": "g.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 36},
-        "judge": {"name": "j", "filename": "j.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 6144, "layers": 28},
-        "single": {"name": "s", "filename": "s.gguf", "temperature": 0.1, "max_tokens": 4096, "context_size": 4096, "layers": 20},
-        "settings": {"deduplication_cap": 5, "max_strategy_iter": 3, "max_syntax_heal": 1, "sequential_retry_limit": 1},
-    })
-
-
-def _make_prompts():
-    return {
-        "planner": {
-            "classifier": "Classify.",
-            "architect_analysis": "Analyze.",
-            "analysis_guidance": {"FLATTEN_CONDITIONAL": "Reduce."},
-            "architect": "Design.",
-            "synthesis_guidance": {"FLATTEN_CONDITIONAL": "Use early return."},
-        },
-        "generator": {"coder": "", "coder_guidance": {}},
-        "judge": {"auditor": "", "auditor_guidance": {}, "insights": ""},
-        "single": {"coder": "", "insights": ""},
-    }
 
 
 @pytest.fixture
@@ -50,12 +24,12 @@ def state():
 
 
 @pytest.fixture
-def phase():
+def phase(model_config, prompt_config):
     agent = AsyncMock()
     agent.load = AsyncMock()
     agent.swap = AsyncMock()
     agent.clear_context = AsyncMock()
-    return Phase2Strategy(agent, _make_config(), _make_prompts(), AsyncMock())
+    return Phase2Strategy(agent, model_config, prompt_config, AsyncMock())
 
 
 class TestClassify:

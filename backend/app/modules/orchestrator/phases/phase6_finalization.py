@@ -1,12 +1,15 @@
 import json
+import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from llama_cpp import ChatCompletionRequestMessage
 from pydantic import ValidationError
 
 from app.utils.code_utils import strip_outer_wrapper
-from app.utils.response_parser import ResponseParser
+from app.utils.response_parser import extract_json
 from app.utils.schemas import RefactorInsightsResponse
 from app.utils.types import ExitStatus, Role
 
@@ -54,7 +57,7 @@ class Phase6Finalization:
                     self._validator.get_complexity(state.working_code),
                 )
             except Exception as e:
-                print(f"Error generating insights: {e}")
+                logger.error("Error generating insights: %s", e)
                 insights = "Refactoring successful (Insights generation failed)."
         else:
             insights = f"Refactoring aborted: {state.exit_status}. Reverted to original code."
@@ -98,11 +101,11 @@ class Phase6Finalization:
             response_model=RefactorInsightsResponse,
         )
         text = raw_reponse["choices"][0]["message"].get("content") or ""
-        print(f"\n--- Judge Insights Output ---\n{text}\n---------------------------")
+        logger.debug("--- Judge Insights Output ---\n%s\n---------------------------", text)
 
         try:
-            insights_res = ResponseParser.extract_json(text, RefactorInsightsResponse)
+            insights_res = extract_json(text, RefactorInsightsResponse)
             return [i.model_dump() for i in insights_res.insights]
         except (ValidationError, ValueError, json.JSONDecodeError) as e:
-            print(f"Failed to parse insights JSON: {e}")
+            logger.error("Failed to parse insights JSON: %s", e)
             return [{"title": "Refactoring Summary", "details": text.strip()}]
