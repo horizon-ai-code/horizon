@@ -31,7 +31,7 @@ class TestOrderMutations:
         result = order_mutations(mutations)
         assert result[0]["action"] == MutationAction.RENAME_SYMBOL
 
-    def test_stable_within_group(self):  # TC-CU-006
+    def test_stable_within_group(self):  # TC-CU-006a
         mutations = [
             {"action": MutationAction.MODIFY_METHOD, "target": "a", "details": {}},
             {"action": MutationAction.MODIFY_METHOD, "target": "b", "details": {}},
@@ -40,7 +40,7 @@ class TestOrderMutations:
         assert result[0]["target"] == "a"
         assert result[1]["target"] == "b"
 
-    def test_stable_sort_three(self):  # TC-CU-006
+    def test_stable_sort_three(self):  # TC-CU-006b
         mutations = [
             {"action": MutationAction.MODIFY_METHOD, "target": "a", "details": {}},
             {"action": MutationAction.MODIFY_METHOD, "target": "b", "details": {}},

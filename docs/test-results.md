@@ -58,23 +58,23 @@ _Test execution results for the Horizon AI refactoring pipeline — all 268 test
 
 | Module | File | Tests | Passed | Failed | Rate |
 |--------|------|-------|--------|--------|------|
-| OrchestrationConfig | `test_config.py` | 4 | 4 | 0 | 100% |
+| OrchestrationConfig | `test_config.py` | 6 | 6 | 0 | 100% |
 | Types & Schemas | `test_types_schemas.py` | 8 | 8 | 0 | 100% |
 | ResponseParser | `test_response_parser.py` | 20 | 20 | 0 | 100% |
-| ASTMatcher | `test_ast_matcher.py` | 11 | 11 | 0 | 100% |
-| Validator | `test_validator.py` | 20 | 20 | 0 | 100% |
-| AgentService | `test_agent_service.py` | 9 | 9 | 0 | 100% |
+| ASTMatcher | `test_ast_matcher.py` | 12 | 12 | 0 | 100% |
+| Validator | `test_validator.py` | 25 | 25 | 0 | 100% |
+| AgentService | `test_agent_service.py` | 10 | 10 | 0 | 100% |
 | ClientConnection | `test_connection.py` | 8 | 8 | 0 | 100% |
 | DatabaseManager | `test_context.py` | 12 | 12 | 0 | 100% |
 | MessageRouter | `test_router.py` | 8 | 8 | 0 | 100% |
-| Orchestrator | `test_orchestrator.py` | 12 | 12 | 0 | 100% |
+| Orchestrator | `test_orchestrator.py` | 7 | 7 | 0 | 100% |
 | Phase 2 — Strategy | `test_phase2_strategy.py` | 12 | 12 | 0 | 100% |
 | Phase 3 — Execution | `test_phase3_execution.py` | 10 | 10 | 0 | 100% |
-| Phase 4 — Validation | `test_phase4_validation.py` | 8 | 8 | 0 | 100% |
-| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 6 | 6 | 0 | 100% |
-| Phase 6 — Finalization | `test_phase6_finalization.py` | 6 | 6 | 0 | 100% |
-| Formatters | `test_formatters.py` | 5 | 5 | 0 | 100% |
-| Code Utils | `test_code_utils.py` | 6 | 6 | 0 | 100% |
+| Phase 4 — Validation | `test_phase4_validation.py` | 6 | 6 | 0 | 100% |
+| Phase 5 — Adjudication | `test_phase5_adjudication.py` | 5 | 5 | 0 | 100% |
+| Phase 6 — Finalization | `test_phase6_finalization.py` | 5 | 5 | 0 | 100% |
+| Formatters | `test_formatters.py` | 6 | 6 | 0 | 100% |
+| Code Utils | `test_code_utils.py` | 7 | 7 | 0 | 100% |
 | **Total Backend Unit** | **17 files** | **167** | **167** | **0** | **100%** |
 
 ### 2.2 Test Methodology
@@ -117,14 +117,14 @@ All backend unit tests use the **AAA (Arrange-Act-Assert)** pattern:
 | Module | File | Tests | Passed | Failed | Rate |
 |--------|------|-------|--------|--------|------|
 | lib/utils (cn) | `utils.test.ts` | 6 | 6 | 0 | 100% |
-| lib/constants | `constants.test.ts` | 5 | 5 | 0 | 100% |
-| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 10 | 10 | 0 | 100% |
+| lib/constants | `constants.test.ts` | 6 | 6 | 0 | 100% |
+| lib/parseStatusInfo | `parseStatusInfo.test.ts` | 12 | 12 | 0 | 100% |
 | lib/formatStatusContent | `formatStatusContent.test.ts` | 7 | 7 | 0 | 100% |
 | lib/javaFormatter | `javaFormatter.test.ts` | 9 | 9 | 0 | 100% |
-| lib/indentation | `indentation.test.ts` | 8 | 8 | 0 | 100% |
+| lib/indentation | `indentation.test.ts` | 7 | 7 | 0 | 100% |
 | lib/buildMetrics | `buildMetrics.test.ts` | 6 | 6 | 0 | 100% |
 | lib/schemas (Zod) | `websocket.test.ts` | 8 | 8 | 0 | 100% |
-| store/useChatStore | `useChatStore.test.ts` | 14 | 14 | 0 | 100% |
+| store/useChatStore | `useChatStore.test.ts` | 15 | 15 | 0 | 100% |
 | hooks/useOrchestrationSocket | `useOrchestrationSocket.test.tsx` | 3 | 3 | 0 | 100% |
 | ErrorBoundary | `ErrorBoundary.test.tsx` | 4 | 4 | 0 | 100% |
 | Terminal | `Terminal.test.tsx` | 3 | 3 | 0 | 100% |
@@ -181,9 +181,9 @@ All backend unit tests use the **AAA (Arrange-Act-Assert)** pattern:
 
 ### 6.2 Traceability
 
-- 185 of 197 documented test cases (`docs/test-cases.md`) have matching `# TC-XXX` comments in test code
+- 268 of 268 documented test cases (`docs/test-cases.md`) have matching `# TC-XXX` comments in test code
 - Every test method is linked to its specification through TC-ID comments
-- Document defines 285 of 287 planned cases as implemented
+- Document defines 268 tests across 31 test files
 
 ### 6.3 Tool Versions
 

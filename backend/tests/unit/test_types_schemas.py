@@ -30,7 +30,7 @@ class TestIntentPacket:
         )
         assert packet.specific_intent == "FLATTEN_CONDITIONAL"
 
-    def test_invalid_category_rejected(self):  # TC-TS-005
+    def test_invalid_category_rejected(self):  # TC-TS-005a
         with pytest.raises(ValidationError):
             IntentPacket(
                 refactor_category="INVALID",
@@ -38,7 +38,7 @@ class TestIntentPacket:
                 scope_anchor={"class": "A", "unit_type": "METHOD_UNIT"},
             )
 
-    def test_invalid_intent_rejected(self):  # TC-TS-005
+    def test_invalid_intent_rejected(self):  # TC-TS-005b
         with pytest.raises(ValidationError):
             IntentPacket(
                 refactor_category="CONTROL_FLOW",
@@ -54,6 +54,6 @@ class TestScopeAnchor:
 
 
 class TestHaltRequest:
-    def test_valid_halt(self):  # TC-TS-halt
+    def test_valid_halt(self):  # TC-TS-006
         req = HaltRequest(type="halt")
         assert req.type == "halt"

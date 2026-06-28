@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { AlertCircle, ChevronDown, X } from "lucide-react";
+import { AlertCircle, ChevronDown, Plus, Minus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
 import { formatStatusContent } from "@/lib/formatStatusContent";
@@ -222,6 +222,7 @@ export default function Terminal({
 }: TerminalProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme !== "light";
+  const [fontScale, setFontScale] = useState(1.0);
 
   // Rule 23: Narrow auto-scroll effect dependency to primitives (.length)
   useEffect(() => {
@@ -301,7 +302,29 @@ export default function Terminal({
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-0.5 mr-1">
+            <button
+              aria-label="Zoom in"
+              onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.min(1.5, s + 0.125)); }}
+              className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
+                ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
+            >
+              <Plus size={14} />
+            </button>
+            <span className={`text-[10px] font-medium w-7 text-center select-none ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+              {Math.round(fontScale * 100)}%
+            </span>
+            <button
+              aria-label="Zoom out"
+              onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.max(0.625, s - 0.125)); }}
+              className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
+                ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
+            >
+              <Minus size={14} />
+            </button>
+          </div>
+
           {(appState === "analyzing" || appState === "waiting") ? (
             <span className="flex h-2.5 w-2.5 relative">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -335,6 +358,7 @@ export default function Terminal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ type: "spring", stiffness: 450, damping: 40 }}
+            style={{ zoom: fontScale }}
             className={`pt-4 px-4 pb-4 overflow-y-auto flex-1 flex flex-col gap-1 custom-terminal-scrollbar font-mono
               ${isDark ? "bg-jb-panel" : "bg-white"}`}
           >

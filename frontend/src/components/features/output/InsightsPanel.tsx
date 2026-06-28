@@ -279,6 +279,11 @@ export default function InsightsPanel({
                       )}
                     </div>
                   )}
+                  {m.interpretation && (
+                    <p className={`text-[11px] leading-relaxed ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                      {m.interpretation}
+                    </p>
+                  )}
                 </div>
               </div>
             );

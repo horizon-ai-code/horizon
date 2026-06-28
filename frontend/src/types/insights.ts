@@ -4,4 +4,5 @@ export interface InsightMetric {
   after: string;
   direction: 'up' | 'down' | 'neutral';
   iconKey?: string;
+  interpretation?: string;
 }

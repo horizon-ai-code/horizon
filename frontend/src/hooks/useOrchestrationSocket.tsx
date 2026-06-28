@@ -222,7 +222,12 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         planner_model: msg.planner_model ?? undefined,
         generator_model: msg.generator_model ?? undefined,
         judge_model: msg.judge_model ?? undefined,
-        metrics: buildMetrics(msg.original_complexity, msg.refactored_complexity, msg.performance),
+        metrics: buildMetrics(
+          msg.original_complexity,
+          msg.refactored_complexity,
+          msg.performance,
+          msg.planner_model && msg.judge_model ? "multi" : "single"
+        ),
       };
 
       updateSession(targetId, (prev: SessionData) => ({
