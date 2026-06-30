@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap } from "lucide-react";
 import type { NodeStatus } from "@/types/flowGraph";
 import type { GlassboxState } from "@/types/glassbox";
@@ -17,6 +18,11 @@ interface Props {
 }
 
 export default function FlowGrid({ appState, exitStatus, glassboxState }: Props) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+  const isDark = mounted ? resolvedTheme === "dark" : true;
+
   const {
     currentPhase, strategyIteration, syntaxHealAttempt, phaseDurations,
     plannerModel, generatorModel, judgeModel,
@@ -41,27 +47,27 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
   return (
     <div className="flex flex-col items-center justify-center gap-5 h-full w-full p-6">
       {strategyIteration > 1 && (
-        <div className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">
+        <div className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
           Strategy Iteration {strategyIteration}/{glassboxState.maxStrategyIterations ?? 3}
         </div>
       )}
 
       {/* Row 1: P1 P2 P3 */}
       <div className="flex items-center gap-4">
-        <NodeCard phase={PHASES[0]} status={nodeStatus(1)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 1)?.durationMs ?? null} />
-        <Connector active={currentPhase > 1} />
-        <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} />
-        <Connector active={currentPhase > 2} />
-        <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} showBottomArrow={currentPhase > 2} />
+        <NodeCard phase={PHASES[0]} status={nodeStatus(1)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 1)?.durationMs ?? null} isDark={isDark} />
+        <Connector active={currentPhase > 1} isDark={isDark} />
+        <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} isDark={isDark} />
+        <Connector active={currentPhase > 2} isDark={isDark} />
+        <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} showBottomArrow={currentPhase > 2} isDark={isDark} />
       </div>
 
       {/* Row 2: P6 P5 P4 */}
       <div className="flex items-center gap-4">
-        <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} />
-        <Connector active={currentPhase > 5} />
-        <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} />
-        <Connector active={currentPhase > 4} />
-        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} />
+        <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} isDark={isDark} />
+        <Connector active={currentPhase > 5} isDark={isDark} />
+        <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} isDark={isDark} />
+        <Connector active={currentPhase > 4} isDark={isDark} />
+        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} />
       </div>
 
       {isDone && (
@@ -75,8 +81,8 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
 // ── Connector with arrow ──
 
-function Connector({ active }: { active: boolean }) {
-  const c = active ? "#4ec97e" : "#393b40";
+function Connector({ active, isDark }: { active: boolean; isDark: boolean }) {
+  const c = active ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1");
   return (
     <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
       <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
@@ -90,7 +96,7 @@ function Connector({ active }: { active: boolean }) {
 // ── NodeCard ──
 
 function NodeCard({
-  phase, status, modelName, iteration, durationMs, showBottomArrow,
+  phase, status, modelName, iteration, durationMs, showBottomArrow, isDark,
 }: {
   phase: { num: number; name: string; agent: string; icon: string; color: string };
   status: NodeStatus;
@@ -98,6 +104,7 @@ function NodeCard({
   iteration: number;
   durationMs: number | null;
   showBottomArrow?: boolean;
+  isDark: boolean;
 }) {
   const Icon = ICONS[phase.icon];
 
@@ -135,7 +142,7 @@ function NodeCard({
       )}
 
       {iteration > 1 && status !== "waiting" && status !== "skipped" && (
-        <span className="absolute -top-1.5 -right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">
+        <span className={`absolute -top-1.5 -right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
           {iteration}
         </span>
       )}

@@ -26,7 +26,7 @@ export default function CodeSkeleton({ sourceCode }: CodeSkeletonProps) {
         return (
           <div key={i} className="flex items-center" style={{ height: "24px" }}>
             <span className="w-14 text-right text-[11px] pr-4 select-none shrink-0"
-      style={{ color: isDark ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.7)" }}>
+      style={{ color: isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.35)" }}>
               {i + 1}
             </span>
             <div
