@@ -117,12 +117,42 @@ export function buildGraphState(
     return parseInt(def.target.replace("p", ""));
   }
 
+  function edgeHandles(def: EdgeDef): { sourceHandle: string; targetHandle: string } {
+    // Zigzag 3x2 grid handle mapping
+    const map: Record<string, [string, string]> = {
+      // forward horizontal
+      "e1-2": ["right", "left"],
+      "e2-3": ["right", "left"],
+      // forward zigzag (P3 top → P4 bottom)
+      "e3-4": ["bottom", "top"],
+      // forward horizontal
+      "e4-5": ["right", "left"],
+      "e5-6": ["right", "left"],
+      // loops
+      "e3-3-heal": ["bottom", "top"],
+      "e4-3-fix": ["top", "bottom"],
+      // strategy revision to P2 (top-left)
+      "e2-2-revise": ["left", "top"],
+      "e3-2-revise": ["top", "left"],
+      "e4-2-revise": ["left", "top"],
+      "e5-2-revise": ["left", "top"],
+      // abort to P6 (bottom-right)
+      "e3-6-abort": ["bottom", "top"],
+      "e5-6-abort": ["bottom", "top"],
+    };
+    const h = map[def.id] || ["bottom", "top"];
+    return { sourceHandle: h[0], targetHandle: h[1] };
+  }
+
   const edges: Edge<FlowEdgeData>[] = ALL_EDGES.map((def) => {
     const status = edgeStatus(def);
+    const handles = edgeHandles(def);
     return {
       id: def.id,
       source: def.source,
       target: def.target,
+      sourceHandle: handles.sourceHandle,
+      targetHandle: handles.targetHandle,
       type: "smoothstep",
       data: { type: def.type, status, label: def.label },
       style: edgeStyle(def.type, status),

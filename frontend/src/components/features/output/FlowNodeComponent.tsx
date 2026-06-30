@@ -27,7 +27,10 @@ function FlowNodeComponent({ data }: NodeProps) {
 
   return (
     <div className={`relative flex flex-col items-center justify-center p-3 w-64 h-64 rounded-[24px] ring-1 transition-all duration-500 ${c.bg} ${c.ring} ${c.text}`}>
-      <Handle type="target" position={Position.Top} className="!bg-jb-border !w-2 !h-2" />
+      <Handle type="target" position={Position.Top} id="top" className="!bg-jb-border !w-2 !h-2" />
+      <Handle type="target" position={Position.Left} id="left" className="!bg-jb-border !w-2 !h-2" />
+      <Handle type="source" position={Position.Right} id="right" className="!bg-jb-border !w-2 !h-2" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!bg-jb-border !w-2 !h-2" />
 
       <div className="flex items-center gap-1 mb-1">
         <span className="text-[10px] font-bold opacity-60">P{phase.num}</span>

@@ -11,7 +11,6 @@ import {
   useReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
-import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
 
 import FlowNodeComponent from "./FlowNodeComponent";
@@ -20,8 +19,17 @@ import type { GlassboxState } from "@/types/glassbox";
 
 const nodeTypes = { phaseNode: FlowNodeComponent };
 
-const NODE_WIDTH = 260;
-const NODE_HEIGHT = 260;
+const GAP_X = 420;
+const GAP_Y = 480;
+
+const GRID_POSITIONS: Record<string, { x: number; y: number }> = {
+  p1: { x: 0, y: 0 },
+  p2: { x: GAP_X, y: 0 },
+  p3: { x: GAP_X * 2, y: 0 },
+  p4: { x: 0, y: GAP_Y },
+  p5: { x: GAP_X, y: GAP_Y },
+  p6: { x: GAP_X * 2, y: GAP_Y },
+};
 
 interface Props {
   appState: string;
@@ -33,55 +41,36 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
   const isDone = appState === "done";
   const reactFlowInstance = useReactFlow();
   const lastPhaseRef = useRef(0);
+  const initializedRef = useRef(false);
 
   const { nodes: builtNodes, edges: builtEdges } = useMemo(
     () => buildGraphState(glassboxState, appState, exitStatus),
     [glassboxState, appState, exitStatus],
   );
 
-  const laidOutNodes = useMemo(() => {
-    const g = new dagre.graphlib.Graph();
-    g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: "TB", nodesep: 80, ranksep: 140 });
+  const positionedNodes = useMemo(() =>
+    builtNodes.map((n) => ({
+      ...n,
+      position: GRID_POSITIONS[n.id] || { x: 0, y: 0 },
+    })),
+  [builtNodes]);
 
-    builtNodes.forEach((n) => {
-      g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
-    });
-
-    builtEdges.forEach((e) => {
-      g.setEdge(e.source, e.target);
-    });
-
-    dagre.layout(g);
-
-    return builtNodes.map((n) => {
-      const pos = g.node(n.id);
-      return {
-        ...n,
-        position: {
-          x: pos.x - NODE_WIDTH / 2,
-          y: pos.y - NODE_HEIGHT / 2,
-        },
-      };
-    });
-  }, [builtNodes, builtEdges]);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(laidOutNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(positionedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(builtEdges);
 
   useEffect(() => {
-    setNodes(laidOutNodes);
+    setNodes(positionedNodes);
     setEdges(builtEdges);
-  }, [laidOutNodes, builtEdges, setNodes, setEdges]);
+  }, [positionedNodes, builtEdges, setNodes, setEdges]);
 
-  // fit view once on mount
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
     requestAnimationFrame(() => {
-      reactFlowInstance.fitView({ padding: 0.15, duration: 0 });
+      reactFlowInstance.fitView({ padding: 0.2, duration: 0 });
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reactFlowInstance]);
 
-  // auto-scroll to current phase node
   useEffect(() => {
     const phase = glassboxState.currentPhase;
     if (phase < 1 || phase > 6 || phase === lastPhaseRef.current) return;
@@ -90,7 +79,7 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
     const timer = setTimeout(() => {
       reactFlowInstance.fitView({
         nodes: [{ id: `p${phase}` }],
-        padding: 0.3,
+        padding: 0.35,
         duration: 400,
       });
     }, 150);
@@ -112,6 +101,7 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
       >
         <Background color="#393b40" gap={20} size={1} />
         <Controls showInteractive={false} />
