@@ -53,7 +53,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       )}
 
       {/* Row 1: P1 P2 P3 */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 w-full">
         <NodeCard phase={PHASES[0]} status={nodeStatus(1)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 1)?.durationMs ?? null} isDark={isDark} />
         <Connector active={currentPhase > 1} isDark={isDark} />
         <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} isDark={isDark} />
@@ -64,9 +64,9 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       {/* P3 → P4 zigzag arrow (P3 column position) */}
       <div className="flex items-center gap-4 w-full">
         <div className="w-[176px]" />
-        <div className="flex-1" />
+        <div className="flex-1 shrink-0" />
         <div className="w-[176px]" />
-        <div className="flex-1" />
+        <div className="flex-1 shrink-0" />
         <div className="w-[176px] flex justify-center">
           <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
             <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
@@ -79,7 +79,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       </div>
 
       {/* Row 2: P6 P5 P4 */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 w-full">
         <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} isDark={isDark} />
         <Connector active={currentPhase > 5} isDark={isDark} reverse />
         <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} isDark={isDark} />
