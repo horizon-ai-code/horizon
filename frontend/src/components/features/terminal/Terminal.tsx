@@ -6,7 +6,7 @@ import { AlertCircle, ChevronDown, Plus, Minus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
 import { formatStatusContent } from "@/lib/formatStatusContent";
-import { ROLE_VISUALS } from "@/lib/constants";
+import { ROLE_BY_ICON } from "@/lib/constants";
 import JsonDetailBlock from "@/components/features/terminal/JsonDetailBlock";
 import GlassboxBar from "@/components/features/terminal/GlassboxBar";
 import type { GlassboxState } from "@/types/glassbox";
@@ -103,7 +103,7 @@ function LogEntry({ entry, isDark }: EntryProps) {
   const { summary, tags, details, rawData } = formatStatusContent(entry.text);
   const [showDetails, setShowDetails] = useState(details !== null);
 
-  const vis = ROLE_VISUALS[iconKey];
+  const vis = ROLE_BY_ICON[iconKey];
   const textColor = isDark
     ? (entry.colorClass ?? "text-[#d9dee7]")
     : (vis?.colorClassLight ?? entry.colorClass ?? "text-[#333]");

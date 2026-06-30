@@ -28,3 +28,9 @@ export const DEFAULT_ROLE_VISUALS = {
   icon: "Cpu",
   colorClass: "text-jb-accent",
 };
+
+/** Reverse lookup: icon name → ROLE_VISUALS entry */
+export const ROLE_BY_ICON: Record<string, { step: number; icon: string; colorClass: string; colorClassLight: string }> = {};
+for (const v of Object.values(ROLE_VISUALS)) {
+  ROLE_BY_ICON[v.icon] = v;
+}
