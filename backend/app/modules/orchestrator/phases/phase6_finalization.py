@@ -57,7 +57,25 @@ class Phase6Finalization:
                 print(f"Error generating insights: {e}")
                 insights = "Refactoring successful (Insights generation failed)."
         else:
-            insights = f"Refactoring aborted: {state.exit_status}. Reverted to original code."
+            abort_reasons = {
+                ExitStatus.ABORT_STRATEGY: (
+                    "Refactoring aborted after max retries. "
+                    "The system attempted multiple strategies but could not produce valid code. "
+                    "Original code restored."
+                ),
+                ExitStatus.ABORT_SYNTAX: (
+                    "Refactoring aborted — generated code contained syntax errors "
+                    "that could not be resolved. Original code restored."
+                ),
+                ExitStatus.ABORT_SEMANTIC: (
+                    "Refactoring aborted — generated code failed semantic validation. "
+                    "Original code restored."
+                ),
+            }
+            insights = abort_reasons.get(
+                state.exit_status,
+                f"Refactoring aborted ({state.exit_status}). Original code restored."
+            )
 
         await client.send_insights(insights)
 

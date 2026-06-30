@@ -1,5 +1,6 @@
 "use client"
 
+import { useTheme } from "next-themes";
 import { Command, Sparkles, Square, ChevronDown } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
@@ -41,6 +42,11 @@ export default function RefactorInput({
   stopAnalysis,
   appState
 }: RefactorInputProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+  const isDark = mounted ? resolvedTheme === "dark" : true;
+
   const controls = useAnimation();
   const draftSession = useChatStore((state) => state.draftSession);
   const updateDraftSession = useChatStore((state) => state.updateDraftSession);
@@ -153,7 +159,7 @@ export default function RefactorInput({
                     ${isSubmitDisabled
                       ? 'opacity-40 cursor-not-allowed text-jb-text-muted border-jb-text-muted/20 bg-transparent'
                       : refactorMode === "multi"
-                        ? 'text-[#5a8cf8] border-[#5a8cf8]/30 hover:border-[#5a8cf8]/60 hover:bg-[#5a8cf8]/10'
+                        ? `${isDark ? "text-[#5a8cf8]" : "text-[#3b5fc0]"} border-[#5a8cf8]/30 hover:border-[#5a8cf8]/60 hover:bg-[#5a8cf8]/10`
                         : 'text-[#a855f7] border-[#a855f7]/30 hover:border-[#a855f7]/60 hover:bg-[#a855f7]/10'
                     }`}
                   aria-label="Select mode"

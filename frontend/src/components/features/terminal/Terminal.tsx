@@ -6,6 +6,7 @@ import { AlertCircle, ChevronDown, Plus, Minus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AppState, TerminalEntry } from "@/types/session";
 import { formatStatusContent } from "@/lib/formatStatusContent";
+import { ROLE_BY_ICON } from "@/lib/constants";
 import JsonDetailBlock from "@/components/features/terminal/JsonDetailBlock";
 import GlassboxBar from "@/components/features/terminal/GlassboxBar";
 import type { GlassboxState } from "@/types/glassbox";
@@ -18,6 +19,16 @@ const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
   Clock:        { bg: "#2a2030", text: "#a78bfa" },
   AlertCircle:  { bg: "#3c1a1a", text: "#e06c75" },
   Monolith:     { bg: "#1a2f4a", text: "#548af7" },
+};
+
+const AGENT_BADGE_LIGHT: Record<string, { bg: string; text: string }> = {
+  Cpu:          { bg: "#e8f0fe", text: "#3b5fc0" },
+  Layers:       { bg: "#e6f7f5", text: "#1e8a7e" },
+  FileCode2:    { bg: "#fef5e6", text: "#b07020" },
+  CheckCircle2: { bg: "#e6f7ed", text: "#1e8a4a" },
+  Clock:        { bg: "#f0e6f5", text: "#6b3fa0" },
+  AlertCircle:  { bg: "#fce6e6", text: "#c04040" },
+  Monolith:     { bg: "#e8f0fe", text: "#3b5fc0" },
 };
 
 const AGENT_LABEL: Record<string, string> = {
@@ -86,10 +97,16 @@ function CommandEntry({ entry, isDark }: EntryProps) {
 
 function LogEntry({ entry, isDark }: EntryProps) {
   const iconKey = entry.icon ?? "Cpu";
-  const badge = AGENT_BADGE[iconKey] ?? AGENT_BADGE.Cpu;
+  const badgeList = isDark ? AGENT_BADGE : AGENT_BADGE_LIGHT;
+  const badge = badgeList[iconKey] ?? badgeList.Cpu;
   const label = AGENT_LABEL[iconKey] ?? "AGENT";
   const { summary, tags, details, rawData } = formatStatusContent(entry.text);
   const [showDetails, setShowDetails] = useState(details !== null);
+
+  const vis = ROLE_BY_ICON[iconKey];
+  const textColor = isDark
+    ? (entry.colorClass ?? "text-[#d9dee7]")
+    : (vis?.colorClassLight ?? entry.colorClass ?? "text-[#333]");
 
   const tagLine = tags
     .map((t) => (t.label ? `${t.label}: ${t.value}` : t.value))
@@ -115,8 +132,7 @@ function LogEntry({ entry, isDark }: EntryProps) {
           {label}
         </span>
         <div className="flex flex-col min-w-0 flex-1">
-          <span className={`text-[12px] leading-relaxed break-words
-            ${entry.colorClass ?? (isDark ? "text-[#d9dee7]" : "text-[#333]")}`}>
+          <span className={`text-[12px] leading-relaxed break-words ${textColor}`}>
             {summary.split(/(`[^`]+`)/).map((part, i) =>
               part.startsWith("`") && part.endsWith("`")
                 ? <code key={i} className="text-[11px] px-1 rounded" style={{
@@ -166,7 +182,8 @@ function SystemEntry({ entry, isDark }: EntryProps) {
         {entry.timestamp ?? ""}
       </span>
       <div className="flex items-start gap-2 flex-1 overflow-hidden">
-        <span className="inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap bg-[#2a2030] text-[#a78bfa] border-[#a78bfa33]">
+        <span className={`inline-flex items-center shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border whitespace-nowrap
+          ${isDark ? "bg-[#2a2030] text-[#a78bfa] border-[#a78bfa33]" : "bg-purple-50 text-purple-700 border-purple-200"}`}>
           SYSTEM
         </span>
         <span className={`text-[12px] leading-relaxed break-words flex-1
@@ -244,7 +261,7 @@ export default function Terminal({
   };
 
   return (
-    <div className="flex flex-col min-h-0 overflow-hidden bg-jb-panel relative h-full w-full ring-1 ring-white/[0.05]">
+    <div className={`flex flex-col min-h-0 overflow-hidden bg-jb-panel relative h-full w-full ring-1 ${isDark ? "ring-white/[0.05]" : "ring-black/[0.04]"}`}>
       {/* Header Container */}
       <div
         role="button"
@@ -255,8 +272,8 @@ export default function Terminal({
         onKeyDown={handleKeyDown}
         draggable={false}
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
-        className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset
-          ${isDark ? "bg-jb-panel border-jb-border" : "bg-[#f7f8fa] border-[#ebecf0]"}`}
+        className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none outline-none focus-visible:ring-1 focus-visible:ring-inset
+          ${isDark ? "bg-jb-panel border-jb-border focus-visible:ring-white/20" : "bg-[#f7f8fa] border-[#ebecf0] focus-visible:ring-[#3574f0]/40"}`}
       >
         <div className="flex items-center h-full gap-4">
           <h3 className={`text-[12px] font-semibold tracking-wide flex items-center gap-2
@@ -282,9 +299,9 @@ export default function Terminal({
   <GlassboxBar state={glassboxState} isDark={isDark} />
 )}
 
-          <span className={`mx-1 ${isDark ? "text-jb-border/60" : "text-[#ebecf0]"}`}>|</span>
+          <span className={`mx-1 ${isDark ? "text-jb-border/60" : "text-[#d0d3d8]"}`}>|</span>
 
-          <div className={`h-[20px] w-[1px] ${isDark ? "bg-jb-border/60" : "bg-[#ebecf0]"}`} />
+          <div className={`h-[20px] w-[1px] ${isDark ? "bg-jb-border/60" : "bg-[#d0d3d8]"}`} />
 
           <div className="flex items-center h-full pt-1.5 pb-1">
             <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm
@@ -305,23 +322,23 @@ export default function Terminal({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-0.5 mr-1">
             <button
-              aria-label="Zoom in"
-              onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.min(1.5, s + 0.125)); }}
-              className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
-                ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
-            >
-              <Plus size={14} />
-            </button>
-            <span className={`text-[10px] font-medium w-7 text-center select-none ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-              {Math.round(fontScale * 100)}%
-            </span>
-            <button
               aria-label="Zoom out"
               onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.max(0.625, s - 0.125)); }}
               className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
                 ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
             >
               <Minus size={14} />
+            </button>
+            <span className={`text-[10px] font-medium w-7 text-center select-none ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+              {Math.round(fontScale * 100)}%
+            </span>
+            <button
+              aria-label="Zoom in"
+              onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.min(1.5, s + 0.125)); }}
+              className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
+                ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
+            >
+              <Plus size={14} />
             </button>
           </div>
 

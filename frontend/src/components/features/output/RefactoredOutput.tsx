@@ -10,7 +10,7 @@ import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
-import OrchestrationFlowchart from "@/components/features/output/OrchestrationFlowchart";
+import FlowGrid from "@/components/features/output/FlowGrid";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -39,7 +39,9 @@ export default function RefactoredOutput({
   const [mounted, setMounted] = useState(false);
   
   // 1. ADD 'output' state and make it the default
-  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights'>('output');
+  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
+    appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
+  );
   const hasFormatted = useRef(false);
 
   useEffect(() => {
@@ -55,6 +57,12 @@ export default function RefactoredOutput({
       }
     }
   }, [refactoredOutput, setRefactoredOutput]);
+
+  useEffect(() => {
+    if (appState === "analyzing" && !isMonolith) {
+      setRightPanelMode("flow");
+    }
+  }, [appState, isMonolith]);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
@@ -103,6 +111,20 @@ export default function RefactoredOutput({
           >
              Refactored Output
           </button>
+
+          {!isMonolith && (
+          <button 
+            onClick={() => setRightPanelMode('flow')}
+            role="tab"
+            aria-selected={rightPanelMode === 'flow'}
+            className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
+              ${rightPanelMode === 'flow' 
+                ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
+                : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
+          >
+             Flow
+          </button>
+          )}
         </div>
         
         <div className="flex items-center gap-2 pr-4">
@@ -125,7 +147,28 @@ export default function RefactoredOutput({
       </div>
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
-        {appState === 'idle' ? (
+        {rightPanelMode === 'flow' && !isMonolith ? (
+          <FlowGrid
+            appState={appState}
+            exitStatus={orchestrationResult.exit_status}
+            glassboxState={glassboxState ?? {
+              currentPhase: 1,
+              currentAgent: "System",
+              strategyIteration: 1,
+              maxStrategyIterations: 3,
+              syntaxHealAttempt: 0,
+              maxSyntaxHealAttempts: 3,
+              sequentialMutationRetry: 0,
+              maxSequentialMutationRetries: 3,
+              validationFaultCount: null,
+              judgeDecision: null,
+              currentDetail: null,
+              phaseSummaries: {},
+              phaseDurations: [],
+              totalDurationMs: null,
+            }}
+          />
+        ) : appState === 'idle' ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10 transition-colors duration-300">
             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-2xl ring-1 transition-all duration-300
               ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
@@ -154,8 +197,6 @@ export default function RefactoredOutput({
           </div>
         ) : appState === 'analyzing' && isMonolith ? (
           <CodeSkeleton sourceCode={sourceCode} />
-        ) : appState === 'analyzing' ? (
-          <OrchestrationFlowchart activeStep={activeStep} glassboxState={glassboxState} />
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
@@ -170,7 +211,6 @@ export default function RefactoredOutput({
             </p>
           </div>
         ) : (
-          // 3. RENDER LOGIC UPDATE
            rightPanelMode === 'output' ? (
               <CodeEditorPanel 
                 value={refactoredOutput} 

@@ -235,7 +235,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         terminalEntries: [...prev.terminalEntries, doneEntry],
         refactoredOutput: msg.code,
         orchestrationResult,
-        appState: (isSuccess ? "done" : "idle") as AppState,
+        appState: "done" as AppState,
         showFlowchartModal: isSuccess ? false : prev.showFlowchartModal,
       }));
     },

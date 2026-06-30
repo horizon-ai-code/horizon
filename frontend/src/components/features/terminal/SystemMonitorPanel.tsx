@@ -222,7 +222,7 @@ function MetricGrid({ samples, systemMetrics, isDark }: MetricGridProps) {
         icon={GpuIcon}
         label="GPU"
         value={Math.round(systemMetrics.gpu_utilization)}
-        color="#5a8cf8"
+        color={isDark ? "#5a8cf8" : "#3b5fc0"}
         subtext1={`Peak: ${peakGpu}%`}
         values={gpuValues}
         isDark={isDark}
@@ -232,7 +232,7 @@ function MetricGrid({ samples, systemMetrics, isDark }: MetricGridProps) {
         icon={VramIcon}
         label="VRAM"
         value={Math.round(systemMetrics.gpu_memory_percent)}
-        color="#3dd6c8"
+        color={isDark ? "#3dd6c8" : "#146a6e"}
         subtext1={`Peak: ${peakVram}%`}
         subtext2={`${systemMetrics.gpu_memory_used_gb} / ${systemMetrics.gpu_memory_total_gb} GB`}
         values={vramValues}

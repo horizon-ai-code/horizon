@@ -27,12 +27,20 @@ const AGENT_COLORS: Record<string, string> = {
   System: "#a78bfa",
 };
 
+const AGENT_COLORS_LIGHT: Record<string, string> = {
+  Planner: "#3b5fc0",
+  Generator: "#146a6e",
+  Validator: "#b07020",
+  Judge: "#1a8a30",
+  System: "#6b3fa0",
+};
+
 export default function GlassboxBar({ state, isDark }: GlassboxBarProps) {
   const [showDetail, setShowDetail] = useState(false);
   const { currentPhase, currentAgent, strategyIteration, syntaxHealAttempt, maxStrategyIterations, maxSyntaxHealAttempts, validationFaultCount, judgeDecision, phaseSummaries, currentDetail, phaseDurations, totalDurationMs } = state;
 
   const hasRetries = syntaxHealAttempt > 0 || strategyIteration > 1;
-  const agentColor = AGENT_COLORS[currentAgent] ?? "#888";
+  const agentColor = (isDark ? AGENT_COLORS : AGENT_COLORS_LIGHT)[currentAgent] ?? "#888";
 
   const currentPhaseDuration = phaseDurations?.find((d) => d.phase === currentPhase);
   const totalDuration = totalDurationMs
