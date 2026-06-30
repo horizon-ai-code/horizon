@@ -10,7 +10,7 @@ import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
-import FlowGrid from "@/components/features/output/FlowGrid";
+import FlowDiagram from "@/components/features/output/FlowDiagram";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -146,7 +146,7 @@ export default function RefactoredOutput({
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
         {rightPanelMode === 'flow' ? (
-          <FlowGrid
+          <FlowDiagram
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
             glassboxState={glassboxState ?? {
