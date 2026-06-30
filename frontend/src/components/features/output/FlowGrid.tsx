@@ -76,12 +76,12 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 // ── Connector with arrow ──
 
 function Connector({ active }: { active: boolean }) {
+  const c = active ? "#4ec97e" : "#393b40";
   return (
     <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
-      <div className={`flex-1 h-[3px] transition-colors duration-500 rounded-full ${active ? "bg-[#4ec97e]" : "bg-[#393b40]"}`} />
-      <svg width="14" height="14" viewBox="0 0 14 14" className="shrink-0 -ml-[1px]">
-        <polyline points="2,2 10,7 2,12" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-          className={`transition-colors duration-500 ${active ? "stroke-[#4ec97e]" : "stroke-[#393b40]"}`} />
+      <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
+      <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0 -ml-[1px]">
+        <path d="M3 1 L13 8 L3 15 Z" fill={c} className="transition-colors duration-500" />
       </svg>
     </div>
   );
@@ -147,12 +147,11 @@ function NodeCard({
       )}
 
       {showBottomArrow && (
-        <svg width="16" height="20" viewBox="0 0 16 20" className="absolute -bottom-4 left-1/2 -translate-x-1/2">
-          <line x1="8" y1="0" x2="8" y2="14" strokeWidth="2.5" strokeLinecap="round"
+        <svg width="16" height="24" viewBox="0 0 16 24" className="absolute -bottom-5 left-1/2 -translate-x-1/2">
+          <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
             stroke={status === "active" ? "#3574f0" : "#4ec97e"}
             className="transition-colors duration-500" />
-          <polyline points="3,10 8,16 13,10" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-            stroke={status === "active" ? "#3574f0" : "#4ec97e"}
+          <path d="M3 14 L8 23 L13 14 Z" fill={status === "active" ? "#3574f0" : "#4ec97e"}
             className="transition-colors duration-500" />
         </svg>
       )}
