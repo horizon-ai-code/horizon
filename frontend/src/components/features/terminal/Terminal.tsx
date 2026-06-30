@@ -322,23 +322,23 @@ export default function Terminal({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-0.5 mr-1">
             <button
-              aria-label="Zoom in"
-              onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.min(1.5, s + 0.125)); }}
-              className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
-                ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
-            >
-              <Plus size={14} />
-            </button>
-            <span className={`text-[10px] font-medium w-7 text-center select-none ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-              {Math.round(fontScale * 100)}%
-            </span>
-            <button
               aria-label="Zoom out"
               onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.max(0.625, s - 0.125)); }}
               className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
                 ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
             >
               <Minus size={14} />
+            </button>
+            <span className={`text-[10px] font-medium w-7 text-center select-none ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+              {Math.round(fontScale * 100)}%
+            </span>
+            <button
+              aria-label="Zoom in"
+              onClick={(e) => { e.stopPropagation(); setFontScale((s) => Math.min(1.5, s + 0.125)); }}
+              className={`p-0.5 rounded cursor-pointer w-5 h-5 flex items-center justify-center
+                ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-jb-border/40" : "text-slate-400 hover:text-slate-700 hover:bg-[#ebecf0]"}`}
+            >
+              <Plus size={14} />
             </button>
           </div>
 
