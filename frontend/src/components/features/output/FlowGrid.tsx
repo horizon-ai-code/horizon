@@ -32,15 +32,19 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
   const isSuccess = exitStatus === "SUCCESS";
   const isAbort = isDone && !isSuccess && !!exitStatus && exitStatus !== "PROCESSING";
 
+  // History sessions don't populate glassboxState.currentPhase.
+  // Override to 6 so all phases show as completed.
+  const effectivePhase = isDone && currentPhase === 0 ? 6 : currentPhase;
+
   function nodeStatus(num: number): NodeStatus {
     if (isDone) {
       if (num === 6) return isAbort ? "done_fail" : "done_ok";
-      if (num < currentPhase || (num === currentPhase && isSuccess)) return "done_ok";
-      if (num === currentPhase) return "done_fail";
+      if (num < effectivePhase || (num === effectivePhase && isSuccess)) return "done_ok";
+      if (num === effectivePhase) return "done_fail";
       return "skipped";
     }
-    if (num < currentPhase) return "done_ok";
-    if (num === currentPhase) return "active";
+    if (num < effectivePhase) return "done_ok";
+    if (num === effectivePhase) return "active";
     return "waiting";
   }
 
@@ -55,9 +59,9 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       {/* Row 1: P1 P2 P3 */}
       <div className="flex items-center gap-4 w-full">
         <NodeCard phase={PHASES[0]} status={nodeStatus(1)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 1)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={currentPhase > 1} isDark={isDark} />
+        <Connector active={effectivePhase > 1} isDark={isDark} />
         <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={currentPhase > 2} isDark={isDark} />
+        <Connector active={effectivePhase > 2} isDark={isDark} />
         <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} isDark={isDark} />
       </div>
 
@@ -70,9 +74,9 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <div className="w-[176px] flex justify-center">
           <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
             <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
-              stroke={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
-              className="transition-colors duration-500" />
-            <path d="M3 14 L8 23 L13 14 Z" fill={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
+            stroke={effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
+            className="transition-colors duration-500" />
+          <path d="M3 14 L8 23 L13 14 Z" fill={effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
               className="transition-colors duration-500" />
           </svg>
         </div>
@@ -81,9 +85,9 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       {/* Row 2: P6 P5 P4 */}
       <div className="flex items-center gap-4 w-full">
         <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={currentPhase > 5} isDark={isDark} reverse />
+        <Connector active={effectivePhase > 5} isDark={isDark} reverse />
         <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={currentPhase > 4} isDark={isDark} reverse />
+        <Connector active={effectivePhase > 4} isDark={isDark} reverse />
         <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} />
       </div>
 
