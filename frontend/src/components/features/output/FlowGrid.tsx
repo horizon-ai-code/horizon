@@ -56,11 +56,16 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       </div>
 
       {/* Zigzag connector P3 → P4 */}
-      <div className="flex justify-center">
-        <div className="relative w-[3px] h-8 overflow-hidden rounded-full">
-          <div className="absolute inset-0 bg-jb-border/30" />
-          <div className={`absolute bottom-0 left-0 w-full transition-all duration-500 ${currentPhase > 3 ? "h-full bg-jb-accent" : "h-0 bg-jb-accent"}`} />
-        </div>
+      <div className="flex justify-center h-8">
+        <svg width="24" height="32" viewBox="0 0 24 32" className="overflow-visible">
+          <line x1="12" y1="0" x2="12" y2="24" strokeWidth="3"
+            stroke={currentPhase > 3 ? "#4ec97e" : "#393b40"}
+            className="transition-colors duration-500" />
+          <polyline points="4,20 12,28 20,20" fill="none" strokeWidth="3"
+            stroke={currentPhase > 3 ? "#4ec97e" : "#393b40"}
+            strokeLinecap="round" strokeLinejoin="round"
+            className="transition-colors duration-500" />
+        </svg>
       </div>
 
       {/* Row 2: P4 P5 P6 */}
