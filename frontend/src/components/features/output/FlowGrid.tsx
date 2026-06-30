@@ -74,7 +74,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
       {isDone && (
         <div className="flex items-center gap-4 px-4 py-2 rounded-lg bg-jb-panel/90 border border-jb-border/50 text-[11px] font-medium">
-          <span className={exitStatus === "SUCCESS" ? "text-green-500" : "text-red-500"}>{exitStatus || "—"}</span>
+          {exitStatus && <span className={exitStatus === "SUCCESS" ? "text-green-500" : "text-red-500"}>{exitStatus}</span>}
         </div>
       )}
     </div>
