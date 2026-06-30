@@ -101,6 +101,7 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
+        panOnDrag={false}
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
       >
         <Background color="#393b40" gap={20} size={1} />
