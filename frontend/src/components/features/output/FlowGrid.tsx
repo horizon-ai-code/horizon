@@ -67,7 +67,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <Connector active={currentPhase > 5} isDark={isDark} />
         <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} isDark={isDark} />
         <Connector active={currentPhase > 4} isDark={isDark} />
-        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} />
+        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} showBackArrow />
       </div>
 
       {isDone && (
@@ -96,7 +96,7 @@ function Connector({ active, isDark }: { active: boolean; isDark: boolean }) {
 // ── NodeCard ──
 
 function NodeCard({
-  phase, status, modelName, iteration, durationMs, showBottomArrow, isDark,
+  phase, status, modelName, iteration, durationMs, showBottomArrow, showBackArrow, isDark,
 }: {
   phase: { num: number; name: string; agent: string; icon: string; color: string };
   status: NodeStatus;
@@ -104,6 +104,7 @@ function NodeCard({
   iteration: number;
   durationMs: number | null;
   showBottomArrow?: boolean;
+  showBackArrow?: boolean;
   isDark: boolean;
 }) {
   const Icon = ICONS[phase.icon];
@@ -159,6 +160,16 @@ function NodeCard({
             stroke={status === "active" ? "#3574f0" : "#4ec97e"}
             className="transition-colors duration-500" />
           <path d="M3 14 L8 23 L13 14 Z" fill={status === "active" ? "#3574f0" : "#4ec97e"}
+            className="transition-colors duration-500" />
+        </svg>
+      )}
+
+      {showBackArrow && (
+        <svg width="24" height="16" viewBox="0 0 24 16" className="absolute -right-5 top-1/2 -translate-y-1/2">
+          <line x1="0" y1="8" x2="16" y2="8" strokeWidth="3" strokeLinecap="round"
+            stroke={isDark ? "#5a8cf8" : "#3b5fc0"}
+            className="transition-colors duration-500" />
+          <path d="M14 3 L23 8 L14 13 Z" fill={isDark ? "#5a8cf8" : "#3b5fc0"}
             className="transition-colors duration-500" />
         </svg>
       )}
