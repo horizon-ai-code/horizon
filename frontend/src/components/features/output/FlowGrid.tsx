@@ -74,12 +74,6 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
       {isDone && (
         <div className="flex items-center gap-4 px-4 py-2 rounded-lg bg-jb-panel/90 border border-jb-border/50 text-[11px] font-medium">
-          <span>Total: {totalDurationMs != null ? `${(totalDurationMs / 1000).toFixed(1)}s` : "—"}</span>
-          <span className="w-px h-4 bg-jb-border/50" />
-          <span>Strategy: {strategyIteration}</span>
-          <span className="w-px h-4 bg-jb-border/50" />
-          <span>Syntax: {syntaxHealAttempt}</span>
-          <span className="w-px h-4 bg-jb-border/50" />
           <span className={exitStatus === "SUCCESS" ? "text-green-500" : "text-red-500"}>{exitStatus || "—"}</span>
         </div>
       )}
