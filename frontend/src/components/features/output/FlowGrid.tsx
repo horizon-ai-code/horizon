@@ -83,14 +83,21 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
 function Connector({ active, isDark, reverse }: { active: boolean; isDark: boolean; reverse?: boolean }) {
   const c = active ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1");
+  if (reverse) {
+    return (
+      <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
+        <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0">
+          <path d="M0 8 L13 1 L13 15 Z" fill={c} className="transition-colors duration-500" />
+        </svg>
+        <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
+      </div>
+    );
+  }
   return (
     <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
       <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
       <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0 -ml-[1px]">
-        {reverse
-          ? <path d="M13 1 L3 8 L13 15 Z" fill={c} className="transition-colors duration-500" />
-          : <path d="M3 1 L13 8 L3 15 Z" fill={c} className="transition-colors duration-500" />
-        }
+        <path d="M3 1 L13 8 L3 15 Z" fill={c} className="transition-colors duration-500" />
       </svg>
     </div>
   );
