@@ -64,10 +64,10 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       {/* Row 2: P6 P5 P4 */}
       <div className="flex items-center gap-4">
         <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={currentPhase > 5} isDark={isDark} />
+        <Connector active={currentPhase > 5} isDark={isDark} reverse />
         <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={currentPhase > 4} isDark={isDark} />
-        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} showBackArrow />
+        <Connector active={currentPhase > 4} isDark={isDark} reverse />
+        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} />
       </div>
 
       {isDone && (
@@ -81,13 +81,16 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
 // ── Connector with arrow ──
 
-function Connector({ active, isDark }: { active: boolean; isDark: boolean }) {
+function Connector({ active, isDark, reverse }: { active: boolean; isDark: boolean; reverse?: boolean }) {
   const c = active ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1");
   return (
     <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
       <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
       <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0 -ml-[1px]">
-        <path d="M3 1 L13 8 L3 15 Z" fill={c} className="transition-colors duration-500" />
+        {reverse
+          ? <path d="M13 1 L3 8 L13 15 Z" fill={c} className="transition-colors duration-500" />
+          : <path d="M3 1 L13 8 L3 15 Z" fill={c} className="transition-colors duration-500" />
+        }
       </svg>
     </div>
   );
@@ -96,7 +99,7 @@ function Connector({ active, isDark }: { active: boolean; isDark: boolean }) {
 // ── NodeCard ──
 
 function NodeCard({
-  phase, status, modelName, iteration, durationMs, showBottomArrow, showBackArrow, isDark,
+  phase, status, modelName, iteration, durationMs, showBottomArrow, isDark,
 }: {
   phase: { num: number; name: string; agent: string; icon: string; color: string };
   status: NodeStatus;
@@ -104,7 +107,6 @@ function NodeCard({
   iteration: number;
   durationMs: number | null;
   showBottomArrow?: boolean;
-  showBackArrow?: boolean;
   isDark: boolean;
 }) {
   const Icon = ICONS[phase.icon];
@@ -164,15 +166,7 @@ function NodeCard({
         </svg>
       )}
 
-      {showBackArrow && (
-        <svg width="24" height="16" viewBox="0 0 24 16" className="absolute -right-5 top-1/2 -translate-y-1/2">
-          <line x1="0" y1="8" x2="16" y2="8" strokeWidth="3" strokeLinecap="round"
-            stroke={isDark ? "#5a8cf8" : "#3b5fc0"}
-            className="transition-colors duration-500" />
-          <path d="M14 3 L23 8 L14 13 Z" fill={isDark ? "#5a8cf8" : "#3b5fc0"}
-            className="transition-colors duration-500" />
-        </svg>
-      )}
+
     </div>
   );
 }
