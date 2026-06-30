@@ -16,6 +16,7 @@ export const ALL_EDGES: EdgeDef[] = [
   { id: "e5-6", source: "p5", target: "p6", type: "forward" },
 
   { id: "e3-3-heal", source: "p3", target: "p3", type: "syntax_heal", label: "Syntax Heal" },
+  { id: "e3-3-fallback", source: "p3", target: "p3", type: "syntax_heal", label: "Seq Fallback" },
 
   { id: "e4-3-fix", source: "p4", target: "p3", type: "structural_fix", label: "Structural Fix" },
 

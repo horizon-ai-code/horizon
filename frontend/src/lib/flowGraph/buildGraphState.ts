@@ -130,6 +130,7 @@ export function buildGraphState(
       "e5-6": ["right", "left"],
       // loops
       "e3-3-heal": ["bottom", "top"],
+      "e3-3-fallback": ["bottom", "top"],
       "e4-3-fix": ["top", "bottom"],
       // strategy revision to P2 (top-left)
       "e2-2-revise": ["left", "top"],
