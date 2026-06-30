@@ -26,7 +26,7 @@ function FlowNodeComponent({ data }: NodeProps) {
   const iconColor = status !== "waiting" && status !== "skipped" ? phase.color : undefined;
 
   return (
-    <div className={`relative flex flex-col items-center justify-center p-3 w-40 h-40 rounded-[20px] ring-1 transition-all duration-500 ${c.bg} ${c.ring} ${c.text}`}>
+    <div className={`relative flex flex-col items-center justify-center p-3 w-64 h-64 rounded-[24px] ring-1 transition-all duration-500 ${c.bg} ${c.ring} ${c.text}`}>
       <Handle type="target" position={Position.Top} className="!bg-jb-border !w-2 !h-2" />
 
       <div className="flex items-center gap-1 mb-1">
@@ -39,7 +39,7 @@ function FlowNodeComponent({ data }: NodeProps) {
 
       {Icon && (
         <span className="mb-2" style={{ color: iconColor }}>
-          <Icon size={26} />
+          <Icon size={34} />
         </span>
       )}
 

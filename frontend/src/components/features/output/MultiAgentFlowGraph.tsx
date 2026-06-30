@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import {
   ReactFlow,
   Background,
@@ -8,6 +8,7 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
@@ -19,8 +20,8 @@ import type { GlassboxState } from "@/types/glassbox";
 
 const nodeTypes = { phaseNode: FlowNodeComponent };
 
-const NODE_WIDTH = 160;
-const NODE_HEIGHT = 160;
+const NODE_WIDTH = 260;
+const NODE_HEIGHT = 260;
 
 interface Props {
   appState: string;
@@ -30,6 +31,8 @@ interface Props {
 
 function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
   const isDone = appState === "done";
+  const reactFlowInstance = useReactFlow();
+  const lastPhaseRef = useRef(0);
 
   const { nodes: builtNodes, edges: builtEdges } = useMemo(
     () => buildGraphState(glassboxState, appState, exitStatus),
@@ -39,7 +42,7 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
   const laidOutNodes = useMemo(() => {
     const g = new dagre.graphlib.Graph();
     g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: "TB", nodesep: 60, ranksep: 90 });
+    g.setGraph({ rankdir: "TB", nodesep: 80, ranksep: 140 });
 
     builtNodes.forEach((n) => {
       g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
@@ -71,6 +74,30 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
     setEdges(builtEdges);
   }, [laidOutNodes, builtEdges, setNodes, setEdges]);
 
+  // fit view once on mount
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      reactFlowInstance.fitView({ padding: 0.15, duration: 0 });
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // auto-scroll to current phase node
+  useEffect(() => {
+    const phase = glassboxState.currentPhase;
+    if (phase < 1 || phase > 6 || phase === lastPhaseRef.current) return;
+    lastPhaseRef.current = phase;
+
+    const timer = setTimeout(() => {
+      reactFlowInstance.fitView({
+        nodes: [{ id: `p${phase}` }],
+        padding: 0.3,
+        duration: 400,
+      });
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [glassboxState.currentPhase, reactFlowInstance]);
+
   return (
     <div className="relative w-full h-full">
       <ReactFlow
@@ -79,10 +106,9 @@ function FlowGraph({ appState, exitStatus, glassboxState }: Props) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
-        fitView
         attributionPosition="bottom-left"
-        minZoom={0.3}
-        maxZoom={2}
+        minZoom={0.4}
+        maxZoom={3}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
