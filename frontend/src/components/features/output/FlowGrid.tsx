@@ -52,20 +52,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <Connector active={currentPhase > 1} />
         <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} />
         <Connector active={currentPhase > 2} />
-        <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} />
-      </div>
-
-      {/* Zigzag connector P3 → P4 */}
-      <div className="flex justify-center h-8">
-        <svg width="24" height="32" viewBox="0 0 24 32" className="overflow-visible">
-          <line x1="12" y1="0" x2="12" y2="24" strokeWidth="3"
-            stroke={currentPhase > 3 ? "#4ec97e" : "#393b40"}
-            className="transition-colors duration-500" />
-          <polyline points="4,20 12,28 20,20" fill="none" strokeWidth="3"
-            stroke={currentPhase > 3 ? "#4ec97e" : "#393b40"}
-            strokeLinecap="round" strokeLinejoin="round"
-            className="transition-colors duration-500" />
-        </svg>
+        <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} showBottomArrow={currentPhase > 2} />
       </div>
 
       {/* Row 2: P4 P5 P6 */}
@@ -100,13 +87,14 @@ function Connector({ active }: { active: boolean }) {
 // ── NodeCard ──
 
 function NodeCard({
-  phase, status, modelName, iteration, durationMs,
+  phase, status, modelName, iteration, durationMs, showBottomArrow,
 }: {
   phase: { num: number; name: string; agent: string; icon: string; color: string };
   status: NodeStatus;
   modelName?: string;
   iteration: number;
   durationMs: number | null;
+  showBottomArrow?: boolean;
 }) {
   const Icon = ICONS[phase.icon];
 
@@ -153,6 +141,17 @@ function NodeCard({
         <span className="absolute -bottom-1 -right-1 text-[8px] font-mono px-1.5 py-0.5 rounded bg-jb-border/30 text-jb-text-muted">
           {(durationMs / 1000).toFixed(1)}s
         </span>
+      )}
+
+      {showBottomArrow && (
+        <svg width="16" height="20" viewBox="0 0 16 20" className="absolute -bottom-4 left-1/2 -translate-x-1/2">
+          <line x1="8" y1="0" x2="8" y2="14" strokeWidth="2.5" strokeLinecap="round"
+            stroke={status === "active" ? "#3574f0" : "#4ec97e"}
+            className="transition-colors duration-500" />
+          <polyline points="3,10 8,16 13,10" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            stroke={status === "active" ? "#3574f0" : "#4ec97e"}
+            className="transition-colors duration-500" />
+        </svg>
       )}
     </div>
   );
