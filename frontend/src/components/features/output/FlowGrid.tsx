@@ -58,7 +58,18 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <Connector active={currentPhase > 1} isDark={isDark} />
         <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} isDark={isDark} />
         <Connector active={currentPhase > 2} isDark={isDark} />
-        <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} showBottomArrow={currentPhase > 2} isDark={isDark} />
+        <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} isDark={isDark} />
+      </div>
+
+      {/* P3 → P4 zigzag arrow */}
+      <div className="h-6 flex justify-center">
+        <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
+          <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
+            stroke={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
+            className="transition-colors duration-500" />
+          <path d="M3 14 L8 23 L13 14 Z" fill={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
+            className="transition-colors duration-500" />
+        </svg>
       </div>
 
       {/* Row 2: P6 P5 P4 */}
@@ -106,14 +117,13 @@ function Connector({ active, isDark, reverse }: { active: boolean; isDark: boole
 // ── NodeCard ──
 
 function NodeCard({
-  phase, status, modelName, iteration, durationMs, showBottomArrow, isDark,
+  phase, status, modelName, iteration, durationMs, isDark,
 }: {
   phase: { num: number; name: string; agent: string; icon: string; color: string };
   status: NodeStatus;
   modelName?: string;
   iteration: number;
   durationMs: number | null;
-  showBottomArrow?: boolean;
   isDark: boolean;
 }) {
   const Icon = ICONS[phase.icon];
@@ -163,15 +173,7 @@ function NodeCard({
         </span>
       )}
 
-      {showBottomArrow && (
-        <svg width="16" height="24" viewBox="0 0 16 24" className="absolute -bottom-5 left-1/2 -translate-x-1/2">
-          <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
-            stroke={status === "active" ? "#3574f0" : "#4ec97e"}
-            className="transition-colors duration-500" />
-          <path d="M3 14 L8 23 L13 14 Z" fill={status === "active" ? "#3574f0" : "#4ec97e"}
-            className="transition-colors duration-500" />
-        </svg>
-      )}
+
 
 
     </div>
