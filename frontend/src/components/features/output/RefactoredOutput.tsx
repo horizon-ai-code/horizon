@@ -40,7 +40,7 @@ export default function RefactoredOutput({
   
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
-    appState === 'analyzing' ? 'flow' : 'output'
+    appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
   );
   const hasFormatted = useRef(false);
 
@@ -59,10 +59,10 @@ export default function RefactoredOutput({
   }, [refactoredOutput, setRefactoredOutput]);
 
   useEffect(() => {
-    if (appState === "analyzing") {
+    if (appState === "analyzing" && !isMonolith) {
       setRightPanelMode("flow");
     }
-  }, [appState]);
+  }, [appState, isMonolith]);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
@@ -112,6 +112,7 @@ export default function RefactoredOutput({
              Refactored Output
           </button>
 
+          {!isMonolith && (
           <button 
             onClick={() => setRightPanelMode('flow')}
             role="tab"
@@ -123,6 +124,7 @@ export default function RefactoredOutput({
           >
              Flow
           </button>
+          )}
         </div>
         
         <div className="flex items-center gap-2 pr-4">
@@ -145,7 +147,7 @@ export default function RefactoredOutput({
       </div>
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
-        {rightPanelMode === 'flow' ? (
+        {rightPanelMode === 'flow' && !isMonolith ? (
           <FlowGrid
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
