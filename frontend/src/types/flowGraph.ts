@@ -12,21 +12,22 @@ export interface PhaseMeta {
   color: string;
 }
 
-export interface FlowNodeData {
+export interface GraphNode {
+  id: string;
   phase: PhaseMeta;
   status: NodeStatus;
   iteration: number;
   durationMs: number | null;
   modelName?: string;
+  x: number;
+  y: number;
 }
 
-export interface FlowEdgeData {
+export interface GraphEdge {
+  id: string;
+  source: string;
+  target: string;
   type: EdgeType;
   status: EdgeStatus;
   label?: string;
-}
-
-export interface FlowGraphState {
-  nodes: import("@xyflow/react").Node<FlowNodeData>[];
-  edges: import("@xyflow/react").Edge<FlowEdgeData>[];
 }

@@ -1,18 +1,29 @@
-import type { Node, Edge } from "@xyflow/react";
-import type { CSSProperties } from "react";
 import type { GlassboxState } from "@/types/glassbox";
-import type { FlowNodeData, FlowEdgeData, NodeStatus, EdgeStatus } from "@/types/flowGraph";
+import type { GraphNode, GraphEdge, NodeStatus, EdgeStatus } from "@/types/flowGraph";
 import { PHASES } from "./phases";
 import { ALL_EDGES, type EdgeDef } from "./edges";
+
+// 3×2 zigzag grid positions (top-left corner of each 260×260 node)
+const GAP_X = 420;
+const GAP_Y = 480;
+
+export const GRID_POSITIONS: Record<string, { x: number; y: number }> = {
+  p1: { x: 0, y: 0 },
+  p2: { x: GAP_X, y: 0 },
+  p3: { x: GAP_X * 2, y: 0 },
+  p4: { x: 0, y: GAP_Y },
+  p5: { x: GAP_X, y: GAP_Y },
+  p6: { x: GAP_X * 2, y: GAP_Y },
+};
 
 export function buildGraphState(
   glassboxState: GlassboxState,
   appState: string,
   exitStatus?: string,
-): { nodes: Node<FlowNodeData>[]; edges: Edge<FlowEdgeData>[] } {
+): { nodes: GraphNode[]; edges: GraphEdge[] } {
   const {
-    currentPhase, currentAgent, strategyIteration, syntaxHealAttempt,
-    validationFaultCount, judgeDecision, phaseDurations, totalDurationMs,
+    currentPhase, strategyIteration, syntaxHealAttempt,
+    validationFaultCount, phaseDurations,
   } = glassboxState;
 
   const isDone = appState === "done";
@@ -21,7 +32,7 @@ export function buildGraphState(
 
   // ── Build nodes ──
 
-  const nodes: Node<FlowNodeData>[] = PHASES.map((phase) => {
+  const nodes: GraphNode[] = PHASES.map((phase) => {
     let status: NodeStatus;
 
     if (isDone) {
@@ -45,28 +56,27 @@ export function buildGraphState(
     }
 
     const duration = phaseDurations.find((d) => d.phase === phase.num);
+    const pos = GRID_POSITIONS[`p${phase.num}`];
 
     return {
       id: `p${phase.num}`,
-      type: "phaseNode",
-      position: { x: 0, y: 0 },
-      data: {
-        phase,
-        status,
-        iteration: phase.num === 2
-          ? strategyIteration
-          : phase.num === 3
-            ? Math.max(syntaxHealAttempt, 1)
-            : 1,
-        durationMs: duration?.durationMs ?? null,
-        modelName: phase.agent === "Planner"
-          ? glassboxState.plannerModel
-          : phase.agent === "Generator"
-            ? glassboxState.generatorModel
-            : phase.agent === "Judge"
-              ? glassboxState.judgeModel
-              : undefined,
-      },
+      phase,
+      status,
+      iteration: phase.num === 2
+        ? strategyIteration
+        : phase.num === 3
+          ? Math.max(syntaxHealAttempt, 1)
+          : 1,
+      durationMs: duration?.durationMs ?? null,
+      modelName: phase.agent === "Planner"
+        ? glassboxState.plannerModel
+        : phase.agent === "Generator"
+          ? glassboxState.generatorModel
+          : phase.agent === "Judge"
+            ? glassboxState.judgeModel
+            : undefined,
+      x: pos!.x,
+      y: pos!.y,
     };
   });
 
@@ -87,110 +97,38 @@ export function buildGraphState(
       }
     }
 
-    // Live
     switch (def.type) {
       case "forward":
         if (sourceDone(def)) return "done";
         if (currentPhase >= targetNum(def)) return "active";
         return "dimmed";
-
       case "syntax_heal":
         return (syntaxHealAttempt > 0 && currentPhase === 3) ? "active" : "dimmed";
-
       case "structural_fix":
         return (validationFaultCount !== null && validationFaultCount > 0 && currentPhase === 3) ? "active" : "dimmed";
-
       case "strategy":
         return (strategyIteration > 1 && currentPhase === 2) ? "active" : "dimmed";
-
       case "abort":
         return "dimmed";
     }
   }
 
   function sourceDone(def: EdgeDef): boolean {
-    const srcNum = parseInt(def.source.replace("p", ""));
-    return srcNum < currentPhase;
+    return parseInt(def.source.replace("p", "")) < currentPhase;
   }
 
   function targetNum(def: EdgeDef): number {
     return parseInt(def.target.replace("p", ""));
   }
 
-  function edgeHandles(def: EdgeDef): { sourceHandle: string; targetHandle: string } {
-    // Zigzag 3x2 grid handle mapping
-    const map: Record<string, [string, string]> = {
-      // forward horizontal
-      "e1-2": ["right", "left"],
-      "e2-3": ["right", "left"],
-      // forward zigzag (P3 top → P4 bottom)
-      "e3-4": ["bottom", "top"],
-      // forward horizontal
-      "e4-5": ["right", "left"],
-      "e5-6": ["right", "left"],
-      // loops
-      "e3-3-heal": ["bottom", "top"],
-      "e3-3-fallback": ["bottom", "top"],
-      "e4-3-fix": ["top", "bottom"],
-      // strategy revision to P2 (top-left)
-      "e2-2-revise": ["left", "top"],
-      "e3-2-revise": ["top", "left"],
-      "e4-2-revise": ["left", "top"],
-      "e5-2-revise": ["left", "top"],
-      // abort to P6 (bottom-right)
-      "e3-6-abort": ["bottom", "top"],
-      "e5-6-abort": ["bottom", "top"],
-    };
-    const h = map[def.id] || ["bottom", "top"];
-    return { sourceHandle: h[0], targetHandle: h[1] };
-  }
-
-  const edges: Edge<FlowEdgeData>[] = ALL_EDGES.map((def) => {
-    const status = edgeStatus(def);
-    const handles = edgeHandles(def);
-    return {
-      id: def.id,
-      source: def.source,
-      target: def.target,
-      sourceHandle: handles.sourceHandle,
-      targetHandle: handles.targetHandle,
-      type: "smoothstep",
-      data: { type: def.type, status, label: def.label },
-      style: edgeStyle(def.type, status),
-      animated: status === "active",
-    };
-  });
+  const edges: GraphEdge[] = ALL_EDGES.map((def) => ({
+    id: def.id,
+    source: def.source,
+    target: def.target,
+    type: def.type,
+    status: edgeStatus(def),
+    label: def.label,
+  }));
 
   return { nodes, edges };
-}
-
-function edgeStyle(type: string, status: EdgeStatus): CSSProperties {
-  const dim: CSSProperties = { stroke: "#555", strokeWidth: 1.5, opacity: 0.15 };
-
-  if (status === "dimmed") {
-    switch (type) {
-      case "syntax_heal":
-      case "structural_fix":
-        return { ...dim, strokeDasharray: "6 3" };
-      case "strategy":
-        return { ...dim, strokeDasharray: "4 4" };
-      default:
-        return dim;
-    }
-  }
-
-  switch (type) {
-    case "forward":
-      return { stroke: "#4ec97e", strokeWidth: 2.5, opacity: status === "active" ? 1 : 0.5 };
-    case "syntax_heal":
-      return { stroke: "#e09c3b", strokeWidth: 2, opacity: 1, strokeDasharray: "6 3" };
-    case "structural_fix":
-      return { stroke: "#e09c3b", strokeWidth: 2, opacity: 1, strokeDasharray: "6 3" };
-    case "strategy":
-      return { stroke: "#56a8f5", strokeWidth: 2, opacity: 1, strokeDasharray: "4 4" };
-    case "abort":
-      return { stroke: "#f93e3e", strokeWidth: 2.5, opacity: 1 };
-    default:
-      return { stroke: "#4ec97e", strokeWidth: 2, opacity: 0.5 };
-  }
 }
