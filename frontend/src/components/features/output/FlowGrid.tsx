@@ -61,15 +61,21 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} isDark={isDark} />
       </div>
 
-      {/* P3 → P4 zigzag arrow */}
-      <div className="h-6 flex justify-center">
-        <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
-          <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
-            stroke={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
-            className="transition-colors duration-500" />
-          <path d="M3 14 L8 23 L13 14 Z" fill={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
-            className="transition-colors duration-500" />
-        </svg>
+      {/* P3 → P4 zigzag arrow (P3 column position) */}
+      <div className="flex items-center gap-4 w-full">
+        <div className="w-[176px]" />
+        <div className="flex-1" />
+        <div className="w-[176px]" />
+        <div className="flex-1" />
+        <div className="w-[176px] flex justify-center">
+          <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
+            <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
+              stroke={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
+              className="transition-colors duration-500" />
+            <path d="M3 14 L8 23 L13 14 Z" fill={currentPhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
+              className="transition-colors duration-500" />
+          </svg>
+        </div>
       </div>
 
       {/* Row 2: P6 P5 P4 */}
