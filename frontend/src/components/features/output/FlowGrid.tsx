@@ -73,13 +73,16 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
   );
 }
 
-// ── Connector ──
+// ── Connector with arrow ──
 
 function Connector({ active }: { active: boolean }) {
   return (
-    <div className="flex-1 min-h-[3px] h-[3px] shrink-0 w-8 relative overflow-hidden rounded-full">
-      <div className="absolute inset-0 bg-jb-border/30" />
-      <div className={`absolute h-full left-0 transition-all duration-500 ${active ? "w-full bg-jb-accent" : "w-0 bg-jb-accent"}`} />
+    <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
+      <div className={`flex-1 h-[3px] transition-colors duration-500 rounded-full ${active ? "bg-[#4ec97e]" : "bg-[#393b40]"}`} />
+      <svg width="14" height="14" viewBox="0 0 14 14" className="shrink-0 -ml-[1px]">
+        <polyline points="2,2 10,7 2,12" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          className={`transition-colors duration-500 ${active ? "stroke-[#4ec97e]" : "stroke-[#393b40]"}`} />
+      </svg>
     </div>
   );
 }
