@@ -55,13 +55,13 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} showBottomArrow={currentPhase > 2} />
       </div>
 
-      {/* Row 2: P4 P5 P6 */}
+      {/* Row 2: P6 P5 P4 */}
       <div className="flex items-center gap-4">
-        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} />
-        <Connector active={currentPhase > 4} />
-        <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} />
-        <Connector active={currentPhase > 5} />
         <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} />
+        <Connector active={currentPhase > 5} />
+        <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} />
+        <Connector active={currentPhase > 4} />
+        <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} />
       </div>
 
       {isDone && (
