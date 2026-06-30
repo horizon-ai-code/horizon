@@ -27,19 +27,19 @@ export default function FlowGraph({ appState, exitStatus, glassboxState }: Props
     [glassboxState, appState, exitStatus],
   );
 
-  // SVG viewport dimensions
-  const graphW = 3 * 420 + NODE_SIZE;
-  const graphH = 2 * 480 + NODE_SIZE;
-  const pad = 120;
-  const vb = `${-pad} ${-pad} ${graphW + pad * 2} ${graphH + pad * 2}`;
+  const maxX = 840 + NODE_SIZE;
+  const maxY = 480 + NODE_SIZE;
+  const extra = 160;
+  const svgW = maxX + extra;
+  const svgH = maxY + extra;
 
   return (
     <div className="relative w-full h-full overflow-auto">
       <style>{`.flow-edge-active { animation: flow-pulse 1s ease-in-out infinite; } @keyframes flow-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
       <svg
-        width={graphW + pad * 2}
-        height={graphH + pad * 2}
-        viewBox={vb}
+        width={svgW}
+        height={svgH}
+        viewBox={`0 0 ${svgW} ${svgH}`}
         className="absolute top-0 left-0 pointer-events-none"
       >
         {edges.map((edge) => (
