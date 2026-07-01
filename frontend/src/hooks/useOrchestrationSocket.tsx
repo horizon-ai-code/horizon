@@ -180,6 +180,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           outerLoop: strategyIter ?? undefined,
           innerLoop: retry?.current ?? undefined,
         });
+        // Compute rolling analysis so the diagram shows flagged phases during live
+        const interim = accumulateEvents(phaseEventsRef.current, undefined, strategyIterRef.current);
+        setGlassboxState((prev) => ({ ...prev, phaseAnalysis: interim }));
       }
 
       const entry = makeTerminalEntry(

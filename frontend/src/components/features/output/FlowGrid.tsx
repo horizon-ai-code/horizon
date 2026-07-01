@@ -31,13 +31,15 @@ export default function FlowGrid({ appState, exitStatus, phaseAnalysis, glassbox
 
   const isDone = appState === "done";
 
-  // When phaseAnalysis is available (done state), use it for node colors.
-  // Otherwise derive from glassboxState (live).
-  const pa = isDone ? phaseAnalysis : undefined;
+  // Use phaseAnalysis from history (prop) or live (glassbox state).
+  // During live, the current phase overrides to "active".
+  const analysis: PhaseAnalysis | undefined =
+    phaseAnalysis ?? (glassboxState.phaseAnalysis as PhaseAnalysis | undefined);
 
   function nodeStatus(num: number): NodeStatus {
-    if (pa) {
-      return pa.phaseStates[num] ?? "skipped";
+    if (analysis) {
+      if (!isDone && num === currentPhase) return "active";
+      return (analysis.phaseStates as Record<number, NodeStatus>)[num] ?? "skipped";
     }
     if (num < currentPhase) return "done_ok";
     if (num === currentPhase) return "active";
@@ -45,8 +47,8 @@ export default function FlowGrid({ appState, exitStatus, phaseAnalysis, glassbox
   }
 
   // Find highest completed phase for connector lighting
-  const highestDone = pa
-    ? Object.entries(pa.phaseStates)
+  const highestDone = analysis
+    ? Object.entries(analysis.phaseStates)
         .filter(([, s]) => s === "done_ok" || s === "done_fail" || s === "flagged")
         .map(([k]) => Number(k))
         .reduce((a, b) => Math.max(a, b), 0)

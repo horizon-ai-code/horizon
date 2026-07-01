@@ -98,4 +98,12 @@ export interface GlassboxState {
   plannerModel?: string;
   generatorModel?: string;
   judgeModel?: string;
+  /** Rolling phase analysis computed from live status events */
+  phaseAnalysis?: {
+    phaseStates: Record<number, string>;
+    failingPhase: number | null;
+    strategyIteration: number;
+    syntaxHealAttempt: number;
+    isSuccess: boolean;
+  };
 }
