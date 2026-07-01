@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap, ArrowRight, ArrowLeft } from "lucide-react";
+import { Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap } from "lucide-react";
 import type { NodeStatus } from "@/types/flowGraph";
 import type { GlassboxState } from "@/types/glassbox";
 import { PHASES } from "@/lib/flowGraph/phases";
@@ -104,12 +104,19 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
 function Connector({ active, isDark, reverse }: { active: boolean; isDark: boolean; reverse?: boolean }) {
   const c = active ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1");
-  const Arrow = reverse ? ArrowLeft : ArrowRight;
   return (
     <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
-      {reverse && <Arrow size={16} className="shrink-0" strokeWidth={3} style={{ color: c }} />}
-      <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
-      {!reverse && <Arrow size={16} className="shrink-0 -ml-[2px]" strokeWidth={3} style={{ color: c }} />}
+      {reverse ? (
+        <>
+          <span className="shrink-0 text-base leading-none" style={{ color: c }}>◀</span>
+          <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
+        </>
+      ) : (
+        <>
+          <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
+          <span className="shrink-0 text-base leading-none -ml-[1px]" style={{ color: c }}>▶</span>
+        </>
+      )}
     </div>
   );
 }
