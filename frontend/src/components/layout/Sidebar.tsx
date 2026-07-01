@@ -38,6 +38,7 @@ export default function Sidebar() {
   const sessions = useChatStore((state) => state.sessions);
   const renameSession = useChatStore((state) => state.renameSession);
   const deleteSession = useChatStore((state) => state.deleteSession);
+  const clearAllHistory = useChatStore((state) => state.clearAllHistory);
   const fetchHistory = useChatStore((state) => state.fetchHistory);
   const historyLoadError = useChatStore((state) => state.historyLoadError);
 
@@ -45,6 +46,7 @@ export default function Sidebar() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogSessionId, setDialogSessionId] = useState<string | null>(null);
   const [dialogAction, setDialogAction] = useState<"delete" | "leave" | "switch">("delete");
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [switchTargetId, setSwitchTargetId] = useState<string | null>(null);
 
   const recentSessions = useMemo(() => Object.values(sessions)
@@ -224,8 +226,17 @@ export default function Sidebar() {
               transition={SPRING_CONFIG}
               className="flex flex-col gap-1 mt-2"
             >
-               <div className={`px-2 py-1 text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-jb-text/50' : 'text-[#818594]'}`}>
-                  Recent
+               <div className="flex items-center justify-between px-2 py-1">
+                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-jb-text/50' : 'text-[#818594]'}`}>
+                    Recent
+                  </span>
+                  <button
+                    onClick={() => setShowClearConfirm(true)}
+                    className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition-colors
+                      ${isDark ? 'text-red-400/60 hover:text-red-400 hover:bg-red-500/10' : 'text-red-500/60 hover:text-red-500 hover:bg-red-50'}`}
+                  >
+                    Clear All
+                  </button>
                 </div>
 
                 {historyLoadError && (
@@ -404,6 +415,30 @@ export default function Sidebar() {
             <AlertDialogCancel onClick={closeDialog}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDialogConfirm}>
               {dialogAction === "delete" ? "Delete" : dialogAction === "leave" ? "Leave" : "Switch"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear All Confirmation Dialog */}
+      <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear all sessions?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all session history and their outputs. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowClearConfirm(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              await clearAllHistory();
+              setShowClearConfirm(false);
+              if (activeId && sessions[activeId]) {
+                router.push("/");
+              }
+            }}>
+              Clear All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

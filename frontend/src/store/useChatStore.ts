@@ -109,6 +109,7 @@ interface ChatStore {
   createSessionWithInitialPrompt: (prompt: string, initialData?: Partial<SessionData>) => string;
   renameSession: (id: string, title: string) => void;
   deleteSession: (id: string) => Promise<void>;
+  clearAllHistory: () => Promise<void>;
   migrateSessionId: (oldId: string, newId: string) => void;
   fetchHistory: () => Promise<void>;
   fetchSessionDetails: (id: string) => Promise<boolean>;
@@ -277,6 +278,22 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       delete remaining[id];
       return { ...state, sessions: remaining };
     });
+  },
+
+  clearAllHistory: async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/history`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        console.error(`[ChatStore] Backend returned ${res.status} on clear all`);
+        return;
+      }
+    } catch(e) {
+      console.error("[ChatStore] Error clearing history:", e);
+      return;
+    }
+    set((state) => ({ ...state, sessions: {} }));
   },
 
   migrateSessionId: (oldId, newId) =>

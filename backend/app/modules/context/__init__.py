@@ -225,3 +225,9 @@ class DatabaseManager:
             query = RefactorHistory.delete().where(RefactorHistory.id == id)
             rows_deleted = query.execute()
             return rows_deleted > 0
+
+    @DB_RETRY
+    def clear_all_history(self) -> int:
+        """Deletes ALL history records and their associated logs."""
+        with db.atomic():
+            return RefactorHistory.delete().execute()

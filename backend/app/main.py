@@ -311,6 +311,15 @@ async def get_history_detail(
 
 
 @app.delete(
+    "/api/history",
+    dependencies=[Depends(get_db)],
+)
+async def clear_all_history():
+    count = await connection.clear_all_history()
+    return {"status": "history_cleared", "deleted": count}
+
+
+@app.delete(
     "/api/history/{history_id}",
     response_model=DeleteResponse,
     dependencies=[Depends(get_db)],

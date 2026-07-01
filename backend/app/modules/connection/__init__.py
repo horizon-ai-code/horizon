@@ -153,6 +153,9 @@ class ConnectionManager:
     async def delete_history_by_id(self, id: str) -> bool:
         return self.db.delete_history_by_id(id)
 
+    async def clear_all_history(self) -> int:
+        return self.db.clear_all_history()
+
     async def rename_history(self, history_id: str, new_title: str) -> bool:
         return self.db.rename_session(history_id, new_title)
 
