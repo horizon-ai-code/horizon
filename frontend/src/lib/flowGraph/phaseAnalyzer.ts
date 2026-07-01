@@ -3,27 +3,30 @@ import type { PhaseEvent, PhaseAnalysis, NodeStatus } from "@/types/flowGraph";
 export function accumulateEvents(
   events: PhaseEvent[],
   exitStatus: string | undefined,
+  totalStrategyIters?: number,
 ): PhaseAnalysis {
   const isSuccess = exitStatus === "SUCCESS";
   const errorFlags: Record<number, boolean> = {};
   let highestPhase = 0;
   let strategy = 1;
-  let syntax = 0;
 
   for (const e of events) {
     const p = e.phase;
-    if (p > highestPhase) highestPhase = p;
-    if (e.outerLoop && e.outerLoop + 1 > strategy) strategy = e.outerLoop + 1;
-    if (e.innerLoop && e.innerLoop > syntax) syntax = e.innerLoop;
+    // Phase 6 (Finalization) always runs on abort — don't include in highestPhase
+    if (p > highestPhase && p !== 6) highestPhase = p;
+    // outerLoop in DB is 0-based strategy iteration counter
+    if (e.outerLoop !== undefined && e.outerLoop + 1 > strategy) strategy = e.outerLoop + 1;
+    if (e.innerLoop && e.innerLoop > 0) { /* track syntax — for future use */ }
 
-    // Detect errors per phase from status/content text
     const st = e.status || "";
     const ct = e.content || "";
 
+    // Phase 2 — synthesize retry
     if (p === 2 && (st.includes("Retrying") || ct.includes("retrying"))) {
       errorFlags[2] = true;
     }
 
+    // Phase 3 — syntax / no-code fail
     if (p === 3) {
       if (
         st.includes("No") || st.includes("fail") || st.includes("Retrying") ||
@@ -33,6 +36,7 @@ export function accumulateEvents(
       }
     }
 
+    // Phase 4 — validation failures
     if (p === 4) {
       if (
         st.includes("Fail") || st.includes("failed") ||
@@ -43,6 +47,7 @@ export function accumulateEvents(
       }
     }
 
+    // Phase 5 — judge REVISE
     if (p === 5) {
       if (
         st.includes("REVISE") || st.includes("retrying") ||
@@ -51,6 +56,11 @@ export function accumulateEvents(
         errorFlags[5] = true;
       }
     }
+  }
+
+  // Use totalStrategyIters as fallback when outer_loop is 0 in logs
+  if (totalStrategyIters && totalStrategyIters > strategy) {
+    strategy = totalStrategyIters;
   }
 
   // Determine which phase caused the final abort
@@ -90,7 +100,7 @@ export function accumulateEvents(
     phaseStates,
     failingPhase,
     strategyIteration: strategy,
-    syntaxHealAttempt: syntax,
+    syntaxHealAttempt: 0,
     isSuccess,
   };
 }

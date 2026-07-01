@@ -40,6 +40,7 @@ class HistoryDetail(BaseModel):
     insights: str | None = None
     status: str | None = None
     exit_status: str | None = None
+    total_outer_loops: int | None = None
     original_complexity: int | None = None
     refactored_complexity: int | None = None
     planner_model: str | None = None

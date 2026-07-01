@@ -69,6 +69,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const routerRef = useRef(router);
   routerRef.current = router;
   const phaseEventsRef = useRef<PhaseEvent[]>([]);
+  const strategyIterRef = useRef(1);
 
   const updateSession = useChatStore((s) => s.updateSession);
   const migrateSessionId = useChatStore((s) => s.migrateSessionId);
@@ -113,6 +114,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       const parsedPhase = parsePhaseNumber(msg.content);
       const phase = parsedPhase !== null ? parsedPhase : (msg.phase !== undefined ? msg.phase : (msg.role === "System" ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
+      if (strategyIter !== null) strategyIterRef.current = strategyIter;
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
       const decision = parseJudgeDecision(msg.content);
@@ -228,7 +230,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         isSuccess ? "text-[#27c93f]" : "text-[#f93e3e]"
       );
 
-      const phaseAnalysis = accumulateEvents(phaseEventsRef.current, msg.exit_status);
+      const phaseAnalysis = accumulateEvents(phaseEventsRef.current, msg.exit_status, strategyIterRef.current);
 
       const orchestrationResult: OrchestrationResult = {
         ...EMPTY_ORCHESTRATION_RESULT,

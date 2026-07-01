@@ -34,11 +34,15 @@ interface SessionDetailResponse {
   refactored_code?: string;
   status?: string;
   exit_status?: string;
+  total_outer_loops?: number;
   logs?: Array<{
     id?: string;
     role?: string;
     status?: string;
     content?: string | null;
+    phase?: number;
+    outer_loop?: number;
+    inner_loop?: number;
     created_at?: string;
   }>;
   insights?: string;
@@ -420,7 +424,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           outerLoop: (log.outer_loop as number) ?? 0,
           innerLoop: (log.inner_loop as number) ?? 0,
         }));
-        const phaseAnalysis = accumulateEvents(phaseEvents, detail.exit_status);
+        const phaseAnalysis = accumulateEvents(phaseEvents, detail.exit_status, detail.total_outer_loops ?? undefined);
         oResult.phaseAnalysis = phaseAnalysis;
         oResult.exit_status = detail.exit_status as ExitStatus | undefined;
 
