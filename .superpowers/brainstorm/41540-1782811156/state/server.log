@@ -1,0 +1,2 @@
+{"type":"server-started","port":58847,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:58847","screen_dir":"/home/pugario/Projects/horizon/.superpowers/brainstorm/41540-1782811156/content","state_dir":"/home/pugario/Projects/horizon/.superpowers/brainstorm/41540-1782811156/state"}
+{"type":"server-stopped","reason":"idle timeout"}

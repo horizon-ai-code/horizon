@@ -11,7 +11,6 @@ import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import FlowGrid from "@/components/features/output/FlowGrid";
-import type { PhaseAnalysis } from "@/types/flowGraph";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -152,7 +151,7 @@ export default function RefactoredOutput({
           <FlowGrid
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
-            phaseAnalysis={orchestrationResult.phaseAnalysis}
+            phaseStates={orchestrationResult.phaseStates}
             glassboxState={glassboxState ?? {
               currentPhase: 1,
               currentAgent: "System",

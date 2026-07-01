@@ -22,7 +22,7 @@ class Phase6Finalization:
         self._prompts = prompts
         self._notify = notify
 
-    async def run(self, client, state, metrics: dict[str, Any]) -> None:
+    async def run(self, client, state, metrics: dict[str, Any], phase_data: dict | None = None) -> None:
         state.working_code = strip_outer_wrapper(state.working_code, state.base_code)
 
         await self._notify(
@@ -94,6 +94,7 @@ class Phase6Finalization:
             planner_model=self._config.planner.name,
             generator_model=self._config.generator.name,
             judge_model=self._config.judge.name,
+            phase_states=json.dumps(phase_data) if phase_data else None,
         )
 
     async def _generate_insights(self, user_code: str, refactored_code: str,

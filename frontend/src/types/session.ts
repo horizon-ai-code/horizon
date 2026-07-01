@@ -1,7 +1,6 @@
 
 import type { InsightMetric } from "./insights";
 import type { PerformanceMetrics, ExitStatus } from "./websocket";
-import type { PhaseAnalysis } from "./flowGraph";
 
 export type AppState = "idle" | "analyzing" | "waiting" | "done";
 
@@ -22,7 +21,7 @@ export interface OrchestrationResult {
     removed: number[];
   };
   exit_status?: ExitStatus;
-  phaseAnalysis?: PhaseAnalysis;
+  phaseStates?: Record<string, string>;
   original_complexity?: number | null;
   refactored_complexity?: number | null;
   insights?: string;

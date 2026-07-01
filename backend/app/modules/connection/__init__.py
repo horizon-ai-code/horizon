@@ -94,6 +94,16 @@ class ClientConnection:
             msg["judge_model"] = judge_model
         await self._safe_send(msg)
 
+    async def send_phase_states(self, states: dict, failing_phase: int | None,
+                                 strategy_iteration: int, syntax_heal_attempt: int) -> None:
+        await self._safe_send({
+            "type": "phase_states",
+            "states": {k: v for k, v in states.items()},
+            "failingPhase": failing_phase,
+            "strategyIteration": strategy_iteration,
+            "syntaxHealAttempt": syntax_heal_attempt,
+        })
+
     async def send_halt_notification(self) -> None:
         await self._safe_send({
             "type": "status",

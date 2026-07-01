@@ -43,6 +43,7 @@ class RefactorHistory(peewee.Model):
     peak_gpu_utilization = peewee.FloatField(null=True)
     peak_gpu_memory_used = peewee.FloatField(null=True)
     inference_time = peewee.FloatField(null=True)
+    phase_states = peewee.TextField(null=True)  # Stores JSON: { states, failingPhase, strategyIteration, syntaxHealAttempt }
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
@@ -137,6 +138,7 @@ class DatabaseManager:
         generator_model: str | None = None,
         judge_model: str | None = None,
         mode: str = "multi",
+        phase_states: str | None = None,
     ) -> None:
         """Updates an existing session record with final results."""
         with db.atomic():
@@ -161,6 +163,7 @@ class DatabaseManager:
                 peak_gpu_memory_used=performance_metrics.get("peak_gpu_memory_used"),
                 inference_time=performance_metrics.get("inference_time"),
                 mode=mode,
+                phase_states=phase_states,
             ).where(RefactorHistory.id == id)
             query.execute()
 

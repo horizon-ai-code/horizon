@@ -3,8 +3,6 @@ import { API_URL } from '@/lib/env';
 
 // ── Import types from dedicated modules ───────────────────────────────────────
 import type { AppState, SessionData, TerminalEntry, OrchestrationResult } from '@/types/session';
-import type { PhaseEvent } from '@/types/flowGraph';
-import { accumulateEvents } from '@/lib/flowGraph/phaseAnalyzer';
 import type { InsightMetric } from '@/types/insights';
 import type {
   ConnectionIdMessage,
@@ -45,6 +43,7 @@ interface SessionDetailResponse {
     inner_loop?: number;
     created_at?: string;
   }>;
+  phase_states?: string;
   insights?: string;
   original_complexity?: number;
   refactored_complexity?: number;
@@ -415,17 +414,13 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         const isHalted = detail.status === "Halted" || detail.exit_status === "ABORTED";
         const isProcessing = detail.status === "Processing" && !detail.refactored_code && !isHalted;
 
-        // Build phase analysis from logs for correct node coloring
-        const phaseEvents: PhaseEvent[] = (detail.logs || []).map((log: Record<string, unknown>) => ({
-          phase: (log.phase as number) ?? 0,
-          role: log.role as string,
-          status: (log.status as string) || "",
-          content: log.content as string | null,
-          outerLoop: (log.outer_loop as number) ?? 0,
-          innerLoop: (log.inner_loop as number) ?? 0,
-        }));
-        const phaseAnalysis = accumulateEvents(phaseEvents, detail.exit_status, detail.total_outer_loops ?? undefined);
-        oResult.phaseAnalysis = phaseAnalysis;
+        // Parse phase_states from backend for correct node coloring
+        if (detail.phase_states) {
+          try {
+            const ps = JSON.parse(detail.phase_states);
+            oResult.phaseStates = ps.states;
+          } catch { /* ignore parse error */ }
+        }
         oResult.exit_status = detail.exit_status as ExitStatus | undefined;
 
         if (detail.refactored_code) {

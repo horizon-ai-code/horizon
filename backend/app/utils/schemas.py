@@ -52,6 +52,7 @@ class HistoryDetail(BaseModel):
     peak_gpu_utilization: float | None = None
     peak_gpu_memory_used: float | None = None
     inference_time: float | None = None
+    phase_states: str | None = None
     created_at: datetime
     logs: list[LogEntry]
 

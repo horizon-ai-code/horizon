@@ -61,6 +61,9 @@ class OrchestrationState(BaseModel):
     current_phase: int = 1
     exit_status: ExitStatus = ExitStatus.PROCESSING
 
+    # Phase Diagram Tracking
+    flagged_phases: set[int] = set()
+
     # Baseline Metrics
     original_complexity: int = 0
 
@@ -175,6 +178,8 @@ class Orchestrator:
             # ============================================================
 
             while state.exit_status == ExitStatus.PROCESSING:
+                flag_prev = state.current_phase
+
                 if state.current_phase == 2:
                     await self._run_phase_2(client, state)
                 elif state.current_phase == 3:
@@ -189,6 +194,10 @@ class Orchestrator:
                         await self._run_sequential_phase_3(client, state)
                         if state.mutation_index >= len(state.mutation_queue):
                             state.current_phase = 4
+                            # Send phase states before continuing
+                            await client.send_phase_states(
+                                **self._compute_phase_states(state)
+                            )
                             continue
                         # Sequential exhausted mid-way — fall through to single-shot
                         state.working_code = state.base_code
@@ -205,10 +214,26 @@ class Orchestrator:
                 elif state.current_phase == 6:
                     break
 
+                # Track flagged phases from post-conditions
+                if state.strategy_iter_incremented:
+                    state.flagged_phases.add(flag_prev)
+                if state.syntax_iter > 0:
+                    state.flagged_phases.add(3)
+                if state.structural_fix_attempts > 0:
+                    state.flagged_phases.add(4)
+
+                # Compute and send phase states
+                await client.send_phase_states(
+                    **self._compute_phase_states(state)
+                )
+
                 # Global circuit breaker
                 if state.strategy_iter > 3:
                     state.exit_status = ExitStatus.ABORT_STRATEGY
                     state.current_phase = 6
+                    await client.send_phase_states(
+                        **self._compute_phase_states(state)
+                    )
                     break
 
             # --- PHASE 6: Finalization ---
@@ -249,7 +274,56 @@ class Orchestrator:
         await self._phase5.run(client, state)
 
     # ============================================================
-    # SECTION 8: Phase 6 — Finalization
+    # SECTION 8: Phase States
+    # ============================================================
+
+    def _compute_phase_states(self, state: OrchestrationState) -> dict:
+        """Compute per-phase status for the flow diagram."""
+        from app.utils.types import ExitStatus
+
+        states: dict[int, str] = {}
+        failed: int | None = None
+
+        if state.exit_status not in (ExitStatus.PROCESSING, ExitStatus.SUCCESS):
+            # Determine failing phase by priority
+            if 5 in state.flagged_phases:
+                failed = 5
+            elif 4 in state.flagged_phases:
+                failed = 4
+            elif 3 in state.flagged_phases:
+                failed = 3
+            else:
+                failed = 2  # strategy exhausted
+
+        for p in range(1, 7):
+            if state.exit_status == ExitStatus.PROCESSING:
+                if p < state.current_phase:
+                    states[p] = "flagged" if p in state.flagged_phases else "done_ok"
+                elif p == state.current_phase:
+                    states[p] = "active"
+                else:
+                    states[p] = "waiting"
+            else:
+                if p == 6:
+                    states[p] = "done_ok" if state.exit_status == ExitStatus.SUCCESS else "done_fail"
+                elif p == failed:
+                    states[p] = "done_fail"
+                elif p in state.flagged_phases:
+                    states[p] = "flagged"
+                elif p < state.current_phase or (p == state.current_phase and state.exit_status == ExitStatus.SUCCESS):
+                    states[p] = "done_ok"
+                else:
+                    states[p] = "skipped"
+
+        return {
+            "states": {str(k): v for k, v in states.items()},
+            "failing_phase": failed,
+            "strategy_iteration": state.strategy_iter,
+            "syntax_heal_attempt": state.syntax_iter,
+        }
+
+    # ============================================================
+    # SECTION 9: Phase 6 — Finalization
     # ============================================================
 
     async def _run_phase_6(
@@ -258,7 +332,10 @@ class Orchestrator:
         state: OrchestrationState,
         metrics: dict[str, Any],
     ) -> None:
-        await self._phase6.run(client, state, metrics)
+        phase_data = self._compute_phase_states(state)
+        # Send final phase states before finalization
+        await client.send_phase_states(**phase_data)
+        await self._phase6.run(client, state, metrics, phase_data)
 
     # ============================================================
     # SECTION 9: Helpers

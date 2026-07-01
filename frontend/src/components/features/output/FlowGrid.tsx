@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap } from "lucide-react";
-import type { NodeStatus, PhaseAnalysis } from "@/types/flowGraph";
+import type { NodeStatus } from "@/types/flowGraph";
 import type { GlassboxState } from "@/types/glassbox";
 import { PHASES } from "@/lib/flowGraph/phases";
 
@@ -14,11 +14,12 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; className?: str
 interface Props {
   appState: string;
   exitStatus?: string;
-  phaseAnalysis?: PhaseAnalysis;
   glassboxState: GlassboxState;
+  /** Phase states from backend (live via WS, history via API) */
+  phaseStates?: Record<string, string>;
 }
 
-export default function FlowGrid({ appState, exitStatus, phaseAnalysis, glassboxState }: Props) {
+export default function FlowGrid({ appState, exitStatus, glassboxState, phaseStates: propStates }: Props) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
@@ -31,24 +32,22 @@ export default function FlowGrid({ appState, exitStatus, phaseAnalysis, glassbox
 
   const isDone = appState === "done";
 
-  // Use phaseAnalysis from history (prop) or live (glassbox state).
-  // During live, the current phase overrides to "active".
-  const analysis: PhaseAnalysis | undefined =
-    phaseAnalysis ?? (glassboxState.phaseAnalysis as PhaseAnalysis | undefined);
+  // Merge states from prop (history) or glassbox (live)
+  const states = propStates ?? glassboxState.phaseStates;
 
   function nodeStatus(num: number): NodeStatus {
-    if (analysis) {
+    if (states) {
       if (!isDone && num === currentPhase) return "active";
-      return (analysis.phaseStates as Record<number, NodeStatus>)[num] ?? "skipped";
+      return (states[String(num)] as NodeStatus) ?? "skipped";
     }
     if (num < currentPhase) return "done_ok";
     if (num === currentPhase) return "active";
     return "waiting";
   }
 
-  // Find highest completed phase for connector lighting
-  const highestDone = analysis
-    ? Object.entries(analysis.phaseStates)
+  // Highest completed phase for connector lighting
+  const highestDone = states
+    ? Object.entries(states)
         .filter(([, s]) => s === "done_ok" || s === "done_fail" || s === "flagged")
         .map(([k]) => Number(k))
         .reduce((a, b) => Math.max(a, b), 0)

@@ -9,8 +9,6 @@ import type {
   AuditResultMessage, GeneratorProgressMessage, PhaseTimingSummaryMessage,
 } from "@/types/websocket";
 import type { TerminalEntry, SessionData, OrchestrationResult, AppState } from "@/types/session";
-import type { PhaseEvent } from "@/types/flowGraph";
-import { accumulateEvents } from "@/lib/flowGraph/phaseAnalyzer";
 import { useChatStore } from "@/store/useChatStore";
 import { EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from "@/lib/constants";
 import { DEFAULT_GLASSBOX_STATE } from "@/lib/orchestrationDefaults";
@@ -68,8 +66,6 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const messageBufferRef = useRef<ServerMessage[]>([]);
   const routerRef = useRef(router);
   routerRef.current = router;
-  const phaseEventsRef = useRef<PhaseEvent[]>([]);
-  const strategyIterRef = useRef(1);
 
   const updateSession = useChatStore((s) => s.updateSession);
   const migrateSessionId = useChatStore((s) => s.migrateSessionId);
@@ -114,7 +110,6 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       const parsedPhase = parsePhaseNumber(msg.content);
       const phase = parsedPhase !== null ? parsedPhase : (msg.phase !== undefined ? msg.phase : (msg.role === "System" ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
-      if (strategyIter !== null) strategyIterRef.current = strategyIter;
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
       const decision = parseJudgeDecision(msg.content);
@@ -170,21 +165,6 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         return { ...prev, currentDetail: detail, phaseSummaries };
       });
 
-      // Track event for phase analysis
-      if (phase !== undefined && phase !== null && phase > 0) {
-        phaseEventsRef.current.push({
-          phase,
-          role: msg.role,
-          status: msg.content,
-          content: msg.content,
-          outerLoop: strategyIter ?? undefined,
-          innerLoop: retry?.current ?? undefined,
-        });
-        // Compute rolling analysis so the diagram shows flagged phases during live
-        const interim = accumulateEvents(phaseEventsRef.current, undefined, strategyIterRef.current);
-        setGlassboxState((prev) => ({ ...prev, phaseAnalysis: interim }));
-      }
-
       const entry = makeTerminalEntry(
         "log",
         msg.content,
@@ -233,12 +213,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         isSuccess ? "text-[#27c93f]" : "text-[#f93e3e]"
       );
 
-      const phaseAnalysis = accumulateEvents(phaseEventsRef.current, msg.exit_status, strategyIterRef.current);
-
       const orchestrationResult: OrchestrationResult = {
         ...EMPTY_ORCHESTRATION_RESULT,
         exit_status: msg.exit_status as OrchestrationResult["exit_status"],
-        phaseAnalysis,
         original_complexity: msg.original_complexity,
         refactored_complexity: msg.refactored_complexity,
         performance: msg.performance,
@@ -282,6 +259,21 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       }));
     },
     [updateSession]
+  );
+
+  // ── Handle phase_states message ──────────────────────────────────────────
+
+  const handlePhaseStates = useCallback(
+    (msg: { states: Record<string, string>; failingPhase?: number | null; strategyIteration?: number; syntaxHealAttempt?: number }) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        phaseStates: msg.states,
+        failingPhase: msg.failingPhase ?? null,
+        strategyIteration: msg.strategyIteration ?? prev.strategyIteration,
+        syntaxHealAttempt: msg.syntaxHealAttempt ?? prev.syntaxHealAttempt,
+      }));
+    },
+    []
   );
 
   // ── Handle halt_acknowledged message ─────────────────────────────────────
@@ -509,6 +501,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleStatusRef = useRef(handleStatus);
   const handleResultRef = useRef(handleResult);
   const handleInsightsRef = useRef(handleInsights);
+  const handlePhaseStatesRef = useRef(handlePhaseStates);
   const handleHaltAckRef = useRef(handleHaltAck);
   const handleErrorRef = useRef(handleError);
   const handlePhaseStartedRef = useRef(handlePhaseStarted);
@@ -526,6 +519,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handleStatusRef.current = handleStatus;
     handleResultRef.current = handleResult;
     handleInsightsRef.current = handleInsights;
+    handlePhaseStatesRef.current = handlePhaseStates;
     handleHaltAckRef.current = handleHaltAck;
     handleErrorRef.current = handleError;
     handlePhaseStartedRef.current = handlePhaseStarted;
@@ -539,7 +533,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handleGeneratorProgressRef.current = handleGeneratorProgress;
     handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary;
   }, [
-    handleStatus, handleResult, handleInsights, handleHaltAck, handleError,
+    handleStatus, handleResult, handleInsights, handlePhaseStates, handleHaltAck, handleError,
     handlePhaseStarted, handlePhaseCompleted, handleMutationPlan, handleMutationStatus,
     handleValidationResult, handleIntentClassified, handleArchitectureAnalysis,
     handleAuditResult, handleGeneratorProgress, handlePhaseTimingSummary,
@@ -554,6 +548,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         case "result": handleResultRef.current(bmsg, targetId); break;
         case "insights": handleInsightsRef.current(bmsg, targetId); break;
         case "halt_acknowledged": handleHaltAckRef.current(targetId); break;
+        case "phase_states": handlePhaseStatesRef.current(bmsg); break;
         case "error": handleErrorRef.current(bmsg, targetId); break;
         case "phase_started": handlePhaseStartedRef.current(bmsg); break;
         case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
@@ -693,6 +688,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             break;
           case "error":
             handleErrorRef.current(msg, targetId);
+            break;
+          case "phase_states":
+            handlePhaseStatesRef.current(msg);
             break;
           case "phase_started":
             handlePhaseStartedRef.current(msg);
