@@ -72,13 +72,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
         <div className="w-[176px]" />
         <div className="flex-1 shrink-0" />
         <div className="w-[176px] flex justify-center">
-          <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
-            <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
-            stroke={effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
-            className="transition-colors duration-500" />
-          <path d="M3 14 L8 23 L13 14 Z" fill={effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
-              className="transition-colors duration-500" />
-          </svg>
+          <span className="text-lg leading-none" style={{ color: effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1") }}>▼</span>
         </div>
       </div>
 
@@ -105,19 +99,9 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 function Connector({ active, isDark, reverse }: { active: boolean; isDark: boolean; reverse?: boolean }) {
   const c = active ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1");
   return (
-    <div className="flex-1 shrink-0 min-w-[24px] h-6 flex items-center overflow-visible">
-      {reverse ? (
-        <>
-          <span className="shrink-0 text-base leading-none" style={{ color: c }}>◀</span>
-          <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
-        </>
-      ) : (
-        <>
-          <div className="flex-1 h-[3px] transition-colors duration-500" style={{ backgroundColor: c }} />
-          <span className="shrink-0 text-base leading-none -ml-[1px]" style={{ color: c }}>▶</span>
-        </>
-      )}
-    </div>
+    <span className="text-lg leading-none shrink-0" style={{ color: c }}>
+      {reverse ? "◀" : "▶"}
+    </span>
   );
 }
 
