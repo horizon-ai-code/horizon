@@ -9,6 +9,8 @@ import type {
   AuditResultMessage, GeneratorProgressMessage, PhaseTimingSummaryMessage,
 } from "@/types/websocket";
 import type { TerminalEntry, SessionData, OrchestrationResult, AppState } from "@/types/session";
+import type { PhaseEvent } from "@/types/flowGraph";
+import { accumulateEvents } from "@/lib/flowGraph/phaseAnalyzer";
 import { useChatStore } from "@/store/useChatStore";
 import { EMPTY_ORCHESTRATION_RESULT, ROLE_VISUALS, DEFAULT_ROLE_VISUALS } from "@/lib/constants";
 import { DEFAULT_GLASSBOX_STATE } from "@/lib/orchestrationDefaults";
@@ -66,6 +68,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const messageBufferRef = useRef<ServerMessage[]>([]);
   const routerRef = useRef(router);
   routerRef.current = router;
+  const phaseEventsRef = useRef<PhaseEvent[]>([]);
 
   const updateSession = useChatStore((s) => s.updateSession);
   const migrateSessionId = useChatStore((s) => s.migrateSessionId);
@@ -165,6 +168,18 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         return { ...prev, currentDetail: detail, phaseSummaries };
       });
 
+      // Track event for phase analysis
+      if (phase !== undefined && phase !== null && phase > 0) {
+        phaseEventsRef.current.push({
+          phase,
+          role: msg.role,
+          status: msg.content,
+          content: msg.content,
+          outerLoop: strategyIter ?? undefined,
+          innerLoop: retry?.current ?? undefined,
+        });
+      }
+
       const entry = makeTerminalEntry(
         "log",
         msg.content,
@@ -213,9 +228,12 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         isSuccess ? "text-[#27c93f]" : "text-[#f93e3e]"
       );
 
+      const phaseAnalysis = accumulateEvents(phaseEventsRef.current, msg.exit_status);
+
       const orchestrationResult: OrchestrationResult = {
         ...EMPTY_ORCHESTRATION_RESULT,
         exit_status: msg.exit_status as OrchestrationResult["exit_status"],
+        phaseAnalysis,
         original_complexity: msg.original_complexity,
         refactored_complexity: msg.refactored_complexity,
         performance: msg.performance,

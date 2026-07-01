@@ -18,6 +18,9 @@ class LogEntry(BaseModel):
     role: Role
     status: str
     content: str | None = None
+    phase: int | None = None
+    outer_loop: int | None = None
+    inner_loop: int | None = None
     created_at: datetime
 
 

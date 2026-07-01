@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap } from "lucide-react";
-import type { NodeStatus } from "@/types/flowGraph";
+import type { NodeStatus, PhaseAnalysis } from "@/types/flowGraph";
 import type { GlassboxState } from "@/types/glassbox";
 import { PHASES } from "@/lib/flowGraph/phases";
 
@@ -14,10 +14,11 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; className?: str
 interface Props {
   appState: string;
   exitStatus?: string;
+  phaseAnalysis?: PhaseAnalysis;
   glassboxState: GlassboxState;
 }
 
-export default function FlowGrid({ appState, exitStatus, glassboxState }: Props) {
+export default function FlowGrid({ appState, exitStatus, phaseAnalysis, glassboxState }: Props) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
@@ -29,24 +30,27 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
   } = glassboxState;
 
   const isDone = appState === "done";
-  const isSuccess = exitStatus === "SUCCESS";
-  const isAbort = isDone && !isSuccess && !!exitStatus && exitStatus !== "PROCESSING";
 
-  // History sessions don't populate glassboxState.currentPhase.
-  // Override to 6 so all phases show as completed.
-  const effectivePhase = isDone && currentPhase === 0 ? 6 : currentPhase;
+  // When phaseAnalysis is available (done state), use it for node colors.
+  // Otherwise derive from glassboxState (live).
+  const pa = isDone ? phaseAnalysis : undefined;
 
   function nodeStatus(num: number): NodeStatus {
-    if (isDone) {
-      if (num === 6) return isAbort ? "done_fail" : "done_ok";
-      if (num < effectivePhase || (num === effectivePhase && isSuccess)) return "done_ok";
-      if (num === effectivePhase) return "done_fail";
-      return "skipped";
+    if (pa) {
+      return pa.phaseStates[num] ?? "skipped";
     }
-    if (num < effectivePhase) return "done_ok";
-    if (num === effectivePhase) return "active";
+    if (num < currentPhase) return "done_ok";
+    if (num === currentPhase) return "active";
     return "waiting";
   }
+
+  // Find highest completed phase for connector lighting
+  const highestDone = pa
+    ? Object.entries(pa.phaseStates)
+        .filter(([, s]) => s === "done_ok" || s === "done_fail" || s === "flagged")
+        .map(([k]) => Number(k))
+        .reduce((a, b) => Math.max(a, b), 0)
+    : currentPhase;
 
   return (
     <div className="flex flex-col items-center justify-center gap-5 h-full w-full p-6">
@@ -57,31 +61,31 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
       )}
 
       {/* Row 1: P1 P2 P3 */}
-      <div className="flex items-center gap-4 w-full">
+      <div className="flex items-center gap-4">
         <NodeCard phase={PHASES[0]} status={nodeStatus(1)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 1)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={effectivePhase > 1} isDark={isDark} />
+        <Connector active={highestDone > 1} isDark={isDark} />
         <NodeCard phase={PHASES[1]} status={nodeStatus(2)} modelName={plannerModel} iteration={strategyIteration} durationMs={phaseDurations.find(d => d.phase === 2)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={effectivePhase > 2} isDark={isDark} />
+        <Connector active={highestDone > 2} isDark={isDark} />
         <NodeCard phase={PHASES[2]} status={nodeStatus(3)} modelName={generatorModel} iteration={Math.max(syntaxHealAttempt, 1)} durationMs={phaseDurations.find(d => d.phase === 3)?.durationMs ?? null} isDark={isDark} />
       </div>
 
       {/* P3 → P4 zigzag arrow (P3 column position) */}
-      <div className="flex items-center gap-4 w-full">
+      <div className="flex items-center gap-4">
         <div className="w-[176px]" />
-        <div className="flex-1 shrink-0" />
+        <div style={{ width: "24px" }} />
         <div className="w-[176px]" />
-        <div className="flex-1 shrink-0" />
+        <div style={{ width: "24px" }} />
         <div className="w-[176px] flex justify-center">
-          <span className="text-lg leading-none" style={{ color: effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1") }}>▼</span>
+          <span className="text-lg leading-none" style={{ color: highestDone > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1") }}>▼</span>
         </div>
       </div>
 
       {/* Row 2: P6 P5 P4 */}
-      <div className="flex items-center gap-4 w-full">
+      <div className="flex items-center gap-4">
         <NodeCard phase={PHASES[5]} status={nodeStatus(6)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 6)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={effectivePhase > 5} isDark={isDark} reverse />
+        <Connector active={highestDone > 5} isDark={isDark} reverse />
         <NodeCard phase={PHASES[4]} status={nodeStatus(5)} modelName={judgeModel} iteration={1} durationMs={phaseDurations.find(d => d.phase === 5)?.durationMs ?? null} isDark={isDark} />
-        <Connector active={effectivePhase > 4} isDark={isDark} reverse />
+        <Connector active={highestDone > 4} isDark={isDark} reverse />
         <NodeCard phase={PHASES[3]} status={nodeStatus(4)} modelName={undefined} iteration={1} durationMs={phaseDurations.find(d => d.phase === 4)?.durationMs ?? null} isDark={isDark} />
       </div>
 
@@ -125,6 +129,7 @@ function NodeCard({
     done_ok:  { bg: "bg-green-500/5", ring: "ring-green-500/40", text: "text-green-500" },
     done_fail:{ bg: "bg-red-500/5",   ring: "ring-red-500/40",   text: "text-red-500" },
     skipped:  { bg: "bg-jb-panel/20", ring: "ring-jb-border/20", text: "text-jb-text-muted/30" },
+    flagged:  { bg: "bg-red-500/5",   ring: "ring-red-500/20",   text: "text-red-400/60" },
   };
 
   const s = styles[status];
@@ -163,10 +168,6 @@ function NodeCard({
           {(durationMs / 1000).toFixed(1)}s
         </span>
       )}
-
-
-
-
     </div>
   );
 }
