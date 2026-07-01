@@ -303,20 +303,6 @@ export default function Terminal({
 
           <div className={`h-[20px] w-[1px] ${isDark ? "bg-jb-border/60" : "bg-[#d0d3d8]"}`} />
 
-          <div className="flex items-center h-full pt-1.5 pb-1">
-            <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm
-              ${isDark ? "bg-jb-panel text-jb-text border-jb-border/50" : "bg-white text-[#080808] border-[#dfdfdf]"}`}>
-              Local
-              <button
-                aria-label="Close terminal tab"
-                onClick={(e) => { e.stopPropagation(); setIsTerminalCollapsed(true); }}
-                className={`opacity-0 group-hover:opacity-100 hover:opacity-100 p-0.5 rounded ml-1 w-4 h-4 flex items-center justify-center
-                  ${isDark ? "hover:bg-jb-border" : "hover:bg-[#ebecf0]"}`}
-              >
-                <X size={10} />
-              </button>
-            </div>
-          </div>
         </div>
 
         <div className="flex items-center gap-3">

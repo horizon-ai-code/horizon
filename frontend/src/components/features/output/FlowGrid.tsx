@@ -67,11 +67,11 @@ export default function FlowGrid({ appState, exitStatus, glassboxState }: Props)
 
       {/* P3 → P4 zigzag arrow (P3 column position) */}
       <div className="flex items-center gap-4 w-full">
-        <div className="w-[176px]" />
+        <div className="w-[208px]" />
         <div className="flex-1 shrink-0" />
-        <div className="w-[176px]" />
+        <div className="w-[208px]" />
         <div className="flex-1 shrink-0" />
-        <div className="w-[176px] flex justify-center">
+        <div className="w-[208px] flex justify-center">
           <svg width="16" height="24" viewBox="0 0 16 24" className="overflow-visible">
             <line x1="8" y1="0" x2="8" y2="16" strokeWidth="3" strokeLinecap="round"
             stroke={effectivePhase > 2 ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1")}
@@ -149,9 +149,9 @@ function NodeCard({
   const s = styles[status];
 
   return (
-    <div className={`relative flex flex-col items-center justify-center p-3 w-44 h-44 rounded-[20px] ring-1 transition-all duration-500 ${s.bg} ${s.ring} ${s.text}`}>
+    <div className={`relative flex flex-col items-center justify-center p-3 w-52 h-52 rounded-[20px] ring-1 transition-all duration-500 ${s.bg} ${s.ring} ${s.text}`}>
       <div className="flex items-center gap-1 mb-1">
-        <span className="text-[10px] font-bold opacity-60">P{phase.num}</span>
+        <span className="text-[12px] font-bold opacity-60">P{phase.num}</span>
       </div>
 
       {status === "active" && (
@@ -160,25 +160,25 @@ function NodeCard({
 
       {Icon && (
         <span className="mb-2" style={{ color: status !== "waiting" && status !== "skipped" ? phase.color : undefined }}>
-          <Icon size={28} />
+          <Icon size={34} />
         </span>
       )}
 
-      <h4 className="text-[12px] font-bold text-center leading-tight">{phase.name}</h4>
-      <span className="text-[9px] font-mono opacity-60">{phase.agent}</span>
+      <h4 className="text-[16px] font-bold text-center leading-tight">{phase.name}</h4>
+      <span className="text-[11px] font-mono opacity-60">{phase.agent}</span>
 
       {modelName && (
-        <span className="text-[8px] font-mono opacity-40 text-center leading-tight mt-0.5">{modelName}</span>
+        <span className="text-[10px] font-mono opacity-40 text-center leading-tight mt-0.5">{modelName}</span>
       )}
 
       {iteration > 1 && status !== "waiting" && status !== "skipped" && (
-        <span className={`absolute -top-1.5 -right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
+        <span className={`absolute -top-1.5 -right-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
           {iteration}
         </span>
       )}
 
       {durationMs !== null && (
-        <span className="absolute -bottom-1 -right-1 text-[8px] font-mono px-1.5 py-0.5 rounded bg-jb-border/30 text-jb-text-muted">
+        <span className="absolute -bottom-1 -right-1 text-[10px] font-mono px-2 py-0.5 rounded bg-jb-border/30 text-jb-text-muted">
           {(durationMs / 1000).toFixed(1)}s
         </span>
       )}
