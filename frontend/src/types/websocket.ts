@@ -260,6 +260,14 @@ export interface PhaseTimingSummaryMessage {
   phases: PhaseTimingPayload[];
 }
 
+export interface PhaseStatesMessage {
+  type: "phase_states";
+  states: Record<string, string>;
+  failingPhase: number | null;
+  strategyIteration: number;
+  syntaxHealAttempt: number;
+}
+
 export type StructuredMessage =
   | SystemMetricsMessage
   | PhaseStartedMessage
@@ -281,4 +289,5 @@ export type ServerMessage =
   | InsightsMessage
   | HaltAcknowledgedMessage
   | ErrorMessage
+  | PhaseStatesMessage
   | StructuredMessage;

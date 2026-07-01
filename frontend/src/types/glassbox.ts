@@ -98,4 +98,7 @@ export interface GlassboxState {
   plannerModel?: string;
   generatorModel?: string;
   judgeModel?: string;
+  /** Phase states from backend (live via WS, history via API) */
+  phaseStates?: Record<string, string>;
+  failingPhase?: number | null;
 }

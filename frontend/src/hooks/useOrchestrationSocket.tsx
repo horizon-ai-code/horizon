@@ -235,7 +235,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         terminalEntries: [...prev.terminalEntries, doneEntry],
         refactoredOutput: msg.code,
         orchestrationResult,
-        appState: (isSuccess ? "done" : "idle") as AppState,
+        appState: "done" as AppState,
         showFlowchartModal: isSuccess ? false : prev.showFlowchartModal,
       }));
     },
@@ -259,6 +259,21 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       }));
     },
     [updateSession]
+  );
+
+  // ── Handle phase_states message ──────────────────────────────────────────
+
+  const handlePhaseStates = useCallback(
+    (msg: { states: Record<string, string>; failingPhase?: number | null; strategyIteration?: number; syntaxHealAttempt?: number }) => {
+      setGlassboxState((prev) => ({
+        ...prev,
+        phaseStates: msg.states,
+        failingPhase: msg.failingPhase ?? null,
+        strategyIteration: msg.strategyIteration ?? prev.strategyIteration,
+        syntaxHealAttempt: msg.syntaxHealAttempt ?? prev.syntaxHealAttempt,
+      }));
+    },
+    []
   );
 
   // ── Handle halt_acknowledged message ─────────────────────────────────────
@@ -486,6 +501,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleStatusRef = useRef(handleStatus);
   const handleResultRef = useRef(handleResult);
   const handleInsightsRef = useRef(handleInsights);
+  const handlePhaseStatesRef = useRef(handlePhaseStates);
   const handleHaltAckRef = useRef(handleHaltAck);
   const handleErrorRef = useRef(handleError);
   const handlePhaseStartedRef = useRef(handlePhaseStarted);
@@ -503,6 +519,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handleStatusRef.current = handleStatus;
     handleResultRef.current = handleResult;
     handleInsightsRef.current = handleInsights;
+    handlePhaseStatesRef.current = handlePhaseStates;
     handleHaltAckRef.current = handleHaltAck;
     handleErrorRef.current = handleError;
     handlePhaseStartedRef.current = handlePhaseStarted;
@@ -516,7 +533,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handleGeneratorProgressRef.current = handleGeneratorProgress;
     handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary;
   }, [
-    handleStatus, handleResult, handleInsights, handleHaltAck, handleError,
+    handleStatus, handleResult, handleInsights, handlePhaseStates, handleHaltAck, handleError,
     handlePhaseStarted, handlePhaseCompleted, handleMutationPlan, handleMutationStatus,
     handleValidationResult, handleIntentClassified, handleArchitectureAnalysis,
     handleAuditResult, handleGeneratorProgress, handlePhaseTimingSummary,
@@ -531,6 +548,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         case "result": handleResultRef.current(bmsg, targetId); break;
         case "insights": handleInsightsRef.current(bmsg, targetId); break;
         case "halt_acknowledged": handleHaltAckRef.current(targetId); break;
+        case "phase_states": handlePhaseStatesRef.current(bmsg); break;
         case "error": handleErrorRef.current(bmsg, targetId); break;
         case "phase_started": handlePhaseStartedRef.current(bmsg); break;
         case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
@@ -670,6 +688,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             break;
           case "error":
             handleErrorRef.current(msg, targetId);
+            break;
+          case "phase_states":
+            handlePhaseStatesRef.current(msg);
             break;
           case "phase_started":
             handlePhaseStartedRef.current(msg);

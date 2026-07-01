@@ -18,6 +18,9 @@ class LogEntry(BaseModel):
     role: Role
     status: str
     content: str | None = None
+    phase: int | None = None
+    outer_loop: int | None = None
+    inner_loop: int | None = None
     created_at: datetime
 
 
@@ -37,6 +40,7 @@ class HistoryDetail(BaseModel):
     insights: str | None = None
     status: str | None = None
     exit_status: str | None = None
+    total_outer_loops: int | None = None
     original_complexity: int | None = None
     refactored_complexity: int | None = None
     planner_model: str | None = None
@@ -48,6 +52,7 @@ class HistoryDetail(BaseModel):
     peak_gpu_utilization: float | None = None
     peak_gpu_memory_used: float | None = None
     inference_time: float | None = None
+    phase_states: str | None = None
     created_at: datetime
     logs: list[LogEntry]
 

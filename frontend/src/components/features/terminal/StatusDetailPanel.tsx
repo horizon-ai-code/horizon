@@ -35,11 +35,11 @@ export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelP
       {/* Intent detail */}
       {intent && (
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
-          {intent.category && <Tag label="Category" value={intent.category} color="#5a8cf8" isDark={isDark} />}
-          {intent.intent && <Tag label="Intent" value={intent.intent} color="#3dd6c8" isDark={isDark} />}
-          {intent.targetClass && <Tag label="Class" value={intent.targetClass} color="#e09c3b" isDark={isDark} />}
-          {intent.targetMember && <Tag label="Member" value={intent.targetMember} color="#e09c3b" isDark={isDark} />}
-          {intent.targetUnit && <Tag label="Unit" value={intent.targetUnit} color="#a78bfa" isDark={isDark} />}
+          {intent.category && <Tag label="Category" value={intent.category} color={isDark ? "#5a8cf8" : "#3b5fc0"} isDark={isDark} />}
+          {intent.intent && <Tag label="Intent" value={intent.intent} color={isDark ? "#3dd6c8" : "#146a6e"} isDark={isDark} />}
+          {intent.targetClass && <Tag label="Class" value={intent.targetClass} color={isDark ? "#e09c3b" : "#b07020"} isDark={isDark} />}
+          {intent.targetMember && <Tag label="Member" value={intent.targetMember} color={isDark ? "#e09c3b" : "#b07020"} isDark={isDark} />}
+          {intent.targetUnit && <Tag label="Unit" value={intent.targetUnit} color={isDark ? "#a78bfa" : "#6b3fa0"} isDark={isDark} />}
         </div>
       )}
 
@@ -49,13 +49,13 @@ export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelP
           <span className={`text-[10px] font-bold tracking-wide ${muted}`}>Analysis:</span>
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
             {architecture.primaryTargets.length > 0 && (
-              <TargetGroup label="Targets" targets={architecture.primaryTargets} color="#5a8cf8" muted={muted} />
+              <TargetGroup label="Targets" targets={architecture.primaryTargets} color={isDark ? "#5a8cf8" : "#3b5fc0"} muted={muted} />
             )}
             {architecture.newStructures.length > 0 && (
-              <TargetGroup label="New" targets={architecture.newStructures} color="#3dd6c8" muted={muted} />
+              <TargetGroup label="New" targets={architecture.newStructures} color={isDark ? "#3dd6c8" : "#146a6e"} muted={muted} />
             )}
             {architecture.mustPreserve.length > 0 && (
-              <TargetGroup label="Preserve" targets={architecture.mustPreserve} color="#e09c3b" muted={muted} />
+              <TargetGroup label="Preserve" targets={architecture.mustPreserve} color={isDark ? "#e09c3b" : "#b07020"} muted={muted} />
             )}
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelP
           <div className="flex flex-wrap gap-1.5 mt-0.5">
             {mutations.map((m, i) => {
               const statusColor = m.status === "completed" ? "#27c93f"
-                : m.status === "in_progress" ? "#56a8f5"
+                : m.status === "in_progress" ? (isDark ? "#56a8f5" : "#3574f0")
                 : m.status === "retrying" ? "#f4bf4f"
                 : m.status === "failed" ? "#f93e3e"
                 : "#888";
@@ -86,7 +86,7 @@ export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelP
                   }}
                 >
                   <span style={{ color: statusColor }}>{statusIcon}</span>
-                  <span className="font-bold" style={{ color: "#3dd6c8" }}>
+                  <span className="font-bold" style={{ color: isDark ? "#3dd6c8" : "#146a6e" }}>
                     {MUTATION_LABELS[m.action] ?? m.action}
                   </span>
                   <span className={muted}>on</span>

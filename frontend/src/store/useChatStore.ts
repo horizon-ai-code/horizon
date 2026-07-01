@@ -13,6 +13,7 @@ import type {
   MalformedJsonErrorMessage,
   ErrorMessage,
   ServerMessage,
+  ExitStatus,
 } from '@/types/websocket';
 
 // ── Typed API response interfaces ──────────────────────────────────────────────
@@ -31,13 +32,18 @@ interface SessionDetailResponse {
   refactored_code?: string;
   status?: string;
   exit_status?: string;
+  total_outer_loops?: number;
   logs?: Array<{
     id?: string;
     role?: string;
     status?: string;
     content?: string | null;
+    phase?: number;
+    outer_loop?: number;
+    inner_loop?: number;
     created_at?: string;
   }>;
+  phase_states?: string;
   insights?: string;
   original_complexity?: number;
   refactored_complexity?: number;
@@ -106,6 +112,7 @@ interface ChatStore {
   createSessionWithInitialPrompt: (prompt: string, initialData?: Partial<SessionData>) => string;
   renameSession: (id: string, title: string) => void;
   deleteSession: (id: string) => Promise<void>;
+  clearAllHistory: () => Promise<void>;
   migrateSessionId: (oldId: string, newId: string) => void;
   fetchHistory: () => Promise<void>;
   fetchSessionDetails: (id: string) => Promise<boolean>;
@@ -276,6 +283,22 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     });
   },
 
+  clearAllHistory: async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/history`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        console.error(`[ChatStore] Backend returned ${res.status} on clear all`);
+        return;
+      }
+    } catch(e) {
+      console.error("[ChatStore] Error clearing history:", e);
+      return;
+    }
+    set((state) => ({ ...state, sessions: {} }));
+  },
+
   migrateSessionId: (oldId, newId) =>
     set((state) => {
       if (oldId === newId) return state;
@@ -390,6 +413,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
         const isHalted = detail.status === "Halted" || detail.exit_status === "ABORTED";
         const isProcessing = detail.status === "Processing" && !detail.refactored_code && !isHalted;
+
+        // Parse phase_states from backend for correct node coloring
+        if (detail.phase_states) {
+          try {
+            const ps = JSON.parse(detail.phase_states);
+            oResult.phaseStates = ps.states;
+          } catch { /* ignore parse error */ }
+        }
+        oResult.exit_status = detail.exit_status as ExitStatus | undefined;
 
         if (detail.refactored_code) {
            activeStep = 5;

@@ -21,6 +21,7 @@ export interface OrchestrationResult {
     removed: number[];
   };
   exit_status?: ExitStatus;
+  phaseStates?: Record<string, string>;
   original_complexity?: number | null;
   refactored_complexity?: number | null;
   insights?: string;

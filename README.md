@@ -35,13 +35,13 @@ _AI-driven Java refactoring pipeline powered by multi-agent LLM orchestration._
 ### GPU (NVIDIA recommended)
 
 ```bash
-docker compose -f https://raw.githubusercontent.com/horizon-ai-code/horizon/main/docker-compose.yml up -d
+curl -sL https://raw.githubusercontent.com/horizon-ai-code/horizon/main/docker-compose.yml | docker compose -f - up -d
 ```
 
 ### CPU (any machine)
 
 ```bash
-docker compose -f https://raw.githubusercontent.com/horizon-ai-code/horizon/main/docker-compose.cpu.yml up -d
+curl -sL https://raw.githubusercontent.com/horizon-ai-code/horizon/main/docker-compose.cpu.yml | docker compose -f - up -d
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
