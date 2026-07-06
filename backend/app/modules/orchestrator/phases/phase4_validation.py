@@ -147,7 +147,7 @@ class Phase4Validation:
                     "error": "Structural issues: " + "; ".join(error_msgs[:2]),
                     "broken_code": state.working_code,
                 }
-                await self._notify(client, Role.Validator, "Routing to Generator for targeted fix...", None)
+                await self._notify(client, Role.Validator, "Inner loop heal, routing to generator", None)
                 state.current_phase = 3
                 return
 
