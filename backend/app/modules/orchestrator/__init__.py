@@ -112,27 +112,27 @@ class Orchestrator:
 
         self._phase2 = Phase2Strategy(
             self.agent_service, self._config, self.prompts,
-            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=2),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=2),  # type: ignore[misc]
         )
         self._phase3 = Phase3Execution(
             self.agent_service, self.validator, self._config, self.prompts,
-            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=3),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=3),  # type: ignore[misc]
         )
         self._phase4 = Phase4Validation(
             self.validator,
-            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=4),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=4),  # type: ignore[misc]
         )
         self._phase5 = Phase5Adjudication(
             self.agent_service, self.validator, self._config, self.prompts,
-            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=5),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=5),  # type: ignore[misc]
         )
         self._phase6 = Phase6Finalization(
             self.db, self.agent_service, self.validator, self._config, self.prompts,
-            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=6),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=6),  # type: ignore[misc]
         )
         self._single = SingleRefactor(
             self.agent_service, self.validator, self.db, self._config, self.prompts,
-            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=1),
+            lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=1),  # type: ignore[misc]
         )
 
     async def execute_orchestration(self, client: ClientConnection, user_code: str, user_instruction: str) -> None:

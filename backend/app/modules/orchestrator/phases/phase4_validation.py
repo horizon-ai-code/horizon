@@ -110,6 +110,7 @@ class Phase4Validation:
                     cc_detail = f"Target method '{target}' extracted (CC: {refac_cc_val}). Overall code CC: {overall}"
             elif cc_rule in ("STRICT", "LOOSENED"):
                 if cc_finding:
+                    assert orig_cc_val is not None
                     limit = orig_cc_val + (1 if cc_rule == "LOOSENED" else 0)
                     cc_detail = f"Overall code CC increased: {orig_cc_val} → {refac_cc_val} (limit: {limit})"
                 elif refac_cc_val == orig_cc_val:
