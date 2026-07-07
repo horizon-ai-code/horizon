@@ -144,7 +144,7 @@ class Phase3Execution:
                 state.syntax_error_context = None
                 gen_time_ms = int((_time.time() - gen_t0) * 1000)
                 await self._notify(client, Role.Generator,
-                                   f"Code refactored — 1 pass. {gen_time_ms}ms\n\n{best['code']}")
+                                   f"Code refactored — 1 pass. {gen_time_ms}ms\n\n{best['code']}", None)
                 state.current_phase = 4
                 return
             else:
@@ -277,7 +277,7 @@ class Phase3Execution:
                 state.gen_timings.append(timing_entry)
                 if state.sequential_attempts <= 3:
                     await self._notify(client, Role.Generator,
-                                       f"No <code> block for {action} {target}. Retrying (attempt {state.sequential_attempts}/3)...")
+                                       f"No <code> block for {action} {target}. Retrying (attempt {state.sequential_attempts}/3)...", None)
                     continue
                 state.working_code = state.base_code
                 timing_entry["status"] = "EXHAUSTED"
@@ -298,7 +298,7 @@ class Phase3Execution:
                         "broken_code": new_code,
                     }
                     await self._notify(client, Role.Generator,
-                                       f"Syntax fail on {action} {target}. Healing (attempt {state.sequential_attempts}/3)...")
+                                       f"Syntax fail on {action} {target}. Healing (attempt {state.sequential_attempts}/3)...", None)
                     continue
                 state.working_code = state.base_code
                 return
@@ -336,4 +336,4 @@ class Phase3Execution:
         applied = state.mutation_index
         total = len(state.mutation_queue)
         await self._notify(client, Role.Generator,
-                           f"Code refactored — {applied}/{total} mutations. {total_time}ms\n\n{state.working_code}")
+                           f"Code refactored — {applied}/{total} mutations. {total_time}ms\n\n{state.working_code}", None)
