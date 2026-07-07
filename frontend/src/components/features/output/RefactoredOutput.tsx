@@ -10,7 +10,7 @@ import type { GlassboxState } from "@/types/glassbox";
 import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
-import FlowGrid from "@/components/features/output/FlowGrid";
+import MultiAgentFlowGraph from "@/components/features/output/MultiAgentFlowGraph";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -148,10 +148,9 @@ export default function RefactoredOutput({
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
         {rightPanelMode === 'flow' && !isMonolith ? (
-          <FlowGrid
+          <MultiAgentFlowGraph
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
-            phaseStates={orchestrationResult.phaseStates}
             glassboxState={glassboxState ?? {
               currentPhase: 1,
               currentAgent: "System",

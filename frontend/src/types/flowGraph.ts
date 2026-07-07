@@ -29,22 +29,28 @@ export interface PhaseAnalysis {
   isSuccess: boolean;
 }
 
-export interface GraphNode {
-  id: string;
+export interface FlowNodeData extends Record<string, unknown> {
   phase: PhaseMeta;
   status: NodeStatus;
   iteration: number;
   durationMs: number | null;
   modelName?: string;
+}
+
+export interface FlowEdgeData extends Record<string, unknown> {
+  type: EdgeType;
+  status: EdgeStatus;
+  label?: string;
+}
+
+export interface GraphNode extends FlowNodeData {
+  id: string;
   x: number;
   y: number;
 }
 
-export interface GraphEdge {
+export interface GraphEdge extends FlowEdgeData {
   id: string;
   source: string;
   target: string;
-  type: EdgeType;
-  status: EdgeStatus;
-  label?: string;
 }
