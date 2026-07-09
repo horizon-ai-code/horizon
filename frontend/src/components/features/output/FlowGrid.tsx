@@ -230,13 +230,13 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
           onPointerDown={startUserScroll}
           onTouchStart={startUserScroll}
           onScroll={handleScroll}
-          className="flex items-center gap-4 overflow-x-auto py-4 px-12 flow-grid-scrollbar-none scroll-smooth"
+          className="flex items-center gap-4 overflow-x-auto py-20 px-32 flow-grid-scrollbar-none scroll-smooth"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
             scrollSnapType: "x proximity",
-            WebkitMaskImage: "linear-gradient(to right, transparent, black 48px, black calc(100% - 48px), transparent)",
-            maskImage: "linear-gradient(to right, transparent, black 48px, black calc(100% - 48px), transparent)",
+            WebkitMaskImage: "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
+            maskImage: "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
           }}
         >
           {PHASES.map((phase) => {
@@ -260,7 +260,13 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
                   ref={(el) => {
                     cardRefs.current[num] = el;
                   }}
-                  className="shrink-0"
+                  className={`shrink-0 origin-center transition-all duration-500 ${
+                    !isDone
+                      ? nodeStatus(num) === "active"
+                        ? "scale-[1.75] z-10 mx-20"
+                        : "scale-[0.85] opacity-60"
+                      : ""
+                  }`}
                   style={{ scrollSnapAlign: "center" }}
                 >
                   <NodeCard
@@ -333,7 +339,7 @@ function NodeCard({
       </div>
 
       {status === "active" && (
-        <div className="absolute inset-0 rounded-[20px] animate-ping opacity-10" style={{ backgroundColor: phase.color }} />
+        <div className="absolute inset-0 rounded-[20px] animate-contained-ping" style={{ backgroundColor: phase.color }} />
       )}
 
       {Icon && (

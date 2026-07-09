@@ -115,6 +115,21 @@
     animation: traffic-pulse 2s ease-in-out infinite;
   }
 
+  @keyframes contained-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    80%, 100% {
+      transform: scale(1.1);
+      opacity: 0;
+    }
+  }
+
+  .animate-contained-ping {
+    animation: contained-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
   /* ─── SCROLLBARS ───────────────────────────────────────────── */
 
   ::-webkit-scrollbar       { width: 5px; height: 5px; }
