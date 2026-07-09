@@ -34,7 +34,7 @@ const AGENT_BADGE_LIGHT: Record<string, { bg: string; text: string }> = {
 const AGENT_LABEL: Record<string, string> = {
   Cpu:          "PLANNER",
   Layers:       "GENERATOR",
-  FileCode2:    "AST PARSER",
+  FileCode2:    "VALIDATOR",
   CheckCircle2: "JUDGE",
   Clock:        "SYSTEM",
   AlertCircle:  "ERROR",
