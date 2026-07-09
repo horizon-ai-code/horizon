@@ -52,12 +52,6 @@ export default function RefactoredOutput({
   }, []);
 
   useEffect(() => {
-    if (tourMode) {
-      setRightPanelMode('flow');
-    }
-  }, [tourMode]);
-
-  useEffect(() => {
     if (refactoredOutput && !hasFormatted.current) {
       hasFormatted.current = true;
       const formatted = formatJavaCode(refactoredOutput);
@@ -69,10 +63,11 @@ export default function RefactoredOutput({
 
   useEffect(() => {
     if (appState === "analyzing" && !isMonolith) {
-      setRightPanelMode("flow");
+      requestAnimationFrame(() => setRightPanelMode("flow"));
     }
   }, [appState, isMonolith]);
 
+  const displayPanelMode = tourMode ? 'flow' : rightPanelMode;
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleCopy = async () => {
@@ -100,9 +95,9 @@ export default function RefactoredOutput({
           <button 
             onClick={() => setRightPanelMode('insights')}
             role="tab"
-            aria-selected={rightPanelMode === 'insights'}
+            aria-selected={displayPanelMode === 'insights'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${rightPanelMode === 'insights' 
+              ${displayPanelMode === 'insights' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
@@ -112,9 +107,9 @@ export default function RefactoredOutput({
           <button 
             onClick={() => setRightPanelMode('output')}
             role="tab"
-            aria-selected={rightPanelMode === 'output'}
+            aria-selected={displayPanelMode === 'output'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${rightPanelMode === 'output' 
+              ${displayPanelMode === 'output' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
@@ -125,9 +120,9 @@ export default function RefactoredOutput({
           <button 
             onClick={() => setRightPanelMode('flow')}
             role="tab"
-            aria-selected={rightPanelMode === 'flow'}
+            aria-selected={displayPanelMode === 'flow'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${rightPanelMode === 'flow' 
+              ${displayPanelMode === 'flow' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
@@ -156,7 +151,7 @@ export default function RefactoredOutput({
       </div>
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
-        {tourMode && rightPanelMode === 'flow' ? (
+        {displayPanelMode === 'flow' && tourMode ? (
           <FlowGrid
             appState="done"
             exitStatus="SUCCESS"
@@ -185,7 +180,7 @@ export default function RefactoredOutput({
               totalDurationMs: 27000,
             }}
           />
-        ) : tourMode && rightPanelMode === 'output' ? (
+        ) : displayPanelMode === 'output' && tourMode ? (
           <CodeEditorPanel
             value={DEMO_CODE}
             onChange={() => {}}
@@ -194,7 +189,7 @@ export default function RefactoredOutput({
             placeholder=""
             bottomPadding="48px"
           />
-        ) : rightPanelMode === 'flow' && !isMonolith ? (
+        ) : displayPanelMode === 'flow' && !isMonolith ? (
           <FlowGrid
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
@@ -259,7 +254,7 @@ export default function RefactoredOutput({
             </p>
           </div>
         ) : (
-           rightPanelMode === 'output' ? (
+           displayPanelMode === 'output' ? (
               <CodeEditorPanel 
                 value={refactoredOutput} 
                 onChange={setRefactoredOutput} 

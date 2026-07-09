@@ -173,7 +173,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     prevAppStateRef.current = appState;
 
     if (wasLive && appState === "done" && orchestrationResult.exit_status?.startsWith("ABORT")) {
-      setAbortDialogOpen(true);
+      requestAnimationFrame(() => setAbortDialogOpen(true));
     }
   }, [appState, orchestrationResult.exit_status]);
 
