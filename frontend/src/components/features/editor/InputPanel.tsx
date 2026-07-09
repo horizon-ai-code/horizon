@@ -9,6 +9,8 @@ import RefactorInput from "@/components/features/workspace/RefactorInput";
 import { formatJavaCode } from "@/lib/utils/javaFormatter";
 import type { AppState } from "@/types/session";
 import type { OrchestrationResult } from "@/types/session";
+import { useChatStore } from "@/store/useChatStore";
+import { DEMO_CODE } from "@/components/features/onboarding/tourDemo";
 
 interface InputProps {
   sessionId: string | null;
@@ -50,6 +52,7 @@ export default function InputPanel({
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const [clipboardPreview, setClipboardPreview] = useState("");
   const sourceCodeRef = useRef(sourceCode);
+  const tourMode = useChatStore((s) => s.tourMode);
 
   useEffect(() => {
     sourceCodeRef.current = sourceCode;
@@ -139,7 +142,7 @@ export default function InputPanel({
         
         {/* Editor Area */}
         <div className="flex-1 min-h-0 flex flex-col relative z-10">
-          {sourceCode.trim() === '' && !(isEditorFocused && clipboardPreview) && (
+          {sourceCode.trim() === '' && !(isEditorFocused && clipboardPreview) && !tourMode && (
             <div className="absolute top-0 right-0 bottom-0 left-14 flex flex-col items-center justify-center text-center px-6 pointer-events-none z-10 transition-colors duration-300">
               <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
                 ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
@@ -154,19 +157,18 @@ export default function InputPanel({
             </div>
           )}
           <CodeEditorPanel 
-            value={sourceCode} 
-            onChange={(val) => {
+            value={tourMode ? DEMO_CODE : sourceCode} 
+            onChange={tourMode ? () => {} : (val) => {
               setSourceCode(val);
               if (sourceError) setSourceError(false);
-              // Clear preview if user starts typing
               if (clipboardPreview) setClipboardPreview("");
             }} 
-            onKeyDown={handleEditorKeyDown}
+            onKeyDown={tourMode ? undefined : handleEditorKeyDown}
             onFocus={() => setIsEditorFocused(true)}
             onBlur={() => setIsEditorFocused(false)}
-            ghostValue={isEditorFocused ? clipboardPreview : ""}
-            highlightLines={{ removed: orchestrationResult.diffHighlights.removed }}
-            showDiff={appState === 'done'}
+            ghostValue={tourMode ? "" : (isEditorFocused ? clipboardPreview : "")}
+            highlightLines={tourMode ? {} : { removed: orchestrationResult.diffHighlights.removed }}
+            showDiff={tourMode ? false : appState === 'done'}
             placeholder="" 
             bottomPadding="240px"
           />

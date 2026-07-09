@@ -11,6 +11,8 @@ import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import FlowGrid from "@/components/features/output/FlowGrid";
+import { useChatStore } from "@/store/useChatStore";
+import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -37,7 +39,8 @@ export default function RefactoredOutput({
 }: RefactoredOutputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  
+  const tourMode = useChatStore((s) => s.tourMode);
+
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
     appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
@@ -47,6 +50,12 @@ export default function RefactoredOutput({
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
+
+  useEffect(() => {
+    if (tourMode) {
+      setRightPanelMode('flow');
+    }
+  }, [tourMode]);
 
   useEffect(() => {
     if (refactoredOutput && !hasFormatted.current) {
@@ -147,7 +156,45 @@ export default function RefactoredOutput({
       </div>
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
-        {rightPanelMode === 'flow' && !isMonolith ? (
+        {tourMode && rightPanelMode === 'flow' ? (
+          <FlowGrid
+            appState="done"
+            exitStatus="SUCCESS"
+            phaseStates={DEMO_PHASE_STATES}
+            glassboxState={{
+              currentPhase: 6,
+              currentAgent: "System",
+              strategyIteration: 1,
+              maxStrategyIterations: 3,
+              syntaxHealAttempt: 0,
+              maxSyntaxHealAttempts: 3,
+              sequentialMutationRetry: 0,
+              maxSequentialMutationRetries: 3,
+              validationFaultCount: null,
+              judgeDecision: null,
+              currentDetail: null,
+              phaseSummaries: {},
+              phaseDurations: [
+                { phase: 1, durationMs: 3200 },
+                { phase: 2, durationMs: 4100 },
+                { phase: 3, durationMs: 8900 },
+                { phase: 4, durationMs: 5600 },
+                { phase: 5, durationMs: 3800 },
+                { phase: 6, durationMs: 1500 },
+              ],
+              totalDurationMs: 27000,
+            }}
+          />
+        ) : tourMode && rightPanelMode === 'output' ? (
+          <CodeEditorPanel
+            value={DEMO_CODE}
+            onChange={() => {}}
+            highlightLines={{}}
+            showDiff={false}
+            placeholder=""
+            bottomPadding="48px"
+          />
+        ) : rightPanelMode === 'flow' && !isMonolith ? (
           <FlowGrid
             appState={appState}
             exitStatus={orchestrationResult.exit_status}

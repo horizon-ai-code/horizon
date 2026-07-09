@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { TOUR_STEPS } from "./tourSteps";
+import { useChatStore } from "@/store/useChatStore";
 
 const STORAGE_KEY = "horizon_tour_completed";
 
@@ -14,13 +15,14 @@ export function useTour() {
     setCurrentStep(0);
     setIsActive(true);
     setHasBeenOpened(true);
+    useChatStore.getState().setTourMode(true);
   }, []);
 
   const next = useCallback(() => {
     if (currentStep >= TOUR_STEPS.length - 1) {
       setIsActive(false);
-      // localStorage unavailable (private browsing, quota exceeded)
       try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
+      useChatStore.getState().setTourMode(false);
     } else {
       setCurrentStep((s) => s + 1);
     }
@@ -32,6 +34,7 @@ export function useTour() {
 
   const close = useCallback(() => {
     setIsActive(false);
+    useChatStore.getState().setTourMode(false);
   }, []);
 
   return {
