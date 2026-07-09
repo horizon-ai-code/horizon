@@ -6,6 +6,7 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import type { AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
+import { DEMO_INSTRUCTION } from "@/components/features/onboarding/tourDemo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +65,7 @@ export default function RefactorInput({
   const [isChatFocused, setIsChatFocused] = useState(false);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const [refactorMode, setRefactorMode] = useState<"multi" | "single">("multi");
+  const tourMode = useChatStore((s) => s.tourMode);
 
   // Smooth auto-resize logic
   useEffect(() => {
@@ -82,12 +84,13 @@ export default function RefactorInput({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (tourMode) return;
     setInputInstruction(e.target.value);
     if (inputError) setInputError(false);
   };
 
   const handleSubmit = () => {
-    if (appState === "analyzing" || appState === "waiting") return;
+    if (appState === "analyzing" || appState === "waiting" || appState === "done" || tourMode) return;
     if (!validateBeforeSubmit()) return;
 
     if (refactorMode === "single") {
@@ -98,8 +101,9 @@ export default function RefactorInput({
     startAnalysis();
   };
 
-  const isChatExpanded = isChatFocused || inputInstruction.length > 0;
-  const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing" || appState === "waiting";
+  const effectiveInstruction = tourMode ? DEMO_INSTRUCTION : inputInstruction;
+  const isChatExpanded = isChatFocused || effectiveInstruction.length > 0;
+  const isSubmitDisabled = !sourceCode.trim() || !effectiveInstruction.trim() || appState === "analyzing" || appState === "waiting" || appState === "done" || tourMode;
 
   return (
     <div id="tour-refactor-input" className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
@@ -123,14 +127,14 @@ export default function RefactorInput({
         </div>
         <textarea
           ref={chatInputRef}
-          value={inputInstruction}
+          value={effectiveInstruction}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => setIsChatFocused(true)}
           onBlur={() => setIsChatFocused(false)}
           placeholder="Ask the Swarm to refactor..."
-          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted caret-jb-accent ${appState === 'analyzing' || appState === 'waiting' ? 'text-jb-text-muted cursor-not-allowed' : 'text-jb-text'}`}
-          disabled={appState === 'analyzing' || appState === 'waiting'}
+          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted caret-jb-accent ${appState === 'analyzing' || appState === 'waiting' || appState === 'done' || tourMode ? 'text-jb-text-muted cursor-not-allowed' : 'text-jb-text'}`}
+          disabled={appState === 'analyzing' || appState === 'waiting' || appState === 'done' || tourMode}
           rows={1}
           style={{ minHeight: '40px', lineHeight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
         />

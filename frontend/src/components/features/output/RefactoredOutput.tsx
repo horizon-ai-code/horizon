@@ -11,6 +11,8 @@ import React, { useState, useEffect, useRef } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import FlowGrid from "@/components/features/output/FlowGrid";
+import { useChatStore } from "@/store/useChatStore";
+import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -37,7 +39,8 @@ export default function RefactoredOutput({
 }: RefactoredOutputProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  
+  const tourMode = useChatStore((s) => s.tourMode);
+
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
     appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
@@ -60,10 +63,11 @@ export default function RefactoredOutput({
 
   useEffect(() => {
     if (appState === "analyzing" && !isMonolith) {
-      setRightPanelMode("flow");
+      requestAnimationFrame(() => setRightPanelMode("flow"));
     }
   }, [appState, isMonolith]);
 
+  const displayPanelMode = tourMode ? 'flow' : rightPanelMode;
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleCopy = async () => {
@@ -91,9 +95,9 @@ export default function RefactoredOutput({
           <button 
             onClick={() => setRightPanelMode('insights')}
             role="tab"
-            aria-selected={rightPanelMode === 'insights'}
+            aria-selected={displayPanelMode === 'insights'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${rightPanelMode === 'insights' 
+              ${displayPanelMode === 'insights' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
@@ -103,9 +107,9 @@ export default function RefactoredOutput({
           <button 
             onClick={() => setRightPanelMode('output')}
             role="tab"
-            aria-selected={rightPanelMode === 'output'}
+            aria-selected={displayPanelMode === 'output'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${rightPanelMode === 'output' 
+              ${displayPanelMode === 'output' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
@@ -116,9 +120,9 @@ export default function RefactoredOutput({
           <button 
             onClick={() => setRightPanelMode('flow')}
             role="tab"
-            aria-selected={rightPanelMode === 'flow'}
+            aria-selected={displayPanelMode === 'flow'}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${rightPanelMode === 'flow' 
+              ${displayPanelMode === 'flow' 
                 ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
                 : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
           >
@@ -147,7 +151,45 @@ export default function RefactoredOutput({
       </div>
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
-        {rightPanelMode === 'flow' && !isMonolith ? (
+        {displayPanelMode === 'flow' && tourMode ? (
+          <FlowGrid
+            appState="done"
+            exitStatus="SUCCESS"
+            phaseStates={DEMO_PHASE_STATES}
+            glassboxState={{
+              currentPhase: 6,
+              currentAgent: "System",
+              strategyIteration: 1,
+              maxStrategyIterations: 3,
+              syntaxHealAttempt: 0,
+              maxSyntaxHealAttempts: 3,
+              sequentialMutationRetry: 0,
+              maxSequentialMutationRetries: 3,
+              validationFaultCount: null,
+              judgeDecision: null,
+              currentDetail: null,
+              phaseSummaries: {},
+              phaseDurations: [
+                { phase: 1, durationMs: 3200 },
+                { phase: 2, durationMs: 4100 },
+                { phase: 3, durationMs: 8900 },
+                { phase: 4, durationMs: 5600 },
+                { phase: 5, durationMs: 3800 },
+                { phase: 6, durationMs: 1500 },
+              ],
+              totalDurationMs: 27000,
+            }}
+          />
+        ) : displayPanelMode === 'output' && tourMode ? (
+          <CodeEditorPanel
+            value={DEMO_CODE}
+            onChange={() => {}}
+            highlightLines={{}}
+            showDiff={false}
+            placeholder=""
+            bottomPadding="48px"
+          />
+        ) : displayPanelMode === 'flow' && !isMonolith ? (
           <FlowGrid
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
@@ -212,7 +254,7 @@ export default function RefactoredOutput({
             </p>
           </div>
         ) : (
-           rightPanelMode === 'output' ? (
+           displayPanelMode === 'output' ? (
               <CodeEditorPanel 
                 value={refactoredOutput} 
                 onChange={setRefactoredOutput} 

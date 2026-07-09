@@ -99,6 +99,8 @@ interface ChatStore {
   hasInitialLoaded: boolean;
   setHasInitialLoaded: (loaded: boolean) => void;
   historyLoadError: boolean;
+  tourMode: boolean;
+  setTourMode: (val: boolean) => void;
   sessions: Record<string, SessionData>;
   draftSession: Omit<SessionData, "id">;
   updateDraftSession: (
@@ -126,6 +128,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   hasInitialLoaded: false,
   setHasInitialLoaded: (loaded) => set({ hasInitialLoaded: loaded }),
   historyLoadError: false,
+  tourMode: false,
+  setTourMode: (val) => set({ tourMode: val }),
   sessions: {},
   draftSession: DEFAULT_SESSION,
 

@@ -10,6 +10,8 @@ import { ROLE_BY_ICON } from "@/lib/constants";
 import JsonDetailBlock from "@/components/features/terminal/JsonDetailBlock";
 import GlassboxBar from "@/components/features/terminal/GlassboxBar";
 import type { GlassboxState } from "@/types/glassbox";
+import { useChatStore } from "@/store/useChatStore";
+import { DEMO_TERMINAL_ENTRIES } from "@/components/features/onboarding/tourDemo";
 
 const AGENT_BADGE: Record<string, { bg: string; text: string }> = {
   Cpu:          { bg: "#1a2f4a", text: "#5a8cf8" },
@@ -34,7 +36,7 @@ const AGENT_BADGE_LIGHT: Record<string, { bg: string; text: string }> = {
 const AGENT_LABEL: Record<string, string> = {
   Cpu:          "PLANNER",
   Layers:       "GENERATOR",
-  FileCode2:    "AST PARSER",
+  FileCode2:    "VALIDATOR",
   CheckCircle2: "JUDGE",
   Clock:        "SYSTEM",
   AlertCircle:  "ERROR",
@@ -240,13 +242,15 @@ export default function Terminal({
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme !== "light";
   const [fontScale, setFontScale] = useState(1.0);
+  const tourMode = useChatStore((s) => s.tourMode);
+  const displayEntries = tourMode ? DEMO_TERMINAL_ENTRIES : terminalEntries;
 
   // Rule 23: Narrow auto-scroll effect dependency to primitives (.length)
   useEffect(() => {
     if (!isTerminalCollapsed && terminalEndRef.current && typeof terminalEndRef.current.scrollIntoView === "function") {
       terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [terminalEntries.length, isTerminalCollapsed, appState, terminalEndRef]);
+  }, [displayEntries.length, isTerminalCollapsed, appState, terminalEndRef]);
 
   // Cleaned layout update: extracted toggle handlers
   const handleToggleCollapse = () => {
@@ -374,7 +378,7 @@ export default function Terminal({
             </div>
 
             {/* Entries list */}
-            {terminalEntries.map((entry) => (
+            {displayEntries.map((entry) => (
               <EntryRouter key={entry.id} entry={entry} isDark={isDark} />
             ))}
 

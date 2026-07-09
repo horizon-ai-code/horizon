@@ -14,6 +14,15 @@ import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 import InputPanel from "@/components/features/editor/InputPanel";
 import RefactoredOutput from "@/components/features/output/RefactoredOutput";
 import Terminal from "@/components/features/terminal/Terminal";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 export default function ChatWorkspace({ sessionId }: { sessionId: string | null }) {
   const sessions = useChatStore((s) => s.sessions);
@@ -32,7 +41,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const [notFoundAlert, setNotFoundAlert] = useState(
     () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('error') === 'session_not_found'
   );
-  
+  const [abortDialogOpen, setAbortDialogOpen] = useState(false);
+
   const terminalPanelRef = useRef<PanelImperativeHandle | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
@@ -103,6 +113,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     sourceCode, refactoredOutput, activeStep, inputInstruction,
     terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, isMonolith, orchestrationResult
   } = activeSession;
+  const prevAppStateRef = useRef(appState);
 
   const validateBeforeSubmit = useCallback(() => {
     let hasError = false;
@@ -155,6 +166,16 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [appState]);
+
+  // Watch for live transition: analyzing → done with ABORT exit status
+  useEffect(() => {
+    const wasLive = prevAppStateRef.current === "analyzing" || prevAppStateRef.current === "waiting";
+    prevAppStateRef.current = appState;
+
+    if (wasLive && appState === "done" && orchestrationResult.exit_status?.startsWith("ABORT")) {
+      requestAnimationFrame(() => setAbortDialogOpen(true));
+    }
+  }, [appState, orchestrationResult.exit_status]);
 
   const executeRefactor = useCallback(async (isMulti: boolean) => {
     if (!validateBeforeSubmit()) return;
@@ -355,6 +376,23 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         />
       </Panel>
     </PanelGroup>
+
+      <AlertDialog open={abortDialogOpen} onOpenChange={setAbortDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Refactoring Failed</AlertDialogTitle>
+            <AlertDialogDescription>
+              The orchestration could not complete ({orchestrationResult.exit_status}).
+              Start a new session to try again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => router.push('/')}>
+              New Session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

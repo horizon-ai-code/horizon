@@ -26,14 +26,16 @@ describe('ROLE_VISUALS', () => {
     expect(Object.keys(ROLE_VISUALS)).toHaveLength(6);
   });
 
-  it('each role has step, icon, and colorClass', () => {  // TC-CNST-004
+  it('each role has step, icon, colorClass, and colorClassLight', () => {  // TC-CNST-004
     for (const role of Object.values(ROLE_VISUALS)) {
       expect(role).toHaveProperty('step');
       expect(role).toHaveProperty('icon');
       expect(role).toHaveProperty('colorClass');
+      expect(role).toHaveProperty('colorClassLight');
       expect(typeof role.step).toBe('number');
       expect(typeof role.icon).toBe('string');
       expect(typeof role.colorClass).toBe('string');
+      expect(typeof role.colorClassLight).toBe('string');
     }
   });
 
@@ -42,6 +44,7 @@ describe('ROLE_VISUALS', () => {
       step: 1,
       icon: 'Cpu',
       colorClass: 'text-[#56a8f5]',
+      colorClassLight: 'text-[#3574f0]',
     });
   });
 });
