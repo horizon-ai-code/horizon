@@ -87,7 +87,7 @@ export default function RefactorInput({
   };
 
   const handleSubmit = () => {
-    if (appState === "analyzing" || appState === "waiting") return;
+    if (appState === "analyzing" || appState === "waiting" || appState === "done") return;
     if (!validateBeforeSubmit()) return;
 
     if (refactorMode === "single") {
@@ -99,7 +99,7 @@ export default function RefactorInput({
   };
 
   const isChatExpanded = isChatFocused || inputInstruction.length > 0;
-  const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing" || appState === "waiting";
+  const isSubmitDisabled = !sourceCode.trim() || !inputInstruction.trim() || appState === "analyzing" || appState === "waiting" || appState === "done";
 
   return (
     <div id="tour-refactor-input" className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
@@ -129,8 +129,8 @@ export default function RefactorInput({
           onFocus={() => setIsChatFocused(true)}
           onBlur={() => setIsChatFocused(false)}
           placeholder="Ask the Swarm to refactor..."
-          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted caret-jb-accent ${appState === 'analyzing' || appState === 'waiting' ? 'text-jb-text-muted cursor-not-allowed' : 'text-jb-text'}`}
-          disabled={appState === 'analyzing' || appState === 'waiting'}
+          className={`flex-1 bg-transparent border-none outline-none text-[14px] font-medium resize-none overflow-y-auto custom-chat-scrollbar placeholder-jb-text-muted caret-jb-accent ${appState === 'analyzing' || appState === 'waiting' || appState === 'done' ? 'text-jb-text-muted cursor-not-allowed' : 'text-jb-text'}`}
+          disabled={appState === 'analyzing' || appState === 'waiting' || appState === 'done'}
           rows={1}
           style={{ minHeight: '40px', lineHeight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
         />
