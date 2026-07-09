@@ -2,13 +2,30 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useTheme } from "next-themes";
-import { Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Cpu,
+  Layers,
+  FileCode2,
+  CheckCircle2,
+  Clock,
+  Zap,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import type { NodeStatus } from "@/types/flowGraph";
 import type { GlassboxState } from "@/types/glassbox";
 import { PHASES } from "@/lib/flowGraph/phases";
 
-const ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-  Cpu, Layers, FileCode2, CheckCircle2, Clock, Zap,
+const ICONS: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
+  Cpu,
+  Layers,
+  FileCode2,
+  CheckCircle2,
+  Clock,
+  Zap,
 };
 
 interface Props {
@@ -19,15 +36,27 @@ interface Props {
   phaseStates?: Record<string, string>;
 }
 
-export default function FlowGrid({ appState, exitStatus, glassboxState, phaseStates: propStates }: Props) {
+export default function FlowGrid({
+  appState,
+  exitStatus,
+  glassboxState,
+  phaseStates: propStates,
+}: Props) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const {
-    currentPhase, strategyIteration, syntaxHealAttempt, phaseDurations,
-    plannerModel, generatorModel, judgeModel,
+    currentPhase,
+    strategyIteration,
+    syntaxHealAttempt,
+    phaseDurations,
+    plannerModel,
+    generatorModel,
+    judgeModel,
   } = glassboxState;
 
   const isDone = appState === "done";
@@ -48,7 +77,9 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
   // Highest completed phase for connector lighting
   const highestDone = states
     ? Object.entries(states)
-        .filter(([, s]) => s === "done_ok" || s === "done_fail" || s === "flagged")
+        .filter(
+          ([, s]) => s === "done_ok" || s === "done_fail" || s === "flagged",
+        )
         .map(([k]) => Number(k))
         .reduce((a, b) => Math.max(a, b), 0)
     : currentPhase;
@@ -184,8 +215,11 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
       `}</style>
 
       {strategyIteration > 1 && (
-        <div className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
-          Strategy Iteration {strategyIteration}/{glassboxState.maxStrategyIterations ?? 3}
+        <div
+          className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}
+        >
+          Strategy Iteration {strategyIteration}/
+          {glassboxState.maxStrategyIterations ?? 3}
         </div>
       )}
 
@@ -235,8 +269,10 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
             scrollbarWidth: "none",
             msOverflowStyle: "none",
             scrollSnapType: "x proximity",
-            WebkitMaskImage: "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
-            maskImage: "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
+            maskImage:
+              "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
           }}
         >
           {PHASES.map((phase) => {
@@ -244,15 +280,20 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
             const isLast = num === 6;
 
             const modelName =
-              num === 2 ? plannerModel :
-              num === 3 ? generatorModel :
-              num === 5 ? judgeModel :
-              undefined;
+              num === 2
+                ? plannerModel
+                : num === 3
+                  ? generatorModel
+                  : num === 5
+                    ? judgeModel
+                    : undefined;
 
             const iteration =
-              num === 2 ? strategyIteration :
-              num === 3 ? Math.max(syntaxHealAttempt, 1) :
-              1;
+              num === 2
+                ? strategyIteration
+                : num === 3
+                  ? Math.max(syntaxHealAttempt, 1)
+                  : 1;
 
             return (
               <React.Fragment key={num}>
@@ -263,7 +304,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
                   className={`shrink-0 origin-center transition-all duration-500 ${
                     !isDone
                       ? nodeStatus(num) === "active"
-                        ? "scale-[1.75] z-10 mx-20"
+                        ? "scale-[1.5] z-10 mx-20"
                         : "scale-[0.85] opacity-60"
                       : ""
                   }`}
@@ -274,7 +315,10 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
                     status={nodeStatus(num)}
                     modelName={modelName}
                     iteration={iteration}
-                    durationMs={phaseDurations.find((d) => d.phase === num)?.durationMs ?? null}
+                    durationMs={
+                      phaseDurations.find((d) => d.phase === num)?.durationMs ??
+                      null
+                    }
                     isDark={isDark}
                   />
                 </div>
@@ -289,7 +333,15 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
 
       {isDone && (
         <div className="flex items-center gap-4 px-4 py-2 rounded-lg bg-jb-panel/90 border border-jb-border/50 text-[11px] font-medium">
-          {exitStatus && <span className={exitStatus === "SUCCESS" ? "text-green-500" : "text-red-500"}>{exitStatus}</span>}
+          {exitStatus && (
+            <span
+              className={
+                exitStatus === "SUCCESS" ? "text-green-500" : "text-red-500"
+              }
+            >
+              {exitStatus}
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -299,7 +351,7 @@ export default function FlowGrid({ appState, exitStatus, glassboxState, phaseSta
 // ── Connector with arrow ──
 
 function Connector({ active, isDark }: { active: boolean; isDark: boolean }) {
-  const c = active ? "#4ec97e" : (isDark ? "#393b40" : "#d1d1d1");
+  const c = active ? "#4ec97e" : isDark ? "#393b40" : "#d1d1d1";
   return (
     <span className="text-lg leading-none shrink-0" style={{ color: c }}>
       ▶
@@ -310,9 +362,20 @@ function Connector({ active, isDark }: { active: boolean; isDark: boolean }) {
 // ── NodeCard ──
 
 function NodeCard({
-  phase, status, modelName, iteration, durationMs, isDark,
+  phase,
+  status,
+  modelName,
+  iteration,
+  durationMs,
+  isDark,
 }: {
-  phase: { num: number; name: string; agent: string; icon: string; color: string };
+  phase: {
+    num: number;
+    name: string;
+    agent: string;
+    icon: string;
+    color: string;
+  };
   status: NodeStatus;
   modelName?: string;
   iteration: number;
@@ -321,42 +384,86 @@ function NodeCard({
 }) {
   const Icon = ICONS[phase.icon];
 
-  const styles: Record<NodeStatus, { bg: string; ring: string; text: string }> = {
-    waiting:  { bg: "bg-jb-panel/30", ring: "ring-jb-border/30", text: "text-jb-text-muted/50" },
-    active:   { bg: "bg-jb-bg",       ring: "ring-jb-accent/50", text: "text-jb-accent" },
-    done_ok:  { bg: "bg-green-500/5", ring: "ring-green-500/40", text: "text-green-500" },
-    done_fail:{ bg: "bg-red-500/5",   ring: "ring-red-500/40",   text: "text-red-500" },
-    skipped:  { bg: "bg-jb-panel/20", ring: "ring-jb-border/20", text: "text-jb-text-muted/30" },
-    flagged:  { bg: "bg-red-500/5",   ring: "ring-red-500/20",   text: "text-red-400/60" },
-  };
+  const styles: Record<NodeStatus, { bg: string; ring: string; text: string }> =
+    {
+      waiting: {
+        bg: "bg-jb-panel/30",
+        ring: "ring-jb-border/30",
+        text: "text-jb-text-muted/50",
+      },
+      active: {
+        bg: "bg-jb-bg",
+        ring: "ring-jb-accent/50",
+        text: "text-jb-accent",
+      },
+      done_ok: {
+        bg: "bg-green-500/5",
+        ring: "ring-green-500/40",
+        text: "text-green-500",
+      },
+      done_fail: {
+        bg: "bg-red-500/5",
+        ring: "ring-red-500/40",
+        text: "text-red-500",
+      },
+      skipped: {
+        bg: "bg-jb-panel/20",
+        ring: "ring-jb-border/20",
+        text: "text-jb-text-muted/30",
+      },
+      flagged: {
+        bg: "bg-red-500/5",
+        ring: "ring-red-500/20",
+        text: "text-red-400/60",
+      },
+    };
 
   const s = styles[status];
 
   return (
-    <div className={`relative flex flex-col items-center justify-center p-3 w-44 h-44 rounded-[20px] ring-1 transition-all duration-500 ${s.bg} ${s.ring} ${s.text}`}>
+    <div
+      className={`relative flex flex-col items-center justify-center p-3 w-44 h-44 rounded-[20px] ring-1 transition-all duration-500 ${s.bg} ${s.ring} ${s.text}`}
+    >
       <div className="flex items-center gap-1 mb-1">
         <span className="text-[12px] font-bold opacity-60">P{phase.num}</span>
       </div>
 
       {status === "active" && (
-        <div className="absolute inset-0 rounded-[20px] animate-contained-ping" style={{ backgroundColor: phase.color }} />
+        <div
+          className="absolute inset-0 rounded-[20px] animate-contained-ping"
+          style={{ backgroundColor: phase.color }}
+        />
       )}
 
       {Icon && (
-        <span className="mb-2" style={{ color: status !== "waiting" && status !== "skipped" ? phase.color : undefined }}>
+        <span
+          className="mb-2"
+          style={{
+            color:
+              status !== "waiting" && status !== "skipped"
+                ? phase.color
+                : undefined,
+          }}
+        >
           <Icon size={34} />
         </span>
       )}
 
-      <h4 className="text-[16px] font-bold text-center leading-tight">{phase.name}</h4>
+      <h4 className="text-[16px] font-bold text-center leading-tight">
+        {phase.name}
+      </h4>
       <span className="text-[11px] font-mono opacity-60">{phase.agent}</span>
 
       {modelName && (
-        <span className="text-[10px] font-mono opacity-40 text-center leading-tight mt-0.5">{modelName}</span>
+        <span className="text-[10px] font-mono opacity-40 text-center leading-tight mt-0.5">
+          {modelName}
+        </span>
       )}
 
       {iteration > 1 && status !== "waiting" && status !== "skipped" && (
-        <span className={`absolute -top-1.5 -right-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}>
+        <span
+          className={`absolute -top-1.5 -right-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full border ${isDark ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/20" : "bg-yellow-50 text-yellow-600 border-yellow-200"}`}
+        >
           {iteration}
         </span>
       )}
@@ -369,4 +476,3 @@ function NodeCard({
     </div>
   );
 }
-

@@ -18,9 +18,7 @@ import sys
 import tempfile
 import time
 from collections import Counter
-from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
@@ -377,12 +375,12 @@ def cmd_aggregate(args: argparse.Namespace) -> None:
     print(f"  MI Δ avg: {sum(mi_deltas)/len(mi_deltas):.2f}" if mi_deltas else "  MI Δ avg: N/A")
     print(f"  Interception rate: {(t1+t2a+t2b+t2c)/total_tiers*100:.0f}%" if total_tiers else "  Interception rate: N/A")
     print(f"  Resolution rate: {resolved/(resolved+exhausted)*100:.0f}%" if (resolved+exhausted) else "  Resolution rate: N/A")
-    print(f"\n  Per intent:")
+    print("\n  Per intent:")
     for intent in sorted(per_intent):
         c = per_intent[intent]["count"]
         p = per_intent[intent]["passed"]
         print(f"    {intent:<30} {p:3d}/{c:3d} ({p*100//c:3d}%)")
-    print(f"\n  Per difficulty:")
+    print("\n  Per difficulty:")
     for d in ["Easy", "Medium", "Hard"]:
         c = per_diff[d]["count"]
         p = per_diff[d]["passed"]
@@ -630,6 +628,7 @@ async def _run_multi_cmd(args: argparse.Namespace) -> None:
     agent = AgentService()
     validator = Validator()
     import yaml
+
     from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
     with open(MODELS_CONFIG_PATH) as f:
         model_cfg = yaml.safe_load(f)
@@ -667,13 +666,12 @@ async def _run_multi_cmd(args: argparse.Namespace) -> None:
 
 
 async def _run_single_cmd(args: argparse.Namespace) -> None:
+    import yaml
+
     from app.modules.agent import AgentService
     from app.modules.validator import Validator
-    from app.utils.performance import PerformanceTracker
-    from app.utils.response_parser import ResponseParser
-
-    import yaml
     from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
+    from app.utils.response_parser import ResponseParser
 
     with open(MODELS_CONFIG_PATH) as f:
         cfg = yaml.safe_load(f)["single"]
@@ -703,8 +701,8 @@ async def _run_single_cmd(args: argparse.Namespace) -> None:
         original_generate = agent.generate
         llm_calls = []
         async def cg(messages, **kwargs):
-            t0 = time.time(); r = await original_generate(messages, **kwargs);
-            ms = int((time.time()-t0)*1000); raw = r.get("choices",[{}])[0].get("message",{}).get("content","");
+            t0 = time.time(); r = await original_generate(messages, **kwargs)
+            ms = int((time.time()-t0)*1000); raw = r.get("choices",[{}])[0].get("message",{}).get("content","")
             llm_calls.append({"raw_response": raw[:5000], "duration_ms": ms, "status": "OK" if r.get("success",True) else "ERROR"})
             return r
         agent.generate = cg
@@ -944,7 +942,7 @@ def cmd_report(args: argparse.Namespace) -> None:
     if ber_attempted:
         print(f"  BER (public):   {ber_pass}/{ber_attempted} ({ber_pass*100//ber_attempted}%)", end="")
     print()
-    print(f"\n  Per intent:")
+    print("\n  Per intent:")
     for intent in sorted(per_intent):
         c = per_intent[intent]
         pct = c["passed"]*100//max(1,c["count"])

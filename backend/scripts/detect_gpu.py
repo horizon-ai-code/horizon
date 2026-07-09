@@ -1,5 +1,4 @@
 import subprocess
-import sys
 from pathlib import Path
 
 CONFIG_PATH = Path("/app/model_config.yaml")
