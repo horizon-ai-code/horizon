@@ -153,7 +153,7 @@ export default function GlassboxBar({ state, isDark }: GlassboxBarProps) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <StatusDetailPanel detail={currentDetail} isDark={isDark} />
+            <StatusDetailPanel detail={currentDetail} isDark={isDark} currentPhase={currentPhase} />
           </motion.div>
         )}
       </AnimatePresence>

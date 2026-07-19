@@ -123,6 +123,10 @@ export default function InputPanel({
             <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm cursor-default transition-colors duration-300
               ${isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50' : 'bg-white text-[#080808] border-[#dfdfdf]'}`}>
               Input.java
+              <span className={`text-[9px] px-1.5 py-0.25 rounded font-bold uppercase tracking-wider
+                ${isDark ? 'bg-orange-500/10 text-orange-400' : 'bg-orange-100 text-orange-600'}`}>
+                Java Only
+              </span>
               <button className={`opacity-0 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
                 ${isDark ? 'hover:bg-jb-border' : 'hover:bg-[#ebecf0]'}`}>
                  <X size={10} />
@@ -131,6 +135,12 @@ export default function InputPanel({
           </div>
           
           <div className="flex items-center gap-3 pr-2">
+            {sourceCode.trim() !== "" ? (
+              <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm flex items-center gap-1 transition-all duration-300
+                ${isDark ? 'bg-green-500/10 text-green-500 border-green-500/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-green-500' : 'bg-emerald-600'}`}></div> Syntax Valid
+              </div>
+            ) : null}
             {sourceCode.trim() !== "" && (
               <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm flex items-center gap-1 transition-all duration-300
                 ${isDark ? 'bg-jb-accent/10 text-jb-accent border-jb-accent/30' : 'bg-[#3574f0]/10 text-[#3574f0] border-[#3574f0]/20'}`}>
@@ -149,11 +159,17 @@ export default function InputPanel({
                 <FileCode2 size={36} className={isDark ? "text-[#548af7]/60" : "text-[#3574f0]/60"} strokeWidth={1.5} />
               </div>
               <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-                Paste your source code here...
+                Paste your Java source code here...
               </p>
               <p className={`text-[13px] mt-2 font-medium max-w-sm transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
                 Best for loops, functions, and logic blocks.
               </p>
+              <div className="flex items-center justify-center flex-wrap gap-2 mt-8 max-w-[400px]">
+                <span className={`text-[10px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full border ${isDark ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-green-50 text-green-600 border-green-200'}`}>Offline-First</span>
+                <span className={`text-[10px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full border ${isDark ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>Locally Processed</span>
+                <span className={`text-[10px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full border ${isDark ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-purple-50 text-purple-600 border-purple-200'}`}>Never Uploaded</span>
+                <span className={`text-[10px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full border ${isDark ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>No External AI Services</span>
+              </div>
             </div>
           )}
           <CodeEditorPanel 

@@ -6,6 +6,7 @@ import type { CurrentStatusDetail } from "@/types/glassbox";
 interface StatusDetailPanelProps {
   detail: CurrentStatusDetail;
   isDark: boolean;
+  currentPhase?: number;
 }
 
 const TIER_LABELS: Record<string, string> = {
@@ -24,14 +25,31 @@ const MUTATION_LABELS: Record<string, string> = {
   INLINE_METHOD: "Inline Method",
 };
 
-export default function StatusDetailPanel({ detail, isDark }: StatusDetailPanelProps) {
+export default function StatusDetailPanel({ detail, isDark, currentPhase }: StatusDetailPanelProps) {
   const { intent, mutations, findings, checks, judgeVerdict, judgeIssues, totalFaults, phaseAction, architecture, generatorProgress, generatorTemperature } = detail;
   const muted = isDark ? "text-[#8d95a5]" : "text-[#888]";
   const border = isDark ? "border-[#393b40]" : "border-[#ddd]";
   const bg = isDark ? "bg-[#1e1f22]" : "bg-[#f2f2f2]";
 
+  const getPhaseDescription = (phase?: number) => {
+    switch(phase) {
+      case 1: return "The Validator is establishing a baseline by analyzing your original code.";
+      case 2: return "The Strategy Planner is analyzing the input and creating a step-by-step refactoring plan.";
+      case 3: return "The Code Generator is producing a refactored version based on the generated strategy.";
+      case 4: return "The Validator is running deterministic checks to ensure the generated code is syntactically correct and preserves original behavior.";
+      case 5: return "The Judge is evaluating the quality of the refactored code against the original intent.";
+      case 6: return "The System is finalizing the output and preparing the response.";
+      default: return phaseAction ?? "Processing...";
+    }
+  };
+
   return (
     <div className={`px-4 py-2 text-[11px] leading-relaxed ${bg} border-t ${border}`}>
+      
+      {/* Plain Language Explanation (Requirement 4) */}
+      <div className={`text-[13px] font-medium mb-3 ${isDark ? 'text-jb-text' : 'text-slate-800'}`}>
+        {getPhaseDescription(currentPhase)}
+      </div>
       {/* Intent detail */}
       {intent && (
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
