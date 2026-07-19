@@ -123,16 +123,16 @@ export default function InputPanel({
       <div className={`flex-1 flex flex-col min-h-0 overflow-hidden relative transition-all duration-300
         ${sourceError 
           ? 'bg-red-500/5 shadow-[inset_0_0_40px_rgba(239,68,68,0.15)] ring-1 ring-inset ring-red-500/50'
-          : 'bg-jb-panel'
+          : 'bg-transparent'
         }`}>
         
         {/* IDE HEADER */}
         <div className={`px-2 flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300
-          ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
+          ${isDark ? 'bg-transparent border-white/10' : 'bg-transparent border-black/10'}`}>
           
           <div className="flex items-center h-full pt-1.5 pb-1 gap-1">
             <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm cursor-default transition-colors duration-300
-              ${isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50' : 'bg-white text-[#080808] border-[#dfdfdf]'}`}>
+              ${isDark ? 'bg-white/5 text-jb-text border-white/10' : 'bg-black/5 text-[#080808] border-black/10'}`}>
               Input.java
               <button className={`opacity-0 hover:opacity-100 p-0.5 rounded transition-all ml-1 w-4 h-4 flex items-center justify-center
                 ${isDark ? 'hover:bg-jb-border' : 'hover:bg-[#ebecf0]'}`}>

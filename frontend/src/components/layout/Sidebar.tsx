@@ -176,8 +176,7 @@ export default function Sidebar() {
       initial={false}
       animate={{ width: isOpen ? 240 : 48 }}
       transition={SPRING_CONFIG}
-      className={`shrink-0 border-r flex flex-col z-20 h-full overflow-hidden
-      ${isDark ? 'border-jb-border/40 bg-jb-panel' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+      className="shrink-0 border-r flex flex-col z-20 h-full overflow-hidden glass-panel border-r-white/20 dark:border-r-white/5"
     >
       
       {/* Top Menu Icon Corner - Aligns with Navbar Height */}
@@ -399,7 +398,7 @@ export default function Sidebar() {
 
       {/* Delete / Leave / Switch Confirmation Dialog */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className={`glass-modal ${isDark ? 'text-jb-text' : 'text-slate-900'} sm:max-w-[425px]`}>
           <AlertDialogHeader>
             <AlertDialogTitle>
               {dialogAction === "delete" ? "Delete session?" : dialogAction === "leave" ? "Leave session?" : "Switch session?"}
@@ -430,7 +429,7 @@ export default function Sidebar() {
 
       {/* Clear All Confirmation Dialog */}
       <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
-        <AlertDialogContent>
+        <AlertDialogContent className={`glass-modal ${isDark ? 'text-jb-text' : 'text-slate-900'} sm:max-w-[425px]`}>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear all sessions?</AlertDialogTitle>
             <AlertDialogDescription>

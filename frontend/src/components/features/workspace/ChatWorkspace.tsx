@@ -309,8 +309,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     <PanelGroup orientation="vertical" className="flex-1 gap-2">
       <Panel defaultSize={68} minSize={20} className="flex flex-col min-h-0">
         <PanelGroup orientation="horizontal" className="gap-2">
-          <Panel defaultSize={50} minSize={20} id="tour-input" className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
-            ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf]'}`}>
+          <Panel defaultSize={50} minSize={20} id="tour-input" className="rounded-xl overflow-hidden glass-panel">
             <InputPanel 
               sessionId={id}
               sourceCode={sourceCode} 
@@ -335,8 +334,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
             className="w-[1px] bg-transparent hover:bg-jb-accent transition-all duration-200 cursor-col-resize z-20 select-none touch-none" 
           />
 
-          <Panel defaultSize={50} minSize={20} id="tour-output" className={`rounded-xl border overflow-hidden shadow-xl transition-colors duration-300
-            ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf]'}`}>
+          <Panel defaultSize={50} minSize={20} id="tour-output" className="rounded-xl overflow-hidden glass-panel">
             <RefactoredOutput 
               refactoredOutput={refactoredOutput} 
               setRefactoredOutput={handleOutputChange}
@@ -363,8 +361,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
         minSize={5} 
         collapsible={true}
         collapsedSize="5%"
-        className={`rounded-xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col
-          ${isDark ? 'bg-jb-panel border-[#393b40]' : 'bg-white border-[#dfdfdf] shadow-slate-200/50'}`}
+        className="rounded-xl overflow-hidden flex flex-col glass-panel"
         id="tour-terminal"
       >
         <Terminal 
@@ -379,7 +376,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     </PanelGroup>
 
       <AlertDialog open={abortDialogOpen} onOpenChange={setAbortDialogOpen}>
-        <AlertDialogContent className={`${isDark ? 'bg-jb-panel border-[#393b40] text-jb-text' : 'bg-white text-slate-900 border-slate-200'} sm:max-w-[425px]`}>
+        <AlertDialogContent className={`glass-modal ${isDark ? 'text-jb-text' : 'text-slate-900'} sm:max-w-[425px]`}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-500">
               <AlertCircle size={20} />

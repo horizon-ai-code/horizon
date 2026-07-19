@@ -265,7 +265,7 @@ export default function Terminal({
   };
 
   return (
-    <div className={`flex flex-col min-h-0 overflow-hidden bg-jb-panel relative h-full w-full ring-1 ${isDark ? "ring-white/[0.05]" : "ring-black/[0.04]"}`}>
+    <div className={`flex flex-col min-h-0 overflow-hidden bg-transparent relative h-full w-full ring-1 ${isDark ? "ring-white/[0.05]" : "ring-black/[0.04]"}`}>
       {/* Header Container */}
       <div
         role="button"
@@ -277,7 +277,7 @@ export default function Terminal({
         draggable={false}
         title={isTerminalCollapsed ? "Expand Terminal" : "Collapse Terminal"}
         className={`px-4 flex items-center justify-between border-b h-[40px] shrink-0 cursor-pointer select-none outline-none focus-visible:ring-1 focus-visible:ring-inset
-          ${isDark ? "bg-jb-panel border-jb-border focus-visible:ring-white/20" : "bg-[#f7f8fa] border-[#ebecf0] focus-visible:ring-[#3574f0]/40"}`}
+          ${isDark ? "bg-transparent border-white/10 focus-visible:ring-white/20" : "bg-transparent border-black/10 focus-visible:ring-[#3574f0]/40"}`}
       >
         <div className="flex items-center h-full gap-4">
           <h3 className={`text-[12px] font-semibold tracking-wide flex items-center gap-2
