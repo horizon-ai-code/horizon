@@ -49,7 +49,17 @@ export default function TourOverlay({
 
   const updatePosition = useCallback(() => {
     const el = document.getElementById(step.targetId);
-    if (el) setRect(el.getBoundingClientRect());
+    if (el) {
+      const bounds = el.getBoundingClientRect();
+      // Wait for the sidebar to fully open before showing the highlight
+      if (step.targetId === "tour-sidebar" && bounds.width < 230) {
+        setRect(null);
+        return;
+      }
+      setRect(bounds);
+    } else {
+      setRect(null);
+    }
   }, [step.targetId]);
 
   useEffect(() => {
