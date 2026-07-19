@@ -22,6 +22,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogAction,
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 
 export default function ChatWorkspace({ sessionId }: { sessionId: string | null }) {
@@ -378,16 +379,38 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     </PanelGroup>
 
       <AlertDialog open={abortDialogOpen} onOpenChange={setAbortDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className={`${isDark ? 'bg-jb-panel border-[#393b40] text-jb-text' : 'bg-white text-slate-900 border-slate-200'} sm:max-w-[425px]`}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Refactoring Failed</AlertDialogTitle>
-            <AlertDialogDescription>
-              The orchestration could not complete ({orchestrationResult.exit_status}).
-              Start a new session to try again.
+            <AlertDialogTitle className="flex items-center gap-2 text-red-500">
+              <AlertCircle size={20} />
+              Refactoring Interrupted
+            </AlertDialogTitle>
+            <AlertDialogDescription className={`mt-2 ${isDark ? 'text-jb-text-muted' : 'text-slate-600'}`}>
+              The refactoring process was unsuccessful.
+              <br/><br/>
+              <strong>Reason: </strong> 
+              {
+                orchestrationResult.exit_status?.includes("MAX_ITERATIONS") || orchestrationResult.exit_status?.includes("STRATEGY")
+                  ? "Iteration limit reached without producing a valid output."
+                  : orchestrationResult.exit_status?.includes("DISCONNECTED") || orchestrationResult.exit_status?.includes("FAILURE") || appState === "error"
+                  ? "Backend connection was lost or encountered a critical error."
+                  : orchestrationResult.exit_status || "Unknown error occurred."
+              }
+              <br/><br/>
+              Don't worry—your original source code and the detailed process logs remain fully available in this session for your review.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => router.push('/')}>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel 
+              onClick={() => setAbortDialogOpen(false)}
+              className={`mr-2 bg-transparent border hover:bg-black/5 ${isDark ? 'border-[#393b40] text-jb-text hover:bg-white/5' : 'border-slate-300 text-slate-700'}`}
+            >
+              Review Logs
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => router.push('/')}
+              className="bg-[#3574f0] text-white hover:bg-[#3574f0]/90 border-transparent"
+            >
               New Session
             </AlertDialogAction>
           </AlertDialogFooter>
