@@ -101,6 +101,8 @@ interface ChatStore {
   historyLoadError: boolean;
   tourMode: boolean;
   setTourMode: (val: boolean) => void;
+  currentTourStep: number;
+  setCurrentTourStep: (val: number) => void;
   sessions: Record<string, SessionData>;
   draftSession: Omit<SessionData, "id">;
   updateDraftSession: (
@@ -130,6 +132,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   historyLoadError: false,
   tourMode: false,
   setTourMode: (val) => set({ tourMode: val }),
+  currentTourStep: 0,
+  setCurrentTourStep: (val) => set({ currentTourStep: val }),
   sessions: {},
   draftSession: DEFAULT_SESSION,
 

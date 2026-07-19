@@ -41,6 +41,8 @@ export default function Sidebar() {
   const clearAllHistory = useChatStore((state) => state.clearAllHistory);
   const fetchHistory = useChatStore((state) => state.fetchHistory);
   const historyLoadError = useChatStore((state) => state.historyLoadError);
+  const tourMode = useChatStore((state) => state.tourMode);
+  const currentTourStep = useChatStore((state) => state.currentTourStep);
 
   // ── Confirm Dialog State ──────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -65,6 +67,12 @@ export default function Sidebar() {
     requestAnimationFrame(() => setMounted(true));
     fetchHistory();
   }, [fetchHistory]);
+
+  useEffect(() => {
+    if (tourMode && currentTourStep === 0) {
+      setIsOpen(true);
+    }
+  }, [tourMode, currentTourStep]);
 
   useEffect(() => {
     if (!editingSessionId) return;

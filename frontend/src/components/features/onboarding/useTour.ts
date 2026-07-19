@@ -13,6 +13,7 @@ export function useTour() {
 
   const start = useCallback(() => {
     setCurrentStep(0);
+    useChatStore.getState().setCurrentTourStep(0);
     setIsActive(true);
     setHasBeenOpened(true);
     useChatStore.getState().setTourMode(true);
@@ -24,12 +25,18 @@ export function useTour() {
       try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
       useChatStore.getState().setTourMode(false);
     } else {
-      setCurrentStep((s) => s + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      useChatStore.getState().setCurrentTourStep(nextStep);
     }
   }, [currentStep]);
 
   const back = useCallback(() => {
-    setCurrentStep((s) => Math.max(0, s - 1));
+    setCurrentStep((s) => {
+      const prevStep = Math.max(0, s - 1);
+      useChatStore.getState().setCurrentTourStep(prevStep);
+      return prevStep;
+    });
   }, []);
 
   const close = useCallback(() => {
