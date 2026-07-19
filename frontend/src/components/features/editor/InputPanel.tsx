@@ -182,6 +182,7 @@ export default function InputPanel({
             showDiff={tourMode ? false : appState === 'done'}
             placeholder="" 
             bottomPadding="240px"
+            readOnly={appState === 'done'}
           />
           
 
@@ -222,23 +223,28 @@ export default function InputPanel({
             )}
           </AnimatePresence>
 
-          {/* Locked Overlay for Done State */}
+          {/* Locked Indicator for Done State — non-blocking, scroll-friendly */}
           {appState === 'done' && (
-            <div 
-              className="absolute inset-0 z-30 cursor-not-allowed"
-              onClickCapture={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleLockedClick();
-              }}
-            >
+            <>
+              <div
+                className="absolute top-3 right-3 z-30 px-2.5 py-1 rounded-lg border text-[11px] font-semibold cursor-pointer backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
+                onClick={handleLockedClick}
+                style={{
+                  backgroundColor: isDark ? 'rgba(43,45,48,0.85)' : 'rgba(255,255,255,0.85)',
+                  borderColor: isDark ? 'rgba(57,59,64,0.8)' : 'rgba(221,221,221,0.8)',
+                  color: isDark ? '#b5b9c2' : '#666',
+                }}
+              >
+                <FileCode2 size={12} className="inline-block mr-1.5 -mt-0.5" />
+                Locked
+              </div>
               <AnimatePresence>
                 {showNewSessionPrompt && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className={`absolute bottom-32 left-1/2 -translate-x-1/2 px-4 py-3 rounded-lg shadow-xl border flex items-center gap-3
+                    className={`absolute bottom-32 left-1/2 -translate-x-1/2 px-4 py-3 rounded-lg shadow-xl border flex items-center gap-3 z-40 pointer-events-none
                       ${isDark ? 'bg-jb-panel border-[#393b40] text-jb-text' : 'bg-white border-[#ddd] text-black'}`}
                   >
                     <div className="bg-[#3574f0]/20 text-[#3574f0] p-2 rounded-full shrink-0">
@@ -246,12 +252,12 @@ export default function InputPanel({
                     </div>
                     <div>
                       <p className="text-[13px] font-semibold">Session Locked</p>
-                      <p className="text-[12px] opacity-80 max-w-[200px] leading-tight mt-0.5">Please create a new session from the sidebar to do another refactoring.</p>
+                      <p className="text-[12px] opacity-80 max-w-[200px] leading-tight mt-0.5">Create a new session from the sidebar to refactor again.</p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </>
           )}
         </div>
         
