@@ -75,6 +75,7 @@ interface CodeEditorPanelProps {
   showDiff?: boolean;
   bottomPadding?: string;
   ghostValue?: string;
+  readOnly?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -90,6 +91,7 @@ export default function CodeEditorPanel({
   showDiff = false, 
   bottomPadding = '48px',
   ghostValue = '',
+  readOnly = false,
   onKeyDown,
   onFocus,
   onBlur,
@@ -339,6 +341,7 @@ export default function CodeEditorPanel({
             setInternalIsFocused(false);
             onBlur?.();
           }}
+          readOnly={readOnly}
           spellCheck="false"
           placeholder={placeholder}
           className={`absolute inset-0 w-full h-full bg-transparent resize-none outline-none border-none caret-jb-accent overflow-auto text-transparent selection:bg-jb-accent/20 font-mono custom-chat-scrollbar ${isScrolling ? 'is-scrolling' : ''}`}
