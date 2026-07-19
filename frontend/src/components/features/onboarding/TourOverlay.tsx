@@ -96,23 +96,23 @@ export default function TourOverlay({
     <div className="fixed inset-0 z-50" onClick={onClose}>
       {/* Overlay */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none transition-colors duration-300"
         style={{
-          backgroundColor: isCenter ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.08)",
+          backgroundColor: (isCenter || !rect) ? "rgba(0,0,0,0.65)" : "transparent",
         }}
       />
 
       {/* Highlight ring */}
       {rect && (
         <div
-          className="absolute pointer-events-none z-10"
+          className="absolute pointer-events-none z-10 transition-all duration-300"
           style={{
             left: rect.left - 4,
             top: rect.top - 4,
             width: rect.width + 8,
             height: rect.height + 8,
             borderRadius: "12px",
-            boxShadow: `0 0 0 2px ${isDark ? "#5a8cf8" : "#3574f0"}, 0 0 20px rgba(53,116,240,0.3)`,
+            boxShadow: `0 0 0 2px ${isDark ? "#5a8cf8" : "#3574f0"}, 0 0 0 9999px rgba(0,0,0,0.65), 0 0 20px rgba(53,116,240,0.3)`,
           }}
         />
       )}
