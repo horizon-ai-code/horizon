@@ -392,12 +392,12 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               {
                 orchestrationResult.exit_status?.includes("MAX_ITERATIONS") || orchestrationResult.exit_status?.includes("STRATEGY")
                   ? "Iteration limit reached without producing a valid output."
-                  : orchestrationResult.exit_status?.includes("DISCONNECTED") || orchestrationResult.exit_status?.includes("FAILURE") || appState === "error"
+                  : orchestrationResult.exit_status?.includes("DISCONNECTED") || orchestrationResult.exit_status?.includes("FAILURE")
                   ? "Backend connection was lost or encountered a critical error."
                   : orchestrationResult.exit_status || "Unknown error occurred."
               }
               <br/><br/>
-              Don't worry—your original source code and the detailed process logs remain fully available in this session for your review.
+              Don&apos;t worry—your original source code and the detailed process logs remain fully available in this session for your review.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">

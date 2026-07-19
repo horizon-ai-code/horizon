@@ -70,6 +70,7 @@ export default function Sidebar() {
 
   useEffect(() => {
     if (tourMode && currentTourStep === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(true);
     }
   }, [tourMode, currentTourStep]);
