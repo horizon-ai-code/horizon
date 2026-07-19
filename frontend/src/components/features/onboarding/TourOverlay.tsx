@@ -56,11 +56,22 @@ export default function TourOverlay({
     updatePosition(); // eslint-disable-line react-hooks/set-state-in-effect
     window.addEventListener("scroll", updatePosition, true);
     window.addEventListener("resize", updatePosition);
+
+    let observer: ResizeObserver | null = null;
+    const el = document.getElementById(step.targetId);
+    if (el) {
+      observer = new ResizeObserver(() => {
+        updatePosition();
+      });
+      observer.observe(el);
+    }
+
     return () => {
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
+      if (observer) observer.disconnect();
     };
-  }, [updatePosition]);
+  }, [updatePosition, step.targetId]);
 
   if (!rect && step.position !== "center") return null;
 
