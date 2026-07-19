@@ -111,11 +111,11 @@ export default function RefactorInput({
         layout
         animate={controls}
         onClick={() => chatInputRef.current?.focus()}
-        className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 shadow-2xl cursor-text transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
+        className={`pointer-events-auto flex items-end gap-3 pl-4 pr-2 py-2 mx-auto ring-1 backdrop-blur-2xl shadow-2xl cursor-text transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
           ${isChatExpanded ? 'max-w-full w-full' : 'max-w-[420px]'}
           ${inputError
               ? 'ring-destructive/50 bg-destructive/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
-              : 'glass-panel ring-white/20 focus-within:ring-white/40 focus-within:shadow-[0_0_30px_rgba(255,255,255,0.1)]'
+              : 'bg-jb-panel/95 ring-jb-border/50 focus-within:ring-jb-accent/30 focus-within:shadow-[0_0_30px_rgba(53,116,240,0.1)] shadow-2xl'
           }`}
         style={{
           borderRadius: isChatExpanded ? '16px' : '28px',
@@ -148,10 +148,10 @@ export default function RefactorInput({
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
-                className={`glass-button h-[34px] px-5 rounded-full text-white text-[13px] font-bold flex items-center gap-2
+                className={`h-[34px] px-5 rounded-full text-white text-[13px] font-bold flex items-center gap-2 transition-all cursor-pointer
                   ${isSubmitDisabled
-                    ? 'opacity-40 cursor-not-allowed bg-black/20 dark:bg-white/10 text-jb-text-muted shadow-none'
-                    : 'bg-[#3574f0]/80 dark:bg-[#548af7]/80 text-white'
+                    ? 'opacity-40 cursor-not-allowed bg-jb-text-muted/20 text-jb-text-muted shadow-none'
+                    : 'shadow-[0_4px_15px_rgba(53,116,240,0.25)] hover:shadow-[0_6px_20px_rgba(53,116,240,0.4)] hover:scale-105 active:scale-95 bg-jb-accent border-none'
                   }`}
               >
                 <Sparkles size={14} className={isSubmitDisabled ? "" : "fill-current"} /> Run

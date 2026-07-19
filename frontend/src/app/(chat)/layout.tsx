@@ -52,14 +52,14 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         />
       )}
       
-      <div className={`flex h-screen overflow-hidden transition-colors duration-500 relative animated-mesh-bg text-[#080808] dark:text-[#dfe1e5]`}>
+      <div className={`flex h-screen overflow-hidden transition-colors duration-500 relative ${isDark ? 'bg-jb-bg text-jb-text' : 'bg-[#ffffff] text-[#080808]'}`}>
         <Sidebar />
 
-        <div className={`flex-1 flex flex-col min-h-0 overflow-hidden relative z-10 transition-colors duration-500 bg-transparent`}>
+        <div className={`flex-1 flex flex-col min-h-0 overflow-hidden relative z-10 transition-colors duration-500 ${isDark ? 'bg-jb-bg' : 'bg-[#ebecf0]'}`}>
           <Navbar onStartTour={tour.start} tourOpened={tour.hasBeenOpened} />
           
           {/* Main Content Area */}
-          <div className={`flex-1 flex flex-col min-w-0 min-h-0 p-2 pb-0 transition-colors duration-500 bg-transparent`}>
+          <div className={`flex-1 flex flex-col min-w-0 min-h-0 p-2 pb-0 transition-colors duration-500 ${isDark ? 'bg-jb-bg' : 'bg-[#ebecf0]'}`}>
             <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-pulse text-jb-text-muted">Loading session...</div></div>}>
               {children}
             </Suspense>

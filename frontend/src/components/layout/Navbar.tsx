@@ -64,7 +64,8 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
 
   return (
     <>
-    <nav className="relative z-40 border-b flex justify-between items-center shrink-0 h-[44px] select-none transition-all duration-300 glass-panel border-b-white/20 dark:border-b-white/5 font-sans">
+    <nav className={`relative z-40 border-b flex justify-between items-center shrink-0 h-[44px] select-none transition-all duration-300
+      ${isDark ? 'bg-jb-bg border-jb-border/50' : 'bg-[#f7f8fa] border-[#ebecf0]'} font-sans`}>
       
       {/* Left Section: Logo, Menu & Project Info */}
       <div className="flex items-center h-full">
@@ -109,9 +110,12 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
               )}
               <button
                 onClick={onStartTour}
-                className={`glass-button flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-semibold transition-all
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border
                   ${!tourOpened ? 'animate-pulse ring-2 ring-[#3574f0] ring-offset-1 ring-offset-transparent' : ''}
-                  ${tourOpened ? 'text-slate-500 dark:text-slate-400' : 'text-[#3574f0] dark:text-[#548af7]'}`}
+                  ${tourOpened
+                    ? (isDark ? 'border-jb-border/40 text-jb-text-muted' : 'border-[#ddd] text-[#888]')
+                    : (isDark ? 'border-jb-accent/60 text-jb-accent hover:bg-jb-accent/10' : 'border-[#3574f0]/60 text-[#3574f0] hover:bg-[#3574f0]/10')
+                  }`}
                 title="Take a quick tour"
                 aria-label="Take a quick tour"
               >

@@ -82,11 +82,11 @@ export default function RefactoredOutput({
   if (!mounted) return null;
 
   return (
-    <div className={`flex flex-col min-h-0 overflow-hidden bg-transparent transition-all duration-300 h-full
+    <div className={`flex flex-col min-h-0 overflow-hidden bg-jb-panel transition-all duration-300 h-full
       ${isTerminalCollapsed ? 'flex-none h-[48px]' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
       
       <div className={`flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300 pr-2
-        ${isDark ? 'bg-transparent border-white/10' : 'bg-transparent border-black/10'}`}>
+        ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
         
         <div className="flex items-center h-full pt-1.5 pb-1 px-2 gap-1 overflow-x-auto custom-chat-scrollbar">
 

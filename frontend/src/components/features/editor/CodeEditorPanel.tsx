@@ -202,7 +202,7 @@ export default function CodeEditorPanel({
 
   return (
     <div 
-      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden bg-transparent border-jb-border transition-colors duration-300"
+      className="relative flex-1 flex min-h-0 font-mono text-[13.5px] overflow-hidden bg-jb-panel border-jb-border transition-colors duration-300"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
