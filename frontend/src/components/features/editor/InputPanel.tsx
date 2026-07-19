@@ -54,6 +54,17 @@ export default function InputPanel({
   const sourceCodeRef = useRef(sourceCode);
   const tourMode = useChatStore((s) => s.tourMode);
 
+  const [showNewSessionPrompt, setShowNewSessionPrompt] = useState(false);
+  const promptTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLockedClick = () => {
+    setShowNewSessionPrompt(true);
+    if (promptTimerRef.current) clearTimeout(promptTimerRef.current);
+    promptTimerRef.current = setTimeout(() => {
+      setShowNewSessionPrompt(false);
+    }, 3000);
+  };
+
   useEffect(() => {
     sourceCodeRef.current = sourceCode;
   }, [sourceCode]);
@@ -210,6 +221,38 @@ export default function InputPanel({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Locked Overlay for Done State */}
+          {appState === 'done' && (
+            <div 
+              className="absolute inset-0 z-30 cursor-not-allowed"
+              onClickCapture={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleLockedClick();
+              }}
+            >
+              <AnimatePresence>
+                {showNewSessionPrompt && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    className={`absolute bottom-32 left-1/2 -translate-x-1/2 px-4 py-3 rounded-lg shadow-xl border flex items-center gap-3
+                      ${isDark ? 'bg-jb-panel border-[#393b40] text-jb-text' : 'bg-white border-[#ddd] text-black'}`}
+                  >
+                    <div className="bg-[#3574f0]/20 text-[#3574f0] p-2 rounded-full shrink-0">
+                      <FileCode2 size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-semibold">Session Locked</p>
+                      <p className="text-[12px] opacity-80 max-w-[200px] leading-tight mt-0.5">Please create a new session from the sidebar to do another refactoring.</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
         
       </div>
