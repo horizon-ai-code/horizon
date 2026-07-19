@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTheme } from "next-themes";
 import {
   Cpu,
@@ -9,6 +9,8 @@ import {
   CheckCircle2,
   Clock,
   Zap,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { NodeStatus } from "@/types/flowGraph";
 import type { GlassboxState } from "@/types/glassbox";
@@ -72,6 +74,7 @@ export default function FlowGrid({
     return "waiting";
   }
 
+  // Highest completed phase for connector lighting
   const highestDone = states
     ? Object.entries(states)
         .filter(
@@ -80,6 +83,128 @@ export default function FlowGrid({
         .map(([k]) => Number(k))
         .reduce((a, b) => Math.max(a, b), 0)
     : currentPhase;
+
+  // Refs for scroll container and active cards
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const isUserScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActivePhaseRef = useRef<number | null>(null);
+
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollButtons = () => {
+    const container = containerRef.current;
+    if (container) {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      // Using a small threshold (2px) for rounding errors
+      setCanScrollLeft(scrollLeft > 2);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
+    }
+  };
+
+  const startUserScroll = () => {
+    isUserScrollingRef.current = true;
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      isUserScrollingRef.current = false;
+    }, 150);
+  };
+
+  const handleScroll = () => {
+    updateScrollButtons();
+    if (isUserScrollingRef.current) {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        isUserScrollingRef.current = false;
+      }, 150);
+    }
+  };
+
+  // Scroll manually via navigation buttons
+  const scrollLeft = () => {
+    const container = containerRef.current;
+    if (container) {
+      container.scrollBy({ left: -250, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    const container = containerRef.current;
+    if (container) {
+      container.scrollBy({ left: 250, behavior: "smooth" });
+    }
+  };
+
+  // Auto-scroll logic targeting the active card
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    if (currentPhase !== lastActivePhaseRef.current) {
+      lastActivePhaseRef.current = currentPhase;
+
+      const performAutoScroll = () => {
+        const activeCard = cardRefs.current[currentPhase];
+        if (activeCard) {
+          activeCard.scrollIntoView({
+            behavior: "smooth",
+            inline: "center",
+            block: "nearest",
+          });
+        }
+      };
+
+      if (isUserScrollingRef.current) {
+        const checkAndScroll = () => {
+          if (!isUserScrollingRef.current) {
+            performAutoScroll();
+          } else {
+            timeoutId = setTimeout(checkAndScroll, 100);
+          }
+        };
+        timeoutId = setTimeout(checkAndScroll, 100);
+      } else {
+        performAutoScroll();
+      }
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [currentPhase]);
+
+  // Clean up main scroll timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Set up ResizeObserver to update scroll buttons on dimension changes
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    updateScrollButtons();
+
+    const observer = new ResizeObserver(() => {
+      updateScrollButtons();
+    });
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center gap-5 h-full w-full p-6">
@@ -98,8 +223,58 @@ export default function FlowGrid({
         </div>
       )}
 
-      {/* 6-Phase Grid Layout (No Scrolling) */}
-      <div className="w-full max-w-6xl mx-auto flex flex-wrap lg:flex-nowrap items-center justify-center gap-1 sm:gap-2 md:gap-4 py-8 px-2">
+      {/* Reordered linear horizontal sequence */}
+      <div className="relative w-full max-w-full group">
+        {/* Left Arrow Button */}
+        {canScrollLeft && (
+          <button
+            onClick={scrollLeft}
+            type="button"
+            className={`absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-10 h-10 rounded-full border shadow-md backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95 ${
+              isDark
+                ? "bg-jb-panel/85 border-jb-border/50 text-jb-text hover:bg-jb-panel"
+                : "bg-white/85 border-[#dfdfdf] text-[#080808] hover:bg-white"
+            }`}
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        )}
+
+        {/* Right Arrow Button */}
+        {canScrollRight && (
+          <button
+            onClick={scrollRight}
+            type="button"
+            className={`absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-10 h-10 rounded-full border shadow-md backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95 ${
+              isDark
+                ? "bg-jb-panel/85 border-jb-border/50 text-jb-text hover:bg-jb-panel"
+                : "bg-white/85 border-[#dfdfdf] text-[#080808] hover:bg-white"
+            }`}
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={20} />
+          </button>
+        )}
+
+        {/* Scrollable Container */}
+        <div
+          ref={containerRef}
+          onWheel={startUserScroll}
+          onPointerDown={startUserScroll}
+          onTouchStart={startUserScroll}
+          onScroll={handleScroll}
+          className="flex items-center gap-4 overflow-x-auto py-20 px-32 flow-grid-scrollbar-none scroll-smooth"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            scrollSnapType: "x proximity",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
+            maskImage:
+              "linear-gradient(to right, transparent, black 128px, black calc(100% - 128px), transparent)",
+          }}
+        >
           {PHASES.map((phase) => {
             const num = phase.num;
             const isLast = num === 6;
@@ -123,13 +298,17 @@ export default function FlowGrid({
             return (
               <React.Fragment key={num}>
                 <div
+                  ref={(el) => {
+                    cardRefs.current[num] = el;
+                  }}
                   className={`shrink-0 origin-center transition-all duration-500 ${
                     !isDone
                       ? nodeStatus(num) === "active"
-                        ? "scale-[1.1] z-10 mx-1 md:mx-2 shadow-2xl"
-                        : "scale-[0.95] opacity-70"
-                      : "scale-[0.95]"
+                        ? "scale-[1.5] z-10 mx-20"
+                        : "scale-[0.85] opacity-60"
+                      : ""
                   }`}
+                  style={{ scrollSnapAlign: "center" }}
                 >
                   <NodeCard
                     phase={phase}
@@ -149,6 +328,7 @@ export default function FlowGrid({
               </React.Fragment>
             );
           })}
+        </div>
       </div>
 
       {isDone && (
@@ -242,10 +422,10 @@ function NodeCard({
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-center p-3 w-28 h-32 md:w-36 md:h-40 rounded-[20px] ring-1 transition-all duration-500 ${s.bg} ${s.ring} ${s.text}`}
+      className={`relative flex flex-col items-center justify-center p-3 w-44 h-44 rounded-[20px] ring-1 transition-all duration-500 ${s.bg} ${s.ring} ${s.text}`}
     >
       <div className="flex items-center gap-1 mb-1">
-        <span className="text-[10px] md:text-[12px] font-bold opacity-60">P{phase.num}</span>
+        <span className="text-[12px] font-bold opacity-60">P{phase.num}</span>
       </div>
 
       {status === "active" && (
@@ -265,14 +445,14 @@ function NodeCard({
                 : undefined,
           }}
         >
-          <Icon size={28} className="md:w-8 md:h-8" />
+          <Icon size={34} />
         </span>
       )}
 
-      <h4 className="text-[12px] md:text-[14px] font-bold text-center leading-tight">
+      <h4 className="text-[16px] font-bold text-center leading-tight">
         {phase.name}
       </h4>
-      <span className="text-[9px] md:text-[10px] font-mono opacity-60">{phase.agent}</span>
+      <span className="text-[11px] font-mono opacity-60">{phase.agent}</span>
 
       {modelName && (
         <span className="text-[10px] font-mono opacity-40 text-center leading-tight mt-0.5">
