@@ -325,3 +325,30 @@
 .terminal-cursor {
   animation: terminal-blink 1s step-end infinite;
 }
+
+/* ─── VIEW TRANSITION THEME REVEAL ──────────────────────────── */
+
+::view-transition-group(root) {
+  animation-duration: 600ms;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  display: block;
+}
+
+::view-transition-new(root) {
+  z-index: 100;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+/* Disable regular CSS transitions during view transitions */
+.theme-transitioning,
+.theme-transitioning * {
+  transition: none !important;
+}
