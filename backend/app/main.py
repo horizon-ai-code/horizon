@@ -212,7 +212,7 @@ async def system_monitor_ws(websocket: WebSocket) -> None:
                 "metrics": metrics,
             })
             await asyncio.sleep(2)
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, RuntimeError):
         pass
 
 
