@@ -1,4 +1,4 @@
-.PHONY: build build-gpu build-cpu build-frontend push push-gpu push-cpu push-frontend up up-local up-cpu up-cpu-local down dev
+.PHONY: build build-gpu build-cpu build-frontend push push-gpu push-cpu push-frontend up up-local up-cpu up-cpu-local down dev build-dev build-dev-gpu build-dev-cpu build-dev-frontend push-dev push-dev-gpu push-dev-cpu push-dev-frontend dev-docker-gpu dev-docker-cpu down-dev
 
 build: build-gpu build-cpu build-frontend
 
@@ -14,6 +14,17 @@ build-frontend:
 		--build-arg NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws \
 		frontend/
 
+build-dev: build-dev-gpu build-dev-cpu build-dev-frontend
+
+build-dev-gpu:
+	docker build -t ghcr.io/horizon-ai-code/horizon-backend:dev-latest -f backend/Dockerfile.dev backend/
+
+build-dev-cpu:
+	docker build -t ghcr.io/horizon-ai-code/horizon-backend:dev-cpu -f backend/Dockerfile.dev.cpu backend/
+
+build-dev-frontend:
+	docker build -t ghcr.io/horizon-ai-code/horizon-frontend:dev-latest -f frontend/Dockerfile.dev frontend/
+
 push: push-gpu push-cpu push-frontend
 
 push-gpu:
@@ -24,6 +35,17 @@ push-cpu:
 
 push-frontend:
 	docker push ghcr.io/horizon-ai-code/horizon-frontend:latest
+
+push-dev: push-dev-gpu push-dev-cpu push-dev-frontend
+
+push-dev-gpu:
+	docker push ghcr.io/horizon-ai-code/horizon-backend:dev-latest
+
+push-dev-cpu:
+	docker push ghcr.io/horizon-ai-code/horizon-backend:dev-cpu
+
+push-dev-frontend:
+	docker push ghcr.io/horizon-ai-code/horizon-frontend:dev-latest
 
 up:
 	docker compose up -d && docker compose logs -f
@@ -43,5 +65,14 @@ dev:
 		npm --prefix frontend run dev & \
 		wait
 
+dev-docker-gpu:
+	docker compose -f docker-compose.dev.yml up -d && docker compose -f docker-compose.dev.yml logs -f
+
+dev-docker-cpu:
+	docker compose -f docker-compose.dev.cpu.yml up -d && docker compose -f docker-compose.dev.cpu.yml logs -f
+
 down:
 	docker compose down
+
+down-dev:
+	docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.cpu.yml down
