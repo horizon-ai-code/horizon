@@ -1,0 +1,13 @@
+{
+  "name": "horizon-benchmark-report",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generates the Horizon benchmark evaluation report (docx) from v2 charts.",
+  "main": "generate_report.js",
+  "scripts": {
+    "generate": "node generate_report.js"
+  },
+  "dependencies": {
+    "docx": "^9.7.1"
+  }
+}
