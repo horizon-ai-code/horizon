@@ -190,16 +190,15 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
 
     </nav>
 
-    {showSystemPanel && systemMetrics && (
-      <div className="relative z-50">
-        <SystemMonitorPanel
-          samples={samples}
-          systemMetrics={systemMetrics}
-          connected={connected}
-          isDark={isDark}
-          onClose={() => setShowSystemPanel(false)}
-        />
-      </div>
+    {systemMetrics && (
+      <SystemMonitorPanel
+        isOpen={showSystemPanel}
+        samples={samples}
+        systemMetrics={systemMetrics}
+        connected={connected}
+        isDark={isDark}
+        onClose={() => setShowSystemPanel(false)}
+      />
     )}
     </>
   );
