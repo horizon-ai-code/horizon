@@ -137,17 +137,25 @@ export default function RefactoredOutput({
         
         <div className="flex items-center gap-2 pr-4">
           {appState === 'analyzing' && (
-            <div className="flex items-center gap-2 mr-2">
-              <button
-                onClick={() => setShowIssueMsg(true)}
-                className={`w-6 h-6 flex items-center justify-center rounded-md border text-[12px] font-bold cursor-pointer transition-all animate-pulse
-                  ${isDark ? 'border-yellow-500/50 text-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.4)]' : 'border-amber-500/50 text-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.4)]'}`}
-                title="Help"
-              >
-                ?
-              </button>
-              <span className={`text-[12px] font-medium transition-colors ${isDark ? (showIssueMsg ? 'text-yellow-400/90' : 'text-jb-text-muted') : (showIssueMsg ? 'text-amber-600' : 'text-[#818594]')}`}>
-                {showIssueMsg ? "The refactoring takes too long because of some issues" : "Refactoring takes too long?"}
+            <div className="flex items-center gap-2 mr-2 relative">
+              <div className="relative">
+                <button
+                  onClick={() => setShowIssueMsg(!showIssueMsg)}
+                  className={`w-6 h-6 flex items-center justify-center rounded-md border text-[12px] font-bold cursor-pointer transition-all animate-pulse
+                    ${isDark ? 'border-yellow-500/50 text-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.4)]' : 'border-amber-500/50 text-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.4)]'}`}
+                  title="Help"
+                >
+                  ?
+                </button>
+                {showIssueMsg && (
+                  <div className={`absolute top-full left-0 mt-2 p-3 w-[250px] rounded-md shadow-xl border text-[12px] leading-relaxed z-50
+                    ${isDark ? 'bg-jb-bg border-jb-border text-yellow-400/90' : 'bg-white border-[#dfdfdf] text-amber-600'}`}>
+                    The refactoring takes too long because of some issues
+                  </div>
+                )}
+              </div>
+              <span className={`text-[12px] font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                Refactoring takes too long?
               </span>
             </div>
           )}
