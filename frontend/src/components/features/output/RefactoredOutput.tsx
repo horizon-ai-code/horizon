@@ -13,6 +13,7 @@ import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import FlowGrid from "@/components/features/output/FlowGrid";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
+import RefactorHelpButton from "./RefactorHelpButton";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -40,7 +41,6 @@ export default function RefactoredOutput({
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const tourMode = useChatStore((s) => s.tourMode);
-  const [showIssueMsg, setShowIssueMsg] = useState(false);
 
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
@@ -65,9 +65,6 @@ export default function RefactoredOutput({
   useEffect(() => {
     if (appState === "analyzing" && !isMonolith) {
       requestAnimationFrame(() => setRightPanelMode("flow"));
-    }
-    if (appState !== "analyzing") {
-      setShowIssueMsg(false);
     }
   }, [appState, isMonolith]);
 
@@ -136,29 +133,7 @@ export default function RefactoredOutput({
         </div>
         
         <div className="flex items-center gap-2 pr-4">
-          {appState === 'analyzing' && (
-            <div className="flex items-center mr-2 relative group">
-              <span className={`absolute right-full mr-3 whitespace-nowrap text-[12px] font-medium transition-all duration-300 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-                Refactoring takes too long?
-              </span>
-              <div className="relative">
-                <button
-                  onClick={() => setShowIssueMsg(!showIssueMsg)}
-                  className={`w-6 h-6 flex items-center justify-center rounded-md border text-[12px] font-bold cursor-pointer transition-all animate-pulse
-                    ${isDark ? 'border-yellow-500/50 text-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.4)]' : 'border-amber-500/50 text-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.4)]'}`}
-                  title="Help"
-                >
-                  ?
-                </button>
-                {showIssueMsg && (
-                  <div className={`absolute top-full right-0 mt-2 p-3 w-[250px] rounded-md shadow-xl border text-[12px] leading-relaxed z-50
-                    ${isDark ? 'bg-jb-bg border-jb-border text-yellow-400/90' : 'bg-white border-[#dfdfdf] text-amber-600'}`}>
-                    The refactoring takes too long because of some issues
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          {appState === 'analyzing' && <RefactorHelpButton isDark={isDark} />}
           {appState === 'done' && (
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 duration-300
               ${isDark ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
