@@ -138,6 +138,9 @@ export default function RefactoredOutput({
         <div className="flex items-center gap-2 pr-4">
           {appState === 'analyzing' && (
             <div className="flex items-center gap-2 mr-2 relative">
+              <span className={`text-[12px] font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                Refactoring takes too long?
+              </span>
               <div className="relative">
                 <button
                   onClick={() => setShowIssueMsg(!showIssueMsg)}
@@ -148,15 +151,12 @@ export default function RefactoredOutput({
                   ?
                 </button>
                 {showIssueMsg && (
-                  <div className={`absolute top-full left-0 mt-2 p-3 w-[250px] rounded-md shadow-xl border text-[12px] leading-relaxed z-50
+                  <div className={`absolute top-full right-0 mt-2 p-3 w-[250px] rounded-md shadow-xl border text-[12px] leading-relaxed z-50
                     ${isDark ? 'bg-jb-bg border-jb-border text-yellow-400/90' : 'bg-white border-[#dfdfdf] text-amber-600'}`}>
                     The refactoring takes too long because of some issues
                   </div>
                 )}
               </div>
-              <span className={`text-[12px] font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-                Refactoring takes too long?
-              </span>
             </div>
           )}
           {appState === 'done' && (
