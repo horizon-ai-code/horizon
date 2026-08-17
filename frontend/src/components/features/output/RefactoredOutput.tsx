@@ -40,6 +40,7 @@ export default function RefactoredOutput({
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const tourMode = useChatStore((s) => s.tourMode);
+  const [showIssueMsg, setShowIssueMsg] = useState(false);
 
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
@@ -64,6 +65,9 @@ export default function RefactoredOutput({
   useEffect(() => {
     if (appState === "analyzing" && !isMonolith) {
       requestAnimationFrame(() => setRightPanelMode("flow"));
+    }
+    if (appState !== "analyzing") {
+      setShowIssueMsg(false);
     }
   }, [appState, isMonolith]);
 
@@ -132,6 +136,21 @@ export default function RefactoredOutput({
         </div>
         
         <div className="flex items-center gap-2 pr-4">
+          {appState === 'analyzing' && (
+            <div className="flex items-center gap-2 mr-2">
+              <button
+                onClick={() => setShowIssueMsg(true)}
+                className={`w-6 h-6 flex items-center justify-center rounded-md border text-[12px] font-bold cursor-pointer transition-all animate-pulse
+                  ${isDark ? 'border-yellow-500/50 text-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.4)]' : 'border-amber-500/50 text-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.4)]'}`}
+                title="Help"
+              >
+                ?
+              </button>
+              <span className={`text-[12px] font-medium transition-colors ${isDark ? (showIssueMsg ? 'text-yellow-400/90' : 'text-jb-text-muted') : (showIssueMsg ? 'text-amber-600' : 'text-[#818594]')}`}>
+                {showIssueMsg ? "The refactoring takes too long because of some issues" : "Refactoring takes too long?"}
+              </span>
+            </div>
+          )}
           {appState === 'done' && (
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 duration-300
               ${isDark ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
