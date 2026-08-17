@@ -137,8 +137,8 @@ export default function RefactoredOutput({
         
         <div className="flex items-center gap-2 pr-4">
           {appState === 'analyzing' && (
-            <div className="flex items-center gap-2 mr-2 relative">
-              <span className={`text-[12px] font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+            <div className="flex items-center mr-2 relative group">
+              <span className={`absolute right-full mr-3 whitespace-nowrap text-[12px] font-medium transition-all duration-300 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
                 Refactoring takes too long?
               </span>
               <div className="relative">
