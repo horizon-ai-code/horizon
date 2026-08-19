@@ -12,6 +12,7 @@ import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import FlowGrid from "@/components/features/output/FlowGrid";
 import { useChatStore } from "@/store/useChatStore";
+import { AnimatePresence } from "framer-motion";
 import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
 import RefactorHelpButton from "./RefactorHelpButton";
 import PipelineTracker from "./PipelineTracker";
@@ -44,9 +45,11 @@ export default function RefactoredOutput({
   const tourMode = useChatStore((s) => s.tourMode);
 
   // 1. ADD 'output' state and make it the default
-  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow' | 'phases'>(
+  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
     appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
   );
+  
+  const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
   const hasFormatted = useRef(false);
 
   useEffect(() => {
@@ -133,15 +136,11 @@ export default function RefactoredOutput({
           )}
 
           <button 
-            onClick={() => setRightPanelMode('phases')}
-            role="tab"
-            aria-selected={displayPanelMode === 'phases'}
+            onClick={() => setIsTrackerModalOpen(true)}
             className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
-              ${displayPanelMode === 'phases' 
-                ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
-                : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
+              ${isDark ? 'text-jb-accent hover:bg-jb-panel/40 border-transparent' : 'text-[#3574f0] hover:bg-[#ebecf0]'}`}
           >
-             Phases
+             Phases Demo
           </button>
         </div>
         
@@ -268,8 +267,6 @@ export default function RefactoredOutput({
               The session was interrupted before completion. Please start a new refactor.
             </p>
           </div>
-        ) : displayPanelMode === 'phases' ? (
-           <PipelineTracker />
         ) : (
            displayPanelMode === 'output' ? (
               <CodeEditorPanel 
@@ -296,6 +293,10 @@ export default function RefactoredOutput({
 
         
       </div>
+
+      <AnimatePresence>
+        {isTrackerModalOpen && <PipelineTracker onClose={() => setIsTrackerModalOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

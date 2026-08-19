@@ -3,11 +3,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Brain, Cpu, Database, Server, TerminalSquare, RotateCcw } from "lucide-react";
+import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Brain, Cpu, Database, Server, TerminalSquare, RotateCcw, X } from "lucide-react";
 import { MOCK_PIPELINE_EVENTS, PHASES_CONFIG, PipelineEvent } from "./pipelineEvents";
 import CodeEditorPanel from "../editor/CodeEditorPanel";
 
-export default function PipelineTracker() {
+interface PipelineTrackerProps {
+  onClose: () => void;
+}
+
+export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [eventIndex, setEventIndex] = useState(0);
@@ -97,40 +101,58 @@ export default function PipelineTracker() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-jb-panel">
-      {/* Header / Next Button */}
-      <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 z-20 ${isDark ? 'border-jb-border' : 'border-[#ebecf0]'}`}>
-        <div className="flex items-center gap-2">
-          <TerminalSquare size={16} className={isDark ? "text-jb-accent" : "text-[#3574f0]"} />
-          <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-            Live Execution Tracker
-          </span>
-          <span className={`text-[11px] px-2 py-0.5 rounded-md ${isDark ? 'bg-jb-bg text-jb-text-muted' : 'bg-[#ebecf0] text-[#818594]'}`}>
-            Mock Demo
-          </span>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-black/50 backdrop-blur-sm">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className={`flex flex-col w-full h-full max-w-[1400px] max-h-[900px] overflow-hidden rounded-xl shadow-2xl border ${
+          isDark ? 'bg-jb-panel border-white/10 ring-1 ring-white/5' : 'bg-white border-[#ebecf0] ring-1 ring-black/5'
+        }`}
+      >
+        {/* Header / Next Button */}
+        <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 z-20 ${isDark ? 'border-jb-border' : 'border-[#ebecf0]'}`}>
+          <div className="flex items-center gap-2">
+            <TerminalSquare size={16} className={isDark ? "text-jb-accent" : "text-[#3574f0]"} />
+            <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
+              Live Execution Tracker
+            </span>
+            <span className={`text-[11px] px-2 py-0.5 rounded-md ${isDark ? 'bg-jb-bg text-jb-text-muted' : 'bg-[#ebecf0] text-[#818594]'}`}>
+              Mock Demo
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleReset}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
+                isDark ? 'bg-jb-bg hover:bg-jb-border/40 text-jb-text' : 'bg-[#f7f8fa] hover:bg-[#ebecf0] text-[#080808]'
+              }`}
+            >
+              <RotateCcw size={14} /> Reset
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={eventIndex >= MOCK_PIPELINE_EVENTS.length - 1}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors mr-2 ${
+                eventIndex >= MOCK_PIPELINE_EVENTS.length - 1
+                  ? 'opacity-50 cursor-not-allowed'
+                  : isDark ? 'bg-jb-accent text-white hover:bg-jb-accent/90' : 'bg-[#3574f0] text-white hover:bg-[#3574f0]/90'
+              }`}
+            >
+              Next Event <Play size={14} />
+            </button>
+            <div className={`w-px h-5 mx-1 ${isDark ? 'bg-jb-border' : 'bg-[#dfdfdf]'}`} />
+            <button
+              onClick={onClose}
+              className={`p-1.5 rounded-md transition-colors ${
+                isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]'
+              }`}
+              title="Close Tracker"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleReset}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
-              isDark ? 'bg-jb-bg hover:bg-jb-border/40 text-jb-text' : 'bg-[#f7f8fa] hover:bg-[#ebecf0] text-[#080808]'
-            }`}
-          >
-            <RotateCcw size={14} /> Reset
-          </button>
-          <button
-            onClick={handleNext}
-            disabled={eventIndex >= MOCK_PIPELINE_EVENTS.length - 1}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
-              eventIndex >= MOCK_PIPELINE_EVENTS.length - 1
-                ? 'opacity-50 cursor-not-allowed'
-                : isDark ? 'bg-jb-accent text-white hover:bg-jb-accent/90' : 'bg-[#3574f0] text-white hover:bg-[#3574f0]/90'
-            }`}
-          >
-            Next Event <Play size={14} />
-          </button>
-        </div>
-      </div>
 
       {/* 3-Pane Workspace */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -326,8 +348,8 @@ export default function PipelineTracker() {
             <div ref={traceEndRef} className="h-4 shrink-0" />
           </div>
         </div>
-
       </div>
+      </motion.div>
     </div>
   );
 }
