@@ -379,15 +379,14 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
             <div className="h-full w-full flex flex-col">
               <div 
                 onClick={() => setIsTraceLogOpen(!isTraceLogOpen)}
-                className={`flex items-center px-4 py-2 border-b cursor-pointer ${isDark ? 'border-jb-border/40 hover:bg-white/5' : 'border-[#ebecf0]/40 hover:bg-black/5'} transition-colors shrink-0`}
+                className={`flex items-center justify-between px-4 py-2 border-b cursor-pointer ${isDark ? 'border-jb-border/40 hover:bg-white/5' : 'border-[#ebecf0]/40 hover:bg-black/5'} transition-colors shrink-0`}
               >
-                <div className={`text-[11px] font-bold tracking-wider uppercase w-[150px] shrink-0 ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                <div className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
                   Trace Log Terminal
                 </div>
-                <div className="flex-1 flex justify-center text-jb-text-muted opacity-50">
+                <div className={`flex justify-center ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'} opacity-50`}>
                   {isTraceLogOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
                 </div>
-                <div className="w-[150px] shrink-0" />
               </div>
               <div className="flex-1 overflow-y-auto custom-chat-scrollbar p-2 flex flex-col gap-1">
                     {currentEvents.map((event, idx) => {
