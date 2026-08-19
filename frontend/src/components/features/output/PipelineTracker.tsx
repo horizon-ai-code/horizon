@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Brain, Cpu, Database, Server, TerminalSquare, RotateCcw, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, Terminal } from "lucide-react";
 import { MOCK_PIPELINE_EVENTS, PHASES_CONFIG, PipelineEvent } from "./pipelineEvents";
 import CodeEditorPanel from "../editor/CodeEditorPanel";
 
@@ -16,6 +16,10 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
   const [mounted, setMounted] = useState(false);
   const [eventIndex, setEventIndex] = useState(0);
   
+  // UI states
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isTraceLogOpen, setIsTraceLogOpen] = useState(true);
+
   // Track expanded phases
   const [expandedPhases, setExpandedPhases] = useState<Record<number, boolean>>({});
   
@@ -28,10 +32,10 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
 
   // Scroll to bottom of trace when new event arrives
   useEffect(() => {
-    if (traceEndRef.current) {
+    if (traceEndRef.current && isTraceLogOpen) {
       traceEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [eventIndex]);
+  }, [eventIndex, isTraceLogOpen]);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
   
@@ -43,7 +47,10 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
 
   // Auto-expand active phase
   useEffect(() => {
-    setExpandedPhases(prev => ({ ...prev, [activePhase]: true }));
+    const timeout = setTimeout(() => {
+      setExpandedPhases(prev => ({ ...prev, [activePhase]: true }));
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [activePhase]);
 
   // Derive model VRAM state
@@ -113,6 +120,17 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
         {/* Header / Next Button */}
         <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 z-20 ${isDark ? 'border-jb-border' : 'border-[#ebecf0]'}`}>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className={`p-1.5 rounded-md transition-colors mr-1 ${
+                isSidebarOpen 
+                  ? (isDark ? 'bg-jb-border/40 text-jb-text' : 'bg-[#ebecf0] text-[#080808]')
+                  : (isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')
+              }`}
+              title="Toggle Sidebar"
+            >
+              <PanelLeft size={16} />
+            </button>
             <TerminalSquare size={16} className={isDark ? "text-jb-accent" : "text-[#3574f0]"} />
             <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
               Live Execution Tracker
@@ -122,6 +140,17 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsTraceLogOpen(!isTraceLogOpen)}
+              className={`p-1.5 rounded-md transition-colors mr-1 ${
+                isTraceLogOpen 
+                  ? (isDark ? 'bg-jb-border/40 text-jb-text' : 'bg-[#ebecf0] text-[#080808]')
+                  : (isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')
+              }`}
+              title="Toggle Trace Log"
+            >
+              <Terminal size={16} />
+            </button>
             <button
               onClick={handleReset}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
@@ -154,74 +183,86 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
           </div>
         </div>
 
-      {/* 3-Pane Workspace */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      {/* Workspace */}
+      <div className="flex flex-1 min-h-0 overflow-hidden relative">
         
         {/* Left Rail: Phase Stepper */}
-        <div className={`w-[280px] shrink-0 border-r overflow-y-auto custom-chat-scrollbar flex flex-col ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}>
-          <div className={`text-[11px] font-bold tracking-wider px-4 py-3 uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-            Orchestration Phases
-          </div>
-          <div className="flex-1 px-2 pb-4">
-            {PHASES_CONFIG.map((phase) => {
-              const phaseStatus = getPhaseStatus(phase.id);
-              const isExpanded = expandedPhases[phase.id];
-              
-              return (
-                <div key={phase.id} className="mb-2">
-                  <div 
-                    onClick={() => setExpandedPhases(p => ({ ...p, [phase.id]: !p[phase.id] }))}
-                    className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
-                      isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'
-                    }`}
-                  >
-                    {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    {getStatusIcon(phaseStatus)}
-                    <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-                      {phase.name}
-                    </span>
-                  </div>
-                  
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden ml-6 pl-2 border-l border-jb-border/40 mt-1"
-                      >
-                        {phase.steps.map(step => {
-                          const stepStatus = getStepStatus(step);
-                          return (
-                            <div key={step} className={`flex items-center gap-2 p-1.5 rounded-md ${
-                              activeStep === step && (stepStatus === 'running' || stepStatus === 'looping' || stepStatus === 'fail')
-                                ? (isDark ? 'bg-blue-500/10' : 'bg-[#3574f0]/10') : ''
-                            }`}>
-                              {getStatusIcon(stepStatus)}
-                              <span className={`text-[12px] ${
-                                activeStep === step ? (isDark ? 'text-jb-text font-medium' : 'text-[#080808] font-medium') : (isDark ? 'text-jb-text-muted' : 'text-[#818594]')
-                              }`}>
-                                Step {step}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+        <AnimatePresence initial={false}>
+          {isSidebarOpen && (
+            <motion.div 
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 280, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`shrink-0 border-r overflow-hidden flex flex-col ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+            >
+              <div className="w-[280px] h-full flex flex-col overflow-y-auto custom-chat-scrollbar">
+                <div className={`text-[11px] font-bold tracking-wider px-4 py-3 uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                  Orchestration Phases
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <div className="flex-1 px-2 pb-4">
+                  {PHASES_CONFIG.map((phase) => {
+                    const phaseStatus = getPhaseStatus(phase.id);
+                    const isExpanded = expandedPhases[phase.id];
+                    
+                    return (
+                      <div key={phase.id} className="mb-2">
+                        <div 
+                          onClick={() => setExpandedPhases(p => ({ ...p, [phase.id]: !p[phase.id] }))}
+                          className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
+                            isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'
+                          }`}
+                        >
+                          {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                          {getStatusIcon(phaseStatus)}
+                          <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
+                            {phase.name}
+                          </span>
+                        </div>
+                        
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden ml-6 pl-2 border-l border-jb-border/40 mt-1"
+                            >
+                              {phase.steps.map(step => {
+                                const stepStatus = getStepStatus(step);
+                                return (
+                                  <div key={step} className={`flex items-center gap-2 p-1.5 rounded-md ${
+                                    activeStep === step && (stepStatus === 'running' || stepStatus === 'looping' || stepStatus === 'fail')
+                                      ? (isDark ? 'bg-blue-500/10' : 'bg-[#3574f0]/10') : ''
+                                  }`}>
+                                    {getStatusIcon(stepStatus)}
+                                    <span className={`text-[12px] ${
+                                      activeStep === step ? (isDark ? 'text-jb-text font-medium' : 'text-[#080808] font-medium') : (isDark ? 'text-jb-text-muted' : 'text-[#818594]')
+                                    }`}>
+                                      Step {step}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Center Pane: Diff Viewer (Mocked as side-by-side for now) */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Center Content: Code + Terminal */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-jb-panel">
           
           <div className="flex-1 flex overflow-hidden">
             {/* Original Code */}
             <div className={`flex-1 flex flex-col border-r ${isDark ? 'border-jb-border' : 'border-[#ebecf0]'}`}>
-              <div className={`px-4 py-1.5 text-[11px] font-mono border-b ${isDark ? 'bg-[#2b2d30] border-jb-border text-jb-text-muted' : 'bg-[#ebecf0] border-[#dfdfdf] text-[#818594]'}`}>
+              <div className={`px-4 py-1.5 text-[11px] font-mono border-b shrink-0 ${isDark ? 'bg-[#2b2d30] border-jb-border text-jb-text-muted' : 'bg-[#ebecf0] border-[#dfdfdf] text-[#818594]'}`}>
                 Original.java
               </div>
               <CodeEditorPanel value={originalCode} onChange={() => {}} placeholder="" readOnly />
@@ -229,7 +270,7 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
             
             {/* Candidate Code */}
             <div className="flex-1 flex flex-col relative">
-              <div className={`px-4 py-1.5 text-[11px] font-mono border-b ${isDark ? 'bg-[#2b2d30] border-jb-border text-jb-text-muted' : 'bg-[#ebecf0] border-[#dfdfdf] text-[#818594]'}`}>
+              <div className={`px-4 py-1.5 text-[11px] font-mono border-b shrink-0 ${isDark ? 'bg-[#2b2d30] border-jb-border text-jb-text-muted' : 'bg-[#ebecf0] border-[#dfdfdf] text-[#818594]'}`}>
                 Candidate.java
               </div>
               <CodeEditorPanel 
@@ -238,7 +279,6 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
                 placeholder="" 
                 readOnly 
                 highlightLines={{
-                  // Mock highlight for syntax error if step 7 failed
                   issue: getStepStatus(7) === 'fail' ? [7] : []
                 }}
               />
@@ -318,35 +358,49 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Rail: Trace Console */}
-        <div className={`w-[320px] shrink-0 border-l overflow-y-auto custom-chat-scrollbar flex flex-col font-mono text-[12px] p-2 ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}>
-          <div className={`text-[11px] font-bold tracking-wider px-2 py-2 mb-2 uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-            Trace Log
-          </div>
-          <div className="flex-1 flex flex-col gap-1">
-            {currentEvents.map((event, idx) => {
-              const isError = event.status === 'fail' || event.status === 'looping';
-              const isPass = event.status === 'pass';
-              return (
-                <motion.div 
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  key={idx}
-                  className={`flex flex-col py-1 px-2 rounded hover:bg-white/5 transition-colors`}
-                >
-                  <div className="flex gap-2">
-                    <span className="opacity-50">[{event.step}]</span>
-                    <span className={`flex-1 break-words ${isError ? 'text-red-400' : isPass ? (isDark ? 'text-emerald-400' : 'text-emerald-600') : (isDark ? 'text-jb-text' : 'text-[#080808]')}`}>
-                      {event.detail}
-                    </span>
+          {/* Bottom Trace Log (Collapsible) */}
+          <AnimatePresence initial={false}>
+            {isTraceLogOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 220, opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className={`border-t flex flex-col font-mono text-[12px] overflow-hidden shrink-0 ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+              >
+                <div className="h-full w-full flex flex-col">
+                  <div className={`flex items-center justify-between text-[11px] font-bold tracking-wider px-3 py-2 border-b uppercase ${isDark ? 'border-jb-border text-jb-text-muted' : 'border-[#ebecf0] text-[#818594]'}`}>
+                    <span>Trace Log Terminal</span>
+                    <button onClick={() => setIsTraceLogOpen(false)} className={`hover:text-jb-text transition-colors p-0.5 rounded-sm ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+                      <ChevronDown size={14} />
+                    </button>
                   </div>
-                </motion.div>
-              );
-            })}
-            <div ref={traceEndRef} className="h-4 shrink-0" />
-          </div>
+                  <div className="flex-1 overflow-y-auto custom-chat-scrollbar p-2 flex flex-col gap-1">
+                    {currentEvents.map((event, idx) => {
+                      const isError = event.status === 'fail' || event.status === 'looping';
+                      const isPass = event.status === 'pass';
+                      return (
+                        <motion.div 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          key={idx}
+                          className={`flex py-1 px-2 rounded hover:bg-white/5 transition-colors`}
+                        >
+                          <span className="opacity-50 w-[40px] shrink-0">[{event.step}]</span>
+                          <span className={`flex-1 break-words ${isError ? 'text-red-400' : isPass ? (isDark ? 'text-emerald-400' : 'text-emerald-600') : (isDark ? 'text-jb-text' : 'text-[#080808]')}`}>
+                            {event.detail}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                    <div ref={traceEndRef} className="h-4 shrink-0" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </div>
       </div>
       </motion.div>
