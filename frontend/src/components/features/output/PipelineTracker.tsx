@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, PanelLeftClose, PanelLeftOpen, Terminal } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, PanelLeftClose, PanelLeftOpen, Terminal } from "lucide-react";
 import { MOCK_PIPELINE_EVENTS, PHASES_CONFIG, PipelineEvent } from "./pipelineEvents";
 import CodeEditorPanel from "../editor/CodeEditorPanel";
 
@@ -129,17 +129,6 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsTraceLogOpen(!isTraceLogOpen)}
-              className={`p-1.5 rounded-md transition-colors mr-1 ${
-                isTraceLogOpen 
-                  ? (isDark ? 'bg-jb-border/40 text-jb-text' : 'bg-[#ebecf0] text-[#080808]')
-                  : (isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')
-              }`}
-              title="Toggle Trace Log"
-            >
-              <Terminal size={16} />
-            </button>
             <button
               onClick={handleReset}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
@@ -381,23 +370,26 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
           </div>
 
           {/* Bottom Trace Log (Collapsible) */}
-          <AnimatePresence initial={false}>
-            {isTraceLogOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 220, opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`border-t flex flex-col font-mono text-[12px] overflow-hidden shrink-0 ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+          <motion.div
+            initial={false}
+            animate={{ height: isTraceLogOpen ? 220 : 36 }}
+            transition={{ duration: 0.2 }}
+            className={`border-t flex flex-col font-mono text-[12px] overflow-hidden shrink-0 ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+          >
+            <div className="h-full w-full flex flex-col">
+              <div 
+                onClick={() => setIsTraceLogOpen(!isTraceLogOpen)}
+                className={`flex items-center px-4 py-2 border-b cursor-pointer ${isDark ? 'border-jb-border/40 hover:bg-white/5' : 'border-[#ebecf0]/40 hover:bg-black/5'} transition-colors shrink-0`}
               >
-                <div className="h-full w-full flex flex-col">
-                  <div className={`flex items-center justify-between text-[11px] font-bold tracking-wider px-3 py-2 border-b uppercase ${isDark ? 'border-jb-border text-jb-text-muted' : 'border-[#ebecf0] text-[#818594]'}`}>
-                    <span>Trace Log Terminal</span>
-                    <button onClick={() => setIsTraceLogOpen(false)} className={`hover:text-jb-text transition-colors p-0.5 rounded-sm ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
-                      <ChevronDown size={14} />
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto custom-chat-scrollbar p-2 flex flex-col gap-1">
+                <div className={`text-[11px] font-bold tracking-wider uppercase w-[150px] shrink-0 ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                  Trace Log Terminal
+                </div>
+                <div className="flex-1 flex justify-center text-jb-text-muted opacity-50">
+                  {isTraceLogOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                </div>
+                <div className="w-[150px] shrink-0" />
+              </div>
+              <div className="flex-1 overflow-y-auto custom-chat-scrollbar p-2 flex flex-col gap-1">
                     {currentEvents.map((event, idx) => {
                       const isError = event.status === 'fail' || event.status === 'looping';
                       const isPass = event.status === 'pass';
@@ -417,10 +409,8 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
                     })}
                     <div ref={traceEndRef} className="h-4 shrink-0" />
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          </motion.div>
 
         </div>
       </div>
