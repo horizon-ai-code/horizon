@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, Terminal } from "lucide-react";
+import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, PanelLeftClose, Terminal } from "lucide-react";
 import { MOCK_PIPELINE_EVENTS, PHASES_CONFIG, PipelineEvent } from "./pipelineEvents";
 import CodeEditorPanel from "../editor/CodeEditorPanel";
 
@@ -120,17 +120,17 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
         {/* Header / Next Button */}
         <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 z-20 ${isDark ? 'border-jb-border' : 'border-[#ebecf0]'}`}>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className={`p-1.5 rounded-md transition-colors mr-1 ${
-                isSidebarOpen 
-                  ? (isDark ? 'bg-jb-border/40 text-jb-text' : 'bg-[#ebecf0] text-[#080808]')
-                  : (isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')
-              }`}
-              title="Toggle Sidebar"
-            >
-              <PanelLeft size={16} />
-            </button>
+            {!isSidebarOpen && (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className={`p-1.5 rounded-md transition-colors mr-1 ${
+                  isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]'
+                }`}
+                title="Open Sidebar"
+              >
+                <PanelLeft size={16} />
+              </button>
+            )}
             <TerminalSquare size={16} className={isDark ? "text-jb-accent" : "text-[#3574f0]"} />
             <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
               Live Execution Tracker
@@ -197,10 +197,21 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
               className={`shrink-0 border-r overflow-hidden flex flex-col ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
             >
               <div className="w-[280px] h-full flex flex-col overflow-y-auto custom-chat-scrollbar">
-                <div className={`text-[11px] font-bold tracking-wider px-4 py-3 uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-                  Orchestration Phases
+                <div className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'border-jb-border/40' : 'border-[#ebecf0]/40'}`}>
+                  <div className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                    Orchestration Phases
+                  </div>
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`p-1 rounded-md transition-colors ${
+                      isDark ? 'text-jb-text-muted hover:bg-white/10 hover:text-jb-text' : 'text-[#818594] hover:bg-black/5 hover:text-[#080808]'
+                    }`}
+                    title="Close Sidebar"
+                  >
+                    <PanelLeftClose size={16} />
+                  </button>
                 </div>
-                <div className="flex-1 px-2 pb-4">
+                <div className="flex-1 px-2 py-2">
                   {PHASES_CONFIG.map((phase) => {
                     const phaseStatus = getPhaseStatus(phase.id);
                     const isExpanded = expandedPhases[phase.id];
