@@ -14,6 +14,7 @@ import FlowGrid from "@/components/features/output/FlowGrid";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
 import RefactorHelpButton from "./RefactorHelpButton";
+import PipelineTracker from "./PipelineTracker";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -43,7 +44,7 @@ export default function RefactoredOutput({
   const tourMode = useChatStore((s) => s.tourMode);
 
   // 1. ADD 'output' state and make it the default
-  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
+  const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow' | 'phases'>(
     appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
   );
   const hasFormatted = useRef(false);
@@ -130,6 +131,18 @@ export default function RefactoredOutput({
              Flow
           </button>
           )}
+
+          <button 
+            onClick={() => setRightPanelMode('phases')}
+            role="tab"
+            aria-selected={displayPanelMode === 'phases'}
+            className={`h-full px-3 flex items-center gap-2 text-[12px] font-medium transition-all cursor-pointer rounded-md 
+              ${displayPanelMode === 'phases' 
+                ? (isDark ? 'bg-jb-panel text-jb-text border-[#393b40]/50 shadow-sm' : 'bg-white text-[#080808] border-[#dfdfdf] shadow-sm') 
+                : (isDark ? 'text-jb-text opacity-70 hover:opacity-100 hover:bg-jb-panel/40 border-transparent' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]')}`}
+          >
+             Phases
+          </button>
         </div>
         
         <div className="flex items-center gap-2 pr-4">
@@ -255,6 +268,8 @@ export default function RefactoredOutput({
               The session was interrupted before completion. Please start a new refactor.
             </p>
           </div>
+        ) : displayPanelMode === 'phases' ? (
+           <PipelineTracker />
         ) : (
            displayPanelMode === 'output' ? (
               <CodeEditorPanel 
