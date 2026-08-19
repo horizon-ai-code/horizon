@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, PanelLeftClose, Terminal } from "lucide-react";
+import { ChevronDown, ChevronRight, Play, CheckCircle2, XCircle, RefreshCcw, Database, Server, TerminalSquare, RotateCcw, X, PanelLeft, PanelLeftClose, PanelLeftOpen, Terminal } from "lucide-react";
 import { MOCK_PIPELINE_EVENTS, PHASES_CONFIG, PipelineEvent } from "./pipelineEvents";
 import CodeEditorPanel from "../editor/CodeEditorPanel";
 
@@ -120,17 +120,6 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
         {/* Header / Next Button */}
         <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 z-20 ${isDark ? 'border-jb-border' : 'border-[#ebecf0]'}`}>
           <div className="flex items-center gap-2">
-            {!isSidebarOpen && (
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className={`p-1.5 rounded-md transition-colors mr-1 ${
-                  isDark ? 'text-jb-text-muted hover:bg-jb-border/40 hover:text-jb-text' : 'text-[#818594] hover:bg-[#ebecf0] hover:text-[#080808]'
-                }`}
-                title="Open Sidebar"
-              >
-                <PanelLeft size={16} />
-              </button>
-            )}
             <TerminalSquare size={16} className={isDark ? "text-jb-accent" : "text-[#3574f0]"} />
             <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
               Live Execution Tracker
@@ -187,49 +176,53 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
       <div className="flex flex-1 min-h-0 overflow-hidden relative">
         
         {/* Left Rail: Phase Stepper */}
-        <AnimatePresence initial={false}>
-          {isSidebarOpen && (
+        <motion.div 
+          initial={false}
+          animate={{ width: isSidebarOpen ? 280 : 48 }}
+          transition={{ duration: 0.2 }}
+          className={`shrink-0 border-r overflow-hidden flex flex-col ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+        >
+          {isSidebarOpen ? (
             <motion.div 
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 280, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className={`shrink-0 border-r overflow-hidden flex flex-col ${isDark ? 'border-jb-border bg-[#1e1f22]' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1, delay: 0.1 }}
+              className="w-[280px] h-full flex flex-col overflow-y-auto custom-chat-scrollbar"
             >
-              <div className="w-[280px] h-full flex flex-col overflow-y-auto custom-chat-scrollbar">
-                <div className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'border-jb-border/40' : 'border-[#ebecf0]/40'}`}>
-                  <div className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-                    Orchestration Phases
-                  </div>
-                  <button
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={`p-1 rounded-md transition-colors ${
-                      isDark ? 'text-jb-text-muted hover:bg-white/10 hover:text-jb-text' : 'text-[#818594] hover:bg-black/5 hover:text-[#080808]'
-                    }`}
-                    title="Close Sidebar"
-                  >
-                    <PanelLeftClose size={16} />
-                  </button>
+              <div className={`flex items-center justify-between px-4 py-3 border-b shrink-0 ${isDark ? 'border-jb-border/40' : 'border-[#ebecf0]/40'}`}>
+                <div className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                  Orchestration Phases
                 </div>
-                <div className="flex-1 px-2 py-2">
-                  {PHASES_CONFIG.map((phase) => {
-                    const phaseStatus = getPhaseStatus(phase.id);
-                    const isExpanded = expandedPhases[phase.id];
-                    
-                    return (
-                      <div key={phase.id} className="mb-2">
-                        <div 
-                          onClick={() => setExpandedPhases(p => ({ ...p, [phase.id]: !p[phase.id] }))}
-                          className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
-                            isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'
-                          }`}
-                        >
-                          {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                          {getStatusIcon(phaseStatus)}
-                          <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-                            {phase.name}
-                          </span>
-                        </div>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={`p-1 rounded-md transition-colors ${
+                    isDark ? 'text-jb-text-muted hover:bg-white/10 hover:text-jb-text' : 'text-[#818594] hover:bg-black/5 hover:text-[#080808]'
+                  }`}
+                  title="Close Sidebar"
+                >
+                  <PanelLeftClose size={16} />
+                </button>
+              </div>
+              <div className="flex-1 px-2 py-2">
+                {PHASES_CONFIG.map((phase) => {
+                  const phaseStatus = getPhaseStatus(phase.id);
+                  const isExpanded = expandedPhases[phase.id];
+                  
+                  return (
+                    <div key={phase.id} className="mb-2">
+                      <div 
+                        onClick={() => setExpandedPhases(p => ({ ...p, [phase.id]: !p[phase.id] }))}
+                        className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
+                          isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'
+                        }`}
+                      >
+                        {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                        {getStatusIcon(phaseStatus)}
+                        <span className={`text-[13px] font-medium ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
+                          {phase.name}
+                        </span>
+                      </div>
                         
                         <AnimatePresence>
                           {isExpanded && (
@@ -262,10 +255,27 @@ export default function PipelineTracker({ onClose }: PipelineTrackerProps) {
                     );
                   })}
                 </div>
-              </div>
+              </motion.div>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              className="w-[48px] h-full flex flex-col items-center py-2 shrink-0"
+            >
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className={`p-1.5 rounded-md transition-colors ${
+                  isDark ? 'text-jb-text-muted hover:bg-white/10 hover:text-jb-text' : 'text-[#818594] hover:bg-black/5 hover:text-[#080808]'
+                }`}
+                title="Open Sidebar"
+              >
+                <PanelLeftOpen size={18} />
+              </button>
             </motion.div>
           )}
-        </AnimatePresence>
+        </motion.div>
 
         {/* Center Content: Code + Terminal */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-jb-panel">
