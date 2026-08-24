@@ -8,6 +8,12 @@ import type { AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_INSTRUCTION } from "@/components/features/onboarding/tourDemo";
 import {
+  CODE_MAX_LENGTH,
+  INSTRUCTION_MAX_LENGTH,
+  CODE_MIN_LENGTH,
+  INSTRUCTION_MIN_LENGTH,
+} from "@/lib/validation";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -24,6 +30,7 @@ interface RefactorInputProps {
   inputError: boolean;
   setInputError: (val: boolean) => void;
   validateBeforeSubmit: () => boolean;
+  instructionErrorMessage?: string | null;
   startAnalysis: () => void;
   startSingleRefactor: () => void;
   stopAnalysis: () => void;
@@ -38,6 +45,7 @@ export default function RefactorInput({
   inputError,
   setInputError,
   validateBeforeSubmit,
+  instructionErrorMessage,
   startAnalysis,
   startSingleRefactor,
   stopAnalysis,
@@ -103,7 +111,18 @@ export default function RefactorInput({
 
   const effectiveInstruction = tourMode ? DEMO_INSTRUCTION : inputInstruction;
   const isChatExpanded = isChatFocused || effectiveInstruction.length > 0;
-  const isSubmitDisabled = !sourceCode.trim() || !effectiveInstruction.trim() || appState === "analyzing" || appState === "waiting" || appState === "done" || tourMode;
+  const isOverLimit =
+    sourceCode.length > CODE_MAX_LENGTH || effectiveInstruction.length > INSTRUCTION_MAX_LENGTH;
+  const isUnderMin =
+    sourceCode.trim().length < CODE_MIN_LENGTH ||
+    effectiveInstruction.trim().length < INSTRUCTION_MIN_LENGTH;
+  const isSubmitDisabled =
+    isOverLimit ||
+    isUnderMin ||
+    appState === "analyzing" ||
+    appState === "waiting" ||
+    appState === "done" ||
+    tourMode;
 
   return (
     <div id="tour-refactor-input" className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
@@ -202,6 +221,18 @@ export default function RefactorInput({
           )}
         </div>
       </motion.div>
+      {(instructionErrorMessage || effectiveInstruction.length > 0) && (
+        <div className="pointer-events-none mx-auto mt-1 w-fit flex items-center gap-2">
+          {instructionErrorMessage && (
+            <span className="text-[11px] font-semibold text-destructive" role="alert">
+              {instructionErrorMessage}
+            </span>
+          )}
+          <span className={`text-[10px] font-bold ${effectiveInstruction.length > INSTRUCTION_MAX_LENGTH ? "text-red-500" : "text-jb-text-muted opacity-70"}`}>
+            {effectiveInstruction.length.toLocaleString()} / {INSTRUCTION_MAX_LENGTH.toLocaleString()}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
