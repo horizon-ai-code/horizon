@@ -7,7 +7,7 @@ import { motion, useAnimation } from "framer-motion";
 import type { AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_INSTRUCTION } from "@/components/features/onboarding/tourDemo";
-import { INSTRUCTION_MAX_LENGTH } from "@/lib/validation";
+import { CODE_MAX_LENGTH, INSTRUCTION_MAX_LENGTH } from "@/lib/validation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,7 +106,16 @@ export default function RefactorInput({
 
   const effectiveInstruction = tourMode ? DEMO_INSTRUCTION : inputInstruction;
   const isChatExpanded = isChatFocused || effectiveInstruction.length > 0;
-  const isSubmitDisabled = !sourceCode.trim() || !effectiveInstruction.trim() || appState === "analyzing" || appState === "waiting" || appState === "done" || tourMode;
+  const isOverLimit =
+    sourceCode.length > CODE_MAX_LENGTH || effectiveInstruction.length > INSTRUCTION_MAX_LENGTH;
+  const isSubmitDisabled =
+    isOverLimit ||
+    !sourceCode.trim() ||
+    !effectiveInstruction.trim() ||
+    appState === "analyzing" ||
+    appState === "waiting" ||
+    appState === "done" ||
+    tourMode;
 
   return (
     <div id="tour-refactor-input" className="absolute bottom-0 left-0 w-full pt-20 pb-6 px-6 z-30 pointer-events-none bg-gradient-to-t from-jb-bg via-jb-bg/90 to-transparent">
