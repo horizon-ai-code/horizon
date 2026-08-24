@@ -7,6 +7,7 @@ import { motion, useAnimation } from "framer-motion";
 import type { AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_INSTRUCTION } from "@/components/features/onboarding/tourDemo";
+import { INSTRUCTION_MAX_LENGTH } from "@/lib/validation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,7 @@ interface RefactorInputProps {
   inputError: boolean;
   setInputError: (val: boolean) => void;
   validateBeforeSubmit: () => boolean;
+  instructionErrorMessage?: string | null;
   startAnalysis: () => void;
   startSingleRefactor: () => void;
   stopAnalysis: () => void;
@@ -38,6 +40,7 @@ export default function RefactorInput({
   inputError,
   setInputError,
   validateBeforeSubmit,
+  instructionErrorMessage,
   startAnalysis,
   startSingleRefactor,
   stopAnalysis,
@@ -202,6 +205,18 @@ export default function RefactorInput({
           )}
         </div>
       </motion.div>
+      {(instructionErrorMessage || effectiveInstruction.length > 0) && (
+        <div className="pointer-events-none mx-auto mt-1 w-fit flex items-center gap-2">
+          {instructionErrorMessage && (
+            <span className="text-[11px] font-semibold text-destructive" role="alert">
+              {instructionErrorMessage}
+            </span>
+          )}
+          <span className={`text-[10px] font-bold ${effectiveInstruction.length > INSTRUCTION_MAX_LENGTH ? "text-red-500" : "text-jb-text-muted opacity-70"}`}>
+            {effectiveInstruction.length.toLocaleString()} / {INSTRUCTION_MAX_LENGTH.toLocaleString()}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

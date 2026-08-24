@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Loader2, AlertCircle, X } from "lucide-react";
 import { useChatStore } from "@/store/useChatStore";
 import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
+import { validateSubmission } from "@/lib/validation";
 import type { SessionData } from "@/types/session";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import type { PanelImperativeHandle } from "react-resizable-panels";
@@ -39,6 +40,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const [mounted, setMounted] = useState(false);
   const [localSourceError, setLocalSourceError] = useState(false);
   const [localInputError, setLocalInputError] = useState(false);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [notFoundAlert, setNotFoundAlert] = useState(
     () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('error') === 'session_not_found'
   );
@@ -116,24 +118,19 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   } = activeSession;
   const prevAppStateRef = useRef(appState);
 
+  // Derived — messages appear after a failed submit attempt and clear live while typing
+  const validationErrors = useMemo(
+    () => (showValidationErrors ? validateSubmission(sourceCode, inputInstruction) : null),
+    [showValidationErrors, sourceCode, inputInstruction]
+  );
+
   const validateBeforeSubmit = useCallback(() => {
-    let hasError = false;
-
-    if (!sourceCode.trim()) {
-      setLocalSourceError(true);
-      hasError = true;
-    } else {
-      setLocalSourceError(false);
-    }
-
-    if (!inputInstruction.trim()) {
-      setLocalInputError(true);
-      hasError = true;
-    } else {
-      setLocalInputError(false);
-    }
-
-    return !hasError;
+    const errors = validateSubmission(sourceCode, inputInstruction);
+    const isValid = !errors.source && !errors.instruction;
+    setShowValidationErrors(!isValid);
+    setLocalSourceError(errors.source !== null);
+    setLocalInputError(errors.instruction !== null);
+    return isValid;
   }, [sourceCode, inputInstruction]);
 
   const updateLocal = useCallback((data: Partial<SessionData>) => {
@@ -322,6 +319,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
               inputError={localInputError}
               setInputError={handleInputErrorChange}
               validateBeforeSubmit={validateBeforeSubmit}
+              sourceErrorMessage={validationErrors?.source ?? null}
+              instructionErrorMessage={validationErrors?.instruction ?? null}
               startAnalysis={startAnalysis}
               startSingleRefactor={startSingleRefactor}
               stopAnalysis={stopAnalysis}
