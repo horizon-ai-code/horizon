@@ -7,7 +7,12 @@ import { motion, useAnimation } from "framer-motion";
 import type { AppState } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_INSTRUCTION } from "@/components/features/onboarding/tourDemo";
-import { CODE_MAX_LENGTH, INSTRUCTION_MAX_LENGTH } from "@/lib/validation";
+import {
+  CODE_MAX_LENGTH,
+  INSTRUCTION_MAX_LENGTH,
+  CODE_MIN_LENGTH,
+  INSTRUCTION_MIN_LENGTH,
+} from "@/lib/validation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -108,10 +113,12 @@ export default function RefactorInput({
   const isChatExpanded = isChatFocused || effectiveInstruction.length > 0;
   const isOverLimit =
     sourceCode.length > CODE_MAX_LENGTH || effectiveInstruction.length > INSTRUCTION_MAX_LENGTH;
+  const isUnderMin =
+    sourceCode.trim().length < CODE_MIN_LENGTH ||
+    effectiveInstruction.trim().length < INSTRUCTION_MIN_LENGTH;
   const isSubmitDisabled =
     isOverLimit ||
-    !sourceCode.trim() ||
-    !effectiveInstruction.trim() ||
+    isUnderMin ||
     appState === "analyzing" ||
     appState === "waiting" ||
     appState === "done" ||

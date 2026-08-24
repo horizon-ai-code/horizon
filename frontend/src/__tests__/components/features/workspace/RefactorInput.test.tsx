@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RefactorInput from '@/components/features/workspace/RefactorInput';
-import { CODE_MAX_LENGTH, INSTRUCTION_MAX_LENGTH } from '@/lib/validation';
+import { CODE_MAX_LENGTH, INSTRUCTION_MAX_LENGTH, CODE_MIN_LENGTH, INSTRUCTION_MIN_LENGTH } from '@/lib/validation';
 
 vi.mock('next-themes', () => ({
   useTheme: () => ({ resolvedTheme: 'dark', setTheme: vi.fn() }),
@@ -70,6 +70,39 @@ describe('RefactorInput submit gating (FR-002)', () => {
         {...baseProps}
         sourceCode={"c".repeat(CODE_MAX_LENGTH)}
         inputInstruction={"i".repeat(INSTRUCTION_MAX_LENGTH)}
+      />
+    );
+    expect(screen.getByRole('button', { name: /run/i })).not.toBeDisabled();
+  });
+
+  it('disables Run when source code is under minimum length', () => {
+    render(
+      <RefactorInput
+        {...baseProps}
+        sourceCode={"class"}
+        inputInstruction="refactor this"
+      />
+    );
+    expect(screen.getByRole('button', { name: /run/i })).toBeDisabled();
+  });
+
+  it('disables Run when instruction is under minimum length', () => {
+    render(
+      <RefactorInput
+        {...baseProps}
+        sourceCode="class A { void m() {} }"
+        inputInstruction={"a".repeat(INSTRUCTION_MIN_LENGTH - 1)}
+      />
+    );
+    expect(screen.getByRole('button', { name: /run/i })).toBeDisabled();
+  });
+
+  it('enables Run at exactly minimum lengths', () => {
+    render(
+      <RefactorInput
+        {...baseProps}
+        sourceCode={"c".repeat(CODE_MIN_LENGTH)}
+        inputInstruction={"i".repeat(INSTRUCTION_MIN_LENGTH)}
       />
     );
     expect(screen.getByRole('button', { name: /run/i })).not.toBeDisabled();
