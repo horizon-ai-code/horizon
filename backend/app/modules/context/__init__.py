@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from typing import Any
 
@@ -234,3 +235,23 @@ class DatabaseManager:
         """Deletes ALL history records and their associated logs."""
         with db.atomic():
             return RefactorHistory.delete().execute()
+
+
+async def periodic_history_cleanup(manager: DatabaseManager, interval_seconds: int = 900) -> None:
+    """Background loop: flags zombie sessions (>1h Processing) and purges halted sessions (>5h).
+
+    Runs forever until cancelled; exceptions are logged and swallowed so one
+    transient DB failure never kills the scheduler.
+    """
+    while True:
+        await asyncio.sleep(interval_seconds)
+        try:
+            flagged = manager.cleanup_zombie_sessions()
+            purged = manager.cleanup_halted_sessions()
+            if flagged or purged:
+                print(
+                    f"[db] Periodic cleanup: flagged {flagged} zombie session(s), "
+                    f"purged {purged} halted session(s)"
+                )
+        except Exception as e:
+            print(f"[db] Periodic cleanup failed: {e}")

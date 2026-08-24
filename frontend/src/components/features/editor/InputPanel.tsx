@@ -11,6 +11,7 @@ import type { AppState } from "@/types/session";
 import type { OrchestrationResult } from "@/types/session";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_CODE } from "@/components/features/onboarding/tourDemo";
+import { CODE_MAX_LENGTH } from "@/lib/validation";
 
 interface InputProps {
   sessionId: string | null;
@@ -23,6 +24,8 @@ interface InputProps {
   inputError: boolean;
   setInputError: (val: boolean) => void;
   validateBeforeSubmit: () => boolean;
+  sourceErrorMessage?: string | null;
+  instructionErrorMessage?: string | null;
   startAnalysis: () => void;
   startSingleRefactor: () => void;
   stopAnalysis: () => void;
@@ -41,6 +44,8 @@ export default function InputPanel({
   inputError,
   setInputError,
   validateBeforeSubmit,
+  sourceErrorMessage,
+  instructionErrorMessage,
   startAnalysis,
   startSingleRefactor,
   stopAnalysis,
@@ -143,6 +148,14 @@ export default function InputPanel({
           
           <div className="flex items-center gap-3 pr-2">
             {sourceCode.trim() !== "" && (
+              <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm transition-all duration-300
+                ${sourceCode.length > CODE_MAX_LENGTH
+                  ? 'bg-red-500/10 text-red-500 border-red-500/30'
+                  : isDark ? 'bg-jb-panel text-jb-text-muted border-[#393b40]/50' : 'bg-white text-[#818594] border-[#dfdfdf]'}`}>
+                {sourceCode.length.toLocaleString()} / {CODE_MAX_LENGTH.toLocaleString()}
+              </div>
+            )}
+            {sourceCode.trim() !== "" && (
               <div className={`text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm flex items-center gap-1 transition-all duration-300
                 ${isDark ? 'bg-jb-accent/10 text-jb-accent border-jb-accent/30' : 'bg-[#3574f0]/10 text-[#3574f0] border-[#3574f0]/20'}`}>
                 <span className={isDark ? "text-jb-accent" : "text-[#3574f0]"}>#</span> {lineCount} {lineCount === 1 ? 'LINE' : 'LINES'}
@@ -153,6 +166,19 @@ export default function InputPanel({
         
         {/* Editor Area */}
         <div className="flex-1 min-h-0 flex flex-col relative z-10">
+          <AnimatePresence>
+            {sourceErrorMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-lg bg-destructive/10 border border-destructive/40 text-destructive text-[11px] font-semibold pointer-events-none whitespace-nowrap shadow-lg"
+                role="alert"
+              >
+                {sourceErrorMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
           {sourceCode.trim() === '' && !(isEditorFocused && clipboardPreview) && !tourMode && (
             <div className="absolute top-0 right-0 bottom-0 left-14 flex flex-col items-center justify-center text-center px-6 pointer-events-none z-10 transition-colors duration-300">
               <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
@@ -194,6 +220,7 @@ export default function InputPanel({
             inputError={inputError}
             setInputError={setInputError}
             validateBeforeSubmit={validateBeforeSubmit}
+            instructionErrorMessage={instructionErrorMessage}
             startAnalysis={startAnalysis}
             startSingleRefactor={startSingleRefactor}
             stopAnalysis={stopAnalysis}
