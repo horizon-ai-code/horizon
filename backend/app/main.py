@@ -12,7 +12,7 @@ from pydantic import UUID4
 
 from app.modules.agent import AgentService, InterruptedError
 from app.modules.connection import ClientConnection, ConnectionManager, MessageRouter
-from app.modules.context import db
+from app.modules.context import db, periodic_history_cleanup
 from app.modules.orchestrator import Orchestrator
 from app.modules.validator import Validator
 from app.utils.schemas import (
@@ -43,6 +43,9 @@ system_monitor: SystemMonitor = SystemMonitor()
 # Global lock to serialize all orchestration (model & DB) operations
 orchestration_lock = asyncio.Lock()
 
+# FR-017: recurring session cleanup cadence (zombie flagging + halted purge)
+CLEANUP_INTERVAL_SECONDS = int(os.getenv("CLEANUP_INTERVAL_MINUTES", "15")) * 60
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,7 +64,19 @@ async def lifespan(app: FastAPI):
     if deleted:
         print(f"Deleted {deleted} halted sessions")
     await system_monitor.start()
+
+    # FR-017: keep re-purging stale sessions for the lifetime of the process
+    cleanup_task = asyncio.create_task(
+        periodic_history_cleanup(connection.db, CLEANUP_INTERVAL_SECONDS)
+    )
+
     yield
+
+    cleanup_task.cancel()
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        pass
     await system_monitor.stop()
     db.close()
     await agent_service.unload()
@@ -212,7 +227,7 @@ async def system_monitor_ws(websocket: WebSocket) -> None:
                 "metrics": metrics,
             })
             await asyncio.sleep(2)
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, RuntimeError):
         pass
 
 

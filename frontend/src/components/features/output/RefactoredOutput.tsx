@@ -13,6 +13,7 @@ import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import FlowGrid from "@/components/features/output/FlowGrid";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
+import RefactorHelpButton from "./RefactorHelpButton";
 
 interface RefactoredOutputProps {
   refactoredOutput: string;
@@ -41,6 +42,9 @@ export default function RefactoredOutput({
   const [mounted, setMounted] = useState(false);
   const tourMode = useChatStore((s) => s.tourMode);
 
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startTimeRef = useRef<number | null>(null);
+
   // 1. ADD 'output' state and make it the default
   const [rightPanelMode, setRightPanelMode] = useState<'output' | 'insights' | 'flow'>(
     appState === 'analyzing' && !isMonolith ? 'flow' : 'output'
@@ -66,6 +70,21 @@ export default function RefactoredOutput({
       requestAnimationFrame(() => setRightPanelMode("flow"));
     }
   }, [appState, isMonolith]);
+
+  useEffect(() => {
+    if (appState === "analyzing") {
+      if (startTimeRef.current === null) startTimeRef.current = Date.now();
+      const id = setInterval(() => {
+        setElapsedSeconds(
+          Math.floor((Date.now() - startTimeRef.current!) / 1000)
+        );
+      }, 1000);
+      return () => clearInterval(id);
+    } else {
+      startTimeRef.current = null;
+      requestAnimationFrame(() => setElapsedSeconds(0));
+    }
+  }, [appState]);
 
   const displayPanelMode = tourMode ? 'flow' : rightPanelMode;
   const isDark = mounted ? resolvedTheme === "dark" : true;
@@ -132,6 +151,14 @@ export default function RefactoredOutput({
         </div>
         
         <div className="flex items-center gap-2 pr-4">
+          {appState === 'analyzing' && (
+            <RefactorHelpButton
+              isDark={isDark}
+              elapsedSeconds={elapsedSeconds}
+              sourceCodeLength={sourceCode.length}
+              sourceCodeLines={sourceCode.split('\n').length}
+            />
+          )}
           {appState === 'done' && (
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm transition-transform flex items-center gap-1.5 duration-300
               ${isDark ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>

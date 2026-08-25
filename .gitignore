@@ -33,3 +33,6 @@ Thumbs.db
 # Agent configs
 .agents/
 .opencode/
+
+# Java compiled stubs (compiled at runtime)
+*.class

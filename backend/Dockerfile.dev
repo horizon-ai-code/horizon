@@ -1,0 +1,44 @@
+FROM nvidia/cuda:13.0.3-devel-ubuntu22.04 AS builder
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.10 python3.10-venv python3-pip python3.10-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN python3.10 -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+WORKDIR /build
+COPY requirements.txt pyproject.toml ./
+
+ENV CMAKE_ARGS="-DGGML_CUDA=on"
+ENV FORCE_CMAKE=1
+
+RUN CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 \
+    pip install --no-cache-dir llama-cpp-python
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pytest pytest-asyncio pytest-cov ruff mypy
+
+FROM nvidia/cuda:13.0.3-runtime-ubuntu22.04
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.10 python3-pip libgomp1 git curl && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /venv/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=builder /venv/bin/pytest /venv/bin/ruff /venv/bin/mypy /usr/local/bin/
+
+COPY app/ ./app/
+COPY model_config.yaml prompts.yaml pyproject.toml ./
+COPY scripts/ ./scripts/
+COPY models/ /app/models/
+
+RUN mkdir -p /app/db
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

@@ -12,6 +12,7 @@ interface SystemMonitorPanelProps {
   systemMetrics: SystemMetricsPayload;
   connected: boolean;
   isDark: boolean;
+  isOpen: boolean;
   onClose: () => void;
 }
 
@@ -279,6 +280,7 @@ export default function SystemMonitorPanel({
   systemMetrics,
   connected,
   isDark,
+  isOpen,
   onClose,
 }: SystemMonitorPanelProps) {
   const handleEsc = useCallback(
@@ -289,41 +291,52 @@ export default function SystemMonitorPanel({
   );
 
   useEffect(() => {
+    if (!isOpen) return;
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [handleEsc]);
+  }, [handleEsc, isOpen]);
 
   return (
-    <div className="relative" style={{ zIndex: 100 }}>
-      <div
-        className="fixed inset-0 cursor-default"
-        onClick={onClose}
-        style={{ zIndex: 99 }}
-      />
+    <div className="relative">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed inset-0 cursor-default backdrop-blur-sm bg-black/30"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            style={{ zIndex: 30 }}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.15, ease: "easeInOut" }}
-          className={`absolute top-0 left-0 right-0 overflow-hidden border-b shadow-xl ${
-            isDark ? "bg-jb-panel border-jb-border" : "bg-white border-[#dfdfdf]"
-          }`}
-          style={{ zIndex: 100 }}
-        >
-          <div className="px-6 py-5">
-            {!connected && <DisconnectedCard />}
-            {connected && !systemMetrics && <WaitingCard />}
-            {connected && systemMetrics && (
-              <MetricGrid
-                samples={samples}
-                systemMetrics={systemMetrics}
-                isDark={isDark}
-              />
-            )}
-          </div>
-        </motion.div>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className={`absolute top-0 left-0 right-0 overflow-hidden border-b shadow-xl ${
+              isDark ? "bg-jb-panel border-jb-border" : "bg-white border-[#dfdfdf]"
+            }`}
+            style={{ zIndex: 100 }}
+          >
+            <div className="px-6 py-5">
+              {!connected && <DisconnectedCard />}
+              {connected && !systemMetrics && <WaitingCard />}
+              {connected && systemMetrics && (
+                <MetricGrid
+                  samples={samples}
+                  systemMetrics={systemMetrics}
+                  isDark={isDark}
+                />
+              )}
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

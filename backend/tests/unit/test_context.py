@@ -1,5 +1,7 @@
 """Tests for DatabaseManager — SQLite CRUD using UUID IDs."""
 
+import asyncio
+import datetime
 import uuid
 
 import pytest
@@ -128,3 +130,54 @@ class TestDatabaseManager:
         mgr.create_session(id=sid, instruction="x", original_code="x")
         entry = RefactorHistory.get_by_id(sid)
         assert entry.user_instruction == "x"
+
+
+class TestPeriodicCleanup:
+    @pytest.mark.asyncio
+    async def test_periodic_loop_flags_zombies_and_purges_halted(self, memory_db):  # TC-DB-013
+        import app.modules.context as ctx
+
+        old = datetime.datetime.now() - datetime.timedelta(hours=6)
+        RefactorHistory.create(
+            id=str(uuid.uuid4()), status="Processing",
+            user_instruction="i", original_code="c", created_at=old,
+        )
+        RefactorHistory.create(
+            id=str(uuid.uuid4()), status="Halted",
+            user_instruction="i", original_code="c", created_at=old,
+        )
+
+        task = asyncio.create_task(
+            ctx.periodic_history_cleanup(DatabaseManager(), interval_seconds=0)
+        )
+        await asyncio.sleep(0.05)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        assert RefactorHistory.select().where(RefactorHistory.status == "Zombie").count() == 1
+        assert RefactorHistory.select().where(RefactorHistory.status == "Halted").count() == 0
+
+    @pytest.mark.asyncio
+    async def test_periodic_loop_survives_db_errors(self, memory_db):  # TC-DB-014
+        import app.modules.context as ctx
+
+        calls = {"n": 0}
+
+        class FlakyManager:
+            def cleanup_zombie_sessions(self):
+                calls["n"] += 1
+                raise RuntimeError("boom")
+
+            def cleanup_halted_sessions(self):
+                return 0
+
+        task = asyncio.create_task(
+            ctx.periodic_history_cleanup(FlakyManager(), interval_seconds=0)
+        )
+        await asyncio.sleep(0.05)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        assert calls["n"] >= 2
