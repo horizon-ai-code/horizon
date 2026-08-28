@@ -97,9 +97,9 @@ export function buildGraphState(
 
     const iteration =
       phase.num === 2
-        ? strategyIteration
+        ? Math.min(strategyIteration, glassboxState.maxStrategyIterations || 3)
         : phase.num === 3
-        ? Math.max(syntaxHealAttempt, 1)
+        ? Math.min(Math.max(syntaxHealAttempt, 1), glassboxState.maxSyntaxHealAttempts || 3)
         : 1;
 
     const pos = nodePositions[phase.num] || { x: phase.num * 180, y: 100 };

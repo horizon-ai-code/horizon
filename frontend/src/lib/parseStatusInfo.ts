@@ -396,3 +396,81 @@ export function reconstructPhaseSummariesFromLogs(
 
   return phaseSummaries;
 }
+
+/**
+ * Replay historical logs to reconstruct the graph-level state fields
+ * (strategyIteration, syntaxHealAttempt, visitedPhases, flaggedPhases,
+ * previousPhase, currentPhase) that buildGraphState needs for edge/node rendering.
+ *
+ * Mirrors the live logic in useOrchestrationSocket handleStatus (lines 121-147).
+ */
+export function reconstructGraphStateFromLogs(
+  logs: Array<{ role?: string; status?: string; content?: string | null; phase?: number | null }>
+): {
+  currentPhase: number;
+  previousPhase: number | null;
+  strategyIteration: number;
+  syntaxHealAttempt: number;
+  visitedPhases: number[];
+  flaggedPhases: number[];
+} {
+  let currentPhase = 1;
+  let previousPhase: number | null = null;
+  let strategyIteration = 1;
+  let syntaxHealAttempt = 0;
+  const visited = new Set<number>();
+  const flagged = new Set<number>();
+
+  for (const log of logs) {
+    const content = (log.content || log.status || "").trim();
+    if (!content) continue;
+
+    // Extract phase number from log content or log.phase field
+    const parsedPhase = parsePhaseNumber(content);
+    const phase = parsedPhase !== null && parsedPhase !== undefined ? parsedPhase : (log.phase || 0);
+
+    if (phase > 0) {
+      visited.add(phase);
+
+      if (phase !== currentPhase) {
+        // Detect backward transition (reroute) → flag the origin phase
+        if (currentPhase > phase) {
+          flagged.add(currentPhase);
+        }
+
+        // Track syntax heal: P4 → P3
+        if (currentPhase === 4 && phase === 3) {
+          syntaxHealAttempt = Math.max(syntaxHealAttempt, 1);
+        }
+
+        // Track strategy revision: P4/P5 → P2
+        if (currentPhase >= 4 && phase === 2) {
+          strategyIteration = Math.max(strategyIteration, 2);
+        }
+
+        previousPhase = currentPhase;
+        currentPhase = phase;
+      }
+    }
+
+    // Also parse explicit iteration/retry counters from log text
+    const iterFromContent = parseStrategyIteration(content);
+    if (iterFromContent !== null && iterFromContent > strategyIteration) {
+      strategyIteration = iterFromContent;
+    }
+
+    const retry = parseRetryInfo(content);
+    if (retry !== null && retry.type === "syntax_heal" && retry.current > syntaxHealAttempt) {
+      syntaxHealAttempt = retry.current;
+    }
+  }
+
+  return {
+    currentPhase,
+    previousPhase,
+    strategyIteration,
+    syntaxHealAttempt,
+    visitedPhases: Array.from(visited),
+    flaggedPhases: Array.from(flagged),
+  };
+}

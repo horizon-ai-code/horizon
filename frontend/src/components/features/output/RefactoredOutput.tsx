@@ -42,14 +42,25 @@ export default function RefactoredOutput({
   const [mounted, setMounted] = useState(false);
   const tourMode = useChatStore((s) => s.tourMode);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const graphState = (orchestrationResult as any)?.graphState as {
+    currentPhase: number;
+    previousPhase: number | null;
+    strategyIteration: number;
+    syntaxHealAttempt: number;
+    visitedPhases: number[];
+    flaggedPhases: number[];
+  } | undefined;
+
   const memoizedGlassboxState: GlassboxState = useMemo(() => {
     if (!glassboxState) {
+      // No live WebSocket state — use historical reconstruction as primary source
       return {
-        currentPhase: 1,
+        currentPhase: graphState?.currentPhase ?? 1,
         currentAgent: "System" as const,
-        strategyIteration: 1,
+        strategyIteration: graphState?.strategyIteration ?? 1,
         maxStrategyIterations: 3,
-        syntaxHealAttempt: 0,
+        syntaxHealAttempt: graphState?.syntaxHealAttempt ?? 0,
         maxSyntaxHealAttempts: 3,
         sequentialMutationRetry: 0,
         maxSequentialMutationRetries: 3,
@@ -58,17 +69,27 @@ export default function RefactoredOutput({
         currentDetail: null,
         phaseDurations: [],
         totalDurationMs: null,
+        previousPhase: graphState?.previousPhase ?? null,
+        visitedPhases: graphState?.visitedPhases ?? [],
+        flaggedPhases: graphState?.flaggedPhases ?? [],
         phaseSummaries: orchestrationResult?.phaseSummaries || {},
       };
     }
     return {
       ...glassboxState,
+      // Use live values if populated, otherwise fall back to historical reconstruction
+      strategyIteration: glassboxState.strategyIteration > 1 ? glassboxState.strategyIteration : (graphState?.strategyIteration ?? glassboxState.strategyIteration),
+      syntaxHealAttempt: glassboxState.syntaxHealAttempt > 0 ? glassboxState.syntaxHealAttempt : (graphState?.syntaxHealAttempt ?? glassboxState.syntaxHealAttempt),
+      visitedPhases: glassboxState.visitedPhases?.length ? glassboxState.visitedPhases : (graphState?.visitedPhases ?? []),
+      flaggedPhases: glassboxState.flaggedPhases?.length ? glassboxState.flaggedPhases : (graphState?.flaggedPhases ?? []),
+      previousPhase: glassboxState.previousPhase ?? graphState?.previousPhase ?? null,
+      currentPhase: glassboxState.currentPhase > 1 ? glassboxState.currentPhase : (graphState?.currentPhase ?? glassboxState.currentPhase),
       phaseSummaries: {
         ...(orchestrationResult?.phaseSummaries || {}),
         ...(glassboxState.phaseSummaries || {}),
       },
     };
-  }, [glassboxState, orchestrationResult?.phaseSummaries]);
+  }, [glassboxState, orchestrationResult?.phaseSummaries, graphState]);
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const startTimeRef = useRef<number | null>(null);
