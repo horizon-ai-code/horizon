@@ -73,7 +73,7 @@ export interface CurrentStatusDetail {
 }
 
 export interface PhaseSummary {
-  summary: string;
+  summary?: string;
   detail: CurrentStatusDetail | null;
   timestamp: number;
 }

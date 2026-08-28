@@ -198,7 +198,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
         if (phaseNum > 0 && msg.content.trim()) {
           phaseSummaries[phaseNum] = {
-            summary: phaseSummaries[phaseNum]?.summary || validSummary,
+            summary: phaseSummaries[phaseNum]?.summary || validSummary || "",
             detail: phaseSummaries[phaseNum]?.detail || {},
             timestamp: Date.now(),
           };
@@ -206,14 +206,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
         if (baselineMetrics) {
           phaseSummaries[1] = {
-            summary: phaseSummaries[1]?.summary || firstLine,
+            summary: phaseSummaries[1]?.summary || firstLine || "",
             timestamp: Date.now(),
             detail: { ...phaseSummaries[1]?.detail, baselineMetrics },
           };
         }
         if (intent || (mutations && phaseNum <= 2)) {
           phaseSummaries[2] = {
-            summary: phaseSummaries[2]?.summary || firstLine,
+            summary: phaseSummaries[2]?.summary || firstLine || "",
             timestamp: Date.now(),
             detail: {
               ...phaseSummaries[2]?.detail,
@@ -224,14 +224,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         }
         if (mutations && (phaseNum === 3 || phaseNum === 2)) {
           phaseSummaries[3] = {
-            summary: phaseSummaries[3]?.summary || firstLine,
+            summary: phaseSummaries[3]?.summary || firstLine || "",
             timestamp: Date.now(),
             detail: { ...phaseSummaries[3]?.detail, mutations },
           };
         }
         if (checks || findings) {
           phaseSummaries[4] = {
-            summary: phaseSummaries[4]?.summary || firstLine,
+            summary: phaseSummaries[4]?.summary || firstLine || "",
             timestamp: Date.now(),
             detail: {
               ...phaseSummaries[4]?.detail,
@@ -242,7 +242,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         }
         if (decision || logicComparison || variableTrace || judgeIssues) {
           phaseSummaries[5] = {
-            summary: phaseSummaries[5]?.summary || firstLine,
+            summary: phaseSummaries[5]?.summary || firstLine || "",
             timestamp: Date.now(),
             detail: {
               ...phaseSummaries[5]?.detail,

@@ -1,4 +1,4 @@
-import type { AgentRole, CurrentStatusDetail, IntentDetail, MutationItem, RetryInfo, ValidationFinding } from "@/types/glassbox";
+import type { AgentRole, CurrentStatusDetail, IntentDetail, MutationItem, RetryInfo, ValidationFinding, PhaseSummary } from "@/types/glassbox";
 
 const PHASE_PATTERNS: Record<string, number> = {
   "Ph1": 1,
@@ -312,8 +312,8 @@ export function parseBaselineMetrics(content: string): { cyclomaticComplexity?: 
 
 export function reconstructPhaseSummariesFromLogs(
   logs: Array<{ role?: string; status?: string; content?: string | null; phase?: number | null }>
-): Record<number, { summary?: string; timestamp?: number; detail?: CurrentStatusDetail }> {
-  const phaseSummaries: Record<number, { summary?: string; timestamp?: number; detail?: CurrentStatusDetail }> = {};
+): Record<number, PhaseSummary> {
+  const phaseSummaries: Record<number, PhaseSummary> = {};
 
   for (const log of logs) {
     const content = (log.content || log.status || "").trim();

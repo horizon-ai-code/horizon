@@ -44,15 +44,7 @@ export default function RefactoredOutput({
   const tourMode = useChatStore((s) => s.tourMode);
   const [flowViewMode, setFlowViewMode] = useState<"simple" | "detailed">("detailed");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const graphState = (orchestrationResult as any)?.graphState as {
-    currentPhase: number;
-    previousPhase: number | null;
-    strategyIteration: number;
-    syntaxHealAttempt: number;
-    visitedPhases: number[];
-    flaggedPhases: number[];
-  } | undefined;
+  const graphState = orchestrationResult?.graphState;
 
   const memoizedGlassboxState: GlassboxState = useMemo(() => {
     if (!glassboxState) {
