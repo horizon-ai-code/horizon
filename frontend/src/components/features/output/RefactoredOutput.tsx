@@ -7,7 +7,7 @@ import CodeEditorPanel from "@/components/features/editor/CodeEditorPanel";
 import { formatJavaCode } from "@/lib/utils/javaFormatter";
 import type { AppState, OrchestrationResult } from "@/types/session";
 import type { GlassboxState } from "@/types/glassbox";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import MultiAgentFlowGraph from "@/components/features/output/MultiAgentFlowGraph";
@@ -41,6 +41,34 @@ export default function RefactoredOutput({
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const tourMode = useChatStore((s) => s.tourMode);
+
+  const memoizedGlassboxState: GlassboxState = useMemo(() => {
+    if (!glassboxState) {
+      return {
+        currentPhase: 1,
+        currentAgent: "System" as const,
+        strategyIteration: 1,
+        maxStrategyIterations: 3,
+        syntaxHealAttempt: 0,
+        maxSyntaxHealAttempts: 3,
+        sequentialMutationRetry: 0,
+        maxSequentialMutationRetries: 3,
+        validationFaultCount: null,
+        judgeDecision: null,
+        currentDetail: null,
+        phaseDurations: [],
+        totalDurationMs: null,
+        phaseSummaries: orchestrationResult?.phaseSummaries || {},
+      };
+    }
+    return {
+      ...glassboxState,
+      phaseSummaries: {
+        ...(orchestrationResult?.phaseSummaries || {}),
+        ...(glassboxState.phaseSummaries || {}),
+      },
+    };
+  }, [glassboxState, orchestrationResult?.phaseSummaries]);
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const startTimeRef = useRef<number | null>(null);
@@ -221,22 +249,7 @@ export default function RefactoredOutput({
             appState={appState}
             exitStatus={orchestrationResult.exit_status}
             phaseStates={orchestrationResult.phaseStates}
-            glassboxState={glassboxState ?? {
-              currentPhase: 1,
-              currentAgent: "System",
-              strategyIteration: 1,
-              maxStrategyIterations: 3,
-              syntaxHealAttempt: 0,
-              maxSyntaxHealAttempts: 3,
-              sequentialMutationRetry: 0,
-              maxSequentialMutationRetries: 3,
-              validationFaultCount: null,
-              judgeDecision: null,
-              currentDetail: null,
-              phaseSummaries: {},
-              phaseDurations: [],
-              totalDurationMs: null,
-            }}
+            glassboxState={memoizedGlassboxState}
           />
         ) : appState === 'idle' ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10 transition-colors duration-300">

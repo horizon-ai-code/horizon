@@ -31,14 +31,14 @@ export function buildGraphState(
   const currentTransitionKey = previousPhase && currentPhase ? `${previousPhase}->${currentPhase}` : null;
   const activeEdgeId = currentTransitionKey ? TRANSITION_EDGE_MAP[currentTransitionKey] : null;
 
-  // L-Shaped Architecture Layout
+  // L-Shaped Architecture Layout (Spaced for larger node dimensions)
   const nodePositions: Record<number, { x: number; y: number }> = {
     1: { x: 40, y: 100 },   // Top Arm: P1 Baseline
-    2: { x: 220, y: 100 },  // Top Arm: P2 Strategy
-    3: { x: 400, y: 100 },  // Top Arm: P3 Execution
-    4: { x: 580, y: 100 },  // Corner Node: P4 Validation
-    5: { x: 580, y: 260 }, // Vertical Right Arm: P5 Adjudication (straight down)
-    6: { x: 580, y: 420 }, // Vertical Right Arm: P6 Finalization (straight down)
+    2: { x: 250, y: 100 },  // Top Arm: P2 Strategy
+    3: { x: 460, y: 100 },  // Top Arm: P3 Execution
+    4: { x: 670, y: 100 },  // Corner Node: P4 Validation
+    5: { x: 670, y: 290 }, // Vertical Right Arm: P5 Adjudication (straight down)
+    6: { x: 670, y: 480 }, // Vertical Right Arm: P6 Finalization (straight down)
   };
 
   const visitedSet = new Set(glassboxState.visitedPhases || []);

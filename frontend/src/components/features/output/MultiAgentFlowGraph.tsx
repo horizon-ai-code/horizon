@@ -97,7 +97,7 @@ function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Pr
   };
 
   return (
-    <div className="relative w-full h-full bg-[#0b0e14] overflow-hidden select-none">
+    <div className="relative w-full h-full bg-jb-bg overflow-hidden select-none">
       {/* Top Banner Bar */}
       <div className="absolute top-3 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-jb-panel/80 border border-jb-border/40 text-[11px] font-medium backdrop-blur-md">
         <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -131,7 +131,7 @@ function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Pr
         maxZoom={1.8}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#1f293d" gap={24} size={1} />
+        <Background color="#2b2d30" gap={24} size={1} />
         <Controls showInteractive={false} className="!bg-jb-panel/80 !border-jb-border/50 !rounded-lg" />
       </ReactFlow>
 

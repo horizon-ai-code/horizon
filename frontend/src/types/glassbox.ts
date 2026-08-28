@@ -62,6 +62,9 @@ export interface CurrentStatusDetail {
   checks?: ValidationCheck[];
   judgeVerdict?: "ACCEPT" | "REVISE";
   judgeIssues?: JudgeIssue[];
+  logicComparison?: string;
+  variableTrace?: { original?: string; refactored?: string; mapping?: string };
+  baselineMetrics?: { cyclomaticComplexity?: number; linesOfCode?: number };
   phaseName?: string;
   phaseAction?: string;
   architecture?: ArchitectureData;

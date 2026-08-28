@@ -135,33 +135,6 @@ export default function CustomCurvedEdge({
           </polygon>
         </g>
       )}
-
-      {/* Route Label - ONLY displayed when rerouting actually happens */}
-      {label && isReroutingActiveOrDone && (
-        <g transform={`translate(${labelX}, ${labelY})`} className="animate-in fade-in duration-300">
-          <rect
-            x="-60"
-            y="-10"
-            width="120"
-            height="20"
-            rx="5"
-            fill="#0b0e14"
-            stroke={style.stroke}
-            strokeWidth="1"
-            className="shadow-lg backdrop-blur-md opacity-95"
-          />
-          <text
-            x="0"
-            y="3"
-            textAnchor="middle"
-            fill="#ffffff"
-            fontSize="9 font-mono"
-            fontWeight="bold"
-          >
-            {label}
-          </text>
-        </g>
-      )}
     </>
   );
 }

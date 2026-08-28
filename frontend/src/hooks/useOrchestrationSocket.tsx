@@ -27,6 +27,10 @@ import {
   parseValidationFindings,
   parseJudgeIssues,
   parsePhaseAction,
+  parseValidationChecks,
+  parseLogicComparison,
+  parseVariableTrace,
+  parseBaselineMetrics,
 } from "@/lib/parseStatusInfo";
 
 // ── Connection Status ────────────────────────────────────────────────────────
@@ -163,7 +167,11 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       const intent = parseIntentDetail(msg.content);
       const mutations = parseMutationPlan(msg.content);
       const findings = parseValidationFindings(msg.content);
+      const checks = parseValidationChecks(msg.content);
       const judgeIssues = parseJudgeIssues(msg.content);
+      const logicComparison = parseLogicComparison(msg.content);
+      const variableTrace = parseVariableTrace(msg.content);
+      const baselineMetrics = parseBaselineMetrics(msg.content);
       const phaseAction = parsePhaseAction(msg.content);
 
       setGlassboxState((prev) => {
@@ -171,24 +179,79 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           intent: intent ?? prev.currentDetail?.intent,
           mutations: mutations ?? prev.currentDetail?.mutations,
           findings: findings ?? prev.currentDetail?.findings,
+          checks: checks ?? prev.currentDetail?.checks,
           judgeIssues: judgeIssues ?? prev.currentDetail?.judgeIssues,
+          logicComparison: logicComparison ?? prev.currentDetail?.logicComparison,
+          variableTrace: variableTrace ?? prev.currentDetail?.variableTrace,
+          baselineMetrics: baselineMetrics ?? prev.currentDetail?.baselineMetrics,
           totalFaults: parseValidationFaults(msg.content) ?? prev.currentDetail?.totalFaults,
           judgeVerdict: decision ?? prev.currentDetail?.judgeVerdict,
           phaseName: prev.currentDetail?.phaseName,
           phaseAction: phaseAction ?? prev.currentDetail?.phaseAction,
         };
 
-        const phaseNum = parsedPhase !== null && parsedPhase !== undefined ? parsedPhase : prev.currentPhase;
+        const phaseNum = parsedPhase !== null && parsedPhase !== undefined ? parsedPhase : (msg.phase || prev.currentPhase);
         const phaseSummaries = { ...prev.phaseSummaries };
+        const firstLine = msg.content.split("\n")[0].trim();
+        const isRawJson = firstLine.startsWith("{") || firstLine.startsWith("[");
+        const validSummary = isRawJson ? undefined : firstLine;
+
         if (phaseNum > 0 && msg.content.trim()) {
-          const firstLine = msg.content.split("\n")[0].trim();
-          if (!phaseSummaries[phaseNum]) {
-            phaseSummaries[phaseNum] = {
-              summary: firstLine,
-              detail: { ...detail },
-              timestamp: Date.now(),
-            };
-          }
+          phaseSummaries[phaseNum] = {
+            summary: phaseSummaries[phaseNum]?.summary || validSummary,
+            detail: phaseSummaries[phaseNum]?.detail || {},
+            timestamp: Date.now(),
+          };
+        }
+
+        if (baselineMetrics) {
+          phaseSummaries[1] = {
+            summary: phaseSummaries[1]?.summary || firstLine,
+            timestamp: Date.now(),
+            detail: { ...phaseSummaries[1]?.detail, baselineMetrics },
+          };
+        }
+        if (intent || (mutations && phaseNum <= 2)) {
+          phaseSummaries[2] = {
+            summary: phaseSummaries[2]?.summary || firstLine,
+            timestamp: Date.now(),
+            detail: {
+              ...phaseSummaries[2]?.detail,
+              ...(intent ? { intent } : {}),
+              ...(mutations ? { mutations } : {}),
+            },
+          };
+        }
+        if (mutations && (phaseNum === 3 || phaseNum === 2)) {
+          phaseSummaries[3] = {
+            summary: phaseSummaries[3]?.summary || firstLine,
+            timestamp: Date.now(),
+            detail: { ...phaseSummaries[3]?.detail, mutations },
+          };
+        }
+        if (checks || findings) {
+          phaseSummaries[4] = {
+            summary: phaseSummaries[4]?.summary || firstLine,
+            timestamp: Date.now(),
+            detail: {
+              ...phaseSummaries[4]?.detail,
+              ...(checks ? { checks } : {}),
+              ...(findings ? { findings } : {}),
+            },
+          };
+        }
+        if (decision || logicComparison || variableTrace || judgeIssues) {
+          phaseSummaries[5] = {
+            summary: phaseSummaries[5]?.summary || firstLine,
+            timestamp: Date.now(),
+            detail: {
+              ...phaseSummaries[5]?.detail,
+              ...(decision ? { judgeVerdict: decision } : {}),
+              ...(logicComparison ? { logicComparison } : {}),
+              ...(variableTrace ? { variableTrace } : {}),
+              ...(judgeIssues ? { judgeIssues } : {}),
+            },
+          };
         }
 
         return { ...prev, currentDetail: detail, phaseSummaries };

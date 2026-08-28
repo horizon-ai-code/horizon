@@ -27,52 +27,52 @@ function CircularNodeComponent({ data }: NodeProps<Node<FlowNodeData>>) {
     { outerRing: string; innerRing: string; text: string; shadow: string; glow: string }
   > = {
     waiting: {
-      outerRing: "border-jb-border/40 bg-jb-panel/30",
-      innerRing: "border-jb-border/30 bg-jb-bg/40",
-      text: "text-jb-text-muted/60",
-      shadow: "shadow-none",
+      outerRing: "border-jb-border/80 bg-jb-panel/60 ring-1 ring-white/10",
+      innerRing: "border-jb-border/50 bg-jb-bg/80",
+      text: "text-jb-text-muted",
+      shadow: "shadow-sm",
       glow: "",
     },
     active: {
-      outerRing: "border-cyan-400/80 bg-cyan-950/40 ring-4 ring-cyan-500/20",
-      innerRing: "border-cyan-300 bg-jb-bg/90",
-      text: "text-cyan-400 font-bold",
-      shadow: "shadow-[0_0_24px_rgba(34,211,238,0.45)]",
-      glow: "bg-cyan-400/20 animate-ping",
+      outerRing: "border-cyan-400/90 bg-cyan-950/50 ring-4 ring-cyan-500/30",
+      innerRing: "border-cyan-300 bg-jb-bg/95",
+      text: "text-cyan-300 font-extrabold",
+      shadow: "shadow-[0_0_28px_rgba(34,211,238,0.55)]",
+      glow: "bg-cyan-400/25 animate-ping",
     },
     done_ok: {
-      outerRing: "border-emerald-500/80 bg-emerald-950/30 ring-2 ring-emerald-500/20",
-      innerRing: "border-emerald-400 bg-jb-bg/90",
-      text: "text-emerald-400",
-      shadow: "shadow-[0_0_18px_rgba(16,185,129,0.3)]",
+      outerRing: "border-emerald-500/90 bg-emerald-950/40 ring-2 ring-emerald-500/30",
+      innerRing: "border-emerald-400 bg-jb-bg/95",
+      text: "text-emerald-400 font-bold",
+      shadow: "shadow-[0_0_20px_rgba(16,185,129,0.4)]",
       glow: "",
     },
     done_fail: {
-      outerRing: "border-red-500/80 bg-red-950/40 ring-2 ring-red-500/30",
-      innerRing: "border-red-400 bg-jb-bg/90",
-      text: "text-red-400",
-      shadow: "shadow-[0_0_18px_rgba(239,68,68,0.35)]",
+      outerRing: "border-red-500/90 bg-red-950/50 ring-2 ring-red-500/40",
+      innerRing: "border-red-400 bg-jb-bg/95",
+      text: "text-red-400 font-bold",
+      shadow: "shadow-[0_0_20px_rgba(239,68,68,0.45)]",
       glow: "",
     },
     skipped: {
-      outerRing: "border-jb-border/20 bg-jb-panel/10",
-      innerRing: "border-jb-border/10 bg-jb-bg/20",
-      text: "text-jb-text-muted/30",
+      outerRing: "border-jb-border/40 bg-jb-panel/20",
+      innerRing: "border-jb-border/30 bg-jb-bg/40",
+      text: "text-jb-text-muted/50",
       shadow: "shadow-none",
       glow: "",
     },
     flagged: {
-      outerRing: "border-amber-400/90 bg-amber-950/40 ring-4 ring-amber-500/30",
-      innerRing: "border-amber-300 bg-jb-bg/90",
-      text: "text-amber-300 font-bold",
-      shadow: "shadow-[0_0_20px_rgba(245,158,11,0.45)]",
+      outerRing: "border-amber-400/95 bg-amber-950/50 ring-4 ring-amber-500/40",
+      innerRing: "border-amber-300 bg-jb-bg/95",
+      text: "text-amber-300 font-extrabold",
+      shadow: "shadow-[0_0_24px_rgba(245,158,11,0.55)]",
       glow: "",
     },
   };
 
   const style = ringStyles[status];
 
-  // In live processing mode, active and previous nodes light up, and completed nodes stay visible!
+  // In live processing mode, active and previous nodes light up, and inactive waiting nodes are clearly visible!
   const nodeOpacityClass = isDoneSession
     ? "opacity-100"
     : isCurrent
@@ -81,27 +81,27 @@ function CircularNodeComponent({ data }: NodeProps<Node<FlowNodeData>>) {
     ? "opacity-95 z-10 scale-100"
     : status === "done_ok" || status === "flagged"
     ? "opacity-90 z-0 scale-100"
-    : "opacity-35 hover:opacity-80 scale-95 transition-all duration-300";
+    : "opacity-80 hover:opacity-100 scale-95 transition-all duration-300";
 
   return (
     <div className={`relative flex flex-col items-center justify-center group cursor-pointer select-none transition-all duration-500 ${nodeOpacityClass}`}>
       {/* Iteration Badge (Top Left) */}
       {iteration > 1 && status !== "waiting" && (
-        <div className="absolute -top-2.5 -left-2.5 z-20 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm backdrop-blur-md">
+        <div className="absolute -top-3 -left-3 z-20 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-md backdrop-blur-md">
           {iteration}x
         </div>
       )}
 
       {/* Duration Pill (Top Right) */}
       {durationMs !== null && (
-        <div className="absolute -top-2.5 -right-2.5 z-20 px-2 py-0.5 rounded-md text-[10px] font-mono bg-jb-panel/90 text-jb-text-muted border border-jb-border/50 shadow-sm backdrop-blur-md">
+        <div className="absolute -top-3 -right-3 z-20 px-2 py-0.5 rounded-md text-[10px] font-mono bg-jb-panel/95 text-jb-text border border-jb-border/60 shadow-md backdrop-blur-md">
           {(durationMs / 1000).toFixed(1)}s
         </div>
       )}
 
       {/* Outer Glowing Ring with dual source and target handles on all 4 sides */}
       <div
-        className={`relative flex items-center justify-center w-20 h-20 rounded-full border-2 transition-all duration-500 ${style.outerRing} ${style.shadow} ${
+        className={`relative flex items-center justify-center w-24 h-24 rounded-full border-2 transition-all duration-500 ${style.outerRing} ${style.shadow} ${
           isSelected ? "ring-4 ring-cyan-400 scale-105" : "hover:scale-105"
         }`}
       >
@@ -127,24 +127,24 @@ function CircularNodeComponent({ data }: NodeProps<Node<FlowNodeData>>) {
         )}
 
         {/* Inner Circle Node */}
-        <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-full border ${style.innerRing} transition-colors duration-300 z-10`}>
-          <span className="text-[12px] font-extrabold tracking-tight opacity-70">
+        <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-full border ${style.innerRing} transition-colors duration-300 z-10`}>
+          <span className="text-[13px] font-extrabold tracking-tight opacity-80">
             {phase.num}
           </span>
-          <Icon size={20} style={{ color: status !== "waiting" && status !== "skipped" ? phase.color : undefined }} />
+          <Icon size={24} style={{ color: status !== "waiting" && status !== "skipped" ? phase.color : undefined }} />
         </div>
       </div>
 
       {/* Node Sub-labels */}
-      <div className="mt-2.5 flex flex-col items-center text-center max-w-[125px]">
-        <span className={`text-[13px] font-bold tracking-tight leading-tight transition-colors duration-300 ${style.text}`}>
+      <div className="mt-2.5 flex flex-col items-center text-center max-w-[135px]">
+        <span className={`text-[14px] font-bold tracking-tight leading-tight transition-colors duration-300 ${style.text}`}>
           {phase.name}
         </span>
-        <span className="text-[11px] font-mono text-jb-text-muted/70 mt-0.5">
+        <span className="text-[12px] font-mono text-cyan-300/90 font-semibold mt-0.5">
           {phase.agent}
         </span>
         {modelName && (
-          <span className="text-[9px] font-mono text-jb-text-muted/40 truncate max-w-[105px] mt-0.5">
+          <span className="text-[10px] font-mono text-jb-text-muted font-medium truncate max-w-[125px] mt-0.5">
             {modelName}
           </span>
         )}

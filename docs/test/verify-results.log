@@ -1,0 +1,42 @@
+2026-08-10T22:02:56 Starting verification — 30 entries
+Server log: /tmp/horizon_server.log
+
+  #68 attempt 1/3: server unreachable ([Errno 111] Connect call failed ('127.0.0.1', 8000))
+
+  ** SERVER DEAD — RESTARTING (crash #1) **
+  Crash log saved: /tmp/crash_1.log
+  Server back online
+[ 1/30] #  68 Simple   DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (135s)
+[ 2/30] # 424 Simple   RENAME_SYMBOL                GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (105s)
+[ 1/30] #  68 Simple   DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[ 2/30] # 424 Simple   RENAME_SYMBOL                GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (150s)
+[ 3/30] #1060 Simple   INLINE_VARIABLE              GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (60s)
+[ 4/30] # 110 Simple   EXTRACT_METHOD               GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (105s)
+[ 5/30] # 144 Simple   RENAME_SYMBOL                GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[ 6/30] # 442 Simple   REMOVE_CONTROL_FLAG          GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[ 7/30] #1343 Simple   INLINE_METHOD                GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (105s)
+[ 8/30] #1510 Simple   CONSOLIDATE_CONDITIONAL      GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (210s)
+[ 9/30] #2272 Simple   EXTRACT_CONSTANT             GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[10/30] #2337 Simple   DECOMPOSE_CONDITIONAL        GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[11/30] #  18 Edge     RENAME_SYMBOL                GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[12/30] #  23 Edge     DECOMPOSE_CONDITIONAL        GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[13/30] #  76 Edge     INLINE_METHOD                GPU:11 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (165s)
+[14/30] # 171 Edge     RENAME_SYMBOL                GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (135s)
+[15/30] # 584 Edge     EXTRACT_CONSTANT             GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[16/30] # 238 Edge     FLATTEN_CONDITIONAL          GPU:109 MiB→109 MiB got=SUCCESS          exp=ABORT_STRATEGY   MISMATCH (300s)
+[17/30] # 620 Edge     CONSOLIDATE_CONDITIONAL      GPU:11 MiB→109 MiB got=ABORT_STRATEGY   exp=ABORT_STRATEGY   MATCH (240s)
+[18/30] # 305 Edge     SPLIT_LOOP                   GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[19/30] #1053 Edge     RENAME_SYMBOL                GPU:109 MiB→111 MiB got=SUCCESS          exp=ABORT_STRATEGY   MISMATCH (120s)
+[20/30] #2227 Edge     SPLIT_LOOP                   GPU:111 MiB→111 MiB got=SUCCESS          exp=SUCCESS          MATCH (255s)
+[21/30] # 217 Complex  EXTRACT_METHOD               GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[22/30] # 610 Complex  EXTRACT_METHOD               GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[23/30] #1161 Complex  EXTRACT_CONSTANT             GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[24/30] # 125 Complex  CONSOLIDATE_CONDITIONAL      GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (345s)
+[25/30] # 131 Complex  DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (135s)
+[26/30] # 449 Complex  EXTRACT_METHOD               GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[27/30] # 661 Complex  DECOMPOSE_CONDITIONAL        GPU:109 MiB→111 MiB got=SUCCESS          exp=SUCCESS          MATCH (180s)
+[28/30] #1014 Complex  EXTRACT_METHOD               GPU:111 MiB→111 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[29/30] #1785 Complex  DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (135s)
+[30/30] #2155 Complex  CONSOLIDATE_CONDITIONAL      GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+
+MATCH:24 MISMATCH:6 ERROR:0 CRASHES:0 TIME:4065s

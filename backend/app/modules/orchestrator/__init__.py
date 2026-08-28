@@ -165,12 +165,17 @@ class Orchestrator:
             )
 
             # --- PHASE 1: Baseline ---
-            await self._notify(client, Role.Validator, "Baseline: Analyzing code structure...",
-                               phase=1,
-                               planner_model=self._config.planner.name,
-                               generator_model=self._config.generator.name,
-                               judge_model=self._config.judge.name)
             state.original_complexity = self.validator.get_complexity(state.base_code)
+            lines_count = len(state.base_code.splitlines())
+            await self._notify(
+                client, Role.Validator,
+                f"Baseline: Structural analysis complete (Cyclomatic Complexity: {state.original_complexity}, Lines: {lines_count})",
+                f"Cyclomatic Complexity: {state.original_complexity}\nLines of Code: {lines_count}",
+                phase=1,
+                planner_model=self._config.planner.name,
+                generator_model=self._config.generator.name,
+                judge_model=self._config.judge.name,
+            )
             state.current_phase = 2
 
             # ============================================================
