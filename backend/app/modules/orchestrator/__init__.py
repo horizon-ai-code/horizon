@@ -165,12 +165,17 @@ class Orchestrator:
             )
 
             # --- PHASE 1: Baseline ---
-            await self._notify(client, Role.Validator, "Baseline: Analyzing code structure...",
-                               phase=1,
-                               planner_model=self._config.planner.name,
-                               generator_model=self._config.generator.name,
-                               judge_model=self._config.judge.name)
             state.original_complexity = self.validator.get_complexity(state.base_code)
+            lines_count = len(state.base_code.splitlines())
+            await self._notify(
+                client, Role.Validator,
+                f"Baseline: Structural analysis complete (Cyclomatic Complexity: {state.original_complexity}, Lines: {lines_count})",
+                f"Cyclomatic Complexity: {state.original_complexity}\nLines of Code: {lines_count}",
+                phase=1,
+                planner_model=self._config.planner.name,
+                generator_model=self._config.generator.name,
+                judge_model=self._config.judge.name,
+            )
             state.current_phase = 2
 
             # ============================================================
@@ -218,7 +223,7 @@ class Orchestrator:
                 if state.strategy_iter_incremented:
                     state.flagged_phases.add(flag_prev)
                 if state.syntax_iter > 0:
-                    state.flagged_phases.add(3)
+                    state.flagged_phases.add(4)
                 if state.structural_fix_attempts > 0:
                     state.flagged_phases.add(4)
 
@@ -297,10 +302,12 @@ class Orchestrator:
 
         for p in range(1, 7):
             if state.exit_status == ExitStatus.PROCESSING:
-                if p < state.current_phase:
-                    states[p] = "flagged" if p in state.flagged_phases else "done_ok"
-                elif p == state.current_phase:
+                if p == state.current_phase:
                     states[p] = "active"
+                elif p in state.flagged_phases:
+                    states[p] = "flagged"
+                elif p < state.current_phase:
+                    states[p] = "done_ok"
                 else:
                     states[p] = "waiting"
             else:

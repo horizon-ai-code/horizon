@@ -1,0 +1,99 @@
+GPU trace: /tmp/gpu_trace.log
+
+  ** RESTART (entry #1) **
+  Server ready
+
+==============================================================================================================
+Starting 30 entries. Restart every 4. Server log: /tmp/horizon_final.log
+==============================================================================================================
+
+[ 1/30] #  68 Simple   DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[ 2/30] # 424 Simple   RENAME_SYMBOL                GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (150s)
+[ 3/30] #1060 Simple   INLINE_VARIABLE              GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (60s)
+[ 4/30] # 110 Simple   EXTRACT_METHOD               GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (105s)
+
+  ** RESTART (entry #5) **
+  Server ready
+[ 5/30] # 144 Simple   RENAME_SYMBOL                GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[ 6/30] # 442 Simple   REMOVE_CONTROL_FLAG          GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[ 7/30] #1343 Simple   INLINE_METHOD                GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (105s)
+[ 8/30] #1510 Simple   CONSOLIDATE_CONDITIONAL      GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (210s)
+
+  ** RESTART (entry #9) **
+  Server ready
+[ 9/30] #2272 Simple   EXTRACT_CONSTANT             GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[10/30] #2337 Simple   DECOMPOSE_CONDITIONAL        GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[11/30] #  18 Edge     RENAME_SYMBOL                GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[12/30] #  23 Edge     DECOMPOSE_CONDITIONAL        GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+
+  ** RESTART (entry #13) **
+  Server ready
+[13/30] #  76 Edge     INLINE_METHOD                GPU:11 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (165s)
+[14/30] # 171 Edge     RENAME_SYMBOL                GPU:109 MiB→109 MiB got=ABORT_STRATEGY   exp=SUCCESS          MISMATCH (135s)
+[15/30] # 584 Edge     EXTRACT_CONSTANT             GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[16/30] # 238 Edge     FLATTEN_CONDITIONAL          GPU:109 MiB→109 MiB got=SUCCESS          exp=ABORT_STRATEGY   MISMATCH (300s)
+
+  ** RESTART (entry #17) **
+  Server ready
+[17/30] # 620 Edge     CONSOLIDATE_CONDITIONAL      GPU:11 MiB→109 MiB got=ABORT_STRATEGY   exp=ABORT_STRATEGY   MATCH (240s)
+[18/30] # 305 Edge     SPLIT_LOOP                   GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[19/30] #1053 Edge     RENAME_SYMBOL                GPU:109 MiB→111 MiB got=SUCCESS          exp=ABORT_STRATEGY   MISMATCH (120s)
+[20/30] #2227 Edge     SPLIT_LOOP                   GPU:111 MiB→111 MiB got=SUCCESS          exp=SUCCESS          MATCH (255s)
+
+  ** RESTART (entry #21) **
+  Server ready
+[21/30] # 217 Complex  EXTRACT_METHOD               GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[22/30] # 610 Complex  EXTRACT_METHOD               GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+[23/30] #1161 Complex  EXTRACT_CONSTANT             GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+[24/30] # 125 Complex  CONSOLIDATE_CONDITIONAL      GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (345s)
+
+  ** RESTART (entry #25) **
+  Server ready
+[25/30] # 131 Complex  DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (135s)
+[26/30] # 449 Complex  EXTRACT_METHOD               GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (120s)
+[27/30] # 661 Complex  DECOMPOSE_CONDITIONAL        GPU:109 MiB→111 MiB got=SUCCESS          exp=SUCCESS          MATCH (180s)
+[28/30] #1014 Complex  EXTRACT_METHOD               GPU:111 MiB→111 MiB got=SUCCESS          exp=SUCCESS          MATCH (75s)
+
+  ** RESTART (entry #29) **
+  Server ready
+[29/30] #1785 Complex  DECOMPOSE_CONDITIONAL        GPU:11 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (135s)
+[30/30] #2155 Complex  CONSOLIDATE_CONDITIONAL      GPU:109 MiB→109 MiB got=SUCCESS          exp=SUCCESS          MATCH (90s)
+
+==============================================================================================================
+FINAL SUMMARY — 30 entries | 0 unplanned restarts (crashes)
+==============================================================================================================
+   # Cat      Intent                       Expected         Actual           Verdict    Time
+--------------------------------------------------------------------------------------------------------------
+  68 Simple   DECOMPOSE_CONDITIONAL        SUCCESS          SUCCESS          MATCH      120s
+ 424 Simple   RENAME_SYMBOL                SUCCESS          ABORT_STRATEGY   MISMATCH   150s
+1060 Simple   INLINE_VARIABLE              SUCCESS          SUCCESS          MATCH       60s
+ 110 Simple   EXTRACT_METHOD               SUCCESS          SUCCESS          MATCH      105s
+ 144 Simple   RENAME_SYMBOL                SUCCESS          SUCCESS          MATCH       75s
+ 442 Simple   REMOVE_CONTROL_FLAG          SUCCESS          SUCCESS          MATCH       75s
+1343 Simple   INLINE_METHOD                SUCCESS          SUCCESS          MATCH      105s
+1510 Simple   CONSOLIDATE_CONDITIONAL      SUCCESS          ABORT_STRATEGY   MISMATCH   210s
+2272 Simple   EXTRACT_CONSTANT             SUCCESS          SUCCESS          MATCH       90s
+2337 Simple   DECOMPOSE_CONDITIONAL        SUCCESS          SUCCESS          MATCH       90s
+  18 Edge     RENAME_SYMBOL                SUCCESS          SUCCESS          MATCH      120s
+  23 Edge     DECOMPOSE_CONDITIONAL        SUCCESS          SUCCESS          MATCH       75s
+  76 Edge     INLINE_METHOD                SUCCESS          ABORT_STRATEGY   MISMATCH   165s
+ 171 Edge     RENAME_SYMBOL                SUCCESS          ABORT_STRATEGY   MISMATCH   135s
+ 584 Edge     EXTRACT_CONSTANT             SUCCESS          SUCCESS          MATCH      120s
+ 238 Edge     FLATTEN_CONDITIONAL          ABORT_STRATEGY   SUCCESS          MISMATCH   300s
+ 620 Edge     CONSOLIDATE_CONDITIONAL      ABORT_STRATEGY   ABORT_STRATEGY   MATCH      240s
+ 305 Edge     SPLIT_LOOP                   SUCCESS          SUCCESS          MATCH      120s
+1053 Edge     RENAME_SYMBOL                ABORT_STRATEGY   SUCCESS          MISMATCH   120s
+2227 Edge     SPLIT_LOOP                   SUCCESS          SUCCESS          MATCH      255s
+ 217 Complex  EXTRACT_METHOD               SUCCESS          SUCCESS          MATCH       90s
+ 610 Complex  EXTRACT_METHOD               SUCCESS          SUCCESS          MATCH       90s
+1161 Complex  EXTRACT_CONSTANT             SUCCESS          SUCCESS          MATCH       75s
+ 125 Complex  CONSOLIDATE_CONDITIONAL      SUCCESS          SUCCESS          MATCH      345s
+ 131 Complex  DECOMPOSE_CONDITIONAL        SUCCESS          SUCCESS          MATCH      135s
+ 449 Complex  EXTRACT_METHOD               SUCCESS          SUCCESS          MATCH      120s
+ 661 Complex  DECOMPOSE_CONDITIONAL        SUCCESS          SUCCESS          MATCH      180s
+1014 Complex  EXTRACT_METHOD               SUCCESS          SUCCESS          MATCH       75s
+1785 Complex  DECOMPOSE_CONDITIONAL        SUCCESS          SUCCESS          MATCH      135s
+2155 Complex  CONSOLIDATE_CONDITIONAL      SUCCESS          SUCCESS          MATCH       90s
+--------------------------------------------------------------------------------------------------------------
+MATCH: 24 | MISMATCH: 6 | ERROR: 0 | Crashes: 0
+Total time: 4065s (67.8 min)

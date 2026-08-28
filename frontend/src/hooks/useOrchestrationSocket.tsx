@@ -27,6 +27,10 @@ import {
   parseValidationFindings,
   parseJudgeIssues,
   parsePhaseAction,
+  parseValidationChecks,
+  parseLogicComparison,
+  parseVariableTrace,
+  parseBaselineMetrics,
 } from "@/lib/parseStatusInfo";
 
 // ── Connection Status ────────────────────────────────────────────────────────
@@ -108,7 +112,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       // Parse glassbox data
       const parsedPhase = parsePhaseNumber(msg.content);
-      const phase = parsedPhase !== null ? parsedPhase : (msg.phase !== undefined ? msg.phase : (msg.role === "System" ? 6 : undefined));
+      const phase = msg.phase !== undefined ? msg.phase : (parsedPhase !== null ? parsedPhase : (msg.role === "System" ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
@@ -116,10 +120,39 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       setGlassboxState((prev) => {
         const next = { ...prev, currentAgent: msg.role as GlassboxState["currentAgent"] };
-        if (phase !== undefined && phase !== null) next.currentPhase = phase;
-        if (strategyIter !== null) next.strategyIteration = strategyIter;
+        if (phase !== undefined && phase !== null && phase > 0) {
+          const visited = new Set(prev.visitedPhases || []);
+          visited.add(phase);
+          next.visitedPhases = Array.from(visited);
+
+          if (phase !== prev.currentPhase) {
+            next.previousPhase = prev.currentPhase;
+            next.currentPhase = phase;
+
+            // If rerouting backward (e.g. 4 -> 3 or 4 -> 2), mark origin as flagged
+            if (prev.currentPhase > phase) {
+              const flagged = new Set(prev.flaggedPhases || []);
+              flagged.add(prev.currentPhase);
+              next.flaggedPhases = Array.from(flagged);
+            }
+
+            // If rerouting from Phase 4 back to Phase 3, record syntax heal attempt
+            if (prev.currentPhase === 4 && phase === 3) {
+              next.syntaxHealAttempt = prev.syntaxHealAttempt + 1;
+            }
+            // If rerouting back to Phase 2 (Strategy Revision), record strategy iteration
+            if (prev.currentPhase >= 4 && phase === 2) {
+              next.strategyIteration = prev.strategyIteration + 1;
+            }
+          }
+        }
+        if (strategyIter !== null && strategyIter > 1) {
+          next.strategyIteration = strategyIter;
+        }
         if (retry !== null) {
-          if (retry.type === "syntax_heal") next.syntaxHealAttempt = retry.current;
+          if (retry.type === "syntax_heal" && retry.current > 0) {
+            next.syntaxHealAttempt = retry.current;
+          }
           if (retry.type === "sequential_mutation") next.sequentialMutationRetry = retry.current;
         }
         if (faults !== null) next.validationFaultCount = faults;
@@ -134,7 +167,11 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       const intent = parseIntentDetail(msg.content);
       const mutations = parseMutationPlan(msg.content);
       const findings = parseValidationFindings(msg.content);
+      const checks = parseValidationChecks(msg.content);
       const judgeIssues = parseJudgeIssues(msg.content);
+      const logicComparison = parseLogicComparison(msg.content);
+      const variableTrace = parseVariableTrace(msg.content);
+      const baselineMetrics = parseBaselineMetrics(msg.content);
       const phaseAction = parsePhaseAction(msg.content);
 
       setGlassboxState((prev) => {
@@ -142,24 +179,79 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           intent: intent ?? prev.currentDetail?.intent,
           mutations: mutations ?? prev.currentDetail?.mutations,
           findings: findings ?? prev.currentDetail?.findings,
+          checks: checks ?? prev.currentDetail?.checks,
           judgeIssues: judgeIssues ?? prev.currentDetail?.judgeIssues,
+          logicComparison: logicComparison ?? prev.currentDetail?.logicComparison,
+          variableTrace: variableTrace ?? prev.currentDetail?.variableTrace,
+          baselineMetrics: baselineMetrics ?? prev.currentDetail?.baselineMetrics,
           totalFaults: parseValidationFaults(msg.content) ?? prev.currentDetail?.totalFaults,
           judgeVerdict: decision ?? prev.currentDetail?.judgeVerdict,
           phaseName: prev.currentDetail?.phaseName,
           phaseAction: phaseAction ?? prev.currentDetail?.phaseAction,
         };
 
-        const phaseNum = parsedPhase !== null && parsedPhase !== undefined ? parsedPhase : prev.currentPhase;
+        const phaseNum = parsedPhase !== null && parsedPhase !== undefined ? parsedPhase : (msg.phase || prev.currentPhase);
         const phaseSummaries = { ...prev.phaseSummaries };
+        const firstLine = msg.content.split("\n")[0].trim();
+        const isRawJson = firstLine.startsWith("{") || firstLine.startsWith("[");
+        const validSummary = isRawJson ? undefined : firstLine;
+
         if (phaseNum > 0 && msg.content.trim()) {
-          const firstLine = msg.content.split("\n")[0].trim();
-          if (!phaseSummaries[phaseNum]) {
-            phaseSummaries[phaseNum] = {
-              summary: firstLine,
-              detail: { ...detail },
-              timestamp: Date.now(),
-            };
-          }
+          phaseSummaries[phaseNum] = {
+            summary: phaseSummaries[phaseNum]?.summary || validSummary || "",
+            detail: phaseSummaries[phaseNum]?.detail || {},
+            timestamp: Date.now(),
+          };
+        }
+
+        if (baselineMetrics) {
+          phaseSummaries[1] = {
+            summary: phaseSummaries[1]?.summary || firstLine || "",
+            timestamp: Date.now(),
+            detail: { ...phaseSummaries[1]?.detail, baselineMetrics },
+          };
+        }
+        if (intent || (mutations && phaseNum <= 2)) {
+          phaseSummaries[2] = {
+            summary: phaseSummaries[2]?.summary || firstLine || "",
+            timestamp: Date.now(),
+            detail: {
+              ...phaseSummaries[2]?.detail,
+              ...(intent ? { intent } : {}),
+              ...(mutations ? { mutations } : {}),
+            },
+          };
+        }
+        if (mutations && (phaseNum === 3 || phaseNum === 2)) {
+          phaseSummaries[3] = {
+            summary: phaseSummaries[3]?.summary || firstLine || "",
+            timestamp: Date.now(),
+            detail: { ...phaseSummaries[3]?.detail, mutations },
+          };
+        }
+        if (checks || findings) {
+          phaseSummaries[4] = {
+            summary: phaseSummaries[4]?.summary || firstLine || "",
+            timestamp: Date.now(),
+            detail: {
+              ...phaseSummaries[4]?.detail,
+              ...(checks ? { checks } : {}),
+              ...(findings ? { findings } : {}),
+            },
+          };
+        }
+        if (decision || logicComparison || variableTrace || judgeIssues) {
+          phaseSummaries[5] = {
+            summary: phaseSummaries[5]?.summary || firstLine || "",
+            timestamp: Date.now(),
+            detail: {
+              ...phaseSummaries[5]?.detail,
+              ...(decision ? { judgeVerdict: decision } : {}),
+              ...(logicComparison ? { logicComparison } : {}),
+              ...(variableTrace ? { variableTrace } : {}),
+              ...(judgeIssues ? { judgeIssues } : {}),
+            },
+          };
         }
 
         return { ...prev, currentDetail: detail, phaseSummaries };
@@ -265,13 +357,28 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   const handlePhaseStates = useCallback(
     (msg: { states: Record<string, string>; failingPhase?: number | null; strategyIteration?: number; syntaxHealAttempt?: number }) => {
-      setGlassboxState((prev) => ({
-        ...prev,
-        phaseStates: msg.states,
-        failingPhase: msg.failingPhase ?? null,
-        strategyIteration: msg.strategyIteration ?? prev.strategyIteration,
-        syntaxHealAttempt: msg.syntaxHealAttempt ?? prev.syntaxHealAttempt,
-      }));
+      setGlassboxState((prev) => {
+        const flagged = new Set(prev.flaggedPhases || []);
+        const visited = new Set(prev.visitedPhases || []);
+
+        if (msg.states) {
+          Object.entries(msg.states).forEach(([k, v]) => {
+            const pNum = Number(k);
+            if (v === "flagged") flagged.add(pNum);
+            if (v === "done_ok" || v === "active" || v === "flagged") visited.add(pNum);
+          });
+        }
+
+        return {
+          ...prev,
+          phaseStates: msg.states,
+          failingPhase: msg.failingPhase ?? null,
+          strategyIteration: (msg.strategyIteration && msg.strategyIteration > 1) ? Math.max(msg.strategyIteration, prev.strategyIteration) : prev.strategyIteration,
+          syntaxHealAttempt: (msg.syntaxHealAttempt && msg.syntaxHealAttempt > 0) ? Math.max(msg.syntaxHealAttempt, prev.syntaxHealAttempt) : prev.syntaxHealAttempt,
+          flaggedPhases: Array.from(flagged),
+          visitedPhases: Array.from(visited),
+        };
+      });
     },
     []
   );
@@ -298,17 +405,23 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   const handlePhaseStarted = useCallback(
     (msg: PhaseStartedMessage) => {
-      setGlassboxState((prev) => ({
-        ...prev,
-        currentPhase: msg.phase,
-        currentAgent: msg.agent as GlassboxState["currentAgent"],
-        strategyIteration: msg.strategy_iteration,
-        currentDetail: {
-          ...prev.currentDetail,
-          phaseName: msg.name,
-          phaseAction: undefined,
-        },
-      }));
+      setGlassboxState((prev) => {
+        const fromPhase = prev.currentPhase;
+        const toPhase = msg.phase;
+
+        return {
+          ...prev,
+          previousPhase: fromPhase !== toPhase ? fromPhase : prev.previousPhase,
+          currentPhase: toPhase,
+          currentAgent: msg.agent as GlassboxState["currentAgent"],
+          strategyIteration: msg.strategy_iteration,
+          currentDetail: {
+            ...prev.currentDetail,
+            phaseName: msg.name,
+            phaseAction: undefined,
+          },
+        };
+      });
     },
     []
   );

@@ -15,4 +15,6 @@ export const DEFAULT_GLASSBOX_STATE: GlassboxState = {
   phaseSummaries: {},
   phaseDurations: [],
   totalDurationMs: null,
+  visitedPhases: [],
+  flaggedPhases: [],
 };
