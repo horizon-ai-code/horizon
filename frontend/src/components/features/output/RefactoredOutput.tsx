@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import InsightsPanel from "@/components/features/output/InsightsPanel";
 import CodeSkeleton from "@/components/features/output/CodeSkeleton";
 import MultiAgentFlowGraph from "@/components/features/output/MultiAgentFlowGraph";
+import FlowGrid from "@/components/features/output/FlowGrid";
 import { useChatStore } from "@/store/useChatStore";
 import { DEMO_PHASE_STATES, DEMO_CODE } from "@/components/features/onboarding/tourDemo";
 import RefactorHelpButton from "./RefactorHelpButton";
@@ -41,6 +42,7 @@ export default function RefactoredOutput({
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const tourMode = useChatStore((s) => s.tourMode);
+  const [flowViewMode, setFlowViewMode] = useState<"simple" | "detailed">("detailed");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const graphState = (orchestrationResult as any)?.graphState as {
@@ -200,6 +202,30 @@ export default function RefactoredOutput({
         </div>
         
         <div className="flex items-center gap-2 pr-4">
+          {displayPanelMode === 'flow' && !isMonolith && (
+            <div className={`flex items-center p-0.5 rounded-lg border text-[11px] font-mono transition-colors ${isDark ? 'bg-jb-bg/80 border-jb-border/60' : 'bg-[#eaeaec] border-[#d8d8dc]'}`}>
+              <button
+                onClick={() => setFlowViewMode("simple")}
+                className={`px-2.5 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+                  flowViewMode === "simple"
+                    ? isDark ? "bg-jb-panel text-cyan-400 shadow-sm" : "bg-white text-[#080808] shadow-sm"
+                    : "text-jb-text-muted hover:text-jb-text opacity-70"
+                }`}
+              >
+                Simple
+              </button>
+              <button
+                onClick={() => setFlowViewMode("detailed")}
+                className={`px-2.5 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+                  flowViewMode === "detailed"
+                    ? isDark ? "bg-jb-panel text-cyan-400 shadow-sm" : "bg-white text-[#080808] shadow-sm"
+                    : "text-jb-text-muted hover:text-jb-text opacity-70"
+                }`}
+              >
+                Detailed
+              </button>
+            </div>
+          )}
           {appState === 'analyzing' && (
             <RefactorHelpButton
               isDark={isDark}
@@ -228,34 +254,65 @@ export default function RefactoredOutput({
 
       <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden z-10">
         {displayPanelMode === 'flow' && tourMode ? (
-          <MultiAgentFlowGraph
-            appState="done"
-            exitStatus="SUCCESS"
-            phaseStates={DEMO_PHASE_STATES}
-            glassboxState={{
-              currentPhase: 6,
-              currentAgent: "System",
-              strategyIteration: 1,
-              maxStrategyIterations: 3,
-              syntaxHealAttempt: 0,
-              maxSyntaxHealAttempts: 3,
-              sequentialMutationRetry: 0,
-              maxSequentialMutationRetries: 3,
-              validationFaultCount: null,
-              judgeDecision: null,
-              currentDetail: null,
-              phaseSummaries: {},
-              phaseDurations: [
-                { phase: 1, durationMs: 3200 },
-                { phase: 2, durationMs: 4100 },
-                { phase: 3, durationMs: 8900 },
-                { phase: 4, durationMs: 5600 },
-                { phase: 5, durationMs: 3800 },
-                { phase: 6, durationMs: 1500 },
-              ],
-              totalDurationMs: 27000,
-            }}
-          />
+          flowViewMode === 'simple' ? (
+            <FlowGrid
+              appState="done"
+              exitStatus="SUCCESS"
+              phaseStates={DEMO_PHASE_STATES}
+              glassboxState={{
+                currentPhase: 6,
+                currentAgent: "System",
+                strategyIteration: 1,
+                maxStrategyIterations: 3,
+                syntaxHealAttempt: 0,
+                maxSyntaxHealAttempts: 3,
+                sequentialMutationRetry: 0,
+                maxSequentialMutationRetries: 3,
+                validationFaultCount: null,
+                judgeDecision: null,
+                currentDetail: null,
+                phaseSummaries: {},
+                phaseDurations: [
+                  { phase: 1, durationMs: 3200 },
+                  { phase: 2, durationMs: 4100 },
+                  { phase: 3, durationMs: 8900 },
+                  { phase: 4, durationMs: 5600 },
+                  { phase: 5, durationMs: 3800 },
+                  { phase: 6, durationMs: 1500 },
+                ],
+                totalDurationMs: 27000,
+              }}
+            />
+          ) : (
+            <MultiAgentFlowGraph
+              appState="done"
+              exitStatus="SUCCESS"
+              phaseStates={DEMO_PHASE_STATES}
+              glassboxState={{
+                currentPhase: 6,
+                currentAgent: "System",
+                strategyIteration: 1,
+                maxStrategyIterations: 3,
+                syntaxHealAttempt: 0,
+                maxSyntaxHealAttempts: 3,
+                sequentialMutationRetry: 0,
+                maxSequentialMutationRetries: 3,
+                validationFaultCount: null,
+                judgeDecision: null,
+                currentDetail: null,
+                phaseSummaries: {},
+                phaseDurations: [
+                  { phase: 1, durationMs: 3200 },
+                  { phase: 2, durationMs: 4100 },
+                  { phase: 3, durationMs: 8900 },
+                  { phase: 4, durationMs: 5600 },
+                  { phase: 5, durationMs: 3800 },
+                  { phase: 6, durationMs: 1500 },
+                ],
+                totalDurationMs: 27000,
+              }}
+            />
+          )
         ) : displayPanelMode === 'output' && tourMode ? (
           <CodeEditorPanel
             value={DEMO_CODE}
@@ -266,12 +323,21 @@ export default function RefactoredOutput({
             bottomPadding="48px"
           />
         ) : displayPanelMode === 'flow' && !isMonolith ? (
-          <MultiAgentFlowGraph
-            appState={appState}
-            exitStatus={orchestrationResult.exit_status}
-            phaseStates={orchestrationResult.phaseStates}
-            glassboxState={memoizedGlassboxState}
-          />
+          flowViewMode === 'simple' ? (
+            <FlowGrid
+              appState={appState}
+              exitStatus={orchestrationResult.exit_status}
+              phaseStates={orchestrationResult.phaseStates}
+              glassboxState={memoizedGlassboxState}
+            />
+          ) : (
+            <MultiAgentFlowGraph
+              appState={appState}
+              exitStatus={orchestrationResult.exit_status}
+              phaseStates={orchestrationResult.phaseStates}
+              glassboxState={memoizedGlassboxState}
+            />
+          )
         ) : appState === 'idle' ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-100 pointer-events-none z-10 transition-colors duration-300">
             <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[24px] mb-6 shadow-2xl ring-1 transition-all duration-300
