@@ -4,6 +4,7 @@ import { API_URL } from '@/lib/env';
 // ── Import types from dedicated modules ───────────────────────────────────────
 import type { AppState, SessionData, TerminalEntry, OrchestrationResult } from '@/types/session';
 import type { InsightMetric } from '@/types/insights';
+import { reconstructPhaseSummariesFromLogs, reconstructGraphStateFromLogs } from '@/lib/parseStatusInfo';
 import type {
   ConnectionIdMessage,
   StatusMessage,
@@ -418,6 +419,13 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         let activeStep = 0;
         let appState: AppState = "idle";
         const oResult = { ...EMPTY_ORCHESTRATION_RESULT };
+
+        // Reconstruct phaseSummaries and graph state from historical logs for Flow Graph
+        if (Array.isArray(detail.logs) && detail.logs.length > 0) {
+          const logEntries = detail.logs as Array<{ role?: string; status?: string; content?: string | null; phase?: number | null }>;
+          oResult.phaseSummaries = reconstructPhaseSummariesFromLogs(logEntries);
+          oResult.graphState = reconstructGraphStateFromLogs(logEntries);
+        }
 
         const isHalted = detail.status === "Halted" || detail.exit_status === "ABORTED";
         const isProcessing = detail.status === "Processing" && !detail.refactored_code && !isHalted;

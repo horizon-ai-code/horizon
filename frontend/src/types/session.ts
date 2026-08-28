@@ -13,6 +13,8 @@ export interface TerminalEntry {
   timestamp?: string;
 }
 
+import type { PhaseSummary } from "./glassbox";
+
 export interface OrchestrationResult {
   metrics: InsightMetric[];
   summary: string;
@@ -22,6 +24,15 @@ export interface OrchestrationResult {
   };
   exit_status?: ExitStatus;
   phaseStates?: Record<string, string>;
+  phaseSummaries?: Record<number, PhaseSummary>;
+  graphState?: {
+    currentPhase: number;
+    previousPhase: number | null;
+    strategyIteration: number;
+    syntaxHealAttempt: number;
+    visitedPhases: number[];
+    flaggedPhases: number[];
+  };
   original_complexity?: number | null;
   refactored_complexity?: number | null;
   insights?: string;

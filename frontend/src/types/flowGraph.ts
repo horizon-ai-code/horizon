@@ -1,4 +1,4 @@
-import type { AgentRole } from "./glassbox";
+import type { AgentRole, PhaseSummary } from "./glassbox";
 
 export type NodeStatus = "waiting" | "active" | "done_ok" | "done_fail" | "skipped" | "flagged";
 export type EdgeType = "forward" | "syntax_heal" | "structural_fix" | "strategy" | "abort";
@@ -12,6 +12,26 @@ export interface PhaseMeta {
   color: string;
 }
 
+export interface FlowNodeData extends Record<string, unknown> {
+  phase: PhaseMeta;
+  status: NodeStatus;
+  iteration: number;
+  durationMs: number | null;
+  modelName?: string;
+  summary?: PhaseSummary;
+  isSelected?: boolean;
+  isPrevious?: boolean;
+  isCurrent?: boolean;
+  isDoneSession?: boolean;
+}
+
+export interface FlowEdgeData extends Record<string, unknown> {
+  edgeType: EdgeType;
+  status: EdgeStatus;
+  label?: string;
+  animatedParticle?: boolean;
+}
+
 export interface PhaseEvent {
   phase: number;
   role: string;
@@ -19,32 +39,4 @@ export interface PhaseEvent {
   content?: string | null;
   outerLoop?: number;
   innerLoop?: number;
-}
-
-export interface PhaseAnalysis {
-  phaseStates: Record<number, NodeStatus>;
-  failingPhase: number | null;
-  strategyIteration: number;
-  syntaxHealAttempt: number;
-  isSuccess: boolean;
-}
-
-export interface GraphNode {
-  id: string;
-  phase: PhaseMeta;
-  status: NodeStatus;
-  iteration: number;
-  durationMs: number | null;
-  modelName?: string;
-  x: number;
-  y: number;
-}
-
-export interface GraphEdge {
-  id: string;
-  source: string;
-  target: string;
-  type: EdgeType;
-  status: EdgeStatus;
-  label?: string;
 }
