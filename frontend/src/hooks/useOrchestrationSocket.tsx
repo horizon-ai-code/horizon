@@ -108,7 +108,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       // Parse glassbox data
       const parsedPhase = parsePhaseNumber(msg.content);
-      const phase = parsedPhase !== null ? parsedPhase : (msg.phase !== undefined ? msg.phase : (msg.role === "System" ? 6 : undefined));
+      const phase = msg.phase !== undefined ? msg.phase : (parsedPhase !== null ? parsedPhase : (msg.role === "System" ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
@@ -116,10 +116,39 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       setGlassboxState((prev) => {
         const next = { ...prev, currentAgent: msg.role as GlassboxState["currentAgent"] };
-        if (phase !== undefined && phase !== null) next.currentPhase = phase;
-        if (strategyIter !== null) next.strategyIteration = strategyIter;
+        if (phase !== undefined && phase !== null && phase > 0) {
+          const visited = new Set(prev.visitedPhases || []);
+          visited.add(phase);
+          next.visitedPhases = Array.from(visited);
+
+          if (phase !== prev.currentPhase) {
+            next.previousPhase = prev.currentPhase;
+            next.currentPhase = phase;
+
+            // If rerouting backward (e.g. 4 -> 3 or 4 -> 2), mark origin as flagged
+            if (prev.currentPhase > phase) {
+              const flagged = new Set(prev.flaggedPhases || []);
+              flagged.add(prev.currentPhase);
+              next.flaggedPhases = Array.from(flagged);
+            }
+
+            // If rerouting from Phase 4 back to Phase 3, record syntax heal attempt
+            if (prev.currentPhase === 4 && phase === 3 && next.syntaxHealAttempt === 0) {
+              next.syntaxHealAttempt = 1;
+            }
+            // If rerouting back to Phase 2 (Strategy Revision), record strategy iteration
+            if (prev.currentPhase >= 4 && phase === 2 && next.strategyIteration === 1) {
+              next.strategyIteration = 2;
+            }
+          }
+        }
+        if (strategyIter !== null && strategyIter > 1) {
+          next.strategyIteration = strategyIter;
+        }
         if (retry !== null) {
-          if (retry.type === "syntax_heal") next.syntaxHealAttempt = retry.current;
+          if (retry.type === "syntax_heal" && retry.current > 0) {
+            next.syntaxHealAttempt = retry.current;
+          }
           if (retry.type === "sequential_mutation") next.sequentialMutationRetry = retry.current;
         }
         if (faults !== null) next.validationFaultCount = faults;
@@ -265,13 +294,28 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   const handlePhaseStates = useCallback(
     (msg: { states: Record<string, string>; failingPhase?: number | null; strategyIteration?: number; syntaxHealAttempt?: number }) => {
-      setGlassboxState((prev) => ({
-        ...prev,
-        phaseStates: msg.states,
-        failingPhase: msg.failingPhase ?? null,
-        strategyIteration: msg.strategyIteration ?? prev.strategyIteration,
-        syntaxHealAttempt: msg.syntaxHealAttempt ?? prev.syntaxHealAttempt,
-      }));
+      setGlassboxState((prev) => {
+        const flagged = new Set(prev.flaggedPhases || []);
+        const visited = new Set(prev.visitedPhases || []);
+
+        if (msg.states) {
+          Object.entries(msg.states).forEach(([k, v]) => {
+            const pNum = Number(k);
+            if (v === "flagged") flagged.add(pNum);
+            if (v === "done_ok" || v === "active" || v === "flagged") visited.add(pNum);
+          });
+        }
+
+        return {
+          ...prev,
+          phaseStates: msg.states,
+          failingPhase: msg.failingPhase ?? null,
+          strategyIteration: (msg.strategyIteration && msg.strategyIteration > 1) ? Math.max(msg.strategyIteration, prev.strategyIteration) : prev.strategyIteration,
+          syntaxHealAttempt: (msg.syntaxHealAttempt && msg.syntaxHealAttempt > 0) ? Math.max(msg.syntaxHealAttempt, prev.syntaxHealAttempt) : prev.syntaxHealAttempt,
+          flaggedPhases: Array.from(flagged),
+          visitedPhases: Array.from(visited),
+        };
+      });
     },
     []
   );
@@ -298,17 +342,23 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   const handlePhaseStarted = useCallback(
     (msg: PhaseStartedMessage) => {
-      setGlassboxState((prev) => ({
-        ...prev,
-        currentPhase: msg.phase,
-        currentAgent: msg.agent as GlassboxState["currentAgent"],
-        strategyIteration: msg.strategy_iteration,
-        currentDetail: {
-          ...prev.currentDetail,
-          phaseName: msg.name,
-          phaseAction: undefined,
-        },
-      }));
+      setGlassboxState((prev) => {
+        const fromPhase = prev.currentPhase;
+        const toPhase = msg.phase;
+
+        return {
+          ...prev,
+          previousPhase: fromPhase !== toPhase ? fromPhase : prev.previousPhase,
+          currentPhase: toPhase,
+          currentAgent: msg.agent as GlassboxState["currentAgent"],
+          strategyIteration: msg.strategy_iteration,
+          currentDetail: {
+            ...prev.currentDetail,
+            phaseName: msg.name,
+            phaseAction: undefined,
+          },
+        };
+      });
     },
     []
   );

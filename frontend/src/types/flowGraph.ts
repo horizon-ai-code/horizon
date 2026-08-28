@@ -20,6 +20,9 @@ export interface FlowNodeData extends Record<string, unknown> {
   modelName?: string;
   summary?: PhaseSummary;
   isSelected?: boolean;
+  isPrevious?: boolean;
+  isCurrent?: boolean;
+  isDoneSession?: boolean;
 }
 
 export interface FlowEdgeData extends Record<string, unknown> {

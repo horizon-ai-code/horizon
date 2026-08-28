@@ -18,7 +18,7 @@ const ICON_MAP: Record<
 };
 
 function CircularNodeComponent({ data }: NodeProps<Node<FlowNodeData>>) {
-  const { phase, status, iteration, durationMs, modelName, isSelected } = data;
+  const { phase, status, iteration, durationMs, modelName, isSelected, isPrevious, isCurrent, isDoneSession } = data;
   const Icon = ICON_MAP[phase.icon] || Layers;
 
   // Status visual configurations (double rings & glowing styles matching reference UI)
@@ -62,18 +62,29 @@ function CircularNodeComponent({ data }: NodeProps<Node<FlowNodeData>>) {
       glow: "",
     },
     flagged: {
-      outerRing: "border-amber-500/80 bg-amber-950/30 ring-2 ring-amber-500/30",
-      innerRing: "border-amber-400 bg-jb-bg/90",
-      text: "text-amber-400",
-      shadow: "shadow-[0_0_15px_rgba(245,158,11,0.35)]",
+      outerRing: "border-amber-400/90 bg-amber-950/40 ring-4 ring-amber-500/30",
+      innerRing: "border-amber-300 bg-jb-bg/90",
+      text: "text-amber-300 font-bold",
+      shadow: "shadow-[0_0_20px_rgba(245,158,11,0.45)]",
       glow: "",
     },
   };
 
   const style = ringStyles[status];
 
+  // In live processing mode, active and previous nodes light up, and completed nodes stay visible!
+  const nodeOpacityClass = isDoneSession
+    ? "opacity-100"
+    : isCurrent
+    ? "opacity-100 z-20 scale-105"
+    : isPrevious
+    ? "opacity-95 z-10 scale-100"
+    : status === "done_ok" || status === "flagged"
+    ? "opacity-90 z-0 scale-100"
+    : "opacity-35 hover:opacity-80 scale-95 transition-all duration-300";
+
   return (
-    <div className="relative flex flex-col items-center justify-center group cursor-pointer select-none">
+    <div className={`relative flex flex-col items-center justify-center group cursor-pointer select-none transition-all duration-500 ${nodeOpacityClass}`}>
       {/* Iteration Badge (Top Left) */}
       {iteration > 1 && status !== "waiting" && (
         <div className="absolute -top-2.5 -left-2.5 z-20 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm backdrop-blur-md">

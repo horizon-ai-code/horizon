@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import {
   ReactFlow,
   Background,
@@ -69,7 +69,7 @@ function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Pr
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Sync ReactFlow state on WS changes
+  // Directly sync ReactFlow state reactively on effectiveGlassbox changes in real time
   useEffect(() => {
     const { nodes: nextNodes, edges: nextEdges } = buildGraphState(
       effectiveGlassbox,

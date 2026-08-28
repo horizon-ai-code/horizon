@@ -11,6 +11,21 @@ export interface EdgeDef {
   curvature?: number;
 }
 
+/**
+ * Deterministic Transition Lookup Map: Maps (sourcePhase -> targetPhase) directly to unique Edge ID.
+ */
+export const TRANSITION_EDGE_MAP: Record<string, string> = {
+  "1->2": "e1-2",          // Baseline -> Strategy
+  "2->3": "e2-3",          // Strategy -> Execution
+  "3->4": "e3-4",          // Execution -> Validation
+  "4->5": "e4-5",          // Validation -> Adjudication
+  "5->6": "e5-6",          // Adjudication -> Finalization
+  "4->3": "e4-3-heal",     // Inner Loop Heal (Validator -> Generator)
+  "4->2": "e4-2-revise",   // Validator Strategy Revision
+  "5->2": "e5-2-revise",   // Judge Strategy Revision
+  "2->6": "e2-6-abort",    // Circuit Abort
+};
+
 export const ALL_EDGES: EdgeDef[] = [
   // Forward main pipeline (L-Shaped Layout)
   { id: "e1-2", source: "p1", target: "p2", sourceHandle: "right-source", targetHandle: "left-target", type: "forward" },

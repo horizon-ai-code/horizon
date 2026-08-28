@@ -218,7 +218,7 @@ class Orchestrator:
                 if state.strategy_iter_incremented:
                     state.flagged_phases.add(flag_prev)
                 if state.syntax_iter > 0:
-                    state.flagged_phases.add(3)
+                    state.flagged_phases.add(4)
                 if state.structural_fix_attempts > 0:
                     state.flagged_phases.add(4)
 
@@ -297,10 +297,12 @@ class Orchestrator:
 
         for p in range(1, 7):
             if state.exit_status == ExitStatus.PROCESSING:
-                if p < state.current_phase:
-                    states[p] = "flagged" if p in state.flagged_phases else "done_ok"
-                elif p == state.current_phase:
+                if p == state.current_phase:
                     states[p] = "active"
+                elif p in state.flagged_phases:
+                    states[p] = "flagged"
+                elif p < state.current_phase:
+                    states[p] = "done_ok"
                 else:
                     states[p] = "waiting"
             else:

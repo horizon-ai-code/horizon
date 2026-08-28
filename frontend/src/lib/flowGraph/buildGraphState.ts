@@ -2,7 +2,7 @@ import type { Node, Edge } from "@xyflow/react";
 import type { GlassboxState } from "@/types/glassbox";
 import type { FlowNodeData, FlowEdgeData, NodeStatus, EdgeStatus } from "@/types/flowGraph";
 import { PHASES } from "./phases";
-import { ALL_EDGES } from "./edges";
+import { ALL_EDGES, TRANSITION_EDGE_MAP } from "./edges";
 
 export function buildGraphState(
   glassboxState: GlassboxState,
@@ -12,6 +12,7 @@ export function buildGraphState(
 ): { nodes: Node<FlowNodeData>[]; edges: Edge<FlowEdgeData>[] } {
   const {
     currentPhase,
+    previousPhase,
     strategyIteration,
     syntaxHealAttempt,
     phaseDurations,
@@ -24,6 +25,11 @@ export function buildGraphState(
 
   const isDone = appState === "done";
   const states = propStates ?? glassboxState.phaseStates;
+  const failingPhase = glassboxState.failingPhase;
+
+  // Lookup active transition edge ID directly from transition map
+  const currentTransitionKey = previousPhase && currentPhase ? `${previousPhase}->${currentPhase}` : null;
+  const activeEdgeId = currentTransitionKey ? TRANSITION_EDGE_MAP[currentTransitionKey] : null;
 
   // L-Shaped Architecture Layout
   const nodePositions: Record<number, { x: number; y: number }> = {
@@ -35,32 +41,45 @@ export function buildGraphState(
     6: { x: 580, y: 420 }, // Vertical Right Arm: P6 Finalization (straight down)
   };
 
+  const visitedSet = new Set(glassboxState.visitedPhases || []);
+  const flaggedSet = new Set(glassboxState.flaggedPhases || []);
+
+  // 1. Build Nodes: Only current active & previous source nodes light up in live mode!
   const nodes: Node<FlowNodeData>[] = PHASES.map((phase) => {
     let status: NodeStatus = "waiting";
 
-    if (states) {
-      if (!isDone && phase.num === currentPhase) {
+    if (!isDone) {
+      if (phase.num === currentPhase) {
         status = "active";
+      } else if (
+        flaggedSet.has(phase.num) ||
+        states?.[String(phase.num)] === "flagged" ||
+        (previousPhase === phase.num && previousPhase > currentPhase) ||
+        (phase.num === 4 && (syntaxHealAttempt > 0 || failingPhase === 4))
+      ) {
+        // Flagged reroute origin nodes stay glowing amber
+        status = "flagged";
+      } else if (previousPhase && phase.num === previousPhase) {
+        status = (states?.[String(phase.num)] as NodeStatus) ?? "done_ok";
+      } else if (phase.num < currentPhase || visitedSet.has(phase.num)) {
+        status = (states?.[String(phase.num)] as NodeStatus) === "flagged" ? "flagged" : "done_ok";
       } else {
-        status = (states[String(phase.num)] as NodeStatus) ?? (phase.num < currentPhase ? "done_ok" : "waiting");
+        status = (states?.[String(phase.num)] as NodeStatus) ?? "waiting";
       }
     } else {
-      if (isDone) {
-        if (exitStatus === "SUCCESS") {
-          status = "done_ok";
-        } else if (phase.num === 6) {
-          status = exitStatus ? "done_fail" : "done_ok";
-        } else if (phase.num < currentPhase) {
-          status = "done_ok";
-        } else if (phase.num === currentPhase) {
-          status = "done_fail";
-        } else {
-          status = "skipped";
-        }
+      // Finished session recap mode
+      if (states) {
+        status = (states[String(phase.num)] as NodeStatus) ?? (phase.num < currentPhase ? "done_ok" : "waiting");
+      } else if (exitStatus === "SUCCESS") {
+        status = "done_ok";
+      } else if (phase.num === 6) {
+        status = exitStatus ? "done_fail" : "done_ok";
+      } else if (phase.num < currentPhase) {
+        status = "done_ok";
+      } else if (phase.num === currentPhase) {
+        status = "done_fail";
       } else {
-        if (phase.num < currentPhase) status = "done_ok";
-        else if (phase.num === currentPhase) status = "active";
-        else status = "waiting";
+        status = "skipped";
       }
     }
 
@@ -97,54 +116,63 @@ export function buildGraphState(
         modelName,
         summary,
         isSelected: selectedNodeId === `p${phase.num}`,
+        isPrevious: !isDone && previousPhase === phase.num,
+        isCurrent: !isDone && currentPhase === phase.num,
+        isDoneSession: isDone,
       },
     };
   });
 
-  // 2. Build Edges with precise rerouting origin discrimination
+  // 2. Build Edges: Active transition edge streams particles, completed forward edges stay green, reroute edges stay lit
   const edges: Edge<FlowEdgeData>[] = ALL_EDGES.map((edgeDef) => {
     let status: EdgeStatus = "dimmed";
     let animatedParticle = false;
 
     const sourceNum = parseInt(edgeDef.source.replace("p", ""), 10);
-    const failingPhase = glassboxState.failingPhase;
-    const isValFailing = failingPhase === 4 || states?.["4"] === "flagged" || states?.["4"] === "done_fail";
-    const isJudgeFailing = failingPhase === 5 || states?.["5"] === "flagged" || glassboxState.judgeDecision === "REVISE";
+    const targetNum = parseInt(edgeDef.target.replace("p", ""), 10);
 
     if (!isDone) {
-      // Live processing execution mode
-      if (edgeDef.type === "forward") {
-        if (sourceNum < currentPhase) {
-          status = "done";
-        }
-        if (sourceNum === currentPhase - 1) {
-          status = "active";
-          animatedParticle = true;
-        }
-      } else if (edgeDef.id === "e4-3-heal" && syntaxHealAttempt > 0 && currentPhase === 3) {
+      if (edgeDef.id === activeEdgeId) {
         status = "active";
         animatedParticle = true;
-      } else if (edgeDef.id === "e4-2-revise" && strategyIteration > 1 && currentPhase === 2 && isValFailing) {
-        status = "active";
+      } else if (edgeDef.type === "forward" && (sourceNum < currentPhase || visitedSet.has(targetNum))) {
+        status = "done";
+      } else if (
+        edgeDef.id === "e4-3-heal" &&
+        currentPhase === 3 &&
+        (syntaxHealAttempt > 0 || flaggedSet.has(4) || previousPhase === 4)
+      ) {
+        status = "done";
         animatedParticle = true;
-      } else if (edgeDef.id === "e5-2-revise" && strategyIteration > 1 && currentPhase === 2 && isJudgeFailing) {
-        status = "active";
+      } else if (
+        edgeDef.id === "e4-2-revise" &&
+        currentPhase === 2 &&
+        strategyIteration > 1 &&
+        (flaggedSet.has(4) || previousPhase === 4 || states?.["4"] === "flagged")
+      ) {
+        status = "done";
         animatedParticle = true;
-      } else if (edgeDef.id === "e2-6-abort" && strategyIteration > 3) {
-        status = "active";
+      } else if (
+        edgeDef.id === "e5-2-revise" &&
+        currentPhase === 2 &&
+        strategyIteration > 1 &&
+        (flaggedSet.has(5) || previousPhase === 5 || states?.["5"] === "flagged")
+      ) {
+        status = "done";
         animatedParticle = true;
       }
-    } else {
-      // Finished session recap mode
+    }
+ else {
+      // Finished session recap mode: Light up all traversed paths for post-run review
       if (edgeDef.type === "forward") {
         if (exitStatus === "SUCCESS" || sourceNum < (failingPhase ?? 6)) {
           status = "done";
         }
-      } else if (edgeDef.id === "e4-3-heal" && syntaxHealAttempt > 0) {
+      } else if (edgeDef.id === "e4-3-heal" && (syntaxHealAttempt > 0 || flaggedSet.has(4) || states?.["4"] === "flagged")) {
         status = "done";
-      } else if (edgeDef.id === "e4-2-revise" && strategyIteration > 1 && isValFailing) {
+      } else if (edgeDef.id === "e4-2-revise" && strategyIteration > 1 && (failingPhase === 4 || states?.["4"] === "flagged" || flaggedSet.has(4))) {
         status = "done";
-      } else if (edgeDef.id === "e5-2-revise" && strategyIteration > 1 && isJudgeFailing) {
+      } else if (edgeDef.id === "e5-2-revise" && strategyIteration > 1 && (failingPhase === 5 || states?.["5"] === "flagged" || flaggedSet.has(5))) {
         status = "done";
       } else if (edgeDef.id === "e2-6-abort" && exitStatus && exitStatus !== "SUCCESS") {
         status = "done";

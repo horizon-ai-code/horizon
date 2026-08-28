@@ -31,13 +31,17 @@ export function parseStrategyIteration(content: string): number | null {
 }
 
 export function parseRetryInfo(content: string): RetryInfo | null {
-  const syntaxMatch = content.match(/attempt\s+(\d+)\s*\/\s*(\d+)/i);
+  const syntaxMatch = content.match(/attempt\s+(\d+)(?:\s*\/\s*(\d+))?/i);
   if (syntaxMatch) {
-    return { current: parseInt(syntaxMatch[1], 10), max: parseInt(syntaxMatch[2], 10), type: "syntax_heal" };
+    const current = parseInt(syntaxMatch[1], 10);
+    const max = syntaxMatch[2] ? parseInt(syntaxMatch[2], 10) : 3;
+    return { current, max, type: "syntax_heal" };
   }
-  const seqMatch = content.match(/retrying\s+(\d+)\s*\/\s*(\d+)/i);
+  const seqMatch = content.match(/retrying\s+(\d+)(?:\s*\/\s*(\d+))?/i);
   if (seqMatch) {
-    return { current: parseInt(seqMatch[1], 10), max: parseInt(seqMatch[2], 10), type: "sequential_mutation" };
+    const current = parseInt(seqMatch[1], 10);
+    const max = seqMatch[2] ? parseInt(seqMatch[2], 10) : 3;
+    return { current, max, type: "sequential_mutation" };
   }
   return null;
 }

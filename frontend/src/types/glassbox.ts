@@ -101,4 +101,7 @@ export interface GlassboxState {
   /** Phase states from backend (live via WS, history via API) */
   phaseStates?: Record<string, string>;
   failingPhase?: number | null;
+  previousPhase?: number | null;
+  visitedPhases?: number[];
+  flaggedPhases?: number[];
 }

@@ -23,27 +23,27 @@ export default function CustomCurvedEdge({
   let labelX = (sourceX + targetX) / 2;
   let labelY = (sourceY + targetY) / 2;
 
-  // Custom path calculations tailored for L-Shaped Layout with rerouting origin discrimination
-  if (sourcePosition === "bottom" && targetPosition === "top" && Math.abs(sourceX - targetX) < 10) {
+  // Custom path calculations tailored for L-Shaped Layout with explicit Edge ID discrimination
+  if (id === "e4-5" || id === "e5-6") {
     // Pure straight vertical line for P4 -> P5 and P5 -> P6
     edgePath = `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
     labelX = sourceX + 30;
     labelY = (sourceY + targetY) / 2;
-  } else if (sourcePosition === "bottom" && targetPosition === "bottom") {
+  } else if (id === "e4-3-heal" || id === "e4-2-revise") {
     // Bottom U-shaped arc for Inner Loop Heal (P4 -> P3) or Validator Strategy Revision (P4 -> P2)
     const offset = id === "e4-3-heal" ? 55 : 95;
     const controlY = Math.max(sourceY, targetY) + offset;
     edgePath = `M ${sourceX} ${sourceY} C ${sourceX} ${controlY}, ${targetX} ${controlY}, ${targetX} ${targetY}`;
     labelX = (sourceX + targetX) / 2;
     labelY = controlY - 12;
-  } else if (sourcePosition === "left" && targetPosition === "bottom") {
+  } else if (id === "e5-2-revise") {
     // Judge Strategy Revision curve from P5 left handle to P2 bottom handle
     const controlX = targetX;
     const controlY = sourceY;
     edgePath = `M ${sourceX} ${sourceY} C ${controlX} ${sourceY}, ${targetX} ${controlY}, ${targetX} ${targetY}`;
     labelX = (sourceX + targetX) / 2;
     labelY = (sourceY + targetY) / 2 + 10;
-  } else if (sourcePosition === "bottom" && targetPosition === "left") {
+  } else if (id === "e2-6-abort") {
     // Abort curve from P2 bottom handle to P6 left handle
     const controlX = targetX - 40;
     const controlY = sourceY + 120;
