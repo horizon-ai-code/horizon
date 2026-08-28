@@ -85,13 +85,6 @@ function CircularNodeComponent({ data }: NodeProps<Node<FlowNodeData>>) {
 
   return (
     <div className={`relative flex flex-col items-center justify-center group cursor-pointer select-none transition-all duration-500 ${nodeOpacityClass}`}>
-      {/* Iteration Badge (Top Left) */}
-      {iteration > 1 && status !== "waiting" && (
-        <div className="absolute -top-3 -left-3 z-20 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-md backdrop-blur-md">
-          {iteration}x
-        </div>
-      )}
-
       {/* Duration Pill (Top Right) */}
       {durationMs !== null && (
         <div className="absolute -top-3 -right-3 z-20 px-2 py-0.5 rounded-md text-[10px] font-mono bg-jb-panel/95 text-jb-text border border-jb-border/60 shadow-md backdrop-blur-md">

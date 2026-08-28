@@ -141,11 +141,7 @@ function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Pr
       {/* Post-run / Live Summary Footer */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-4 py-1.5 rounded-full bg-jb-panel/90 border border-jb-border/60 text-[11px] font-mono backdrop-blur-md shadow-xl">
         <span className="text-jb-text-muted">
-          Strategy: <strong className="text-cyan-400">{effectiveGlassbox.strategyIteration}</strong>
-        </span>
-        <span className="w-px h-3 bg-jb-border/50" />
-        <span className="text-jb-text-muted">
-          Syntax Heals: <strong className="text-amber-400">{effectiveGlassbox.syntaxHealAttempt}</strong>
+          Iteration: <strong className="text-cyan-400">{Math.min(effectiveGlassbox.strategyIteration, effectiveGlassbox.maxStrategyIterations || 3)}</strong>
         </span>
         {exitStatus && (
           <>

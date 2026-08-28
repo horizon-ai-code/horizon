@@ -440,12 +440,12 @@ export function reconstructGraphStateFromLogs(
 
         // Track syntax heal: P4 → P3
         if (currentPhase === 4 && phase === 3) {
-          syntaxHealAttempt = Math.max(syntaxHealAttempt, 1);
+          syntaxHealAttempt += 1;
         }
 
         // Track strategy revision: P4/P5 → P2
         if (currentPhase >= 4 && phase === 2) {
-          strategyIteration = Math.max(strategyIteration, 2);
+          strategyIteration += 1;
         }
 
         previousPhase = currentPhase;

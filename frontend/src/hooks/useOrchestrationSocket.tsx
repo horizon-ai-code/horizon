@@ -137,12 +137,12 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             }
 
             // If rerouting from Phase 4 back to Phase 3, record syntax heal attempt
-            if (prev.currentPhase === 4 && phase === 3 && next.syntaxHealAttempt === 0) {
-              next.syntaxHealAttempt = 1;
+            if (prev.currentPhase === 4 && phase === 3) {
+              next.syntaxHealAttempt = prev.syntaxHealAttempt + 1;
             }
             // If rerouting back to Phase 2 (Strategy Revision), record strategy iteration
-            if (prev.currentPhase >= 4 && phase === 2 && next.strategyIteration === 1) {
-              next.strategyIteration = 2;
+            if (prev.currentPhase >= 4 && phase === 2) {
+              next.strategyIteration = prev.strategyIteration + 1;
             }
           }
         }
