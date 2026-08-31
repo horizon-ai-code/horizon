@@ -1,4 +1,4 @@
-.PHONY: build build-gpu build-cpu build-frontend push push-gpu push-cpu push-frontend up up-local up-cpu up-cpu-local down dev build-dev build-dev-gpu build-dev-cpu build-dev-frontend push-dev push-dev-gpu push-dev-cpu push-dev-frontend dev-docker-gpu dev-docker-cpu down-dev
+.PHONY: build build-gpu build-cpu build-frontend push push-gpu push-cpu push-frontend up up-local up-cpu up-cpu-local down dev native-local build-dev build-dev-gpu build-dev-cpu build-dev-frontend push-dev push-dev-gpu push-dev-cpu push-dev-frontend dev-docker-gpu dev-docker-cpu down-dev
 
 build: build-gpu build-cpu build-frontend
 
@@ -63,6 +63,13 @@ dev:
 	trap 'kill 0' EXIT; \
 		uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --app-dir backend & \
 		npm --prefix frontend run dev & \
+		wait
+
+native-local:
+	npm --prefix frontend run build
+	trap 'kill 0' EXIT; \
+		uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend & \
+		npm --prefix frontend run start & \
 		wait
 
 dev-docker-gpu:
