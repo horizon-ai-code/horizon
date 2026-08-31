@@ -3,6 +3,7 @@ import datetime
 from typing import Any
 
 import peewee
+from playhouse.migrate import SqliteMigrator, migrate
 from playhouse.shortcuts import model_to_dict
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
@@ -77,6 +78,42 @@ class DatabaseManager:
         """Creates tables from Peewee model definitions."""
         db.connect(reuse_if_open=True)
         db.create_tables([RefactorHistory, OrchestrationLog], safe=True)
+        self._sync_table_columns()
+
+    def _sync_table_columns(self) -> None:
+        """Forward-only schema sync: adds model columns missing from existing tables.
+
+        create_tables(safe=True) never alters existing tables, so a DB file created
+        by an older build (e.g. a persisted Docker volume) keeps its old schema and
+        every SELECT referencing a new column raises OperationalError.
+        """
+        for model in (RefactorHistory, OrchestrationLog):
+            model_db = model._meta.database
+            existing = {
+                row[1] for row in model_db.execute_sql(
+                    f'PRAGMA table_info("{model._meta.table_name}")'
+                )
+            }
+            if not existing:
+                continue
+            missing = [
+                f
+                for f in model._meta.sorted_fields
+                if f.column_name not in existing and not f.primary_key
+            ]
+            if not missing:
+                continue
+            migrator = SqliteMigrator(model_db)
+            ops = [
+                migrator.add_column(model._meta.table_name, f.column_name, f)
+                for f in missing
+            ]
+            with model_db.atomic():
+                migrate(*ops)
+            print(
+                f"[db] Schema sync: added {len(missing)} column(s) to "
+                f"{model._meta.table_name}: {[f.column_name for f in missing]}"
+            )
 
     @DB_RETRY
     def create_session(self, id: str, instruction: str, original_code: str, mode: str = "multi") -> None:
