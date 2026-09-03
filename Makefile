@@ -65,8 +65,12 @@ dev:
 		npm --prefix frontend run dev & \
 		wait
 
-native-local:
+UI_SOURCES := $(shell find frontend \( -name node_modules -o -name .next \) -prune -o -type f -print)
+
+frontend/.next/BUILD_ID: $(UI_SOURCES)
 	npm --prefix frontend run build
+
+native-local: frontend/.next/BUILD_ID
 	trap 'kill 0' EXIT; \
 		uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend & \
 		npm --prefix frontend run start & \
