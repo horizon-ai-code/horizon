@@ -122,7 +122,7 @@ export default function CustomCurvedEdge({
       />
 
       {/* Traveling Directional Arrows along active/traversed paths */}
-      {(animatedParticle || isReroutingActiveOrDone) && (
+      {(animatedParticle || isReroutingActiveOrDone) && edgePath.trim().length > 0 && (
         <g fill={style.stroke} opacity={style.opacity}>
           <polygon points="-6,-5 6,0 -6,5" className="shadow-[0_0_8px_rgba(34,211,238,0.8)]">
             <animateMotion dur="2.4s" repeatCount="indefinite" path={edgePath} rotate="auto" />
