@@ -23,8 +23,14 @@ async def _run_single_cmd(args) -> None:
     os.makedirs(args.out_dir, exist_ok=True)
     with open(args.dataset) as f:
         all_entries = json.load(f)
-    start, end, tag = resolve_range(args, len(all_entries))
-    entries = all_entries[start:end]
+    if getattr(args, "entries", None):
+        target_nums = set(int(x.strip()) for x in args.entries.split(",") if x.strip())
+        entries = [e for e in all_entries if e["num"] in target_nums]
+        start, end = 0, len(all_entries)
+        tag = "aborts_77_verify"
+    else:
+        start, end, tag = resolve_range(args, len(all_entries))
+        entries = all_entries[start:end]
     out_path = os.path.join(args.out_dir, f"benchmark_279_{tag}.json") if tag else os.path.join(args.out_dir, "benchmark_279_results.json")
 
     agent = AgentService()
