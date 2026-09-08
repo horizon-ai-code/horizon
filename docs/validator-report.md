@@ -94,7 +94,7 @@ If it fails: The system tells the AI "you said you extracted a method but the me
 | Refactoring | What the Validator Checks | Pass Condition | Fail Condition |
 |-------------|--------------------------|----------------|----------------|
 | Flatten Conditional | Maximum nesting depth of `IfStatement` nodes | New depth is strictly less than old depth | Depth unchanged or increased |
-| Decompose Conditional | Number of `BinaryOperation` nodes AND new variable names appearing in conditionals | Binary ops decreased, OR new variables were introduced AND at least one is used in an if/while/for/return condition | No new variables AND no binary-op reduction |
+| Decompose Conditional | Number of `BinaryOperation` nodes AND new variable names | Binary ops decreased, OR at least one new variable was introduced | No new variables AND no binary-op reduction |
 | Consolidate Conditional | Total count of `IfStatement` + `SwitchStatement` nodes | Count decreased | Count unchanged or increased |
 | Remove Control Flag | Count of `BreakStatement` + `ReturnStatement` (exit points) AND variable changes | **Any one of three:** (1) exit points increased, OR (2) variables from the original were removed, OR (3) new variables appeared and original had exit points | No change in exits, no variables removed, no new variables added when exits existed |
 | Replace Loop with Pipeline | Count of `ForStatement` + `WhileStatement` + `DoStatement` nodes AND presence of Stream API method calls | Loop count decreased AND stream evidence found (`.stream()`, `.map()`, `.collect()`, etc.) — or loop count decreased alone as fallback | Loop count unchanged |
