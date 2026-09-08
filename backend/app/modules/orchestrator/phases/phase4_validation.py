@@ -82,9 +82,10 @@ class Phase4Validation:
             if state.active_plan["target_class"] not in target_scopes:
                 target_scopes.append(state.active_plan["target_class"])
 
-        boundary_finding = self._validator.verify_boundary(state.base_code, state.working_code, target_scopes)
-        if boundary_finding:
-            findings.append(boundary_finding)
+        if target_scopes:
+            boundary_finding = self._validator.verify_boundary(state.base_code, state.working_code, target_scopes)
+            if boundary_finding:
+                findings.append(boundary_finding)
 
         intent_finding = None
         if state.intent_packet:

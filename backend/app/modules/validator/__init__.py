@@ -711,7 +711,7 @@ class Validator:
             return (None, orig_cc, orig_cc)
 
         refac_cc = self.get_complexity(working_code)
-        threshold = orig_cc + (1 if cc_rule == "LOOSENED" else 0)
+        threshold = max(orig_cc + 2, int(orig_cc * 1.5)) if cc_rule == "LOOSENED" else orig_cc
         if refac_cc > threshold:
             return (
                 ValidationFinding(
