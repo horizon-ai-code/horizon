@@ -173,10 +173,11 @@ async def entrypoint(websocket: WebSocket) -> None:
         except Exception as e:
             print(f"Orchestration Task Failure (ID: {client.id}): {e}")
             try:
-                await client.send_status(
-                    Role.System,
-                    f"Orchestration failed: {str(e)[:200]}",
-                )
+                await client._safe_send({
+                    "type": "error",
+                    "code": "ORCHESTRATION_FAILED",
+                    "message": f"Orchestration failed: {str(e)[:200]}"
+                })
             except Exception:
                 pass
 
@@ -300,7 +301,11 @@ async def run_single_refactor(
     except Exception as e:
         print(f"Single Refactor Failure (ID: {client.id}): {e}")
         try:
-            await client.send_status(Role.System, f"Single refactor failed: {str(e)[:200]}")
+            await client._safe_send({
+                "type": "error",
+                "code": "SINGLE_REFACTOR_FAILED",
+                "message": f"Single refactor failed: {str(e)[:200]}"
+            })
         except Exception:
             pass
     finally:

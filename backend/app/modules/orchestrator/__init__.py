@@ -283,10 +283,6 @@ class Orchestrator:
         except Exception as e:
             await tracker.stop_tracking()
             print(f"Orchestration Error: {e}")
-            try:
-                await client.send_status(role=Role.System, content=f"Error: {str(e)[:200]}")
-            except Exception:
-                pass
             raise e
         finally:
             await self.agent_service.unload()

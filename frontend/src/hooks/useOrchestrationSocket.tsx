@@ -604,7 +604,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       updateSession(targetId, (prev: SessionData) => ({
         terminalEntries: [...prev.terminalEntries, entry],
-        appState: "idle" as const,
+        appState: "done" as const,
         showFlowchartModal: false,
       }));
     },
@@ -869,6 +869,20 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       setConnectionStatus("disconnected");
       useChatStore.getState().setOrchestratorStatus("disconnected");
       wsRef.current = null;
+
+      // If a session was mid-flight, reset its UI state so spinners stop
+      const targetId = sessionIdRef.current;
+      if (targetId) {
+        const session = useChatStore.getState().sessions[targetId];
+        if (session && (session.appState === "analyzing" || session.appState === "waiting")) {
+          updateSession(targetId, (prev: SessionData) => ({
+            terminalEntries: [...prev.terminalEntries,
+              makeTerminalEntry("error", "[System]: Connection lost. Orchestration interrupted.")],
+            appState: "done" as const,
+            showFlowchartModal: false,
+          }));
+        }
+      }
 
       // Auto-reconnect with exponential backoff (unless intentionally closed)
       if (!intentionalCloseRef.current) {
