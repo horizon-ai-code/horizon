@@ -162,6 +162,7 @@ async def entrypoint(websocket: WebSocket) -> None:
                     client=client,
                     user_code=validated_data.code,
                     user_instruction=validated_data.user_instruction,
+                    force_proceed=validated_data.force_proceed,
                 )
             finally:
                 orchestration_lock.release()
