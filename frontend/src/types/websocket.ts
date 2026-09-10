@@ -4,6 +4,12 @@ export interface RefactorRequest {
   type: "multi";
   code: string;
   user_instruction: string;
+  force_proceed?: boolean;
+}
+
+export interface WarningMessage {
+  type: "warning";
+  message: string;
 }
 
 export interface StatusMessage {
@@ -289,5 +295,6 @@ export type ServerMessage =
   | InsightsMessage
   | HaltAcknowledgedMessage
   | ErrorMessage
+  | WarningMessage
   | PhaseStatesMessage
   | StructuredMessage;

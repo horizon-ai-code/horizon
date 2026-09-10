@@ -611,12 +611,24 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     [updateSession]
   );
 
+  const handleWarning = useCallback(
+    (msg: ServerMessage & { type: "warning" }, targetId: string) => {
+      updateSession(targetId, (prev: SessionData) => ({
+        showWarningModal: true,
+        warningMessage: msg.message,
+        appState: "idle" as const,
+      }));
+    },
+    [updateSession]
+  );
+
   const handleStatusRef = useRef(handleStatus);
   const handleResultRef = useRef(handleResult);
   const handleInsightsRef = useRef(handleInsights);
   const handlePhaseStatesRef = useRef(handlePhaseStates);
   const handleHaltAckRef = useRef(handleHaltAck);
   const handleErrorRef = useRef(handleError);
+  const handleWarningRef = useRef(handleWarning);
   const handlePhaseStartedRef = useRef(handlePhaseStarted);
   const handlePhaseCompletedRef = useRef(handlePhaseCompleted);
   const handleMutationPlanRef = useRef(handleMutationPlan);
@@ -635,6 +647,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handlePhaseStatesRef.current = handlePhaseStates;
     handleHaltAckRef.current = handleHaltAck;
     handleErrorRef.current = handleError;
+    handleWarningRef.current = handleWarning;
     handlePhaseStartedRef.current = handlePhaseStarted;
     handlePhaseCompletedRef.current = handlePhaseCompleted;
     handleMutationPlanRef.current = handleMutationPlan;
@@ -646,7 +659,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handleGeneratorProgressRef.current = handleGeneratorProgress;
     handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary;
   }, [
-    handleStatus, handleResult, handleInsights, handlePhaseStates, handleHaltAck, handleError,
+    handleStatus, handleResult, handleInsights, handlePhaseStates, handleHaltAck, handleError, handleWarning,
     handlePhaseStarted, handlePhaseCompleted, handleMutationPlan, handleMutationStatus,
     handleValidationResult, handleIntentClassified, handleArchitectureAnalysis,
     handleAuditResult, handleGeneratorProgress, handlePhaseTimingSummary,
@@ -663,6 +676,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         case "halt_acknowledged": handleHaltAckRef.current(targetId); break;
         case "phase_states": handlePhaseStatesRef.current(bmsg); break;
         case "error": handleErrorRef.current(bmsg, targetId); break;
+        case "warning": handleWarningRef.current(bmsg, targetId); break;
         case "phase_started": handlePhaseStartedRef.current(bmsg); break;
         case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
         case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
@@ -801,6 +815,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             break;
           case "error":
             handleErrorRef.current(msg, targetId);
+            break;
+          case "warning":
+            handleWarningRef.current(msg, targetId);
             break;
           case "phase_states":
             handlePhaseStatesRef.current(msg);
