@@ -36,10 +36,5 @@ export const TOUR_STEPS: TourStep[] = [
     body: "The terminal shows every agent decision in real-time during a refactoring. The Planner maps out the strategy, the Generator writes the code, the Validator checks syntax and type safety, and the Judge approves or rejects the final result. After completion, scroll back through the entire decision trail. Each log entry includes a badge, timestamp, and optional inline JSON details.",
     position: "top",
   },
-  {
-    targetId: "",
-    title: "How the 6-Stage Pipeline Works",
-    body: "Here's how the 6-stage pipeline works:\n\n• Baseline — saves your original code as a reference.\n• Strategy — plans what to change and how.\n• Execution — writes the new code based on the plan.\n• Validation — checks the new code for syntax and type errors.\n• Adjudication — the Judge compares old vs new code and decides: keep or reject.\n• Finalization — delivers the finished output.\n\nThe pipeline isn't always linear. If a stage fails, Horizon loops back: a syntax error self-heals and retries Execution. A failed validation sends it back to fix the code. A bad strategy restarts from scratch.\n\n🔒 Security & Privacy: Horizon AI is an offline-first application. All processing and multi-agent orchestrations happen entirely on your local machine. Your source code is never uploaded to the cloud or shared with third parties.",
-    position: "center",
-  },
 ];
+
