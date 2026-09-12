@@ -37,9 +37,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
     if (!acknowledged) {
       // First-time user: Show Privacy Notice
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowPrivacyModal(true);
     } else if (!completed) {
       // Interrupted onboarding: Privacy acknowledged, but tour incomplete -> resume tour from step 1
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       tour.start();
     }
   }, [overlayDone, tour]);

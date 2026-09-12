@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import {
   isPrivacyAcknowledged,
   setPrivacyAcknowledged,
@@ -22,14 +22,15 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock LoadingOverlay to complete immediately in tests
-vi.mock("@/components/layout/LoadingOverlay", () => ({
-  default: ({ onComplete }: { onComplete: () => void }) => {
+vi.mock("@/components/layout/LoadingOverlay", () => {
+  const MockLoadingOverlay = ({ onComplete }: { onComplete: () => void }) => {
     React.useEffect(() => {
       onComplete();
     }, [onComplete]);
     return null;
-  },
-}));
+  };
+  return { default: MockLoadingOverlay };
+});
 
 // Mock next-themes
 vi.mock("next-themes", () => ({
@@ -296,7 +297,9 @@ describe("MainLayout Complete Onboarding E2E Lifecycle", () => {
     // 3. Privacy modal closes and Tour Step 1 opens automatically!
     expect(await screen.findByText("Step 1 of 5")).toBeInTheDocument();
     expect(screen.getByText("Session History")).toBeInTheDocument();
-    expect(screen.queryByText("PRIVACY & DATA PROCESSING NOTICE")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("PRIVACY & DATA PROCESSING NOTICE")).not.toBeInTheDocument();
+    });
     expect(isPrivacyAcknowledged()).toBe(true);
 
     // 4. Advance through tour

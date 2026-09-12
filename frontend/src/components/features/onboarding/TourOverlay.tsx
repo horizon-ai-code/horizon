@@ -89,6 +89,7 @@ export default function TourOverlay({
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -123,6 +124,7 @@ export default function TourOverlay({
   }, [step.targetId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     updatePosition();
     window.addEventListener("scroll", updatePosition, true);
     window.addEventListener("resize", updatePosition);
@@ -147,6 +149,7 @@ export default function TourOverlay({
 
   // Focus primary button on step change & handle keyboard navigation
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsTransitioning(false);
     const timer = setTimeout(() => {
       primaryButtonRef.current?.focus();

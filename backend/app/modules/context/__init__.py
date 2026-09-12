@@ -165,7 +165,7 @@ class DatabaseManager:
             RefactorHistory.update(status="Failed", exit_status="ERROR").where(
                 RefactorHistory.id == id
             ).execute()
-            
+
             OrchestrationLog.create(
                 session=id,
                 role="System",

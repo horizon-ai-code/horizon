@@ -474,19 +474,19 @@ class Validator:
         """
         # 1. Ignore contents of strings
         snippet_no_strings = re.sub(r'".*?"|\'.*?\'', '', snippet)
-        
+
         # 2. Ignore comments
         snippet_no_comments = re.sub(r'//.*|/\*[\s\S]*?\*/', '', snippet_no_strings)
 
         # 3. Extract tokens
         words = re.findall(r'\b[a-zA-Z_]\w*\b', snippet_no_comments)
-        
+
         # 4. Check for Non-Java Type Leaks
         for word in words:
             if word in JAVA_NON_STANDARD_TYPES:
                 java_equiv = JAVA_NON_STANDARD_TYPES[word]
                 return False, f"Invalid Java type/keyword '{word}' detected. Did you mean '{java_equiv}'?"
-                
+
         return True, "Valid semantics"
 
     def __init__(self):
@@ -556,7 +556,7 @@ class Validator:
             line for line in clean_snippet.splitlines()
             if not re.match(r'^\s*import\s+\w', line)
         )
-        
+
         # 1. Attempt javalang AST wrapped parsing
         max_cc = 1
         ast_success = False
@@ -577,7 +577,7 @@ class Validator:
             analysis = lizard.analyze_file.analyze_source_code("mock.java", snippet)
             if analysis.function_list:
                 max_cc = max(f.cyclomatic_complexity for f in analysis.function_list)
-                
+
         return max_cc
 
     def get_method_complexity(self, snippet: str, method_name: str) -> int | None:

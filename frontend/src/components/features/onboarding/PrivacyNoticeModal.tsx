@@ -21,6 +21,7 @@ export default function PrivacyNoticeModal({
   const modalContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -29,6 +30,7 @@ export default function PrivacyNoticeModal({
   // Auto-focus primary action button when modal opens
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsProcessing(false);
       const timer = setTimeout(() => {
         primaryButtonRef.current?.focus();
