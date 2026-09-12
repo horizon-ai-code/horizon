@@ -22,10 +22,10 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 COPY --from=builder /usr/local/bin/pytest /usr/local/bin/ruff /usr/local/bin/mypy /usr/local/bin/
 
-COPY app/ ./app/
+COPY models/ /app/models/
 COPY model_config.yaml prompts.yaml pyproject.toml ./
 COPY scripts/ ./scripts/
-COPY models/ /app/models/
+COPY app/ ./app/
 
 RUN mkdir -p /app/db
 
