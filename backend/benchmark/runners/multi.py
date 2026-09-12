@@ -75,10 +75,16 @@ async def _run_multi_entry(entry: dict, agent, validator) -> dict:
     tracker = PerformanceTracker(interval=0.5)
     await tracker.start_tracking()
     t_start = time.perf_counter()
+    import io
+    import sys
+    old_stdout = sys.stdout
+    sys.stdout = io.StringIO()
     try:
         await orch.execute_orchestration(client, code, instruction)
     except Exception as e:
-        print(f"  [{num}] Orchestration error: {e}")
+        pass
+    finally:
+        sys.stdout = old_stdout
     agent.generate = original_generate
     total_ms = int((time.perf_counter() - t_start) * 1000)
     await tracker.stop_tracking()
@@ -143,10 +149,25 @@ async def _run_multi_cmd(args) -> None:
     os.makedirs(args.out_dir, exist_ok=True)
     with open(args.dataset) as f:
         all_entries = json.load(f)
-    start, end, tag = resolve_range(args, len(all_entries))
-    entries = all_entries[start:end]
+    if getattr(args, "entries", None):
+        target_nums = set(int(x.strip()) for x in args.entries.split(",") if x.strip())
+        entries = [e for e in all_entries if e["num"] in target_nums]
+        start, end = 0, len(all_entries)
+        tag = "aborts_77_verify"
+    else:
+        start, end, tag = resolve_range(args, len(all_entries))
+        entries = all_entries[start:end]
     out_path = os.path.join(args.out_dir, f"benchmark_279_{tag}.json") if tag else os.path.join(args.out_dir, "benchmark_279_results.json")
-    completed = load_completed_nums(out_path) if args.resume else set()
+    results = []
+    if args.resume and os.path.exists(out_path):
+        try:
+            with open(out_path) as f:
+                prev_data = json.load(f)
+                results = prev_data.get("entries", [])
+        except Exception:
+            results = []
+
+    completed = {e["num"] for e in results} if args.resume else set()
     entries = [e for e in entries if e["num"] not in completed]
     if not entries:
         print("All entries already completed."); return
@@ -164,31 +185,31 @@ async def _run_multi_cmd(args) -> None:
     metrics = PerformanceTracker()
     await metrics.start_tracking()
 
-    results = []
     t0 = time.time()
     for idx, entry in enumerate(entries):
-        global_idx = start + idx
-        print(f"\n[{global_idx+1:3d}/{len(all_entries)}] #{entry['num']} ({entry['difficulty']}) [{entry.get('intent','?')}]  ", end="", flush=True)
         r = await _run_multi_entry(entry, agent, validator)
         results.append(r)
         mark = "✓" if r.get("status") == "PASS" else "✗"
-        batch_done = idx + 1
-        batch_passed = sum(1 for x in results if x.get("status") == "PASS")
-        total_in_batch = len(entries)
-        print(f"{mark} | {r.get('exit_status','?'):15} | CC Δ={r.get('cc_delta',0):+d} | {r.get('duration_ms',0)//1000}s | [{batch_done}/{total_in_batch}] {batch_passed}P {batch_done - batch_passed}F")
+        batch_done = len(results)
+        total_in_batch = len(target_nums) if getattr(args, "entries", None) else len(entries)
+        dur_s = r.get("duration_ms", 0) // 1000
+        cc_d = r.get("cc_delta", 0)
+        print(f"[{batch_done}/{total_in_batch}] Entry #{entry['num']} ({entry.get('intent','?')}) — {mark} {r.get('exit_status','?')} ({dur_s}s | CC Δ={cc_d:+d})", flush=True)
+
+        # Save incremental results
+        output = {
+            "metadata": {"timestamp": datetime.now(timezone.utc).isoformat(),
+                         "duration_seconds": int(time.time()-t0),
+                         "dataset": args.dataset, "range": {"start": start, "end": end},
+                         "total_entries": len(results)},
+            "entries": results,
+        }
+        with open(out_path, "w") as f:
+            json.dump(output, f, indent=2)
 
     await agent.unload()
     await metrics.stop_tracking()
 
-    output = {
-        "metadata": {"timestamp": datetime.now(timezone.utc).isoformat(),
-                     "duration_seconds": int(time.time()-t0),
-                     "dataset": args.dataset, "range": {"start": start, "end": end},
-                     "total_entries": len(results)},
-        "entries": results,
-    }
-    with open(out_path, "w") as f:
-        json.dump(output, f, indent=2)
     passed = sum(1 for r in results if r.get("status") == "PASS")
     print(f"\nSaved: {out_path}")
     print(f"BENCHMARK: {passed}/{len(results)} PASS ({passed*100//max(1,len(results))}%)")

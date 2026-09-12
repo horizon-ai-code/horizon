@@ -456,14 +456,13 @@ planner:
         Use action MODIFY_METHOD. The target is the method with nested if-statements.
         The purpose is to move each nested condition to the method top as a guard clause.
         Each guard checks a condition and either throws or returns immediately.
-        body_abstract: "Step 1: Identify every nested if-statement inside the method.
-          Step 2: For each nested condition, move it to the method top as a separate if.
-          Step 3: Invert the condition (check the INVALID state, not the valid one).
-          Step 4: Return or throw immediately on the invalid state.
-          Step 5: The original method body runs only if ALL guards pass.
-          Step 6: Preserve all exception types and error messages exactly.
-          After flattening, there must be zero if-statements nested inside another if."
-        Do NOT merge multiple guard clauses into one. Do NOT change exception types or messages.
+        body_abstract: "Follow these steps:
+          Step 1: Identify all nested conditionals in the method.
+          Step 2: Restructure the logic to eliminate nesting (e.g., using early returns, grouped conditions, or a switch statement).
+          Step 3: Ensure the new structure exactly preserves the original logic and outcomes.
+          Step 4: Do NOT add any new exception throws, null checks, or bounds checks that did not exist in the original code.
+          Step 5: After flattening, there must be zero if-statements nested inside another if."
+        Do NOT change exception types or messages.
 
       new_structures_needed is always empty for this intent.
 
@@ -546,6 +545,7 @@ generator:
     1. Apply instructions in the listed order.
     2. Preserve all string literals, exception types, and error messages from the original code unless the instructions explicitly change them.
     3. If the instructions define constants, use the constant name — do not keep the original literal value.
+    4. Do NOT add null checks, try-catch, range checks, or defensive code unless explicitly requested.
 
     ### OUTPUT FORMAT
     Output ONLY the refactored code wrapped in <code> tags. No explanation, no markdown, no preamble.
@@ -597,22 +597,20 @@ generator:
 
       EXAMPLE:
       Base Code:
-      <code>void check(String s) { if(s!=null){ if(s.length()>0){ work(s); }
-        } else { throw new IllegalArgumentException("null"); }}</code>
+      <code>void check(String s) { if(s!=null){ if(s.length()>0){ work(s); } } }</code>
       Instructions:
       1. MODIFY_METHOD check - Move nested conditions to method top as guard clauses
       CORRECT OUTPUT:
-      <code>void check(String s) { if(s==null) throw new IllegalArgumentException("null");
-        if(s.length()==0) return; work(s); }</code>
+      <code>void check(String s) { if(s==null || s.length()==0) return; work(s); }</code>
 
       ANTI-PATTERNS:
-      - Do NOT merge multiple guard clauses into one check using || or &&.
-      - Do NOT change any exception type or error message.
+      - Do NOT add new exception types, error messages, or throws that were not in the original code.
+      - Do NOT change any existing exception type or error message.
       - Do NOT leave any if-inside-if nesting.
       - Do NOT use loop variables (j, k, l) before their for-loop declaration.
       CONSTRAINTS:
-      - Each nested condition becomes a separate guard clause at method top.
-      - Each guard throws or returns immediately. No if-statements nested inside other ifs.
+      - Eliminate nested if-statements to reduce nesting depth.
+      - Use the structure best suited for the instruction (e.g., early returns, grouped conditions, or switch statements).
       - Each guard clause must only use variables already declared in the outer scope or the current loop's variable.
 
     DECOMPOSE_CONDITIONAL: |

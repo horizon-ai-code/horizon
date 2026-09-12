@@ -15,6 +15,7 @@ import { useOrchestrationSocket } from "@/hooks/useOrchestrationSocket";
 import InputPanel from "@/components/features/editor/InputPanel";
 import RefactoredOutput from "@/components/features/output/RefactoredOutput";
 import Terminal from "@/components/features/terminal/Terminal";
+import { WarningModal } from "@/components/features/workspace/WarningModal";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -114,7 +115,8 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   const {
     sourceCode, refactoredOutput, activeStep, inputInstruction,
-    terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, isMonolith, orchestrationResult
+    terminalEntries, isTerminalCollapsed, appState, showFlowchartModal, isMonolith, orchestrationResult,
+    showWarningModal, warningMessage
   } = activeSession;
   const prevAppStateRef = useRef(appState);
 
@@ -235,6 +237,35 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     });
   }, [sendHaltRequest, updateLocal]);
 
+  const handleProceedAnyway = useCallback(() => {
+    updateLocal({ showWarningModal: false });
+    const isMulti = inputInstruction.trim().length > 0;
+    if (isMulti) {
+      sendRefactorRequest({ type: "multi", code: sourceCode, user_instruction: inputInstruction, force_proceed: true });
+    } else {
+      // For single shot, if we had a single shot warning we could handle it here, 
+      // but for now only multi has force_proceed in the backend implementation.
+      // We will send it through multi for now or just single without force.
+      // But typically phase 1 validation is primarily for multi orchestration.
+      sendRefactorRequest({ type: "multi", code: sourceCode, user_instruction: inputInstruction, force_proceed: true });
+    }
+  }, [updateLocal, inputInstruction, sourceCode, sendRefactorRequest]);
+
+  const handleEditAndRetry = useCallback(async () => {
+    updateLocal({ showWarningModal: false });
+    
+    // Copy to draft
+    useChatStore.getState().updateSession("draft", {
+      sourceCode,
+      inputInstruction
+    });
+    
+    router.replace("/");
+    if (id) {
+      useChatStore.getState().deleteSession(id);
+    }
+  }, [updateLocal, sourceCode, inputInstruction, id, router]);
+
   const handleSourceChange = useCallback((val: string) => updateLocal({ sourceCode: val }), [updateLocal]);
   const handleInputChange = useCallback((val: string) => updateLocal({ inputInstruction: val }), [updateLocal]);
   const handleOutputChange = useCallback((val: string) => updateLocal({ refactoredOutput: val }), [updateLocal]);
@@ -262,6 +293,13 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
 
   return (
     <>
+    <WarningModal
+      isOpen={!!showWarningModal}
+      message={warningMessage || ""}
+      onProceed={handleProceedAnyway}
+      onEdit={handleEditAndRetry}
+    />
+    
     {notFoundAlert && (
       <div className="flex items-start gap-3 p-3 mx-4 mt-4 rounded-lg border animate-in fade-in slide-in-from-top-2 duration-300 bg-red-500/5 border-red-500/20">
         <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />

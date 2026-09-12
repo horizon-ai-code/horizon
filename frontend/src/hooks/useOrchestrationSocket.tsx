@@ -604,8 +604,19 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       updateSession(targetId, (prev: SessionData) => ({
         terminalEntries: [...prev.terminalEntries, entry],
-        appState: "idle" as const,
+        appState: "done" as const,
         showFlowchartModal: false,
+      }));
+    },
+    [updateSession]
+  );
+
+  const handleWarning = useCallback(
+    (msg: ServerMessage & { type: "warning" }, targetId: string) => {
+      updateSession(targetId, (prev: SessionData) => ({
+        showWarningModal: true,
+        warningMessage: msg.message,
+        appState: "idle" as const,
       }));
     },
     [updateSession]
@@ -617,6 +628,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handlePhaseStatesRef = useRef(handlePhaseStates);
   const handleHaltAckRef = useRef(handleHaltAck);
   const handleErrorRef = useRef(handleError);
+  const handleWarningRef = useRef(handleWarning);
   const handlePhaseStartedRef = useRef(handlePhaseStarted);
   const handlePhaseCompletedRef = useRef(handlePhaseCompleted);
   const handleMutationPlanRef = useRef(handleMutationPlan);
@@ -635,6 +647,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handlePhaseStatesRef.current = handlePhaseStates;
     handleHaltAckRef.current = handleHaltAck;
     handleErrorRef.current = handleError;
+    handleWarningRef.current = handleWarning;
     handlePhaseStartedRef.current = handlePhaseStarted;
     handlePhaseCompletedRef.current = handlePhaseCompleted;
     handleMutationPlanRef.current = handleMutationPlan;
@@ -646,7 +659,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
     handleGeneratorProgressRef.current = handleGeneratorProgress;
     handlePhaseTimingSummaryRef.current = handlePhaseTimingSummary;
   }, [
-    handleStatus, handleResult, handleInsights, handlePhaseStates, handleHaltAck, handleError,
+    handleStatus, handleResult, handleInsights, handlePhaseStates, handleHaltAck, handleError, handleWarning,
     handlePhaseStarted, handlePhaseCompleted, handleMutationPlan, handleMutationStatus,
     handleValidationResult, handleIntentClassified, handleArchitectureAnalysis,
     handleAuditResult, handleGeneratorProgress, handlePhaseTimingSummary,
@@ -663,6 +676,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         case "halt_acknowledged": handleHaltAckRef.current(targetId); break;
         case "phase_states": handlePhaseStatesRef.current(bmsg); break;
         case "error": handleErrorRef.current(bmsg, targetId); break;
+        case "warning": handleWarningRef.current(bmsg, targetId); break;
         case "phase_started": handlePhaseStartedRef.current(bmsg); break;
         case "phase_completed": handlePhaseCompletedRef.current(bmsg); break;
         case "mutation_plan": handleMutationPlanRef.current(bmsg); break;
@@ -802,6 +816,9 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           case "error":
             handleErrorRef.current(msg, targetId);
             break;
+          case "warning":
+            handleWarningRef.current(msg, targetId);
+            break;
           case "phase_states":
             handlePhaseStatesRef.current(msg);
             break;
@@ -852,6 +869,20 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       setConnectionStatus("disconnected");
       useChatStore.getState().setOrchestratorStatus("disconnected");
       wsRef.current = null;
+
+      // If a session was mid-flight, reset its UI state so spinners stop
+      const targetId = sessionIdRef.current;
+      if (targetId) {
+        const session = useChatStore.getState().sessions[targetId];
+        if (session && (session.appState === "analyzing" || session.appState === "waiting")) {
+          updateSession(targetId, (prev: SessionData) => ({
+            terminalEntries: [...prev.terminalEntries,
+              makeTerminalEntry("error", "[System]: Connection lost. Orchestration interrupted.")],
+            appState: "done" as const,
+            showFlowchartModal: false,
+          }));
+        }
+      }
 
       // Auto-reconnect with exponential backoff (unless intentionally closed)
       if (!intentionalCloseRef.current) {
