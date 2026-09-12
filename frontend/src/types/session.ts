@@ -60,4 +60,6 @@ export interface SessionData {
   isLoaded?: boolean;
   error?: string;
   errorCode?: string;
+  showWarningModal?: boolean;
+  warningMessage?: string;
 }

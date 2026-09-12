@@ -428,7 +428,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         }
 
         const isHalted = detail.status === "Halted" || detail.exit_status === "ABORTED";
-        const isProcessing = detail.status === "Processing" && !detail.refactored_code && !isHalted;
+        const isFailed = detail.status === "Failed" || detail.status === "Zombie" || detail.exit_status === "ERROR";
+        const isProcessing = detail.status === "Processing" && !detail.refactored_code && !isHalted && !isFailed;
 
         // Parse phase_states from backend for correct node coloring
         if (detail.phase_states) {
@@ -495,6 +496,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
              text: "[System]: Session was interrupted — refactoring did not complete.",
              icon: "Monolith",
              colorClass: "text-[#f4bf4f]",
+           });
+        } else if (isFailed) {
+           activeStep = 0;
+           appState = "done";
+           oResult.summary = "This refactoring failed due to a system error. You can start a new one.";
+           terminalEntries.push({
+             id: `p-failed`,
+             type: "log",
+             text: "[System]: Refactoring failed — the system encountered an error.",
+             icon: "Clock",
+             colorClass: "text-[#f87171]",
            });
         } else if (isProcessing) {
            activeStep = 0;

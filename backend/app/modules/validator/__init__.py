@@ -10,6 +10,19 @@ import lizard
 from app.utils.schemas import ErrorReport, ValidationFinding
 from app.utils.types import FailureTier, RefactorIntent, StructureUnit
 
+JAVA_NON_STANDARD_TYPES = {
+    # C / C++ / C# Leaks
+    "bool": "boolean", "nullptr": "null", "NULL": "null",
+    "uint": "int", "ulong": "long", "ushort": "int", "size_t": "int",
+    "int32_t": "int", "int64_t": "long", "uint32_t": "int", "uint64_t": "long",
+    "std": "Java classes (do not use std::)",
+    # Python Leaks
+    "None": "null", "True": "true", "False": "false", "def": "method declaration",
+    # TypeScript / JavaScript Leaks
+    "number": "double", "undefined": "null", "let": "var/Type",
+    # Go / Rust Leaks
+    "nil": "null", "i32": "int", "i64": "long", "f32": "float", "f64": "double", "usize": "int"
+}
 
 class ASTWalker:
     """Utility for serializing and comparing Java AST nodes."""
@@ -452,6 +465,30 @@ class RefactorVerifier:
 
 
 class Validator:
+    @staticmethod
+    def check_semantics(snippet: str) -> tuple[bool, str]:
+        """
+        Scans a Java snippet for non-Java types/keywords (language leaks)
+        and reserved keyword collisions.
+        Returns (is_valid, error_message).
+        """
+        # 1. Ignore contents of strings
+        snippet_no_strings = re.sub(r'".*?"|\'.*?\'', '', snippet)
+
+        # 2. Ignore comments
+        snippet_no_comments = re.sub(r'//.*|/\*[\s\S]*?\*/', '', snippet_no_strings)
+
+        # 3. Extract tokens
+        words = re.findall(r'\b[a-zA-Z_]\w*\b', snippet_no_comments)
+
+        # 4. Check for Non-Java Type Leaks
+        for word in words:
+            if word in JAVA_NON_STANDARD_TYPES:
+                java_equiv = JAVA_NON_STANDARD_TYPES[word]
+                return False, f"Invalid Java type/keyword '{word}' detected. Did you mean '{java_equiv}'?"
+
+        return True, "Valid semantics"
+
     def __init__(self):
         self.templates = [
             lambda s: s,
@@ -519,19 +556,28 @@ class Validator:
             line for line in clean_snippet.splitlines()
             if not re.match(r'^\s*import\s+\w', line)
         )
+
+        # 1. Attempt javalang AST wrapped parsing
         max_cc = 1
+        ast_success = False
         for template in self.templates:
             wrapped_code = template(stripped)
             try:
                 javalang.parse.parse(wrapped_code)
+                analysis = lizard.analyze_file.analyze_source_code("mock.java", wrapped_code)
+                if analysis.function_list:
+                    max_cc = max(f.cyclomatic_complexity for f in analysis.function_list)
+                    ast_success = True
+                    break
             except (javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
                 continue
-            analysis = lizard.analyze_file.analyze_source_code(
-                "mock.java", wrapped_code
-            )
+
+        # 2. Lizard Direct Fallback (if AST wrapping failed due to typos like 'fore' or reserved keywords)
+        if not ast_success:
+            analysis = lizard.analyze_file.analyze_source_code("mock.java", snippet)
             if analysis.function_list:
                 max_cc = max(f.cyclomatic_complexity for f in analysis.function_list)
-                break
+
         return max_cc
 
     def get_method_complexity(self, snippet: str, method_name: str) -> int | None:
@@ -711,7 +757,7 @@ class Validator:
             return (None, orig_cc, orig_cc)
 
         refac_cc = self.get_complexity(working_code)
-        threshold = orig_cc + (1 if cc_rule == "LOOSENED" else 0)
+        threshold = max(orig_cc + 2, int(orig_cc * 1.5)) if cc_rule == "LOOSENED" else orig_cc
         if refac_cc > threshold:
             return (
                 ValidationFinding(

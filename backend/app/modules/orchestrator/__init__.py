@@ -135,7 +135,9 @@ class Orchestrator:
             lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=1),  # type: ignore[misc]
         )
 
-    async def execute_orchestration(self, client: ClientConnection, user_code: str, user_instruction: str) -> None:
+    async def execute_orchestration(
+        self, client: ClientConnection, user_code: str, user_instruction: str, force_proceed: bool = False
+    ) -> None:
         """Main orchestration loop.
 
         Runs 6 phases sequentially: Baseline → Strategy → Execution →
@@ -165,6 +167,32 @@ class Orchestrator:
             )
 
             # --- PHASE 1: Baseline ---
+
+            # 1. Semantic and Structural Checks
+            semantic_valid, semantic_msg = self.validator.check_semantics(state.base_code)
+            syntax_result = self.validator.check_syntax(state.base_code)
+            syntax_valid = syntax_result["is_valid"]
+
+            # 2. Interactive Warning Abort
+            if (not semantic_valid or not syntax_valid) and not force_proceed:
+                warning_msg = semantic_msg if not semantic_valid else "Syntax error detected in input code. Validation will likely fail."
+
+                # Send interactive warning to frontend
+                await client.websocket.send_json({"type": "warning", "message": warning_msg})
+
+                # Abort the session gracefully in the database
+                self.db.complete_session(
+                    id=state.session_id,
+                    refactored_code=state.base_code,
+                    insights="Aborted at Phase 1 Baseline due to syntax/semantic error.",
+                    original_complexity=1,
+                    refactored_complexity=1,
+                    performance_metrics={},
+                    exit_status="ABORT_INPUT"
+                )
+                return
+
+            # 3. Proceed with baseline complexity
             state.original_complexity = self.validator.get_complexity(state.base_code)
             lines_count = len(state.base_code.splitlines())
             await self._notify(
@@ -255,10 +283,7 @@ class Orchestrator:
         except Exception as e:
             await tracker.stop_tracking()
             print(f"Orchestration Error: {e}")
-            try:
-                await client.send_status(role=Role.System, content=f"Error: {str(e)[:200]}")
-            except Exception:
-                pass
+            self.db.mark_as_failed(client.id, f"Orchestration failed: {str(e)[:200]}")
             raise e
         finally:
             await self.agent_service.unload()

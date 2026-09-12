@@ -139,14 +139,12 @@ export function buildGraphState(
         status = "done";
       } else if (
         edgeDef.id === "e4-3-heal" &&
-        currentPhase === 3 &&
         (syntaxHealAttempt > 0 || flaggedSet.has(4) || previousPhase === 4)
       ) {
         status = "done";
         animatedParticle = true;
       } else if (
         edgeDef.id === "e4-2-revise" &&
-        currentPhase === 2 &&
         strategyIteration > 1 &&
         (flaggedSet.has(4) || previousPhase === 4 || states?.["4"] === "flagged")
       ) {
@@ -154,7 +152,6 @@ export function buildGraphState(
         animatedParticle = true;
       } else if (
         edgeDef.id === "e5-2-revise" &&
-        currentPhase === 2 &&
         strategyIteration > 1 &&
         (flaggedSet.has(5) || previousPhase === 5 || states?.["5"] === "flagged")
       ) {

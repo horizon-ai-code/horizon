@@ -3,8 +3,7 @@
 import { useState, useCallback } from "react";
 import { TOUR_STEPS } from "./tourSteps";
 import { useChatStore } from "@/store/useChatStore";
-
-const STORAGE_KEY = "horizon_tour_completed";
+import { setTourCompleted, isTourCompleted } from "@/lib/onboardingStorage";
 
 export function useTour() {
   const [isActive, setIsActive] = useState(false);
@@ -19,17 +18,27 @@ export function useTour() {
     useChatStore.getState().setTourMode(true);
   }, []);
 
+  const finish = useCallback(() => {
+    setIsActive(false);
+    setTourCompleted(true);
+    useChatStore.getState().setTourMode(false);
+  }, []);
+
+  const skip = useCallback(() => {
+    setIsActive(false);
+    setTourCompleted(true);
+    useChatStore.getState().setTourMode(false);
+  }, []);
+
   const next = useCallback(() => {
     if (currentStep >= TOUR_STEPS.length - 1) {
-      setIsActive(false);
-      try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
-      useChatStore.getState().setTourMode(false);
+      finish();
     } else {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       useChatStore.getState().setCurrentTourStep(nextStep);
     }
-  }, [currentStep]);
+  }, [currentStep, finish]);
 
   const back = useCallback(() => {
     setCurrentStep((s) => {
@@ -48,11 +57,14 @@ export function useTour() {
     isActive,
     hasBeenOpened,
     currentStep,
-    step: TOUR_STEPS[currentStep],
+    step: TOUR_STEPS[currentStep] || TOUR_STEPS[0],
     isLastStep: currentStep >= TOUR_STEPS.length - 1,
+    totalSteps: TOUR_STEPS.length,
     start,
     next,
     back,
+    skip,
+    finish,
     close,
   };
 }

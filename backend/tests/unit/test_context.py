@@ -181,3 +181,69 @@ class TestPeriodicCleanup:
             await task
 
         assert calls["n"] >= 2
+
+
+class TestSchemaMigration:
+    def test_adds_missing_columns_from_old_schema(self, memory_db):  # TC-DB-015
+        """Old-schema DB (missing phase_states etc.) gets columns added by migration."""
+        import app.modules.context as ctx
+
+        mem = ctx.db
+        mem.drop_tables([RefactorHistory, OrchestrationLog])
+
+        mem.execute_sql("""
+            CREATE TABLE refactorhistory (
+                id TEXT PRIMARY KEY,
+                status TEXT DEFAULT 'Processing',
+                title TEXT,
+                user_instruction TEXT,
+                original_code TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        mem.execute_sql("""
+            CREATE TABLE orchestrationlog (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT REFERENCES refactorhistory(id),
+                role TEXT,
+                status TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        legacy_uuid = uuid.uuid4()
+        legacy_id_hex = legacy_uuid.hex
+        mem.execute_sql(
+            "INSERT INTO refactorhistory (id, user_instruction, original_code) VALUES (?, ?, ?)",
+            (legacy_id_hex, "legacy instruction", "legacy code"),
+        )
+
+        mgr = DatabaseManager()
+
+        cols = [row[1] for row in mem.execute_sql("PRAGMA table_info(refactorhistory)")]
+        assert "phase_states" in cols
+        assert "total_outer_loops" in cols
+        assert "mode" in cols
+
+        history = mgr.get_history()
+        assert any(str(h["id"]) == str(legacy_uuid) for h in history)
+
+        detail = mgr.get_history_by_id(str(legacy_uuid))
+        assert detail is not None
+        assert detail.get("phase_states") is None
+        assert detail.get("mode") == "multi"
+
+    def test_noop_on_current_schema(self, memory_db):  # TC-DB-016
+        """Migration is a no-op on a DB with the current schema."""
+        import app.modules.context as ctx
+
+        before = {
+            row[1] for row in ctx.db.execute_sql("PRAGMA table_info(refactorhistory)")
+        }
+
+        DatabaseManager()
+
+        after = {
+            row[1] for row in ctx.db.execute_sql("PRAGMA table_info(refactorhistory)")
+        }
+        assert before == after

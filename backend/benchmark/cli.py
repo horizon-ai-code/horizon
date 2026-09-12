@@ -32,6 +32,7 @@ def _build_shared_parser() -> argparse.ArgumentParser:
     rm.add_argument("--batch-size", type=int, default=50)
     rm.add_argument("--start", type=int, default=None)
     rm.add_argument("--end", type=int, default=None)
+    rm.add_argument("--entries", type=str, default=None, help="Comma-separated list of entry nums to run (e.g. 18,62,80)")
     rm.add_argument("--resume", action="store_true")
     rm.add_argument("--out-dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "multi"))
 
@@ -42,6 +43,7 @@ def _build_shared_parser() -> argparse.ArgumentParser:
     rs.add_argument("--batch-size", type=int, default=50)
     rs.add_argument("--start", type=int, default=None)
     rs.add_argument("--end", type=int, default=None)
+    rs.add_argument("--entries", type=str, default=None, help="Comma-separated list of entry nums to run (e.g. 18,62,80)")
     rs.add_argument("--resume", action="store_true")
     rs.add_argument("--out-dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "single"))
 

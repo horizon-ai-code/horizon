@@ -14,6 +14,7 @@ class RefactorRequest(BaseModel):
     code: str
     user_instruction: str
     mode: OrchestrationMode = OrchestrationMode.MULTI
+    force_proceed: bool = False
 
     @field_validator("code")
     @classmethod

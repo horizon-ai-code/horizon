@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MousePointer2 } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { API_URL } from "@/lib/env";
 import { useTheme } from "next-themes";
@@ -99,30 +99,19 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
       <div className="flex items-center h-full">
         <div className="flex items-center px-4 h-full gap-3">
           {onStartTour && (
-            <div className="relative">
-              {!tourOpened && (
-                <div className="absolute -bottom-6 -right-2 z-50 pointer-events-none animate-bounce" style={{ animationDuration: '1s' }}>
-                  <MousePointer2 
-                    size={20} 
-                    className="text-white fill-black -rotate-12 drop-shadow-md" 
-                  />
-                </div>
-              )}
-              <button
-                onClick={onStartTour}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border
-                  ${!tourOpened ? 'animate-pulse ring-2 ring-[#3574f0] ring-offset-1 ring-offset-transparent' : ''}
-                  ${tourOpened
-                    ? (isDark ? 'border-jb-border/40 text-jb-text-muted' : 'border-[#ddd] text-[#888]')
-                    : (isDark ? 'border-jb-accent/60 text-jb-accent hover:bg-jb-accent/10' : 'border-[#3574f0]/60 text-[#3574f0] hover:bg-[#3574f0]/10')
-                  }`}
-                title="Take a quick tour"
-                aria-label="Take a quick tour"
-              >
-                <span className="text-[13px] font-bold">?</span>
-                New here?
-              </button>
-            </div>
+            <button
+              onClick={onStartTour}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jb-accent ${
+                isDark
+                  ? 'border-jb-border/40 text-jb-text-muted hover:text-jb-text hover:bg-jb-panel'
+                  : 'border-[#ddd] text-[#666] hover:text-[#080808] hover:bg-[#ebecf0]'
+              }`}
+              title="Replay software tour"
+              aria-label="Replay software tour"
+            >
+              <HelpCircle size={13} className="opacity-80" />
+              <span>New here?</span>
+            </button>
           )}
           {/* Orchestrator Connection Status */}
           <div className="flex items-center gap-1.5">
