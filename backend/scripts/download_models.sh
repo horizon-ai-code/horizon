@@ -2,7 +2,7 @@
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MODELS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)/temp_models"
+MODELS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)/models"
 mkdir -p "$MODELS_DIR"
 
 # Model URLs
