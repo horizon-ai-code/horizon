@@ -283,6 +283,7 @@ class Orchestrator:
         except Exception as e:
             await tracker.stop_tracking()
             print(f"Orchestration Error: {e}")
+            self.db.mark_as_failed(client.id, f"Orchestration failed: {str(e)[:200]}")
             raise e
         finally:
             await self.agent_service.unload()

@@ -266,7 +266,7 @@ async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
             await new_conn.send_insights(insights)
         await new_conn.send_status(Role.System, "Session restored.")
         await new_conn.stop_heartbeat()
-    elif record.get("status") in ("Processing", "Halted"):
+    elif record.get("status") in ("Processing", "Halted", "Failed", "Zombie"):
         if orchestrator.current_client is not None:
             orchestrator.current_client = new_conn
             await new_conn.send_status(
@@ -300,6 +300,7 @@ async def run_single_refactor(
         raise
     except Exception as e:
         print(f"Single Refactor Failure (ID: {client.id}): {e}")
+        connection.db.mark_as_failed(client.id, f"Single refactor failed: {str(e)[:200]}")
         try:
             await client._safe_send({
                 "type": "error",

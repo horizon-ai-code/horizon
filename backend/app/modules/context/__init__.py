@@ -159,6 +159,22 @@ class DatabaseManager:
             ).execute()
 
     @DB_RETRY
+    def mark_as_failed(self, id: str, error_msg: str) -> None:
+        """Marks session as failed and logs the error permanently."""
+        with db.atomic():
+            RefactorHistory.update(status="Failed", exit_status="ERROR").where(
+                RefactorHistory.id == id
+            ).execute()
+            
+            OrchestrationLog.create(
+                session=id,
+                role="System",
+                status="Error",
+                content=error_msg,
+                phase=0
+            )
+
+    @DB_RETRY
     def complete_session(
         self,
         id: str,
