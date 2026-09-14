@@ -14,6 +14,7 @@ async def _run_single_cmd(args) -> None:
     from app.modules.validator import Validator
     from app.utils.paths import MODELS_CONFIG_PATH, PROMPTS_CONFIG_PATH
     from app.utils.response_parser import ResponseParser
+    from app.utils.performance import PerformanceTracker
 
     with open(MODELS_CONFIG_PATH) as f:
         cfg = yaml.safe_load(f)["single"]
@@ -56,16 +57,25 @@ async def _run_single_cmd(args) -> None:
         agent.generate = cg
 
         orig_cc = validator.get_complexity(code)
+        
+        tracker = PerformanceTracker(interval=0.5)
+        await tracker.start_tracking()
         t = time.perf_counter()
+        
         coder_prompt = f"<code>{code}</code>\n\nInstruction: {instruction}"
         messages = [{"role": "system", "content": sys_prompt}, {"role": "user", "content": coder_prompt}]
         raw = await agent.generate(messages, temp=0.1, max_tokens=4096)
+        
+        await tracker.stop_tracking()
+        gpu_metrics = tracker.get_metrics()
         agent.generate = original_generate
+        
         response_text = raw.get("choices",[{}])[0].get("message",{}).get("content","")
         refactored = ResponseParser.extract_xml(response_text, "code") or code
         refa_cc = validator.get_complexity(refactored)
         cc_delta = refa_cc - orig_cc
         code_unchanged = refactored.strip() == code.strip()
+        
         dur = int((time.perf_counter() - t) * 1000)
 
         results.append({
@@ -75,7 +85,12 @@ async def _run_single_cmd(args) -> None:
             "original_cc": orig_cc, "refactored_cc": refa_cc, "cc_delta": cc_delta,
             "duration_ms": dur, "code_unchanged": code_unchanged, "original_code": code,
             "final_code": refactored, "llm_calls": llm_calls,
-            "gpu_metrics": {},
+            "gpu_metrics": {
+                "peak_memory_used_mb": gpu_metrics.get("peak_gpu_memory_used", 0),
+                "avg_memory_used_mb": gpu_metrics.get("avg_gpu_memory_used", 0),
+                "peak_utilization": gpu_metrics.get("peak_gpu_utilization", 0),
+                "avg_utilization": gpu_metrics.get("avg_gpu_utilization", 0)
+            },
             "model": {"name": cfg.get("name"), "temperature": cfg.get("temperature"),
                       "max_tokens": cfg.get("max_tokens"), "context_size": cfg.get("context_size"),
                       "layers": cfg.get("layers"), "filename": cfg.get("filename")},

@@ -34,7 +34,7 @@ def _build_shared_parser() -> argparse.ArgumentParser:
     rm.add_argument("--end", type=int, default=None)
     rm.add_argument("--entries", type=str, default=None, help="Comma-separated list of entry nums to run (e.g. 18,62,80)")
     rm.add_argument("--resume", action="store_true")
-    rm.add_argument("--out-dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "multi"))
+    rm.add_argument("--out-dir", type=str, default=os.path.join(RESULTS_DIR, "v3", "multi"))
 
     # run-single
     rs = sub.add_parser("run-single", help="Run single-model baseline")
@@ -45,19 +45,19 @@ def _build_shared_parser() -> argparse.ArgumentParser:
     rs.add_argument("--end", type=int, default=None)
     rs.add_argument("--entries", type=str, default=None, help="Comma-separated list of entry nums to run (e.g. 18,62,80)")
     rs.add_argument("--resume", action="store_true")
-    rs.add_argument("--out-dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "single"))
+    rs.add_argument("--out-dir", type=str, default=os.path.join(RESULTS_DIR, "v3", "single"))
 
     # aggregate
     ag = sub.add_parser("aggregate", help="Summarize benchmark results (offline)")
-    ag.add_argument("--dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "multi"))
+    ag.add_argument("--dir", type=str, default=os.path.join(RESULTS_DIR, "v3", "multi"))
 
     # csr
     cs = sub.add_parser("csr", help="Compilation success rate (needs JDK)")
-    cs.add_argument("--dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "multi"))
+    cs.add_argument("--dir", type=str, default=os.path.join(RESULTS_DIR, "v3", "multi"))
 
     # ber
     be = sub.add_parser("ber", help="Behavioral equivalence rate (needs JDK)")
-    be.add_argument("--dir", type=str, default=os.path.join(RESULTS_DIR, "v2", "multi"))
+    be.add_argument("--dir", type=str, default=os.path.join(RESULTS_DIR, "v3", "multi"))
     be.add_argument("--dataset", type=str, default=DEFAULT_DATASET)
 
     # halstead
