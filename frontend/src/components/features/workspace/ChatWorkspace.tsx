@@ -51,7 +51,7 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket hook — manages connection lifecycle and message dispatching
-  const { connect, disconnect, sendRefactorRequest, sendSingleRefactor, sendHaltRequest, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
+  const { connect, disconnect, sendRefactorRequest, sendSingleRefactor, sendHaltRequest, reattach, setTargetSessionId, glassboxState, waitForOpen } = useOrchestrationSocket();
 
   useEffect(() => {
     const currentId = id || "draft";
@@ -88,11 +88,20 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
       const session = useChatStore.getState().sessions[id];
       if (session?.error === "not_found") {
         router.replace('/?error=session_not_found');
+        return;
+      }
+      // FR-011 resilient runs: live (or recently-halted) sessions reattach to
+      // the server stream; Processing rows may still be executing server-side.
+      if (
+        session &&
+        (session.serverStatus === "Processing" || session.serverStatus === "Halted")
+      ) {
+        void reattach(id);
       }
     };
     
     fetchAndHandle();
-  }, [id, router, fetchSessionDetails]);
+  }, [id, router, fetchSessionDetails, reattach]);
 
   const activeSession = id
     ? (sessions[id] ?? {

@@ -111,8 +111,10 @@ export default function RefactoredOutput({
   useEffect(() => {
     if (appState === "analyzing" && !isMonolith) {
       requestAnimationFrame(() => setRightPanelMode("flow"));
+    } else if (isMonolith && rightPanelMode === "flow") {
+      requestAnimationFrame(() => setRightPanelMode("output"));
     }
-  }, [appState, isMonolith]);
+  }, [appState, isMonolith, rightPanelMode]);
 
   useEffect(() => {
     if (appState === "analyzing") {
@@ -129,7 +131,7 @@ export default function RefactoredOutput({
     }
   }, [appState]);
 
-  const displayPanelMode = tourMode ? 'flow' : rightPanelMode;
+  const displayPanelMode = tourMode ? 'flow' : (isMonolith && rightPanelMode === 'flow' ? 'output' : rightPanelMode);
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleCopy = async () => {
@@ -356,7 +358,7 @@ export default function RefactoredOutput({
                 Waiting for other requests to complete...
              </p>
           </div>
-        ) : appState === 'analyzing' && isMonolith ? (
+        ) : appState === 'analyzing' && isMonolith && !refactoredOutput?.trim() ? (
           <CodeSkeleton sourceCode={sourceCode} />
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
           (() => {

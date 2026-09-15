@@ -215,7 +215,13 @@ class AgentService:
                         except StopIteration:
                             return None
 
-                    chunk = await asyncio.to_thread(get_next)
+                    async def safe_to_thread(func):
+                        try:
+                            return await asyncio.shield(asyncio.to_thread(func))
+                        except asyncio.CancelledError:
+                            raise
+
+                    chunk = await safe_to_thread(get_next)
                     if chunk is None:
                         break
                     chunks.append(chunk)
@@ -236,6 +242,11 @@ class AgentService:
 
             except StopIteration:
                 pass
+            finally:
+                if hasattr(iterator, "close"):
+                    iterator.close()
+                import gc
+                gc.collect()
 
             # Reconstruct full response from chunks
             if not content_so_far:

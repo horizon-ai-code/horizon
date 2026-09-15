@@ -25,7 +25,7 @@ class TestMessageRouter:
         reconnect = AsyncMock()
         data = {"type": "reconnect", "session_id": "s1"}
         await router.dispatch(data, client, set(), None, None, reconnect)
-        reconnect.assert_awaited_once_with("s1", client.websocket)
+        reconnect.assert_awaited_once_with("s1", client)
 
     async def test_dispatch_single(self, router):  # TC-MR-003
         client = AsyncMock()

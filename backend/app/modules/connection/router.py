@@ -30,7 +30,7 @@ class MessageRouter:
 
         if msg_type == "reconnect":
             if reconnect_handler:
-                await reconnect_handler(data.get("session_id", ""), client.websocket)
+                await reconnect_handler(data.get("session_id", ""), client)
             return True
 
         if msg_type == "single":

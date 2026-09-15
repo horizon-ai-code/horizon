@@ -49,10 +49,11 @@ export interface OrchestrationContextValue {
   connectionStatus: ConnectionStatus;
   connect: (targetSessionId: string) => void;
   disconnect: () => void;
-  sendRefactorRequest: (request: RefactorRequest, commandId?: string) => boolean;
-  sendSingleRefactor: (code: string, instruction: string) => boolean;
-  sendHaltRequest: () => boolean;
-  setTargetSessionId: (id: string) => void;
+  sendRefactorRequest: (req: RefactorRequest, commandId?: string) => void;
+  sendSingleRefactor: (code: string, instruction: string) => void;
+  sendHaltRequest: () => void;
+  reattach: (sessionId: string) => Promise<boolean>;
+  setTargetSessionId: (id: string | null) => void;
   glassboxState: GlassboxState;
   waitForOpen: () => Promise<boolean>;
 }
@@ -66,6 +67,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const backoffRef = useRef(INITIAL_BACKOFF_MS);
   const intentionalCloseRef = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
+  const runActiveSessionRef = useRef<string | null>(null);
   const lastProcessedCommandIdRef = useRef<string | null>(null);
   const messageBufferRef = useRef<ServerMessage[]>([]);
   const routerRef = useRef(router);
@@ -112,7 +114,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
       // Parse glassbox data
       const parsedPhase = parsePhaseNumber(msg.content);
-      const phase = msg.phase !== undefined ? msg.phase : (parsedPhase !== null ? parsedPhase : (msg.role === "System" ? 6 : undefined));
+      const phase = msg.phase !== undefined ? msg.phase : (parsedPhase !== null ? parsedPhase : (msg.role === "System" && msg.content.includes("Finalization:") ? 6 : undefined));
       const strategyIter = parseStrategyIteration(msg.content);
       const retry = parseRetryInfo(msg.content);
       const faults = parseValidationFaults(msg.content);
@@ -272,6 +274,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
             appState = "waiting";
           } else if (msg.content.toLowerCase().includes("halted")) {
             appState = "idle";
+          } else if (msg.content.toLowerCase().includes("reconnect")) {
+            appState = "analyzing";
           }
         } else if (appState === "waiting" || appState === "idle") {
           // Transition to analyzing when we get the first agent message
@@ -280,6 +284,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
         return {
           appState,
+          isMonolith: msg.role === "Monolith" ? true : prev.isMonolith,
           activeStep: msg.role === "System" 
             ? Math.max(prev.activeStep, visuals.step) 
             : visuals.step,
@@ -295,15 +300,6 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   const handleResult = useCallback(
     (msg: ResultMessage, targetId: string) => {
       const isSuccess = msg.exit_status === "SUCCESS";
-
-      const doneEntry = makeTerminalEntry(
-        "log",
-        isSuccess
-          ? "[System]: Refactoring cycle complete. Output ready."
-          : `[System]: Refactoring failed — ${msg.exit_status}. Original code preserved.`,
-        isSuccess ? "CheckCircle2" : "AlertCircle",
-        isSuccess ? "text-[#27c93f]" : "text-[#f93e3e]"
-      );
 
       const orchestrationResult: OrchestrationResult = {
         ...EMPTY_ORCHESTRATION_RESULT,
@@ -322,14 +318,27 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         ),
       };
 
-      updateSession(targetId, (prev: SessionData) => ({
-        activeStep: isSuccess ? 5 : 0,
-        terminalEntries: [...prev.terminalEntries, doneEntry],
-        refactoredOutput: msg.code,
-        orchestrationResult,
-        appState: "done" as AppState,
-        showFlowchartModal: isSuccess ? false : prev.showFlowchartModal,
-      }));
+      updateSession(targetId, (prev: SessionData) => {
+        const doneIcon = isSuccess ? "Clock" : "AlertCircle";
+
+        const doneEntry = makeTerminalEntry(
+          "log",
+          isSuccess
+            ? "[System]: Refactoring cycle complete. Output ready."
+            : `[System]: Refactoring failed — ${msg.exit_status}. Original code preserved.`,
+          doneIcon,
+          isSuccess ? "text-[#27c93f]" : "text-[#f93e3e]"
+        );
+
+        return {
+          activeStep: isSuccess ? 5 : 0,
+          terminalEntries: [...prev.terminalEntries, doneEntry],
+          refactoredOutput: msg.code,
+          orchestrationResult,
+          appState: "done" as AppState,
+          showFlowchartModal: isSuccess ? false : prev.showFlowchartModal,
+        };
+      });
     },
     [updateSession]
   );
@@ -736,7 +745,10 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         const lastSessionId = typeof window !== "undefined"
           ? localStorage.getItem("lastSessionId")
           : null;
-        if (lastSessionId && sessionIdRef.current === null) {
+        const resumeId = runActiveSessionRef.current;
+        if (resumeId && sessionIdRef.current === resumeId && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "reconnect", session_id: resumeId }));
+        } else if (lastSessionId && sessionIdRef.current === null) {
           sessionIdRef.current = lastSessionId;
           ws.send(JSON.stringify({ type: "reconnect", session_id: lastSessionId }));
         }
@@ -879,26 +891,6 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       useChatStore.getState().setOrchestratorStatus("disconnected");
       wsRef.current = null;
 
-      // If a session was mid-flight, reset its UI state so spinners stop
-      const targetId = sessionIdRef.current;
-      if (targetId) {
-        const session = useChatStore.getState().sessions[targetId];
-        if (session && (session.appState === "analyzing" || session.appState === "waiting")) {
-          updateSession(targetId, (prev: SessionData) => ({
-            terminalEntries: [
-              ...prev.terminalEntries,
-              makeTerminalEntry("error", "[System]: Connection to Horizon Backend Server lost. Refactoring process was interrupted.")
-            ],
-            orchestrationResult: {
-              ...prev.orchestrationResult,
-              exit_status: "ABORT_ERROR",
-            },
-            appState: "done" as const,
-            showFlowchartModal: false,
-          }));
-        }
-      }
-
       // Auto-reconnect with exponential backoff (unless intentionally closed)
       if (!intentionalCloseRef.current) {
         const delay = backoffRef.current;
@@ -930,51 +922,48 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
   // ── Send a refactor request ──────────────────────────────────────────────
 
   const sendRefactorRequest = useCallback(
-    (request: RefactorRequest, commandId?: string): boolean => {
+    (request: RefactorRequest, commandId?: string): void => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("[WS] Cannot send — WebSocket is not open.");
-        return false;
+        return;
       }
 
       // Prevent duplicate sends for the same logical command across route changes
       if (commandId && lastProcessedCommandIdRef.current === commandId) {
-        return true; // Already sent/acknowledged
+        return; // Already sent/acknowledged
       }
 
       try {
         wsRef.current.send(JSON.stringify(request));
       } catch (err) {
         console.error("[WS] Failed to serialize request:", err);
-        return false;
+        return;
       }
       if (commandId) {
         lastProcessedCommandIdRef.current = commandId;
       }
-      return true;
     },
     []
   );
 
-  const sendHaltRequest = useCallback((): boolean => {
+  const sendHaltRequest = useCallback((): void => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       console.error("[WS] Cannot halt — WebSocket is not open.");
-      return false;
+      return;
     }
 
     try {
       wsRef.current.send(JSON.stringify({ type: "halt" }));
     } catch (err) {
       console.error("[WS] Failed to serialize halt request:", err);
-      return false;
     }
-    return true;
   }, []);
 
   const sendSingleRefactor = useCallback(
-    (code: string, instruction: string): boolean => {
+    (code: string, instruction: string): void => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("[WS] Cannot send — WebSocket is not open.");
-        return false;
+        return;
       }
       try {
         wsRef.current.send(JSON.stringify({
@@ -982,10 +971,8 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
           code,
           user_instruction: instruction,
         }));
-        return true;
       } catch (err) {
         console.error("[WS] Failed to send single refactor:", err);
-        return false;
       }
     },
     []
@@ -993,7 +980,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
 
   // ── Keep sessionId available via ref for onmessage handler ───────────────
 
-  const setTargetSessionId = useCallback((id: string) => {
+  const setTargetSessionId = useCallback((id: string | null) => {
     sessionIdRef.current = id;
   }, []);
 
@@ -1011,6 +998,20 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       setTimeout(() => { clearInterval(check); resolve(false); }, 8000);
     });
   }, []);
+
+  const reattach = useCallback(async (sessionId: string): Promise<boolean> => {
+    connect(sessionId);
+    const ok = await waitForOpen();
+    if (!ok || wsRef.current?.readyState !== WebSocket.OPEN) return false;
+    runActiveSessionRef.current = sessionId;
+    try {
+      wsRef.current.send(JSON.stringify({ type: "reconnect", session_id: sessionId }));
+      return true;
+    } catch (err) {
+      console.warn("[WS] Failed to send reconnect message:", err);
+      return false;
+    }
+  }, [connect, waitForOpen]);
 
   // ── Cleanup on unmount ───────────────────────────────────────────────────
 
@@ -1034,6 +1035,7 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         sendRefactorRequest,
         sendSingleRefactor,
         sendHaltRequest,
+        reattach,
         setTargetSessionId,
         glassboxState,
         waitForOpen,

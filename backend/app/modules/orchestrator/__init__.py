@@ -133,6 +133,7 @@ class Orchestrator:
         self._single = SingleRefactor(
             self.agent_service, self.validator, self.db, self._config, self.prompts,
             lambda c, r, m, ct=None: self._notify(c, r, m, content=ct, phase=1),  # type: ignore[misc]
+            get_client=self._current_client,
         )
 
     async def execute_orchestration(
@@ -213,6 +214,10 @@ class Orchestrator:
             while state.exit_status == ExitStatus.PROCESSING:
                 flag_prev = state.current_phase
 
+                # FR-011 resilient runs: re-resolve the live connection at each
+                # boundary so a mid-run reconnect receives everything downstream.
+                client = self._current_client(client)
+
                 if state.current_phase == 2:
                     await self._run_phase_2(client, state)
                 elif state.current_phase == 3:
@@ -228,7 +233,7 @@ class Orchestrator:
                         if state.mutation_index >= len(state.mutation_queue):
                             state.current_phase = 4
                             # Send phase states before continuing
-                            await client.send_phase_states(
+                            await self._current_client(client).send_phase_states(
                                 **self._compute_phase_states(state)
                             )
                             continue
@@ -256,7 +261,7 @@ class Orchestrator:
                     state.flagged_phases.add(4)
 
                 # Compute and send phase states
-                await client.send_phase_states(
+                await self._current_client(client).send_phase_states(
                     **self._compute_phase_states(state)
                 )
 
@@ -264,7 +269,7 @@ class Orchestrator:
                 if state.strategy_iter > 3:
                     state.exit_status = ExitStatus.ABORT_STRATEGY
                     state.current_phase = 6
-                    await client.send_phase_states(
+                    await self._current_client(client).send_phase_states(
                         **self._compute_phase_states(state)
                     )
                     break
@@ -273,6 +278,7 @@ class Orchestrator:
             await tracker.stop_tracking()
             performance_metrics = tracker.get_metrics()
 
+            client = self._current_client(client)
             await self._run_phase_6(client, state, performance_metrics)
 
         except asyncio.CancelledError:
@@ -366,14 +372,25 @@ class Orchestrator:
     ) -> None:
         phase_data = self._compute_phase_states(state)
         # Send final phase states before finalization
-        await client.send_phase_states(**phase_data)
+        await self._current_client(client).send_phase_states(**phase_data)
         await self._phase6.run(client, state, metrics, phase_data)
 
     # ============================================================
     # SECTION 9: Helpers
     # ============================================================
 
+    def _current_client(self, client: ClientConnection) -> ClientConnection:
+        """FR-011: resolve the live connection for a send.
+
+        A mid-run reconnect (browser refresh) swaps ``self.current_client``;
+        direct sends must target the swapped-in connection, not the stale one
+        captured when the run started.
+        """
+        return self.current_client or client
+
     async def run_single_refactor(self, client: ClientConnection, user_code: str, user_instruction: str) -> None:
+        """Thin wrapper — delegates to SingleRefactor.run() inside the lock."""
+        self.current_client = client
         await self._single.run(client, user_code, user_instruction)
 
     async def _notify(
