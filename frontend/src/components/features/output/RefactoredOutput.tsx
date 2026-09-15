@@ -147,8 +147,7 @@ export default function RefactoredOutput({
     <div className={`flex flex-col min-h-0 overflow-hidden bg-jb-panel transition-all duration-300 h-full
       ${isTerminalCollapsed ? 'flex-none h-[48px]' : (appState === 'done' ? 'flex-1' : 'flex-[1.5]')}`}>
       
-      <div className={`flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300 pr-2
-        ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
+      <div className="flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300 pr-2 bg-jb-bg border-jb-border">
         
         <div className="flex items-center h-full pt-1.5 pb-1 px-2 gap-1 overflow-x-auto custom-chat-scrollbar">
 
@@ -360,18 +359,46 @@ export default function RefactoredOutput({
         ) : appState === 'analyzing' && isMonolith ? (
           <CodeSkeleton sourceCode={sourceCode} />
         ) : appState === 'done' && !refactoredOutput?.trim() ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
-            <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
-              ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
-              <AlertCircle size={36} className="text-yellow-400" strokeWidth={1.5} />
-            </div>
-            <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
-              Refactoring Interrupted
-            </p>
-            <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
-              The session was interrupted before completion. Please start a new refactor.
-            </p>
-          </div>
+          (() => {
+            const exitStat = orchestrationResult?.exit_status || "";
+            const isTokenLimit = exitStat.includes("TOKEN") || exitStat.includes("CONTEXT");
+
+            if (isTokenLimit) {
+              return (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
+                  <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
+                    ${isDark ? 'bg-amber-500/10 ring-amber-500/30 text-amber-400' : 'bg-amber-50 ring-amber-200 text-amber-600'}`}>
+                    <AlertCircle size={40} strokeWidth={1.5} />
+                  </div>
+                  <p className={`text-[16px] font-bold transition-colors ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+                    Context Window Limit Exceeded
+                  </p>
+                  <p className={`text-[13px] mt-2 max-w-[420px] font-medium leading-relaxed transition-colors ${isDark ? 'text-jb-text-muted' : 'text-slate-600'}`}>
+                    The submitted source code exceeds the model's available token context window.
+                  </p>
+                  <div className={`mt-4 px-4 py-3 rounded-xl border text-[11px] text-left max-w-[420px] ${isDark ? 'bg-jb-panel/80 border-amber-500/20 text-amber-200/90' : 'bg-amber-50 border-amber-200 text-amber-900'}`}>
+                    <strong className="font-mono text-amber-400 block mb-1 uppercase text-[10px]">System Limitation Explanation:</strong>
+                    Horizon runs AI refactoring models locally on a 4 GB GPU. Local model inference operates within fixed VRAM and token context window boundaries, meaning the system cannot cater to code files of this length in a single refactoring pass.
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 transition-colors duration-300">
+                <div className={`flex items-center justify-center w-[88px] h-[88px] rounded-[32px] mb-6 shadow-2xl ring-1 transition-all duration-300
+                  ${isDark ? 'bg-jb-bg ring-jb-border' : 'bg-[#f7f8fa] ring-[#ebecf0]'}`}>
+                  <AlertCircle size={36} className="text-yellow-400" strokeWidth={1.5} />
+                </div>
+                <p className={`text-[15px] font-semibold transition-colors ${isDark ? 'text-jb-text' : 'text-[#080808]'}`}>
+                  Refactoring Interrupted
+                </p>
+                <p className={`text-[13px] mt-2 font-medium transition-colors ${isDark ? 'text-jb-text-muted' : 'text-[#818594]'}`}>
+                  The session was interrupted before completion. Please start a new refactor.
+                </p>
+              </div>
+            );
+          })()
         ) : (
            displayPanelMode === 'output' ? (
               <CodeEditorPanel 

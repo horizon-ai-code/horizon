@@ -178,7 +178,7 @@ export default function Sidebar() {
       animate={{ width: isOpen ? 240 : 48 }}
       transition={SPRING_CONFIG}
       className={`shrink-0 border-r flex flex-col z-20 h-full overflow-hidden
-      ${isDark ? 'border-jb-border/40 bg-jb-panel' : 'border-[#ebecf0] bg-[#f7f8fa]'}`}
+      ${isDark ? 'border-jb-border/40 bg-jb-panel' : 'border-jb-border/60 bg-jb-panel'}`}
     >
       
       {/* Top Menu Icon Corner - Aligns with Navbar Height */}
@@ -400,29 +400,63 @@ export default function Sidebar() {
 
       {/* Delete / Leave / Switch Confirmation Dialog */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {dialogAction === "delete" ? "Delete session?" : dialogAction === "leave" ? "Leave session?" : "Switch session?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className={`sm:max-w-[420px] rounded-2xl p-6 shadow-2xl backdrop-blur-md transition-all ${
+          isDark
+            ? "bg-jb-panel/95 border border-jb-border/70 text-jb-text shadow-black/80"
+            : "bg-white border border-slate-200 text-slate-900 shadow-xl shadow-slate-300/30"
+        }`}>
+          <AlertDialogHeader className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
+                isDark ? "bg-red-500/15 border-red-500/30 text-red-400" : "bg-red-100 border-red-200 text-red-600"
+              }`}>
+                <Trash size={20} className={isDark ? "text-red-400" : "text-red-600"} />
+              </div>
+              <div>
+                <AlertDialogTitle className={`text-[16px] font-bold ${
+                  isDark ? "text-red-400" : "text-red-600"
+                }`}>
+                  {dialogAction === "delete" ? "Delete session?" : dialogAction === "leave" ? "Leave session?" : "Switch session?"}
+                </AlertDialogTitle>
+                <span className={`text-[11px] font-mono block ${
+                  isDark ? "text-jb-text-muted" : "text-slate-500"
+                }`}>
+                  Irreversible Action
+                </span>
+              </div>
+            </div>
+            <AlertDialogDescription className={`text-[12px] leading-relaxed ${
+              isDark ? "text-jb-text-muted" : "text-slate-600"
+            }`}>
               {dialogAction === "leave" || dialogAction === "switch" || (dialogAction === "delete" && isActiveAnalyzing && dialogSessionId === activeId) ? (
                 <>
-                  <span className="font-medium text-amber-400/90">&ldquo;{dialogSessionTitle}&rdquo;</span>{" "}
+                  <span className={`font-semibold ${isDark ? "text-amber-400" : "text-amber-700"}`}>&ldquo;{dialogSessionTitle}&rdquo;</span>{" "}
                   is still generating. Deleting it will stop all active processes. This action cannot be undone.
                 </>
               ) : (
                 <>
                   This will permanently delete{" "}
-                  <span className="font-medium text-jb-text/80">&ldquo;{dialogSessionTitle}&rdquo;</span>{" "}
+                  <span className={`font-semibold ${isDark ? "text-slate-200" : "text-slate-900"}`}>&ldquo;{dialogSessionTitle}&rdquo;</span>{" "}
                   and its outputs. This action cannot be undone.
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDialog}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDialogConfirm}>
+          <AlertDialogFooter className="mt-4 flex gap-2">
+            <AlertDialogCancel 
+              onClick={closeDialog}
+              className={`flex-1 rounded-xl font-semibold text-[12px] border transition-all ${
+                isDark 
+                  ? "border-jb-border/70 text-jb-text hover:bg-jb-border/40" 
+                  : "border-slate-300 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDialogConfirm}
+              className="flex-1 rounded-xl font-bold text-[12px] py-2.5 bg-red-600 hover:bg-red-500 text-white border-none shadow-md shadow-red-600/30 active:scale-95 transition-all cursor-pointer"
+            >
               {dialogAction === "delete" ? "Delete" : dialogAction === "leave" ? "Leave" : "Switch"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -431,22 +465,40 @@ export default function Sidebar() {
 
       {/* Clear All Confirmation Dialog */}
       <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear all sessions?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="sm:max-w-[420px] rounded-2xl p-6 bg-jb-panel/95 border border-jb-border/70 text-jb-text shadow-2xl backdrop-blur-md">
+          <AlertDialogHeader className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
+                <Trash size={20} className="text-red-400" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-[16px] font-bold text-red-400">
+                  Clear all sessions?
+                </AlertDialogTitle>
+                <span className="text-[11px] text-jb-text-muted font-mono block">Irreversible Action</span>
+              </div>
+            </div>
+            <AlertDialogDescription className="text-[12px] leading-relaxed text-jb-text-muted">
               This will permanently delete all session history and their outputs. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowClearConfirm(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={async () => {
-              await clearAllHistory();
-              setShowClearConfirm(false);
-              if (activeId && sessions[activeId]) {
-                router.push("/");
-              }
-            }}>
+          <AlertDialogFooter className="mt-4 flex gap-2">
+            <AlertDialogCancel 
+              onClick={() => setShowClearConfirm(false)}
+              className="flex-1 rounded-xl font-semibold text-[12px] border border-jb-border/70 text-jb-text hover:bg-jb-border/40"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={async () => {
+                await clearAllHistory();
+                setShowClearConfirm(false);
+                if (activeId && sessions[activeId]) {
+                  router.push("/");
+                }
+              }}
+              className="flex-1 rounded-xl font-bold text-[12px] bg-red-600 hover:bg-red-500 text-white border-transparent shadow-md shadow-red-600/30 active:scale-95 transition-all"
+            >
               Clear All
             </AlertDialogAction>
           </AlertDialogFooter>

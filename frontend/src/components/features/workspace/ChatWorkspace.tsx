@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { Loader2, AlertCircle, X } from "lucide-react";
+import { Loader2, AlertCircle, X, TerminalSquare } from "lucide-react";
 import { useChatStore } from "@/store/useChatStore";
 import { INITIAL_SOURCE, EMPTY_ORCHESTRATION_RESULT } from "@/lib/constants";
 import { validateSubmission } from "@/lib/validation";
@@ -167,15 +167,24 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [appState]);
 
-  // Watch for live transition: analyzing → done with ABORT exit status
+  // Watch for live transition: analyzing / waiting → done with error or ABORT exit status
   useEffect(() => {
     const wasLive = prevAppStateRef.current === "analyzing" || prevAppStateRef.current === "waiting";
     prevAppStateRef.current = appState;
 
-    if (wasLive && appState === "done" && orchestrationResult.exit_status?.startsWith("ABORT")) {
+    const exitStat = orchestrationResult.exit_status || "";
+    const lastError = terminalEntries?.slice().reverse().find((e) => e.type === "error")?.text || "";
+    const isErrorOrAbort =
+      exitStat.startsWith("ABORT") ||
+      exitStat.startsWith("ERROR") ||
+      exitStat.includes("TOKEN") ||
+      exitStat.includes("FAIL") ||
+      lastError.length > 0;
+
+    if (wasLive && appState === "done" && isErrorOrAbort) {
       requestAnimationFrame(() => setAbortDialogOpen(true));
     }
-  }, [appState, orchestrationResult.exit_status]);
+  }, [appState, orchestrationResult.exit_status, terminalEntries]);
 
   const executeRefactor = useCallback(async (isMulti: boolean) => {
     if (!validateBeforeSubmit()) return;
@@ -416,41 +425,137 @@ export default function ChatWorkspace({ sessionId }: { sessionId: string | null 
     </PanelGroup>
 
       <AlertDialog open={abortDialogOpen} onOpenChange={setAbortDialogOpen}>
-        <AlertDialogContent className={`${isDark ? 'bg-jb-panel border-[#393b40] text-jb-text' : 'bg-white text-slate-900 border-slate-200'} sm:max-w-[425px]`}>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-500">
-              <AlertCircle size={20} />
-              Refactoring Interrupted
-            </AlertDialogTitle>
-            <AlertDialogDescription className={`mt-2 ${isDark ? 'text-jb-text-muted' : 'text-slate-600'}`}>
-              The refactoring process was unsuccessful.
-              <br/><br/>
-              <strong>Reason: </strong> 
-              {
-                orchestrationResult.exit_status?.includes("MAX_ITERATIONS") || orchestrationResult.exit_status?.includes("STRATEGY")
-                  ? "Iteration limit reached without producing a valid output."
-                  : orchestrationResult.exit_status?.includes("DISCONNECTED") || orchestrationResult.exit_status?.includes("FAILURE")
-                  ? "Backend connection was lost or encountered a critical error."
-                  : orchestrationResult.exit_status || "Unknown error occurred."
-              }
-              <br/><br/>
-              Don&apos;t worry—your original source code and the detailed process logs remain fully available in this session for your review.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel 
-              onClick={() => setAbortDialogOpen(false)}
-              className={`mr-2 bg-transparent border hover:bg-black/5 ${isDark ? 'border-[#393b40] text-jb-text hover:bg-white/5' : 'border-slate-300 text-slate-700'}`}
-            >
-              Review Logs
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => router.push('/')}
-              className="bg-[#3574f0] text-white hover:bg-[#3574f0]/90 border-transparent"
-            >
-              New Session
-            </AlertDialogAction>
-          </AlertDialogFooter>
+        <AlertDialogContent className={`${isDark ? 'bg-jb-panel/95 border border-jb-border/80 text-jb-text shadow-2xl backdrop-blur-md' : 'bg-white text-slate-900 border-slate-200 shadow-2xl'} sm:max-w-[460px] rounded-2xl p-6`}>
+          {(() => {
+            const lastErrorEntry = terminalEntries?.slice().reverse().find((e) => e.type === "error")?.text || "";
+            const exitStat = orchestrationResult?.exit_status || "";
+            const isTokenLimit =
+              exitStat.includes("TOKEN") ||
+              exitStat.includes("CONTEXT") ||
+              lastErrorEntry.toLowerCase().includes("context window") ||
+              lastErrorEntry.toLowerCase().includes("requested tokens") ||
+              lastErrorEntry.toLowerCase().includes("exceed");
+
+            if (isTokenLimit) {
+              const match = lastErrorEntry.match(/Requested tokens \((\d+)\) exceed context window of (\d+)/i);
+              const reqTok = match ? parseInt(match[1], 10).toLocaleString() : null;
+              const maxTok = match ? parseInt(match[2], 10).toLocaleString() : null;
+
+              return (
+                <>
+                  <AlertDialogHeader className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
+                        isDark ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-amber-100 border-amber-300 text-amber-700'
+                      }`}>
+                        <AlertCircle size={22} className={isDark ? "text-amber-400" : "text-amber-600"} />
+                      </div>
+                      <div>
+                        <AlertDialogTitle className={`text-[16px] font-bold ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+                          Token Limit Exceeded
+                        </AlertDialogTitle>
+                        <span className={`text-[11px] font-mono block ${isDark ? 'text-jb-text-muted' : 'text-slate-500'}`}>
+                          {reqTok && maxTok ? `Context Window Overflow (${reqTok} / ${maxTok} max tokens)` : "Context Window Overflow"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <AlertDialogDescription className={`text-[12px] leading-relaxed mt-1 ${isDark ? 'text-jb-text-muted' : 'text-slate-600'}`}>
+                      The submitted source code exceeds the maximum token context window that the local model can process in a single pass.
+                    </AlertDialogDescription>
+
+                    <div className={`p-3.5 rounded-xl border text-[11px] space-y-1.5 my-1 ${
+                      isDark ? 'bg-amber-950/40 border-amber-500/20' : 'bg-amber-50 border-amber-200'
+                    }`}>
+                      <div className={`font-bold uppercase text-[10px] tracking-wider font-mono ${
+                        isDark ? 'text-amber-400' : 'text-amber-800'
+                      }`}>
+                        System Limitation Explanation:
+                      </div>
+                      <p className={`text-[11px] leading-relaxed ${isDark ? 'text-amber-200/90' : 'text-amber-950'}`}>
+                        Horizon runs AI refactoring models locally on a 4 GB GPU. Local model inference operates within fixed VRAM and token context window boundaries, meaning the system cannot cater to code files of this length in a single refactoring pass.
+                      </p>
+                    </div>
+                  </AlertDialogHeader>
+
+                  <AlertDialogFooter className="mt-4 flex justify-end">
+                    <AlertDialogCancel 
+                      onClick={() => setAbortDialogOpen(false)}
+                      className="w-full rounded-xl font-bold text-[13px] py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-98 text-black shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
+                    >
+                      <TerminalSquare size={16} />
+                      <span>Review Logs</span>
+                    </AlertDialogCancel>
+                  </AlertDialogFooter>
+                </>
+              );
+            }
+
+            return (
+              <>
+                <AlertDialogHeader className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
+                      isDark ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-amber-100 border-amber-300 text-amber-700'
+                    }`}>
+                      <AlertCircle size={22} className={isDark ? "text-amber-400" : "text-amber-600"} />
+                    </div>
+                    <div>
+                      <AlertDialogTitle className={`text-[16px] font-bold ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
+                        Refactoring Interrupted
+                      </AlertDialogTitle>
+                      <span className={`text-[11px] font-mono block ${isDark ? 'text-jb-text-muted' : 'text-slate-500'}`}>Session Unsuccessful</span>
+                    </div>
+                  </div>
+
+                  <AlertDialogDescription className={`text-[12px] leading-relaxed ${isDark ? 'text-jb-text-muted' : 'text-slate-600'}`}>
+                    The refactoring process ended before completion. Original code and session history are fully preserved.
+                  </AlertDialogDescription>
+
+                  <div className={`p-3 rounded-xl border text-[11px] space-y-1 my-1 ${
+                    isDark ? 'bg-amber-950/40 border-amber-500/20' : 'bg-amber-50 border-amber-200'
+                  }`}>
+                    <span className={`text-[10px] font-mono font-bold uppercase block tracking-wider ${
+                      isDark ? 'text-amber-400' : 'text-amber-800'
+                    }`}>
+                      REASON FOR INTERRUPT
+                    </span>
+                    <p className={`font-mono text-[11px] leading-relaxed ${isDark ? 'text-amber-200/90' : 'text-amber-950'}`}>
+                      {orchestrationResult.exit_status?.includes("MAX_ITERATIONS") || orchestrationResult.exit_status?.includes("STRATEGY")
+                        ? "Iteration limit reached without producing a valid output."
+                        : orchestrationResult.exit_status?.includes("DISCONNECTED") || orchestrationResult.exit_status?.includes("FAILURE") || orchestrationResult.exit_status?.includes("CONNECTION")
+                        ? "Connection to Horizon Backend Server lost or encountered a critical error."
+                        : lastErrorEntry || orchestrationResult.exit_status || "Unknown error occurred."}
+                    </p>
+                  </div>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter className="mt-4 flex gap-2">
+                  <AlertDialogCancel 
+                    onClick={() => setAbortDialogOpen(false)}
+                    className={`flex-1 rounded-xl font-bold text-[12px] py-2.5 border flex items-center justify-center gap-1.5 transition-all ${
+                      isDark 
+                        ? 'border-jb-border text-jb-text hover:bg-jb-border/60' 
+                        : 'border-slate-300 text-slate-800 hover:bg-slate-100'
+                    }`}
+                  >
+                    <TerminalSquare size={14} />
+                    <span>Review Logs</span>
+                  </AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={() => router.push('/')}
+                    className={`flex-1 rounded-xl font-extrabold text-[12px] py-2.5 transition-all shadow-md active:scale-95 cursor-pointer border-none ${
+                      isDark
+                        ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20'
+                        : 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-500/30'
+                    }`}
+                  >
+                    New Session
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </>
+            );
+          })()}
         </AlertDialogContent>
       </AlertDialog>
     </>

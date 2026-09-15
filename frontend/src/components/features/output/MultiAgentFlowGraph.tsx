@@ -20,6 +20,7 @@ import PhaseDetailDrawer from "./PhaseDetailDrawer";
 import { buildGraphState } from "@/lib/flowGraph/buildGraphState";
 import type { GlassboxState } from "@/types/glassbox";
 import type { FlowNodeData, FlowEdgeData } from "@/types/flowGraph";
+import { useTheme } from "next-themes";
 import { Maximize2 } from "lucide-react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,6 +37,14 @@ interface Props {
 
 function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Props) {
   const { fitView } = useReactFlow();
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const fallbackGlassbox: GlassboxState = useMemo(
     () => ({
@@ -99,20 +108,24 @@ function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Pr
   return (
     <div className="relative w-full h-full bg-jb-bg overflow-hidden select-none">
       {/* Top Banner Bar */}
-      <div className="absolute top-3 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-jb-panel/80 border border-jb-border/40 text-[11px] font-medium backdrop-blur-md">
+      <div className={`absolute top-3 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[11px] font-medium backdrop-blur-md ${
+        isDark ? 'bg-jb-panel/80 border-jb-border/40 text-jb-text' : 'bg-white/90 border-slate-200 text-slate-800 shadow-sm'
+      }`}>
         <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-        <span className="text-jb-text font-mono tracking-tight uppercase">Multi-Agent Flow Graph</span>
-        <span className="text-jb-text-muted/40">|</span>
-        <span className="text-jb-text-muted text-[10px]">Click a node to inspect details</span>
+        <span className="font-mono tracking-tight uppercase">Multi-Agent Flow Graph</span>
+        <span className="opacity-40">|</span>
+        <span className={`text-[10px] ${isDark ? 'text-jb-text-muted' : 'text-slate-500'}`}>Click a node to inspect details</span>
       </div>
 
       {/* Recenter & Controls Button */}
       <button
         onClick={handleRecenter}
-        className="absolute top-3 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-jb-panel/80 hover:bg-jb-panel border border-jb-border/50 text-jb-text text-[11px] font-mono shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+        className={`absolute top-3 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-mono shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer ${
+          isDark ? 'bg-jb-panel/80 hover:bg-jb-panel border-jb-border/50 text-jb-text' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
+        }`}
         title="Fit View"
       >
-        <Maximize2 size={13} className="text-cyan-400" />
+        <Maximize2 size={13} className="text-cyan-500" />
         <span>Fit View</span>
       </button>
 
@@ -131,8 +144,8 @@ function InnerFlowGraph({ appState, exitStatus, glassboxState, phaseStates }: Pr
         maxZoom={1.8}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#2b2d30" gap={24} size={1} />
-        <Controls showInteractive={false} className="!bg-jb-panel/80 !border-jb-border/50 !rounded-lg" />
+        <Background color={isDark ? "#2b2d30" : "#d1d5db"} gap={24} size={1} />
+        <Controls showInteractive={false} className={`!rounded-lg ${isDark ? '!bg-jb-panel/80 !border-jb-border/50' : '!bg-white/90 !border-slate-200 !shadow-sm'}`} />
       </ReactFlow>
 
       {/* Slide-over Inspection Drawer */}

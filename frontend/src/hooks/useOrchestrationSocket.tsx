@@ -601,9 +601,18 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
       }
 
       const entry = makeTerminalEntry("error", errorText);
+      const isTokenErr =
+        errorText.toLowerCase().includes("token") ||
+        errorText.toLowerCase().includes("context window") ||
+        errorText.toLowerCase().includes("exceed");
+      const derivedExitStatus = isTokenErr ? "ABORT_TOKEN_EXCEEDED" : "ABORT_ERROR";
 
       updateSession(targetId, (prev: SessionData) => ({
         terminalEntries: [...prev.terminalEntries, entry],
+        orchestrationResult: {
+          ...prev.orchestrationResult,
+          exit_status: derivedExitStatus,
+        },
         appState: "done" as const,
         showFlowchartModal: false,
       }));
@@ -876,8 +885,14 @@ export function OrchestrationProvider({ children }: { children: ReactNode }) {
         const session = useChatStore.getState().sessions[targetId];
         if (session && (session.appState === "analyzing" || session.appState === "waiting")) {
           updateSession(targetId, (prev: SessionData) => ({
-            terminalEntries: [...prev.terminalEntries,
-              makeTerminalEntry("error", "[System]: Connection lost. Orchestration interrupted.")],
+            terminalEntries: [
+              ...prev.terminalEntries,
+              makeTerminalEntry("error", "[System]: Connection to Horizon Backend Server lost. Refactoring process was interrupted.")
+            ],
+            orchestrationResult: {
+              ...prev.orchestrationResult,
+              exit_status: "ABORT_ERROR",
+            },
             appState: "done" as const,
             showFlowchartModal: false,
           }));

@@ -132,8 +132,7 @@ export default function InputPanel({
         }`}>
         
         {/* IDE HEADER */}
-        <div className={`px-2 flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300
-          ${isDark ? 'bg-jb-bg border-jb-border' : 'bg-[#f7f8fa] border-[#ebecf0]'}`}>
+        <div className="px-2 flex items-center justify-between border-b h-[40px] shrink-0 relative z-20 transition-colors duration-300 bg-jb-bg border-jb-border">
           
           <div className="flex items-center h-full pt-1.5 pb-1 gap-1">
             <div className={`flex items-center gap-2 h-full px-3 rounded-md text-[12px] font-medium border shadow-sm cursor-default transition-colors duration-300

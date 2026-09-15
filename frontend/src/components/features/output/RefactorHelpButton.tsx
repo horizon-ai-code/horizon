@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cpu, FileCode, RefreshCw } from "lucide-react";
+import { Cpu, FileCode, RefreshCw, AlertCircle } from "lucide-react";
 import { SLOW_INFERENCE_THRESHOLD_SECONDS } from "@/lib/utils/inferenceConstants";
 
 interface RefactorHelpButtonProps {
@@ -43,12 +43,13 @@ export default function RefactorHelpButton({
         ref={pillRef}
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className={`h-[24px] px-2.5 flex items-center gap-1.5 rounded-md border text-[11px] font-semibold cursor-pointer transition-all
+        className={`h-[24px] px-2.5 flex items-center gap-1.5 rounded-md border text-[11px] font-semibold cursor-pointer transition-all animate-pulse ring-2
           ${isDark
-            ? "border-amber-500/30 text-amber-400 bg-amber-500/5 hover:bg-amber-500/10"
-            : "border-amber-500/30 text-amber-600 bg-amber-500/5 hover:bg-amber-500/10"}`}
+            ? "border-amber-500/50 text-amber-300 bg-amber-500/15 ring-amber-500/40 shadow-lg shadow-amber-500/20 hover:bg-amber-500/25"
+            : "border-amber-600/50 text-amber-700 bg-amber-500/15 ring-amber-500/40 shadow-md shadow-amber-500/20 hover:bg-amber-500/25"}`}
       >
-        Taking longer?
+        <AlertCircle size={12} className="text-amber-500 animate-spin" />
+        <span>Taking longer?</span>
       </button>
 
       <AnimatePresence>
@@ -65,8 +66,8 @@ export default function RefactorHelpButton({
             aria-labelledby="inference-help-title"
           >
             <div
-              className={`absolute inset-0 backdrop-blur-sm ${
-                isDark ? "bg-black/50" : "bg-black/30"
+              className={`absolute inset-0 backdrop-blur-md ${
+                isDark ? "bg-black/60" : "bg-black/40"
               }`}
             />
 
@@ -78,7 +79,7 @@ export default function RefactorHelpButton({
               onClick={(e) => e.stopPropagation()}
               className={`relative w-[420px] max-w-[90vw] rounded-2xl border shadow-2xl p-6 flex flex-col gap-4
                 ${isDark
-                  ? "bg-jb-bg border-jb-border"
+                  ? "bg-jb-bg border-jb-border/70"
                   : "bg-white border-[#dfdfdf]"}`}
             >
               <div className="flex items-center justify-between">
@@ -92,10 +93,7 @@ export default function RefactorHelpButton({
                 </h2>
                 <button
                   onClick={closeModal}
-                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border cursor-pointer transition-all
-                    ${isDark
-                      ? "border-jb-border text-jb-text-muted hover:bg-jb-border/40"
-                      : "border-[#dfdfdf] text-[#818594] hover:bg-[#ebecf0]"}`}
+                  className="text-[12px] font-bold px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 active:scale-95 text-black cursor-pointer transition-all shadow-md shadow-amber-500/20"
                 >
                   Got it
                 </button>
