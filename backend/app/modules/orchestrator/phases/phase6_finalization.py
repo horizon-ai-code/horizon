@@ -64,12 +64,6 @@ class Phase6Finalization:
                     {"title": "Safe Rollback", "details": "The refactoring has been safely aborted and your original code has been fully restored."},
                     {"title": "Recommendation", "details": "Try breaking the requested task into smaller, simpler chunks."}
                 ],
-                ExitStatus.ABORT_INPUT: [
-                    {"title": "Pre-existing Errors", "details": "The baseline code provided contains syntax or semantic errors."},
-                    {"title": "Process Halted", "details": "Refactoring cannot proceed safely on broken code."},
-                    {"title": "Safe Rollback", "details": "Your original code has been fully preserved."},
-                    {"title": "Action Required", "details": "Please ensure the code cleanly compiles before attempting to refactor."}
-                ],
                 ExitStatus.ABORT_SYNTAX: [
                     {"title": "Syntax Error", "details": "The AI introduced syntax errors that it was unable to resolve during self-correction loops."},
                     {"title": "Process Halted", "details": "The generation process exceeded maximum correction attempts."},
