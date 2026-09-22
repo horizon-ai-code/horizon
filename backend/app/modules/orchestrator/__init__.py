@@ -185,7 +185,12 @@ class Orchestrator:
                 self.db.complete_session(
                     id=state.session_id,
                     refactored_code=state.base_code,
-                    insights="Aborted at Phase 1 Baseline due to syntax/semantic error.",
+                    insights=[
+                        {"title": "Pre-existing Errors", "details": "The baseline code provided contains syntax or semantic errors."},
+                        {"title": "Process Halted", "details": "Refactoring cannot proceed safely on broken code."},
+                        {"title": "Safe Rollback", "details": "Your original code has been fully preserved."},
+                        {"title": "Action Required", "details": "Please ensure the code cleanly compiles before attempting to refactor."}
+                    ],
                     original_complexity=1,
                     refactored_complexity=1,
                     performance_metrics={},
