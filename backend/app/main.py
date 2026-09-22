@@ -194,7 +194,12 @@ async def entrypoint(websocket: WebSocket) -> None:
                 continue
 
             if data.get("type") in ("multi", "single") and orchestration_lock.locked():
-                await client_conn.send_status(Role.System, "System is busy. Your request has been queued and will start automatically.")
+                await websocket.send_json({
+                    "type": "error",
+                    "code": "SYSTEM_BUSY",
+                    "message": "System is busy. A refactoring is currently running. Your request cannot be processed right now."
+                })
+                continue
 
             handled = await router.dispatch(
                 data, client_conn, active_tasks,

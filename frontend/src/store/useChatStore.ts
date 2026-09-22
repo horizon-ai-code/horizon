@@ -57,6 +57,7 @@ interface SessionDetailResponse {
   peak_gpu_utilization?: number;
   peak_gpu_memory_used?: number;
   inference_time?: number;
+  mode?: string;
   created_at?: string;
 }
 

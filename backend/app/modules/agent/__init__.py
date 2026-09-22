@@ -61,7 +61,7 @@ class AgentService:
                     model_path=path,
                     n_gpu_layers=n_gpu_layers,
                     n_ctx=n_ctx,
-                    flash_attn=True,  # Critical for Gemma 3 / Phi memory efficiency
+                    flash_attn=True,
                     verbose=False,
                 ),
                 timeout=120,
