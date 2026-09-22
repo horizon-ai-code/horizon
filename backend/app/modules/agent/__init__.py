@@ -216,9 +216,11 @@ class AgentService:
                             return None
 
                     async def safe_to_thread(func):
+                        task = asyncio.create_task(asyncio.to_thread(func))
                         try:
-                            return await asyncio.shield(asyncio.to_thread(func))
+                            return await asyncio.shield(task)
                         except asyncio.CancelledError:
+                            await task
                             raise
 
                     chunk = await safe_to_thread(get_next)
