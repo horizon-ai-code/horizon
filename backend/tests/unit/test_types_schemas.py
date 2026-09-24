@@ -57,3 +57,19 @@ class TestHaltRequest:
     def test_valid_halt(self):  # TC-TS-006
         req = HaltRequest(type="halt")
         assert req.type == "halt"
+
+
+class TestHistoryDetail:
+    def test_history_detail_mode(self):
+        from app.utils.schemas import HistoryDetail
+        from datetime import datetime
+        import uuid
+        detail = HistoryDetail(
+            id=uuid.uuid4(),
+            user_instruction="refactor",
+            original_code="class A {}",
+            mode="single",
+            created_at=datetime.now(),
+            logs=[]
+        )
+        assert detail.mode == "single"

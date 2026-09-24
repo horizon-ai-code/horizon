@@ -31,10 +31,10 @@ WORKDIR /app
 # Copy venv site-packages to system Python path
 COPY --from=builder /venv/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
 
-COPY app/ ./app/
+COPY models/ /app/models/
 COPY model_config.yaml prompts.yaml ./
 COPY scripts/ ./scripts/
-COPY models/ /app/models/
+COPY app/ ./app/
 
 RUN mkdir -p /app/db
 

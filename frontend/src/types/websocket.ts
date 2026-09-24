@@ -42,6 +42,8 @@ export type ExitStatus =
   | "ABORT_STRATEGY"
   | "ABORT_SYNTAX"
   | "ABORT_SEMANTIC"
+  | "ABORT_TOKEN_EXCEEDED"
+  | "ABORT_ERROR"
   | "PROCESSING";
 
 export interface PingMessage {

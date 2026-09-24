@@ -220,11 +220,11 @@
   --sidebar-ring: oklch(0.21 0.006 285.885 / 10%);
 
   /* JetBrains Theme Tokens - Light */
-  --jb-bg: #f2f2f2;
+  --jb-bg: #f4f5f8;
   --jb-panel: #ffffff;
-  --jb-border: #d1d1d1;
-  --jb-text: #3c3f41;
-  --jb-text-muted: #787878;
+  --jb-border: #e2e8f0;
+  --jb-text: #1e293b;
+  --jb-text-muted: #64748b;
   --jb-accent: #3574f0;
 }
 
