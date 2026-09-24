@@ -42,6 +42,7 @@ system_monitor: SystemMonitor = SystemMonitor()
 
 # Global lock to serialize all orchestration (model & DB) operations
 orchestration_lock = asyncio.Lock()
+active_tasks: set[asyncio.Task] = set()
 
 # FR-017: recurring session cleanup cadence (zombie flagging + halted purge)
 CLEANUP_INTERVAL_SECONDS = int(os.getenv("CLEANUP_INTERVAL_MINUTES", "15")) * 60
@@ -143,7 +144,6 @@ async def entrypoint(websocket: WebSocket) -> None:
         websocket=websocket
     )
     await client_conn.start_heartbeat()
-    active_tasks: set[asyncio.Task] = set()
 
     async def run_orchestration(client, validated_data: RefactorRequest):
         try:
@@ -168,12 +168,14 @@ async def entrypoint(websocket: WebSocket) -> None:
                 orchestration_lock.release()
         except (asyncio.CancelledError, InterruptedError):
             connection.db.mark_as_halted(client.id)
-            await client.send_halt_notification()
+            effective = orchestrator.current_client or client
+            await effective.send_halt_notification()
             raise
         except Exception as e:
             print(f"Orchestration Task Failure (ID: {client.id}): {e}")
             try:
-                await client._safe_send({
+                effective = orchestrator.current_client or client
+                await effective._safe_send({
                     "type": "error",
                     "code": "ORCHESTRATION_FAILED",
                     "message": f"Orchestration failed: {str(e)[:200]}"
@@ -192,7 +194,12 @@ async def entrypoint(websocket: WebSocket) -> None:
                 continue
 
             if data.get("type") in ("multi", "single") and orchestration_lock.locked():
-                await client_conn.send_status(Role.System, "System is busy. Your request has been queued and will start automatically.")
+                await websocket.send_json({
+                    "type": "error",
+                    "code": "SYSTEM_BUSY",
+                    "message": "System is busy. A refactoring is currently running. Your request cannot be processed right now."
+                })
+                continue
 
             handled = await router.dispatch(
                 data, client_conn, active_tasks,
@@ -204,19 +211,12 @@ async def entrypoint(websocket: WebSocket) -> None:
 
     except WebSocketDisconnect as e:
         print(f"Connection disconnected: {e}")
-        agent_service.stop()
-        for task in active_tasks.copy():
-            if not task.done():
-                task.cancel()
+        # FR-011: Do not cancel tasks or stop agent service. Let background tasks finish.
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         await client_conn.stop_heartbeat()
-        agent_service.stop()
-        for task in active_tasks.copy():
-            if not task.done():
-                task.cancel()
-
+        # FR-011: Do not cancel tasks or stop agent service here either.
 
 @app.websocket("/ws/system")
 async def system_monitor_ws(websocket: WebSocket) -> None:
@@ -233,23 +233,19 @@ async def system_monitor_ws(websocket: WebSocket) -> None:
         pass
 
 
-async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
+async def _handle_reconnect(session_id: str, client_conn: ClientConnection) -> None:
     """Handle frontend reconnection to an existing session."""
     if not session_id:
-        await ws.send_json({"type": "error", "code": "MISSING_SESSION_ID", "message": "Missing session_id"})
+        await client_conn.websocket.send_json({"type": "error", "code": "MISSING_SESSION_ID", "message": "Missing session_id"})
         return
 
     record = await connection.get_history_by_id(session_id)
     if not record:
-        await ws.send_json({"type": "error", "code": "SESSION_NOT_FOUND", "message": "Session not found"})
+        await client_conn.websocket.send_json({"type": "error", "code": "SESSION_NOT_FOUND", "message": "Session not found"})
         return
 
-    new_conn = connection.create_websocket_connection(ws)
-    new_conn.id = session_id
-    await new_conn.start_heartbeat()
-
     if record.get("status") == "Completed":
-        await new_conn.send_result(
+        await client_conn.send_result(
             final_code=record.get("refactored_code", ""),
             original_complexity=record.get("original_complexity"),
             refactored_complexity=record.get("refactored_complexity"),
@@ -263,23 +259,26 @@ async def _handle_reconnect(session_id: str, ws: WebSocket) -> None:
         )
         insights = record.get("insights")
         if insights:
-            await new_conn.send_insights(insights)
-        await new_conn.send_status(Role.System, "Session restored.")
-        await new_conn.stop_heartbeat()
+            await client_conn.send_insights(insights)
+        await client_conn.send_status(Role.System, "Session restored.")
     elif record.get("status") in ("Processing", "Halted", "Failed", "Zombie"):
-        if orchestrator.current_client is not None:
-            orchestrator.current_client = new_conn
-            await new_conn.send_status(
+        active = orchestrator.current_client
+        if active is not None and active.id == session_id:
+            # Live run for THIS session — reattach in place.
+            client_conn.id = session_id
+            orchestrator.current_client = client_conn
+            await client_conn.send_status(
                 Role.System,
                 f"Reconnected to ongoing session. Status: {record.get('status')}",
             )
         else:
-            await new_conn.send_status(
-                Role.System,
-                "Session lost due to server restart. Please start a new refactor.",
-            )
+            await client_conn.websocket.send_json({
+                "type": "error",
+                "code": "SESSION_LOST",
+                "message": "Session lost due to server restart. Please start a new refactor."
+            })
     else:
-        await ws.send_json({"type": "error", "code": "UNKNOWN_SESSION_STATUS", "message": f"Unknown session status: {record.get('status')}"})
+        await client_conn.websocket.send_json({"type": "error", "code": "UNKNOWN_SESSION_STATUS", "message": f"Unknown session status: {record.get('status')}"})
 
 
 async def run_single_refactor(
@@ -296,13 +295,15 @@ async def run_single_refactor(
 
     except (asyncio.CancelledError, InterruptedError):
         connection.db.mark_as_halted(client.id)
-        await client.send_halt_notification()
+        effective = orchestrator.current_client or client
+        await effective.send_halt_notification()
         raise
     except Exception as e:
         print(f"Single Refactor Failure (ID: {client.id}): {e}")
         connection.db.mark_as_failed(client.id, f"Single refactor failed: {str(e)[:200]}")
         try:
-            await client._safe_send({
+            effective = orchestrator.current_client or client
+            await effective._safe_send({
                 "type": "error",
                 "code": "SINGLE_REFACTOR_FAILED",
                 "message": f"Single refactor failed: {str(e)[:200]}"

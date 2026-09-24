@@ -65,13 +65,13 @@ export default function Navbar({ onStartTour, tourOpened }: NavbarProps) {
   return (
     <>
     <nav className={`relative z-40 border-b flex justify-between items-center shrink-0 h-[44px] select-none transition-all duration-300
-      ${isDark ? 'bg-jb-bg border-jb-border/50' : 'bg-[#f7f8fa] border-[#ebecf0]'} font-sans`}>
+      ${isDark ? 'bg-jb-bg border-jb-border/50' : 'bg-jb-bg border-jb-border/60'} font-sans`}>
       
       {/* Left Section: Logo, Menu & Project Info */}
       <div className="flex items-center h-full">
         <Link href="/" className="flex items-center h-full">
           <div className={`h-full px-4 flex items-center justify-center shrink-0 border-r transition-colors duration-300
-            ${isDark ? 'border-jb-border/30' : 'border-[#ebecf0]'}`}>
+            ${isDark ? 'border-jb-border/30' : 'border-jb-border/40'}`}>
              <Image 
                src={isDark ? "/logo-dark.png" : "/logo-light.png"} 
                alt="Logo" 

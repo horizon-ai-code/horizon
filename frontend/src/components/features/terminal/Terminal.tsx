@@ -200,13 +200,13 @@ function SystemEntry({ entry, isDark }: EntryProps) {
 function ErrorEntry({ entry, isDark }: EntryProps) {
   return (
     <div className={`mb-3 p-3 rounded-lg border flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300
-      ${isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-200"}`}>
-      <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
+      ${isDark ? "bg-orange-500/5 border-orange-500/20" : "bg-orange-50 border-orange-200"}`}>
+      <AlertCircle size={16} className="text-orange-500 mt-0.5 shrink-0" />
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
-          Execution Error
+        <span className="text-[11px] font-bold uppercase tracking-wider text-orange-500">
+          Process Interrupted
         </span>
-        <span className={`text-[12px] leading-relaxed ${isDark ? "text-red-200/80" : "text-red-700"}`}>
+        <span className={`text-[12px] leading-relaxed ${isDark ? "text-orange-200/80" : "text-orange-700"}`}>
           {entry.text}
         </span>
       </div>

@@ -58,19 +58,24 @@ class Phase6Finalization:
                 insights = "Refactoring successful (Insights generation failed)."
         else:
             abort_reasons = {
-                ExitStatus.ABORT_STRATEGY: (
-                    "Refactoring aborted after max retries. "
-                    "The system attempted multiple strategies but could not produce valid code. "
-                    "Original code restored."
-                ),
-                ExitStatus.ABORT_SYNTAX: (
-                    "Refactoring aborted — generated code contained syntax errors "
-                    "that could not be resolved. Original code restored."
-                ),
-                ExitStatus.ABORT_SEMANTIC: (
-                    "Refactoring aborted — generated code failed semantic validation. "
-                    "Original code restored."
-                ),
+                ExitStatus.ABORT_STRATEGY: [
+                    {"title": "Max Retries Exceeded", "details": "Refactoring aborted after reaching the maximum number of strategy retries."},
+                    {"title": "Process Halted", "details": "The system attempted multiple refactoring strategies but could not produce valid code."},
+                    {"title": "Safe Rollback", "details": "The refactoring has been safely aborted and your original code has been fully restored."},
+                    {"title": "Recommendation", "details": "Try breaking the requested task into smaller, simpler chunks."}
+                ],
+                ExitStatus.ABORT_SYNTAX: [
+                    {"title": "Syntax Error", "details": "The AI introduced syntax errors that it was unable to resolve during self-correction loops."},
+                    {"title": "Process Halted", "details": "The generation process exceeded maximum correction attempts."},
+                    {"title": "Safe Rollback", "details": "The refactoring has been safely aborted and your original code has been fully restored."},
+                    {"title": "Recommendation", "details": "Try breaking the requested task into smaller, simpler chunks."}
+                ],
+                ExitStatus.ABORT_SEMANTIC: [
+                    {"title": "Validation Failed", "details": "The AI-generated code passed syntax checks but failed semantic validation."},
+                    {"title": "Context Missing", "details": "This typically occurs due to missing imports, undefined variables, or type mismatches."},
+                    {"title": "Safe Rollback", "details": "The refactoring has been safely aborted and your original code has been fully restored."},
+                    {"title": "Recommendation", "details": "Consider providing more explicit context or constraints in your request."}
+                ],
             }
             insights = abort_reasons.get(
                 state.exit_status,

@@ -61,7 +61,7 @@ class AgentService:
                     model_path=path,
                     n_gpu_layers=n_gpu_layers,
                     n_ctx=n_ctx,
-                    flash_attn=True,  # Critical for Gemma 3 / Phi memory efficiency
+                    flash_attn=True,
                     verbose=False,
                 ),
                 timeout=120,
@@ -215,7 +215,15 @@ class AgentService:
                         except StopIteration:
                             return None
 
-                    chunk = await asyncio.to_thread(get_next)
+                    async def safe_to_thread(func):
+                        task = asyncio.create_task(asyncio.to_thread(func))
+                        try:
+                            return await asyncio.shield(task)
+                        except asyncio.CancelledError:
+                            await task
+                            raise
+
+                    chunk = await safe_to_thread(get_next)
                     if chunk is None:
                         break
                     chunks.append(chunk)
@@ -236,6 +244,11 @@ class AgentService:
 
             except StopIteration:
                 pass
+            finally:
+                if hasattr(iterator, "close"):
+                    iterator.close()
+                import gc
+                gc.collect()
 
             # Reconstruct full response from chunks
             if not content_so_far:

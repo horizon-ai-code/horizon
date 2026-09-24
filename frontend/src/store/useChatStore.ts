@@ -57,6 +57,7 @@ interface SessionDetailResponse {
   peak_gpu_utilization?: number;
   peak_gpu_memory_used?: number;
   inference_time?: number;
+  mode?: string;
   created_at?: string;
 }
 
@@ -509,17 +510,21 @@ export const useChatStore = create<ChatStore>((set, get) => ({
              colorClass: "text-[#f87171]",
            });
         } else if (isProcessing) {
-           activeStep = 0;
-           appState = "done";
-           oResult.summary = "This refactoring was interrupted. You can start a new one.";
-           terminalEntries.push({
-             id: `p-interrupted`,
-             type: "log",
-             text: "[System]: Session was interrupted — refactoring did not complete.",
-             icon: "Monolith",
-             colorClass: "text-[#f4bf4f]",
-           });
-        } else if (detail.logs && detail.logs.length > 0) {
+           // FR-011 resilient runs: a Processing row may still be executing
+           // server-side. Hydrate optimistically; the reattach flow (if the
+           // session is live) will flip appState back to "analyzing" as soon
+           // as status messages start arriving.
+            activeStep = 0;
+            appState = "idle";
+            oResult.summary = "Refactoring is still running on the server — reconnecting to live output…";
+            terminalEntries.push({
+              id: `p-reconnecting`,
+              type: "log",
+              text: "[System]: Refactoring is still running on the server — reconnecting to live output…",
+              icon: "Monolith",
+              colorClass: "text-[#f4bf4f]",
+            });
+         } else if (detail.logs && detail.logs.length > 0) {
            appState = "analyzing";
            const lastLog = detail.logs[detail.logs.length - 1];
            const visuals = ROLE_VISUALS[lastLog.role ?? ''] || DEFAULT_ROLE_VISUALS;
@@ -530,6 +535,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         const safeTitle = storedTitle
           || (detail.user_instruction || "").trim()
           || "Previous Session";
+
+        const isMonolith = detail.mode === "single"
+          || Boolean(detail.logs?.some((l: Record<string, unknown>) => l.role === "Monolith"))
+          || (!detail.planner_model && !detail.judge_model && Boolean(detail.generator_model));
 
         return {
           ...state,
@@ -546,11 +555,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
               activeStep,
               terminalEntries,
               orchestrationResult: oResult,
+              serverStatus: detail.status,
+              isMonolith,
               isLoaded: true
             }
           }
         };
       });
+
       return true;
     } catch(e) {
       console.error("[ChatStore] Error fetching session details:", e);

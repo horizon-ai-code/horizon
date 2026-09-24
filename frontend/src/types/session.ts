@@ -57,6 +57,7 @@ export interface SessionData {
   showFlowchartModal: boolean;
   isMonolith: boolean;
   orchestrationResult: OrchestrationResult;
+  serverStatus?: string;
   isLoaded?: boolean;
   error?: string;
   errorCode?: string;

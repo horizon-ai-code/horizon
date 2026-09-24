@@ -11,13 +11,23 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class SingleRefactor:
-    def __init__(self, agent_service, validator, db, config, prompts: dict[str, Any], notify: Notifier):
+    def __init__(
+        self,
+        agent_service,
+        validator,
+        db,
+        config,
+        prompts: dict[str, Any],
+        notify: Notifier,
+        get_client: Callable[[Any], Any] | None = None,
+    ):
         self._agent = agent_service
         self._validator = validator
         self._db = db
         self._config = config
         self._prompts = prompts
         self._notify = notify
+        self._get_client = get_client or (lambda c: c)
 
     async def run(self, client, user_code: str, user_instruction: str) -> None:
         cfg = self._config.single
@@ -65,11 +75,13 @@ class SingleRefactor:
         await tracker.stop_tracking()
         perf = tracker.get_metrics()
 
-        await client.send_result(
+        active_client = self._get_client(client)
+
+        await active_client.send_result(
             final_code=refactored, original_complexity=orig_cc, refactored_complexity=refac_cc,
             performance_metrics=perf, exit_status="SUCCESS", generator_model=cfg.name,
         )
-        await client.send_insights(insight_dicts)
+        await active_client.send_insights(insight_dicts)
 
         self._db.complete_session(
             id=client.id, refactored_code=refactored, insights=json.dumps(insight_dicts),

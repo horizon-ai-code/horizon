@@ -64,7 +64,7 @@ class ClientConnection:
         """Send JSON to frontend, silently handling disconnect."""
         try:
             await self.websocket.send_json(message)
-        except WebSocketDisconnect:
+        except (WebSocketDisconnect, RuntimeError):
             pass
 
     def reset_id(self) -> None:
