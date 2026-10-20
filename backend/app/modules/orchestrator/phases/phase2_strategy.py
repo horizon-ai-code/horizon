@@ -1,3 +1,5 @@
+"""Phase 2: intent classification, analysis, and mutation planning."""
+
 import json
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -20,13 +22,17 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class Phase2Strategy:
+    """Produces an executable mutation plan from code and instruction."""
+
     def __init__(self, agent_service, config: OrchestrationConfig, prompts: dict[str, Any], notify: Notifier):
+        """Stores shared services, configuration, prompts, and notifier."""
         self._agent = agent_service
         self._config = config
         self._prompts = prompts
         self._notify = notify
 
     async def run(self, client, state) -> None:
+        """Runs classification, analysis, planning, enrichment, and cleanup."""
         state.strategy_iter_incremented = False
 
         if not state.intent_packet:
@@ -49,6 +55,7 @@ class Phase2Strategy:
         state.current_phase = 3
 
     async def _classify(self, client, state) -> None:
+        """Classifies the user's intent and stores the intent packet."""
         await self._notify(
             client, Role.Planner,
             f"Strategy: Classifying intent (Strategy Iter {state.strategy_iter})...",
@@ -79,6 +86,7 @@ class Phase2Strategy:
         )
 
     async def _analyze(self, client, state) -> None:
+        """Analyzes code structure with intent-specific guidance."""
         await self._notify(client, Role.Planner, "Strategy: Analyzing code structure...", None)
 
         analysis_prompt = (
@@ -118,6 +126,11 @@ class Phase2Strategy:
         )
 
     async def _synthesize(self, client, state) -> None:
+        """Generates and validates the mutation plan.
+
+        Retries once at a higher temperature. If both attempts fail, the
+        strategy iteration is incremented and the phase restarts.
+        """
         await self._notify(client, Role.Planner, "Strategy: Designing mutation plan...", None)
 
         arch_prompt = (
@@ -183,6 +196,7 @@ class Phase2Strategy:
                     return
 
     def _enrich(self, state) -> None:
+        """Anchors plan mutations to real AST targets."""
         if state.active_plan is None:
             raise RuntimeError("Architect produced no plan but pipeline continued")
         intent_key = state.intent_packet.get("specific_intent", "") if state.intent_packet else None
@@ -197,6 +211,7 @@ class Phase2Strategy:
         state.active_plan["enriched_by"] = "ASTMatcher"
 
     def _deduplicate(self, state) -> None:
+        """Removes duplicate mutations and caps the plan size."""
         deduped = []
         seen = set()
         for m in state.active_plan.get("ast_mutations", []):
@@ -212,6 +227,7 @@ class Phase2Strategy:
 
     @staticmethod
     def _translate_feedback(state) -> list[str]:
+        """Converts prior failure feedback into corrective instructions."""
         suggestions = []
         for fb in state.cumulative_feedback:
             tier = str(fb.get("failure_tier", ""))

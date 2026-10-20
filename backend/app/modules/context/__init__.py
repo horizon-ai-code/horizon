@@ -1,3 +1,11 @@
+"""SQLite persistence for refactor sessions and orchestration logs.
+
+The database uses WAL mode with foreign keys enabled. Writes are retried on
+transient ``OperationalError`` failures. Tables are created on first use and
+missing columns are added to existing databases through a forward-only schema
+sync.
+"""
+
 import asyncio
 import datetime
 from typing import Any
@@ -9,7 +17,6 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fi
 
 from app.utils.paths import DB_PATH
 
-# 1. Initialize the SQLite database connection
 db = peewee.SqliteDatabase(DB_PATH, pragmas={"journal_mode": "wal", "foreign_keys": 1})
 
 DB_RETRY = retry(
@@ -19,18 +26,26 @@ DB_RETRY = retry(
 )
 
 
-# 2. Define the Database Schema
 class RefactorHistory(peewee.Model):
+    """Persisted refactor session and its final outcome.
+
+    Attributes:
+        exit_status: Terminal status such as SUCCESS or ABORT_STRATEGY.
+        final_intent: JSON-encoded intent packet produced by the planner.
+        final_plan: JSON-encoded mutation plan produced by the planner.
+        phase_states: JSON-encoded phase-diagram snapshot.
+    """
+
     id = peewee.UUIDField(primary_key=True)
     status = peewee.CharField(default="Processing")
-    exit_status = peewee.CharField(null=True) # SUCCESS, ABORT_STRATEGY, etc.
+    exit_status = peewee.CharField(null=True)
     title = peewee.CharField(max_length=255, null=True)
     user_instruction = peewee.TextField()
     original_code = peewee.TextField()
     refactored_code = peewee.TextField(null=True)
     insights = peewee.TextField(null=True)
-    final_intent = peewee.TextField(null=True) # Stores JSON
-    final_plan = peewee.TextField(null=True) # Stores JSON
+    final_intent = peewee.TextField(null=True)
+    final_plan = peewee.TextField(null=True)
     total_outer_loops = peewee.IntegerField(default=0)
     total_inner_loops = peewee.IntegerField(default=0)
     original_complexity = peewee.IntegerField(null=True)
@@ -45,33 +60,45 @@ class RefactorHistory(peewee.Model):
     peak_gpu_utilization = peewee.FloatField(null=True)
     peak_gpu_memory_used = peewee.FloatField(null=True)
     inference_time = peewee.FloatField(null=True)
-    phase_states = peewee.TextField(null=True)  # Stores JSON: { states, failingPhase, strategyIteration, syntaxHealAttempt }
+    phase_states = peewee.TextField(null=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
+        """Binds the model to the shared SQLite database."""
+
         database = db
 
 
 class OrchestrationLog(peewee.Model):
+    """Single orchestration step emitted during a refactor session.
+
+    Attributes:
+        content: JSON payload for the step when available.
+    """
+
     id = peewee.AutoField()
     session = peewee.ForeignKeyField(
         RefactorHistory, backref="logs", on_delete="CASCADE"
     )
     role = peewee.CharField()
     status = peewee.TextField()
-    content = peewee.TextField(null=True) # Standardized to hold JSON payloads
+    content = peewee.TextField(null=True)
     phase = peewee.IntegerField(null=True)
     outer_loop = peewee.IntegerField(default=0)
     inner_loop = peewee.IntegerField(default=0)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
+        """Binds the model to the shared SQLite database."""
+
         database = db
 
 
-# 3. Create the Context Manager
 class DatabaseManager:
+    """Owns the database connection and session/log persistence."""
+
     def __init__(self):
+        """Connects to the database and ensures the schema is current."""
         self._initialize_db()
 
     def _initialize_db(self) -> None:

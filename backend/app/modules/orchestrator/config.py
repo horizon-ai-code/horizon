@@ -1,3 +1,5 @@
+"""Typed configuration models for models and orchestration limits."""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -7,6 +9,17 @@ import yaml
 
 @dataclass(frozen=True)
 class ModelEntry:
+    """Configuration for one model slot.
+
+    Attributes:
+        name: Human-readable model name.
+        temperature: Sampling temperature used for generation.
+        max_tokens: Maximum tokens generated in one response.
+        context_size: Context window size in tokens.
+        layers: Number of layers offloaded to the GPU.
+        filename: Model filename relative to the models directory.
+    """
+
     name: str
     temperature: float
     max_tokens: int
@@ -15,14 +28,18 @@ class ModelEntry:
     filename: str
 
     def __getitem__(self, key: str) -> Any:
+        """Returns a configuration field by name."""
         return getattr(self, key)
 
     def keys(self):
+        """Returns the field names accepted by ``dict()`` conversion."""
         return ("name", "temperature", "max_tokens", "context_size", "layers", "filename")
 
 
 @dataclass(frozen=True)
 class OrchestrationSettings:
+    """Tunable limits shared across orchestration phases."""
+
     classifier_max_tokens: int = 500
     analysis_max_tokens: int = 1024
     judge_max_tokens: int = 1536
@@ -42,6 +59,8 @@ class OrchestrationSettings:
 
 @dataclass(frozen=True)
 class OrchestrationConfig:
+    """Complete model and orchestration configuration."""
+
     planner: ModelEntry
     generator: ModelEntry
     judge: ModelEntry
@@ -50,6 +69,7 @@ class OrchestrationConfig:
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "OrchestrationConfig":
+        """Builds a configuration from a decoded YAML mapping."""
         return cls(
             planner=ModelEntry(**raw["planner"]),
             generator=ModelEntry(**raw["generator"]),
@@ -60,6 +80,11 @@ class OrchestrationConfig:
 
     @classmethod
     def from_yaml(cls, path: Path) -> "OrchestrationConfig":
+        """Loads and validates a configuration from a YAML file.
+
+        Raises:
+            ValueError: If a required model section is missing.
+        """
         with open(path) as f:
             raw: dict[str, Any] = yaml.safe_load(f) or {}
         required = ["planner", "generator", "judge", "single"]

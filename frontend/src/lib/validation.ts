@@ -1,7 +1,7 @@
 export const CODE_MIN_LENGTH = 10;
-export const CODE_MAX_LENGTH = 100_000;
-export const INSTRUCTION_MIN_LENGTH = 3;
-export const INSTRUCTION_MAX_LENGTH = 10_000;
+export const CODE_MAX_LENGTH = 25_000;
+export const INSTRUCTION_MIN_LENGTH = 10;
+export const INSTRUCTION_MAX_LENGTH = 2_000;
 
 export interface SubmissionErrors {
   source: string | null;

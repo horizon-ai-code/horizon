@@ -1,6 +1,7 @@
 # models (large files, not in git)
 /models/
 /backend/models/
+/backend/temp_models/
 
 # Python
 __pycache__/

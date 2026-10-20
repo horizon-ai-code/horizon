@@ -1,3 +1,5 @@
+"""Phase 6: result delivery, insights generation, and persistence."""
+
 import json
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -14,7 +16,10 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class Phase6Finalization:
+    """Finalizes a session and delivers results to the client."""
+
     def __init__(self, db, agent_service, validator, config, prompts: dict[str, Any], notify: Notifier):
+        """Stores shared services, configuration, prompts, and notifier."""
         self._db = db
         self._agent = agent_service
         self._validator = validator
@@ -23,6 +28,7 @@ class Phase6Finalization:
         self._notify = notify
 
     async def run(self, client, state, metrics: dict[str, Any], phase_data: dict | None = None) -> None:
+        """Sends the final result, generates insights, and completes the session."""
         state.working_code = strip_outer_wrapper(state.working_code, state.base_code)
 
         await self._notify(
@@ -104,6 +110,7 @@ class Phase6Finalization:
 
     async def _generate_insights(self, user_code: str, refactored_code: str,
                                   original_complexity: int, refactored_complexity: int) -> Any:
+        """Generates structured insights describing the refactor."""
         await self._agent.swap(self._config.judge)
 
         prompt = (

@@ -1,3 +1,5 @@
+"""WebSocket connection management, heartbeats, and history persistence."""
+
 import asyncio
 import uuid
 from datetime import datetime
@@ -19,6 +21,7 @@ class ClientConnection:
     MAX_MISSED_PONGS = 2
 
     def __init__(self, websocket: WebSocket, db: DatabaseManager):
+        """Binds the connection to a websocket and shared database manager."""
         self.websocket = websocket
         self.db = db
         self.id = str(uuid.uuid4())
@@ -28,14 +31,17 @@ class ClientConnection:
 
     @property
     def is_stale(self) -> bool:
+        """Returns True when the client has missed too many heartbeats."""
         return self._missed_pongs >= self.MAX_MISSED_PONGS
 
     async def start_heartbeat(self) -> None:
+        """Starts the periodic ping loop and resets the missed-pong counter."""
         self._heartbeat_running = True
         self._missed_pongs = 0
         self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
 
     async def stop_heartbeat(self) -> None:
+        """Cancels the heartbeat loop and waits for it to finish."""
         self._heartbeat_running = False
         if self._heartbeat_task:
             self._heartbeat_task.cancel()
@@ -46,6 +52,7 @@ class ClientConnection:
             self._heartbeat_task = None
 
     async def _heartbeat_loop(self) -> None:
+        """Sends a ping every heartbeat interval until the loop is stopped."""
         while self._heartbeat_running:
             await asyncio.sleep(self.HEARTBEAT_INTERVAL)
             if not self._heartbeat_running:
@@ -58,6 +65,7 @@ class ClientConnection:
             self._missed_pongs += 1
 
     def handle_pong(self) -> None:
+        """Resets the missed-pong counter after a client response."""
         self._missed_pongs = 0
 
     async def _safe_send(self, message: dict) -> None:
@@ -83,6 +91,7 @@ class ClientConnection:
                           planner_model: str | None = None,
                           generator_model: str | None = None,
                           judge_model: str | None = None) -> None:
+        """Sends a status message with optional phase and model metadata."""
         msg: dict[str, str | Role | int] = {"type": "status", "role": role, "content": content}
         if phase is not None:
             msg["phase"] = phase
@@ -96,6 +105,7 @@ class ClientConnection:
 
     async def send_phase_states(self, states: dict, failing_phase: int | None,
                                  strategy_iteration: int, syntax_heal_attempt: int) -> None:
+        """Sends the current state of the phase diagram to the frontend."""
         await self._safe_send({
             "type": "phase_states",
             "states": dict(states),
@@ -105,6 +115,7 @@ class ClientConnection:
         })
 
     async def send_halt_notification(self) -> None:
+        """Notifies the frontend that the user halted the run."""
         await self._safe_send({
             "type": "status",
             "role": Role.System,
@@ -152,24 +163,31 @@ class ConnectionManager:
     """
 
     def __init__(self):
+        """Creates the shared database manager used by all connections."""
         self.db = DatabaseManager()
 
     async def get_rest_history(self):
+        """Returns all persisted refactor sessions."""
         return self.db.get_history()
 
     async def get_history_by_id(self, id: str) -> dict | None:
+        """Returns one session with its logs, or None when not found."""
         return self.db.get_history_by_id(id)
 
     async def delete_history_by_id(self, id: str) -> bool:
+        """Deletes a session and its logs, returning True when a row was removed."""
         return self.db.delete_history_by_id(id)
 
     async def clear_all_history(self) -> int:
+        """Deletes every session and returns the number of removed rows."""
         return self.db.clear_all_history()
 
     async def rename_history(self, history_id: str, new_title: str) -> bool:
+        """Renames a session, returning False when the session does not exist."""
         return self.db.rename_session(history_id, new_title)
 
     def create_websocket_connection(self, websocket: WebSocket) -> ClientConnection:
+        """Creates a websocket connection bound to this manager's database."""
         return ClientConnection(websocket=websocket, db=self.db)
 
 

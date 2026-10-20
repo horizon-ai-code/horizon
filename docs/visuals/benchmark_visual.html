@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon AI - Minimalist 6-Phase Pipeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #060709;
+      --card-bg: rgba(17, 19, 23, 0.92);
+      --border: rgba(255, 255, 255, 0.12);
+      --text-white: #ffffff;
+      --text-muted: #8c9cb2;
+
+      --accent-cyan: #22d3ee;
+      --accent-purple: #a855f7;
+      --accent-blue: #3b82f6;
+      --accent-amber: #f59e0b;
+      --accent-green: #10b981;
+      --accent-rose: #f43f5e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: var(--bg);
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Ambient Pulsing Background */
+    .bg-pulse-1 {
+      position: absolute;
+      top: -15%;
+      left: 10%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.28) 0%, rgba(59, 130, 246, 0.16) 50%, transparent 70%);
+      filter: blur(100px);
+      z-index: 0;
+      animation: pulseBlue1 8s ease-in-out infinite alternate;
+    }
+
+    .bg-pulse-2 {
+      position: absolute;
+      bottom: -15%;
+      right: 10%;
+      width: 850px;
+      height: 850px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(168, 85, 247, 0.16) 50%, transparent 70%);
+      filter: blur(110px);
+      z-index: 0;
+      animation: pulseBlue2 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseBlue1 {
+      0% { opacity: 0.6; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+
+    @keyframes pulseBlue2 {
+      0% { opacity: 0.6; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 70%, transparent 95%);
+      z-index: 0;
+    }
+
+    /* Edge-to-Edge 16:9 Slide Frame */
+    .slide-frame {
+      position: relative;
+      z-index: 10;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 13, 17, 0.65);
+      backdrop-filter: blur(28px);
+      padding: 4.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .brand-group h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text-white);
+      line-height: 1.05;
+      background: linear-gradient(135deg, #ffffff 40%, #a0aec0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-group p {
+      font-size: 1.35rem;
+      color: var(--text-muted);
+      margin-top: 0.6rem;
+      font-weight: 500;
+    }
+
+    .vram-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      background: rgba(34, 211, 238, 0.1);
+      border: 1.5px solid rgba(34, 211, 238, 0.35);
+      padding: 0.75rem 1.6rem;
+      border-radius: 40px;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 25px rgba(34, 211, 238, 0.2);
+    }
+
+    /* 6 Phases Flow Container */
+    .flow-container {
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    /* Connecting Vector Line */
+    .flow-line {
+      position: absolute;
+      top: 50px;
+      left: 60px;
+      right: 60px;
+      height: 3px;
+      background: var(--border);
+      z-index: 1;
+    }
+
+    .flow-line-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-blue), var(--accent-green));
+      opacity: 0.8;
+      box-shadow: 0 0 15px var(--accent-cyan);
+    }
+
+    /* Loop Path */
+    .loop-path {
+      position: absolute;
+      bottom: -85px;
+      left: 26%;
+      right: 26%;
+      height: 65px;
+      border-left: 2px dashed var(--accent-rose);
+      border-right: 2px dashed var(--accent-rose);
+      border-bottom: 2px dashed var(--accent-rose);
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 8px;
+      opacity: 0.95;
+    }
+
+    .loop-tag {
+      background: #090b0e;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      padding: 0.3rem 1.2rem;
+      border-radius: 20px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      color: var(--accent-rose);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .loop-tag svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--accent-rose);
+    }
+
+    /* 6 Columns Grid - Scaled Up Minimal Cards */
+    .phases-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.5rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .phase-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 2.8rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      backdrop-filter: blur(14px);
+    }
+
+    /* Circle Icon Container */
+    .icon-circle {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.6rem;
+      position: relative;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .icon-circle svg {
+      width: 34px;
+      height: 34px;
+      stroke: var(--p-color);
+    }
+
+    .phase-num {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--p-color);
+      color: #000;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px var(--p-color);
+    }
+
+    .phase-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 0.45rem;
+      letter-spacing: -0.02em;
+    }
+
+    .phase-agent {
+      font-size: 1.05rem;
+      font-family: 'Fira Code', monospace;
+      color: var(--p-color);
+      margin-bottom: 0.95rem;
+      font-weight: 600;
+    }
+
+    .phase-desc {
+      font-size: 1.02rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    /* Scaled Up Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      border-top: 1.5px solid var(--border);
+      padding-top: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 3.5rem;
+    }
+
+    .footer-item span {
+      color: var(--text-white);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Blue Pulsing Background -->
+  <div class="bg-pulse-1"></div>
+  <div class="bg-pulse-2"></div>
+  <div class="bg-grid"></div>
+
+  <!-- 16:9 Presentation Frame -->
+  <div class="slide-frame">
+
+    <!-- Minimal Header -->
+    <div class="slide-header">
+      <div class="brand-group">
+        <h1>Horizon AI — 6-Phase Pipeline</h1>
+        <p>Role-Driven Multi-Agent Java Refactoring Architecture</p>
+      </div>
+      <div class="vram-tag">
+        Strict 4GB VRAM Limit
+      </div>
+    </div>
+
+    <!-- Flow Track & 6 Nodes -->
+    <div class="flow-container">
+
+      <div class="flow-line">
+        <div class="flow-line-glow"></div>
+      </div>
+
+      <div class="phases-grid">
+
+        <!-- 01 Baseline -->
+        <div class="phase-card" style="--p-color: var(--accent-cyan);">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span class="phase-num">1</span>
+          </div>
+          <div class="phase-title">Baseline</div>
+          <div class="phase-agent">System Parser</div>
+          <div class="phase-desc">AST Parsing & Complexity</div>
+        </div>
+
+        <!-- 02 Strategy -->
+        <div class="phase-card" style="--p-color: var(--accent-purple);">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 3v6m0 6v6M3 12h6m6 0h6"></path>
+            </svg>
+            <span class="phase-num">2</span>
+          </div>
+          <div class="phase-title">Strategy</div>
+          <div class="phase-agent">Planner (3B)</div>
+          <div class="phase-desc">Intent & AST Plan</div>
+        </div>
+
+        <!-- 03 Execution -->
+        <div class="phase-card" style="--p-color: var(--accent-blue);">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span class="phase-num">3</span>
+          </div>
+          <div class="phase-title">Execution</div>
+          <div class="phase-agent">Generator (3B)</div>
+          <div class="phase-desc">Mutation & Healing</div>
+        </div>
+
+        <!-- 04 Validation -->
+        <div class="phase-card" style="--p-color: var(--accent-amber);">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span class="phase-num">4</span>
+          </div>
+          <div class="phase-title">Validation</div>
+          <div class="phase-agent">4-Tier Gatekeeper</div>
+          <div class="phase-desc">Syntax & Scope Checks</div>
+        </div>
+
+        <!-- 05 Adjudication -->
+        <div class="phase-card" style="--p-color: var(--accent-green);">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1zM2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1zM7 21h10M12 3v18"></path>
+            </svg>
+            <span class="phase-num">5</span>
+          </div>
+          <div class="phase-title">Adjudication</div>
+          <div class="phase-agent">Judge (3B)</div>
+          <div class="phase-desc">Semantic Audit</div>
+        </div>
+
+        <!-- 06 Finalisation -->
+        <div class="phase-card" style="--p-color: #06b6d4;">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.71.92-1.63.78-2.47l-1.31-1.31c-.84-.14-1.76.07-2.47.78z"></path>
+              <path d="M12 15l-3-3 8.5-8.5c.83-.83 2.17-.83 3 0s.83 2.17 0 3L12 15z"></path>
+            </svg>
+            <span class="phase-num">6</span>
+          </div>
+          <div class="phase-title">Finalisation</div>
+          <div class="phase-agent">Orchestrator</div>
+          <div class="phase-desc">Session Finalization</div>
+        </div>
+
+      </div>
+
+      <!-- Loop Path -->
+      <div class="loop-path">
+        <span class="loop-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          Circuit Breaker (Max 3 Retries)
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Scaled Up Footer -->
+    <div class="slide-footer">
+      <div class="footer-left">
+        <div class="footer-item">Execution: <span>Sequential Model Swap</span></div>
+        <div class="footer-item">Validation: <span>Deterministic Rules</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
