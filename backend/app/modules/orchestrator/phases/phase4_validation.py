@@ -1,3 +1,5 @@
+"""Phase 4: syntax, boundary, intent, and complexity validation."""
+
 import json
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -9,11 +11,15 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class Phase4Validation:
+    """Validates generated code before adjudication."""
+
     def __init__(self, validator: Validator, notify: Notifier):
+        """Stores the shared validator and notifier."""
         self._validator = validator
         self._notify = notify
 
     async def run(self, client, state) -> None:
+        """Runs syntax, complexity, boundary, and intent checks."""
         await self._notify(
             client, Role.Validator,
             f"Validation: Validating (Strategy {state.strategy_iter}, Syntax {state.syntax_iter})...",

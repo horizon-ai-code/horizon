@@ -1,3 +1,5 @@
+"""Phase 3: code generation, syntax healing, and mutation execution."""
+
 import json
 import time as _time
 from collections.abc import Awaitable, Callable
@@ -15,18 +17,21 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 def repair_generator_output(original: str, generated: str) -> str:
-    """Strip common defensive additions from Generator output."""
+    """Strips common defensive additions from Generator output.
+
+    Removes exception declarations, null checks, and ``public`` modifiers
+    that were not present in the original code. Brace handling supports both
+    braced and unbraced ``if`` bodies.
+    """
     import re as _re
 
     result = generated
 
-    # 1. Strip throws declarations added to method signatures
     orig_throws = set(_re.findall(r"throws\s+(\w+Exception)", original))
     gen_throws = set(_re.findall(r"throws\s+(\w+Exception)", result))
     for exc in gen_throws - orig_throws:
         result = _re.sub(r"\s*throws\s+" + _re.escape(exc) + r"(?=\s*\{)", "", result)
 
-    # 2. Remove null checks not in original — robust to no-brace bodies
     orig_null_count = len(_re.findall(r"if\s*\(\s*\w+\s*==\s*null\s*\)", original))
     gen_null_checks = list(_re.finditer(r"if\s*\(\s*\w+\s*==\s*null\s*\)", result))
     extra_nulls = len(gen_null_checks) - orig_null_count
@@ -54,7 +59,6 @@ def repair_generator_output(original: str, generated: str) -> str:
             if end > start:
                 result = result[:start] + result[end:]
 
-    # 3. Strip 'public' modifier from bare methods that weren't public
     org_pub_methods = set(_re.findall(r"public\s+\w+\s+(\w+)\s*\(", original))
     gen_pub_methods = set(_re.findall(r"public\s+\w+\s+(\w+)\s*\(", result))
     for method in gen_pub_methods - org_pub_methods:
@@ -64,7 +68,10 @@ def repair_generator_output(original: str, generated: str) -> str:
 
 
 class Phase3Execution:
+    """Generates refactored code from a plan and validates its syntax."""
+
     def __init__(self, agent_service, validator, config, prompts: dict[str, Any], notify: Notifier):
+        """Stores shared services, configuration, prompts, and notifier."""
         self._agent = agent_service
         self._validator = validator
         self._config = config
@@ -72,7 +79,7 @@ class Phase3Execution:
         self._notify = notify
 
     async def run_single(self, client, state) -> None:
-        """Phase 3: Plan Execution (single-shot generation with multi-sample)."""
+        """Executes a plan with multi-sample generation and syntax healing."""
         await self._notify(client, Role.Generator, "Execution: Implementing plan...", None)
         await self._agent.swap(self._config.generator)
         await self._agent.clear_context()
@@ -126,6 +133,7 @@ class Phase3Execution:
 
         if samples:
             def sample_score(s):
+                """Ranks samples by syntax validity, then complexity reduction."""
                 if not s["syntax_ok"]:
                     return (-1000, 0)
                 cc_delta = s["cc"] - state.original_complexity
@@ -168,7 +176,6 @@ class Phase3Execution:
                 state.current_phase = 2
                 return
 
-        # Fallback: no code blocks at all
         state.syntax_iter += 1
         if state.syntax_iter <= 3:
             state.syntax_error_context = {
@@ -189,7 +196,7 @@ class Phase3Execution:
         state.current_phase = 2
 
     async def run_sequential(self, client, state) -> None:
-        """Apply mutations one at a time in sequence."""
+        """Applies plan mutations one at a time, healing failures as needed."""
         if state.active_plan is None:
             print("No active plan for sequential execution. Falling through to single-shot.")
             state.current_phase = 4

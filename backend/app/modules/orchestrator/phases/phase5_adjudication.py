@@ -1,3 +1,5 @@
+"""Phase 5: judge audit of the refactored code."""
+
 import json
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -14,7 +16,10 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class Phase5Adjudication:
+    """Produces the final accept or revise verdict for a refactor."""
+
     def __init__(self, agent_service, validator, config, prompts: dict[str, Any], notify: Notifier):
+        """Stores shared services, configuration, prompts, and notifier."""
         self._agent = agent_service
         self._validator = validator
         self._config = config
@@ -22,10 +27,12 @@ class Phase5Adjudication:
         self._notify = notify
 
     async def run(self, client, state) -> None:
+        """Runs the judge audit and updates the orchestration outcome."""
         await self._notify(client, Role.Judge, "Adjudication: Running final audit...", None)
         await self._agent.swap(self._config.judge)
 
         def _normalize(code: str) -> str:
+            """Removes imports and any outer wrapper before auditing."""
             no_imports = "\n".join(line for line in code.splitlines() if not line.strip().startswith("import "))
             return strip_outer_wrapper(no_imports, state.base_code)
 

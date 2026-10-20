@@ -1,3 +1,5 @@
+"""Routes inbound WebSocket messages to refactor workflows."""
+
 import asyncio
 from collections.abc import Callable
 from typing import Any
@@ -10,7 +12,10 @@ from . import ClientConnection
 
 
 class MessageRouter:
+    """Dispatches client messages to the matching refactor workflow."""
+
     def __init__(self, agent_service):
+        """Stores the shared agent service used to halt generation."""
         self._agent_service = agent_service
 
     async def dispatch(
@@ -22,6 +27,11 @@ class MessageRouter:
         run_orchestration: Callable,
         reconnect_handler: Callable | None = None,
     ) -> bool:
+        """Dispatches one websocket message.
+
+        Returns:
+            True when the message type was handled, False otherwise.
+        """
         msg_type = data.get("type", "")
 
         if msg_type == "pong":
@@ -45,6 +55,7 @@ class MessageRouter:
         return False
 
     async def _handle_single(self, data, client, active_tasks, run_single_refactor) -> bool:
+        """Validates a single-model request and schedules its refactor task."""
         code = data.get("code", "")
         instruction = data.get("user_instruction", "")
         if len(code.strip()) < 10:
@@ -64,6 +75,7 @@ class MessageRouter:
         return True
 
     async def _handle_multi(self, data, client, active_tasks, run_orchestration) -> bool:
+        """Validates an orchestration request and schedules its task."""
         try:
             validated = RefactorRequest(**data)
         except ValidationError as e:
@@ -80,6 +92,7 @@ class MessageRouter:
         return True
 
     async def _handle_halt(self, client, active_tasks) -> bool:
+        """Stops inference and cancels every active refactor task."""
         self._agent_service.stop()
         for task in active_tasks.copy():
             if not task.done():

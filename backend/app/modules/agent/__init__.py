@@ -1,3 +1,5 @@
+"""SLM lifecycle and generation services for the refactoring pipeline."""
+
 import asyncio
 import gc
 from collections.abc import Callable
@@ -27,6 +29,7 @@ class AgentService:
     """
 
     def __init__(self):
+        """Initializes an idle service with no model loaded."""
         self.model: Llama | None = None
         self.current_model_path: str | None = None
         self._stop_event = asyncio.Event()
@@ -45,13 +48,16 @@ class AgentService:
         Args:
             config: Agent config dict from model_config.yaml, containing
                     'filename', 'layers', and 'context_size' keys.
+
+        Notes:
+            The resident model is reused when the requested path is already
+            loaded, avoiding unnecessary VRAM I/O.
         """
         async with self._model_lock:
             path = str(MODELS_DIR / config["filename"])
             n_gpu_layers = config["layers"]
             n_ctx = config["context_size"]
 
-            # Bypass I/O if the model is already in VRAM
             if self.current_model_path == path and self.model is not None:
                 return
 
@@ -76,6 +82,10 @@ class AgentService:
     async def unload(self) -> None:
         """
         Force-releases VRAM and synchronizes deallocation.
+
+        Notes:
+            A short delay after deallocation lets the CUDA driver unmap the
+            released memory before the next model is loaded.
         """
         async with self._model_lock:
             if self.model is not None:
@@ -86,7 +96,6 @@ class AgentService:
 
                 await asyncio.to_thread(gc.collect)
 
-        # Wait for CUDA driver to unmap memory (no lock needed)
         await asyncio.sleep(0.5)
 
     async def swap(self, config: dict) -> None:
@@ -108,13 +117,17 @@ class AgentService:
     def _count_tokens(
         chunks: list[dict[str, Any]], content: str
     ) -> int:
+        """Returns the completion token count for a streamed response.
+
+        Uses the final usage chunk when available and otherwise falls back to
+        an approximation of roughly four characters per token of code.
+        """
         for chunk in reversed(chunks):
             usage = chunk.get("usage")
             if usage:
                 tokens = usage.get("completion_tokens")
                 if tokens:
                     return tokens
-        # Approximate: ~4 chars per token for code
         return len(content) // 4
 
     async def clear_context(self) -> None:
@@ -123,7 +136,6 @@ class AgentService:
         """
         async with self._model_lock:
             if self.model is not None:
-                # Purge the sequence memory in llama-cpp
                 await asyncio.to_thread(self.model.reset)
                 print("KV Cache purged. Sequence memory cleared.")
 
@@ -136,7 +148,9 @@ class AgentService:
         stream: Literal[False] = False,
         response_model: type[T] | None = None,
         check_repetition: Callable[[str], bool] | None = None,
-    ) -> CreateChatCompletionResponse: ...
+    ) -> CreateChatCompletionResponse:
+        """Generates a complete (non-streamed) chat completion."""
+        ...
 
     @overload
     async def generate(
@@ -147,7 +161,9 @@ class AgentService:
         stream: Literal[True],
         response_model: type[T] | None = None,
         check_repetition: Callable[[str], bool] | None = None,
-    ) -> Iterator[CreateChatCompletionStreamResponse]: ...
+    ) -> Iterator[CreateChatCompletionStreamResponse]:
+        """Generates a streamed chat completion."""
+        ...
 
     async def generate(
         self,
@@ -172,8 +188,8 @@ class AgentService:
 
             self._stop_event.clear()
 
-            # Always use streaming internally to allow for mid-generation halting
             def create_generator() -> Iterator[CreateChatCompletionStreamResponse]:
+                """Creates the underlying streaming completion iterator."""
                 if response_model:
                     result = model.create_chat_completion(
                         messages=messages,
@@ -210,12 +226,14 @@ class AgentService:
                 while not self._stop_event.is_set():
 
                     def get_next():
+                        """Returns the next chunk, or None when the stream ends."""
                         try:
                             return next(iterator)
                         except StopIteration:
                             return None
 
                     async def safe_to_thread(func):
+                        """Runs a blocking call in a thread without losing cancellation."""
                         task = asyncio.create_task(asyncio.to_thread(func))
                         try:
                             return await asyncio.shield(task)
@@ -250,7 +268,6 @@ class AgentService:
                 import gc
                 gc.collect()
 
-            # Reconstruct full response from chunks
             if not content_so_far:
                 content_so_far = "".join(
                     chunk["choices"][0].get("delta", {}).get("content") or ""

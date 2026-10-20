@@ -1,3 +1,5 @@
+"""Single-model refactor path used by the ``single`` websocket message."""
+
 import json
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -11,6 +13,8 @@ Notifier = Callable[[Any, Role, str, str | None], Awaitable[None]]
 
 
 class SingleRefactor:
+    """Runs a one-shot refactor without the multi-phase pipeline."""
+
     def __init__(
         self,
         agent_service,
@@ -21,6 +25,7 @@ class SingleRefactor:
         notify: Notifier,
         get_client: Callable[[Any], Any] | None = None,
     ):
+        """Stores dependencies and the optional live-client resolver."""
         self._agent = agent_service
         self._validator = validator
         self._db = db
@@ -30,6 +35,7 @@ class SingleRefactor:
         self._get_client = get_client or (lambda c: c)
 
     async def run(self, client, user_code: str, user_instruction: str) -> None:
+        """Generates refactored code, insights, and persists the session."""
         cfg = self._config.single
         prompts = self._prompts["single"]
 

@@ -1,3 +1,11 @@
+"""Java validation, AST comparison, and intent verification.
+
+Validators check syntax, structural boundaries, cyclomatic complexity, and
+intent-specific AST invariants. ``JAVA_NON_STANDARD_TYPES`` maps common
+non-Java keywords from C/C++, C#, Python, TypeScript/JavaScript, Go, and Rust
+to their Java equivalents so language leaks are rejected early.
+"""
+
 import hashlib
 import re
 from collections.abc import Callable
@@ -11,16 +19,12 @@ from app.utils.schemas import ErrorReport, ValidationFinding
 from app.utils.types import FailureTier, RefactorIntent, StructureUnit
 
 JAVA_NON_STANDARD_TYPES = {
-    # C / C++ / C# Leaks
     "bool": "boolean", "nullptr": "null", "NULL": "null",
     "uint": "int", "ulong": "long", "ushort": "int", "size_t": "int",
     "int32_t": "int", "int64_t": "long", "uint32_t": "int", "uint64_t": "long",
     "std": "Java classes (do not use std::)",
-    # Python Leaks
     "None": "null", "True": "true", "False": "false", "def": "method declaration",
-    # TypeScript / JavaScript Leaks
     "number": "double", "undefined": "null", "let": "var/Type",
-    # Go / Rust Leaks
     "nil": "null", "i32": "int", "i64": "long", "f32": "float", "f64": "double", "usize": "int"
 }
 
@@ -29,13 +33,16 @@ class ASTWalker:
 
     @staticmethod
     def serialize_node(node: Any) -> Any:
-        """Recursively serializes a javalang AST node into a deterministic dict or primitive."""
+        """Recursively serializes a javalang AST node into a deterministic dict or primitive.
+
+        Skips source position and documentation attributes while preserving
+        scalar and list-valued attributes.
+        """
         if not isinstance(node, javalang.tree.Node):
             return str(node) if node is not None else None
 
         data: dict[str, Any] = {"node_type": node.__class__.__name__, "children": []}
 
-        # Extract meaningful attributes based on node type
         attrs: dict[str, Any] = {}
         for attr in node.attrs:
             val = getattr(node, attr)
@@ -77,6 +84,7 @@ class ASTWalker:
         invocations: list = []
 
         def walk(n: Any, depth: int = 0) -> None:
+            """Collects signature parts and tracks conditional nesting depth."""
             if not isinstance(n, javalang.tree.Node):
                 return
 
@@ -138,6 +146,7 @@ class RefactorVerifier:
     def verify_flatten_conditional(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
         """Check that nesting depth decreased after flattening."""
         def get_max_depth(node, current_depth=0):
+            """Returns the deepest conditional nesting level in the tree."""
             if isinstance(node, javalang.tree.IfStatement):
                 depths = [get_max_depth(c, current_depth + 1) for c in node.children]
                 return max(depths) if depths else current_depth + 1
@@ -161,8 +170,13 @@ class RefactorVerifier:
 
     @staticmethod
     def verify_decompose_conditional(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
-        """Check that binary operators decreased or new variables were introduced."""
+        """Check that binary operators decreased or new variables were introduced.
+
+        Accepts when any new variable appears, whether local or field-level,
+        or when the binary operation count decreases.
+        """
         def count_binary_ops(node):
+            """Counts binary operations in the tree."""
             count = 0
             if isinstance(node, javalang.tree.BinaryOperation):
                 count = 1
@@ -188,6 +202,7 @@ class RefactorVerifier:
         new_vars = refac_vars - orig_vars
 
         def var_in_conditional(ast: Any, var_name: str) -> bool:
+            """Returns True when a variable is referenced in a control expression."""
             for n in ASTWalker.find_nodes(ast, (javalang.tree.IfStatement, javalang.tree.ReturnStatement,
                                                  javalang.tree.WhileStatement, javalang.tree.ForStatement)):
                 expr = ""
@@ -205,7 +220,6 @@ class RefactorVerifier:
 
         var_used = any(var_in_conditional(refac_ast, v) for v in new_vars)
 
-        # Accept if any new variable exists (local or field), OR binary ops decreased
         if len(new_vars) > 0 or refac_ops < orig_ops:
             return (
                 True,
@@ -237,7 +251,11 @@ class RefactorVerifier:
 
     @staticmethod
     def verify_remove_control_flag(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
-        """Check that exit points increased or boolean/control variables were removed."""
+        """Check that exit points increased or boolean/control variables were removed.
+
+        Accepts when exit points increase, variables are removed, or new
+        variables appear while the original exits remain.
+        """
         orig_breaks = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.BreakStatement)
         ) + len(ASTWalker.find_nodes(orig_ast, javalang.tree.ReturnStatement))
@@ -257,7 +275,6 @@ class RefactorVerifier:
         removed_vars = orig_vars - refac_vars
         new_vars = refac_vars - orig_vars
 
-        # Accept if exit points increased, OR boolean flags were removed/renamed
         removed_bool_flags = {
             v.name for v in ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
             if v.name in removed_vars and hasattr(v, "type") and str(v.type) == "boolean"
@@ -414,7 +431,11 @@ class RefactorVerifier:
 
     @staticmethod
     def verify_extract_constant(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
-        """Check that field/constant declarations increased or new uppercase variables appeared."""
+        """Check that field/constant declarations increased or new uppercase variables appeared.
+
+        Uppercase-named variables are also treated as constants regardless of
+        where they are declared.
+        """
         orig_consts = len(
             ASTWalker.find_nodes(orig_ast, javalang.tree.FieldDeclaration)
         )
@@ -424,7 +445,6 @@ class RefactorVerifier:
         if refac_consts > orig_consts:
             return True, f"Constant count increased from {orig_consts} to {refac_consts}."
 
-        # Also count uppercase-named variables (constant convention) at any level
         orig_uppercase = {
             v.name for v in ASTWalker.find_nodes(orig_ast, javalang.tree.VariableDeclarator)
             if v.name == v.name.upper() and v.name != v.name.lower()
@@ -441,8 +461,11 @@ class RefactorVerifier:
 
     @staticmethod
     def verify_rename_symbol(orig_ast: Any, refac_ast: Any) -> tuple[bool, str]:
-        """Check that structural integrity is preserved after rename (same signatures, different names)."""
-        # Compare structural signatures per-method (ignores rename, formatting, imports)
+        """Check that structural integrity is preserved after rename.
+
+        Structural signatures are compared per method, ignoring names,
+        formatting, and imports.
+        """
         orig_methods = {
             m.name: ASTWalker.get_structural_signature(m)
             for m in ASTWalker.find_nodes(orig_ast, javalang.tree.MethodDeclaration)
@@ -465,23 +488,24 @@ class RefactorVerifier:
 
 
 class Validator:
+    """Facade for syntax, semantic, boundary, complexity, and intent checks."""
+
     @staticmethod
     def check_semantics(snippet: str) -> tuple[bool, str]:
         """
         Scans a Java snippet for non-Java types/keywords (language leaks)
         and reserved keyword collisions.
         Returns (is_valid, error_message).
+
+        Notes:
+            String contents and comments are ignored before tokens are scanned.
         """
-        # 1. Ignore contents of strings
         snippet_no_strings = re.sub(r'".*?"|\'.*?\'', '', snippet)
 
-        # 2. Ignore comments
         snippet_no_comments = re.sub(r'//.*|/\*[\s\S]*?\*/', '', snippet_no_strings)
 
-        # 3. Extract tokens
         words = re.findall(r'\b[a-zA-Z_]\w*\b', snippet_no_comments)
 
-        # 4. Check for Non-Java Type Leaks
         for word in words:
             if word in JAVA_NON_STANDARD_TYPES:
                 java_equiv = JAVA_NON_STANDARD_TYPES[word]
@@ -490,6 +514,7 @@ class Validator:
         return True, "Valid semantics"
 
     def __init__(self):
+        """Initializes parse templates, unit mapping, and the verifier registry."""
         self.templates = [
             lambda s: s,
             lambda s: f"class ASTWrapper {{\n{s}\n}}",
@@ -519,19 +544,27 @@ class Validator:
 
     @staticmethod
     def format_syntax_error(error_str: str) -> str:
+        """Normalizes a parser error into a concise healing prompt."""
         match = re.search(r"line (\d+):(\d+) (.+)", error_str)
         if match:
             return f"[L{match.group(1)}:{match.group(2)}] {match.group(3)}. Fix and output valid Java only."
         return f"Syntax error: {error_str[:150]}. Fix and output valid Java only."
 
     def check_syntax(self, snippet: str) -> dict[str, Any]:
+        """Parses code as a class, method, or statement unit.
+
+        Returns:
+            A dict with ``is_valid``, collected ``errors``, the detected
+            ``unit``, and the parsed ``ast`` when parsing succeeds.
+
+        Notes:
+            Import lines are stripped before wrapping because they break the
+            wrappers but do not affect the AST structures being validated.
+        """
         clean_snippet = snippet.strip()
         result: dict[str, Any] = {"is_valid": False, "errors": [], "unit": None}
         if not clean_snippet:
             return result
-        # Strip import lines before parsing — imports break wrapping but
-        # have no effect on the AST structure we care about (classes, methods, etc.)
-        # Guard: only strip lines where 'import' is the first non-whitespace token
         stripped = "\n".join(
             line for line in clean_snippet.splitlines()
             if not re.match(r'^\s*import\s+\w', line)
@@ -550,14 +583,19 @@ class Validator:
         return result
 
     def get_complexity(self, snippet: str) -> int:
+        """Returns the maximum cyclomatic complexity in the snippet.
+
+        Notes:
+            Import lines are stripped before wrapping. If AST wrapping fails
+            because of typos or reserved keywords, analysis falls back to
+            running lizard directly on the original snippet.
+        """
         clean_snippet = snippet.strip()
-        # Strip import lines before wrapping — same logic as check_syntax
         stripped = "\n".join(
             line for line in clean_snippet.splitlines()
             if not re.match(r'^\s*import\s+\w', line)
         )
 
-        # 1. Attempt javalang AST wrapped parsing
         max_cc = 1
         ast_success = False
         for template in self.templates:
@@ -572,7 +610,6 @@ class Validator:
             except (javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
                 continue
 
-        # 2. Lizard Direct Fallback (if AST wrapping failed due to typos like 'fore' or reserved keywords)
         if not ast_success:
             analysis = lizard.analyze_file.analyze_source_code("mock.java", snippet)
             if analysis.function_list:
@@ -581,6 +618,7 @@ class Validator:
         return max_cc
 
     def get_method_complexity(self, snippet: str, method_name: str) -> int | None:
+        """Returns cyclomatic complexity for a named method, or None if absent."""
         clean_snippet = snippet.strip()
         stripped = "\n".join(
             line for line in clean_snippet.splitlines()
@@ -619,6 +657,7 @@ class Validator:
     def verify_intent(
         self, intent: RefactorIntent, orig_code: str, refac_code: str
     ) -> ValidationFinding | None:
+        """Runs the intent verifier and returns a finding on failure."""
         orig_res = self.check_syntax(orig_code)
         refac_res = self.check_syntax(refac_code)
         if not orig_res["is_valid"] or not refac_res["is_valid"]:
@@ -653,17 +692,23 @@ class Validator:
     def verify_boundary(
         self, orig_code: str, refac_code: str, target_scopes: list[str]
     ) -> ValidationFinding | None:
-        """Phase 4, Tier 2-B: Ensure nodes outside scope are untouched."""
+        """Phase 4, Tier 2-B: Ensure nodes outside scope are untouched.
+
+        Notes:
+            Only existing non-target methods are compared. New classes and
+            enums are allowed because they are often part of the refactor.
+            Returns None when either side has syntax errors because those are
+            reported by syntax validation.
+        """
         orig_res = self.check_syntax(orig_code)
         refac_res = self.check_syntax(refac_code)
 
         if not orig_res["is_valid"] or not refac_res["is_valid"]:
-            return None  # Syntax errors handled elsewhere
+            return None
 
         orig_unit = orig_res["ast"]
         refac_unit = refac_res["ast"]
 
-        # Compare non-target methods using structural signatures (ignores formatting, variable names, imports)
         orig_methods = {
             m.name: ASTWalker.get_structural_signature(m)
             for m in ASTWalker.find_nodes(orig_unit, javalang.tree.MethodDeclaration)
@@ -672,10 +717,6 @@ class Validator:
             m.name: ASTWalker.get_structural_signature(m)
             for m in ASTWalker.find_nodes(refac_unit, javalang.tree.MethodDeclaration)
         }
-
-        # Find classes/enums that existed in original but were changed in refactor
-        # We only care about modifications to EXISTING structures outside target_scopes.
-        # NEW structures (enums/classes) are allowed as part of the refactoring strategy.
 
         for name, h in orig_methods.items():
             if name not in target_scopes and name in refac_methods:
@@ -690,8 +731,6 @@ class Validator:
                     )
 
         return None
-
-    # ── CC Rules ──────────────────────────────────────────────────────────
 
     CC_RULES: dict[RefactorIntent, str] = {
         RefactorIntent.FLATTEN_CONDITIONAL: "LOOSENED",
@@ -710,6 +749,7 @@ class Validator:
 
     @staticmethod
     def get_cc_rule(intent: RefactorIntent) -> str:
+        """Returns the complexity policy for an intent."""
         return Validator.CC_RULES.get(intent, "STRICT")
 
     def verify_complexity(

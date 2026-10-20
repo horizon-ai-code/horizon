@@ -1,3 +1,5 @@
+"""Six-phase orchestration pipeline for multi-model Java refactoring."""
+
 import asyncio
 from typing import Any
 
@@ -20,51 +22,55 @@ from .phases.phase5_adjudication import Phase5Adjudication
 from .phases.phase6_finalization import Phase6Finalization
 from .phases.single_refactor import SingleRefactor
 
-# ============================================================
-# SECTION 1: OrchestrationState
-# ============================================================
-
 
 class OrchestrationState(BaseModel):
+    """Mutable state shared by all orchestration phases.
+
+    Attributes:
+        intent_packet: Classified intent and scope produced by the planner.
+        active_plan: Mutation plan currently being executed.
+        strategy_iter: Outer strategy loop counter, capped at three.
+        syntax_iter: Inner syntax-healing loop counter, capped at three.
+        cumulative_feedback: Bounded history of failure feedback.
+        syntax_error_context: Details used to heal the next generation pass.
+        mutation_queue: Remaining mutations for sequential execution.
+        architect_analysis: Structural analysis produced before planning.
+        current_phase: Phase number that should run next.
+        exit_status: Lifecycle status of the orchestration run.
+        flagged_phases: Phases that reported a failure for the flow diagram.
+        original_complexity: Baseline cyclomatic complexity.
+    """
+
     session_id: str
     base_code: str
     working_code: str
     user_instruction: str
 
-    # Structural Artifacts
     intent_packet: dict | None = None
     active_plan: dict | None = None
 
-    # Loop Counters
-    strategy_iter: int = 1  # Outer Loop (Max 3)
+    strategy_iter: int = 1
     strategy_iter_incremented: bool = False
-    syntax_iter: int = 0  # Inner Loop (Max 3)
+    syntax_iter: int = 0
 
-    # Diagnostic Memory
     cumulative_feedback: list[dict] = []
     feedback_cap: int = 3
 
-    # Syntax Healing
     syntax_error_context: dict | None = None
     structural_fix_attempts: int = 0
 
-    # Sequential Mutation Application
     mutation_queue: list[dict] = []
     mutation_index: int = 0
     sequential_attempts: int = 0
     gen_timings: list[dict] = []
 
-    # Sub-Step Decomposition
     architect_analysis: dict | None = None
 
-    # Lifecycle
     current_phase: int = 1
     exit_status: ExitStatus = ExitStatus.PROCESSING
 
-    # Phase Diagram Tracking
     flagged_phases: set[int] = set()
 
-    # Baseline Metrics
     original_complexity: int = 0
 
     def add_feedback(self, entry: dict) -> None:
@@ -80,12 +86,9 @@ class OrchestrationState(BaseModel):
             self.cumulative_feedback.pop(0)
 
 
-# ============================================================
-# SECTION 2: Orchestrator
-# ============================================================
-
-
 class Orchestrator:
+    """Coordinates phase runners and drives the orchestration loop."""
+
     SKIP_JUDGE: bool = False
 
     def __init__(
@@ -96,6 +99,12 @@ class Orchestrator:
         skip_judge: bool = False,
         config: OrchestrationConfig | None = None,
     ) -> None:
+        """Creates phase runners and loads model and prompt configuration.
+
+        Raises:
+            yaml.YAMLError: If configuration files cannot be parsed.
+            OSError: If configuration files cannot be read.
+        """
         self.agent_service: AgentService = agent_service
         self.validator: Validator = validator
         self.db: DatabaseManager = db
@@ -144,12 +153,19 @@ class Orchestrator:
         Runs 6 phases sequentially: Baseline → Strategy → Execution →
         Validation → Adjudication → Finalization. Handles retries,
         cancellation, and performance tracking.
+
+        Notes:
+            The live client is re-resolved at each phase boundary so a mid-run
+            reconnect receives downstream events. Multi-mutation plans are
+            applied sequentially on the first strategy iteration; a failed
+            sequential run is discarded and retried single-shot. Invalid
+            baseline code aborts with ``ABORT_INPUT`` unless ``force_proceed``
+            is set.
         """
         self.current_client = client
         tracker = PerformanceTracker()
         await tracker.start_tracking()
 
-        # 1. Initialize State
         state = OrchestrationState(
             session_id=str(client.id),
             base_code=user_code,
@@ -160,28 +176,21 @@ class Orchestrator:
         self.state = state
 
         try:
-            # 2. Persist session start
             self.db.create_session(
                 id=state.session_id,
                 instruction=state.user_instruction,
                 original_code=state.base_code,
             )
 
-            # --- PHASE 1: Baseline ---
-
-            # 1. Semantic and Structural Checks
             semantic_valid, semantic_msg = self.validator.check_semantics(state.base_code)
             syntax_result = self.validator.check_syntax(state.base_code)
             syntax_valid = syntax_result["is_valid"]
 
-            # 2. Interactive Warning Abort
             if (not semantic_valid or not syntax_valid) and not force_proceed:
                 warning_msg = semantic_msg if not semantic_valid else "Syntax error detected in input code. Validation will likely fail."
 
-                # Send interactive warning to frontend
                 await client.websocket.send_json({"type": "warning", "message": warning_msg})
 
-                # Abort the session gracefully in the database
                 self.db.complete_session(
                     id=state.session_id,
                     refactored_code=state.base_code,
@@ -198,7 +207,6 @@ class Orchestrator:
                 )
                 return
 
-            # 3. Proceed with baseline complexity
             state.original_complexity = self.validator.get_complexity(state.base_code)
             lines_count = len(state.base_code.splitlines())
             await self._notify(
@@ -212,21 +220,14 @@ class Orchestrator:
             )
             state.current_phase = 2
 
-            # ============================================================
-            # SECTION 3: Main Loop
-            # ============================================================
-
             while state.exit_status == ExitStatus.PROCESSING:
                 flag_prev = state.current_phase
 
-                # FR-011 resilient runs: re-resolve the live connection at each
-                # boundary so a mid-run reconnect receives everything downstream.
                 client = self._current_client(client)
 
                 if state.current_phase == 2:
                     await self._run_phase_2(client, state)
                 elif state.current_phase == 3:
-                    # Sequential on first attempt for multi-mutation plans
                     should_use_sequential = (
                         state.strategy_iter == 1
                         and not state.syntax_error_context
@@ -237,12 +238,10 @@ class Orchestrator:
                         await self._run_sequential_phase_3(client, state)
                         if state.mutation_index >= len(state.mutation_queue):
                             state.current_phase = 4
-                            # Send phase states before continuing
                             await self._current_client(client).send_phase_states(
                                 **self._compute_phase_states(state)
                             )
                             continue
-                        # Sequential exhausted mid-way — fall through to single-shot
                         state.working_code = state.base_code
                         state.mutation_index = 0
                         state.mutation_queue = []
@@ -257,7 +256,6 @@ class Orchestrator:
                 elif state.current_phase == 6:
                     break
 
-                # Track flagged phases from post-conditions
                 if state.strategy_iter_incremented:
                     state.flagged_phases.add(flag_prev)
                 if state.syntax_iter > 0:
@@ -265,12 +263,10 @@ class Orchestrator:
                 if state.structural_fix_attempts > 0:
                     state.flagged_phases.add(4)
 
-                # Compute and send phase states
                 await self._current_client(client).send_phase_states(
                     **self._compute_phase_states(state)
                 )
 
-                # Global circuit breaker
                 if state.strategy_iter > 3:
                     state.exit_status = ExitStatus.ABORT_STRATEGY
                     state.current_phase = 6
@@ -279,7 +275,6 @@ class Orchestrator:
                     )
                     break
 
-            # --- PHASE 6: Finalization ---
             await tracker.stop_tracking()
             performance_metrics = tracker.get_metrics()
 
@@ -300,33 +295,38 @@ class Orchestrator:
             await self.agent_service.unload()
 
     async def _run_phase_2(self, client, state):
+        """Runs the strategy phase."""
         await self._phase2.run(client, state)
 
     async def _run_phase_3(self, client, state):
+        """Runs the single-shot execution phase."""
         await self._phase3.run_single(client, state)
 
     async def _run_sequential_phase_3(self, client, state):
+        """Runs the sequential mutation execution phase."""
         await self._phase3.run_sequential(client, state)
 
     async def _run_phase_4(self, client, state):
+        """Runs the validation phase."""
         await self._phase4.run(client, state)
 
     async def _run_phase_5(self, client: ClientConnection, state: OrchestrationState) -> None:
+        """Runs the adjudication phase."""
         await self._phase5.run(client, state)
 
-    # ============================================================
-    # SECTION 8: Phase States
-    # ============================================================
-
     def _compute_phase_states(self, state: OrchestrationState) -> dict:
-        """Compute per-phase status for the flow diagram."""
+        """Computes per-phase status for the flow diagram.
+
+        Notes:
+            Failure attribution follows priority order: judge, validation,
+            execution, then strategy exhaustion.
+        """
         from app.utils.types import ExitStatus
 
         states: dict[int, str] = {}
         failed: int | None = None
 
         if state.exit_status not in (ExitStatus.PROCESSING, ExitStatus.SUCCESS):
-            # Determine failing phase by priority
             if 5 in state.flagged_phases:
                 failed = 5
             elif 4 in state.flagged_phases:
@@ -334,7 +334,7 @@ class Orchestrator:
             elif 3 in state.flagged_phases:
                 failed = 3
             else:
-                failed = 2  # strategy exhausted
+                failed = 2
 
         for p in range(1, 7):
             if state.exit_status == ExitStatus.PROCESSING:
@@ -365,24 +365,16 @@ class Orchestrator:
             "syntax_heal_attempt": state.syntax_iter,
         }
 
-    # ============================================================
-    # SECTION 9: Phase 6 — Finalization
-    # ============================================================
-
     async def _run_phase_6(
         self,
         client: ClientConnection,
         state: OrchestrationState,
         metrics: dict[str, Any],
     ) -> None:
+        """Sends final phase states and finalizes the session."""
         phase_data = self._compute_phase_states(state)
-        # Send final phase states before finalization
         await self._current_client(client).send_phase_states(**phase_data)
         await self._phase6.run(client, state, metrics, phase_data)
-
-    # ============================================================
-    # SECTION 9: Helpers
-    # ============================================================
 
     def _current_client(self, client: ClientConnection) -> ClientConnection:
         """FR-011: resolve the live connection for a send.
@@ -411,16 +403,17 @@ class Orchestrator:
         generator_model: str | None = None,
         judge_model: str | None = None,
     ) -> None:
-        """Helper to print to terminal, persist to DB, and notify frontend."""
+        """Prints, persists, and sends a status message to the live client.
+
+        Notes:
+            The live client reference is resolved once per call. A reconnect
+            swaps ``current_client`` between calls, so the next notification
+            goes to the new connection.
+        """
         print(f"[{role}] {message}")
 
-        # Use swap-able client reference for reconnection support.
-        # NOTE: effective snapped once per _notify() call. Reconnect swaps
-        # self.current_client between calls — next notification goes to new
-        # client. Working as intended.
         effective = self.current_client or client
 
-        # Persist the log entry to the database in real-time
         self.db.log_status(
             session_id=effective.id,
             role=role.value,
