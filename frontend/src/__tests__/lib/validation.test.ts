@@ -45,7 +45,8 @@ describe("validateSubmission", () => {
   });
 
   it("accepts instruction at exactly min length", () => {
-    expect(validateSubmission(VALID_CODE, "abc").instruction).toBeNull();
+    const edge = "a".repeat(INSTRUCTION_MIN_LENGTH);
+    expect(validateSubmission(VALID_CODE, edge).instruction).toBeNull();
   });
 
   it("rejects instruction over maximum length", () => {

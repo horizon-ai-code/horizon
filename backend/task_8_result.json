@@ -1,0 +1,206 @@
+{
+  "num": 8,
+  "name": "Solution_FindDerangement",
+  "elapsed_ms": 92791,
+  "exit_status": "SUCCESS",
+  "strategy_iter": 2,
+  "syntax_iter": 0,
+  "original_complexity": 2,
+  "refactored_complexity": 2,
+  "original_code": "public class Solution {\n    public int findDerangement(int n) {\n        final int MOD = 1000000007;\n        long[] dp = new long[n + 1];\n        dp[2] = 1;\n        for (int i = 3; i <= n; ++i) {\n            dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % MOD;\n        }\n        return (int)dp[n];\n    }\n}",
+  "refactored_code": "public class Solution {\n    private static final int MOD_CONSTANT = 1000000007;\n    \n    public int findDerangement(int n) {\n        long[] dp = new long[n + 1];\n        dp[2] = 1;\n        for (int i = 3; i <= n; ++i) {\n            dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % MOD_CONSTANT;\n        }\n        return (int)dp[n];\n    }\n}",
+  "logs": [
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Baseline: Structural analysis complete (Cyclomatic Complexity: 2, Lines: 11)\n\nCyclomatic Complexity: 2\nLines of Code: 11",
+      "timestamp": "2026-09-28T17:23:32.758695+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Strategy: Classifying intent (Strategy Iter 1)...",
+      "timestamp": "2026-09-28T17:23:32.758720+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Intent Classified: EXTRACT_CONSTANT\n\n{\"refactor_category\": \"STATE_MANAGEMENT\", \"specific_intent\": \"EXTRACT_CONSTANT\", \"scope_anchor\": {\"target_class\": \"Solution\", \"member\": \"\", \"unit_type\": \"CLASS_UNIT\"}}",
+      "timestamp": "2026-09-28T17:23:37.210459+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Strategy: Analyzing code structure...",
+      "timestamp": "2026-09-28T17:23:37.210821+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Structure analysis complete.\n\n{\"analysis_scratchpad\": \"Identifying the magic number and its usage in findDerangement method\", \"primary_targets\": [\"findDerangement\"], \"secondary_targets\": [], \"new_structures_needed\": [\"MOD_CONSTANT\"], \"must_preserve\": []}",
+      "timestamp": "2026-09-28T17:23:40.315651+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Strategy: Designing mutation plan...",
+      "timestamp": "2026-09-28T17:23:40.315945+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Modification plan generated.\n\n{\"target_class\": \"Solution\", \"ast_mutations\": [{\"action\": \"ADD_CONSTANT\", \"target\": \"MOD_CONSTANT\", \"details\": {\"modifiers\": [], \"type\": null, \"scope\": null, \"parameters\": [], \"logic_changes\": [], \"body_abstract\": null, \"value\": \"1000000007\", \"insert_after\": \"public class Solution {\"}}, {\"action\": \"RENAME_SYMBOL\", \"target\": \"MOD\", \"details\": {\"modifiers\": [], \"type\": \"method\", \"scope\": null, \"parameters\": [], \"logic_changes\": [], \"body_abstract\": \"Replace the magic number with the constant reference.\", \"value\": \"MOD_CONSTANT\", \"find_text\": \"MOD\"}}], \"enriched_by\": \"ASTMatcher\"}",
+      "timestamp": "2026-09-28T17:23:49.379858+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Execution: Implementing plan...",
+      "timestamp": "2026-09-28T17:23:49.379912+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Execution: Implementing plan...",
+      "timestamp": "2026-09-28T17:24:09.841478+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Code refactored \u2014 1 pass. 12585ms\n\npublic class Solution {\n    public static final int MOD_CONSTANT = 1000000007;\n    \n    public int findDerangement(int n) {\n        long[] dp = new long[n + 1];\n        dp[2] = 1;\n        for (int i = 3; i <= n; ++i) {\n            dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % MOD_CONSTANT;\n        }\n        return (int)dp[n];\n    }\n}",
+      "timestamp": "2026-09-28T17:24:22.427336+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Validation: Validating (Strategy 1, Syntax 0)...",
+      "timestamp": "2026-09-28T17:24:22.427382+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Syntax OK.\n\n{\"syntax\": {\"passed\": true}}",
+      "timestamp": "2026-09-28T17:24:22.428156+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Structural Checks \u2014 2/3 passed \u00b7 1 failed\n\n{\"checks\": [{\"name\": \"Cyclomatic Complexity\", \"passed\": true, \"before\": 2, \"after\": 2, \"details\": \"Overall code complexity unchanged (2)\"}, {\"name\": \"Boundary Preservation\", \"passed\": false}, {\"name\": \"Intent Match\", \"passed\": true, \"details\": null}]}",
+      "timestamp": "2026-09-28T17:24:22.434455+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Inner loop heal, routing to generator",
+      "timestamp": "2026-09-28T17:24:22.434503+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Execution: Implementing plan...",
+      "timestamp": "2026-09-28T17:24:22.434538+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Code refactored \u2014 1 pass. 5225ms\n\npublic class Solution {\n    public static final int MOD_CONSTANT = 1000000007;\n    \n    public int findDerangement(int n) {\n        long[] dp = new long[n + 1];\n        if (n >= 2) {\n            dp[2] = 1;\n            for (int i = 3; i <= n; ++i) {\n                dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % MOD_CONSTANT;\n            }\n        }\n        return (int)(n >= 2 ? dp[n] : 0);\n    }\n}",
+      "timestamp": "2026-09-28T17:24:27.660429+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Validation: Validating (Strategy 1, Syntax 0)...",
+      "timestamp": "2026-09-28T17:24:27.660473+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Syntax OK.\n\n{\"syntax\": {\"passed\": true}}",
+      "timestamp": "2026-09-28T17:24:27.661349+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Structural Checks \u2014 1/3 passed \u00b7 2 failed\n\n{\"checks\": [{\"name\": \"Cyclomatic Complexity\", \"passed\": false, \"before\": 2, \"after\": 4, \"details\": \"Overall code CC increased: 2 \\u2192 4 (limit: 2)\"}, {\"name\": \"Boundary Preservation\", \"passed\": false}, {\"name\": \"Intent Match\", \"passed\": true, \"details\": null}]}",
+      "timestamp": "2026-09-28T17:24:27.668218+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Strategy: Analyzing code structure...",
+      "timestamp": "2026-09-28T17:24:27.668613+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Structure analysis complete.\n\n{\"analysis_scratchpad\": \"Identifying the magic number and preparing to replace it with a constant.\", \"primary_targets\": [\"findDerangement\"], \"secondary_targets\": [], \"new_structures_needed\": [\"MOD_CONSTANT\"], \"must_preserve\": []}",
+      "timestamp": "2026-09-28T17:24:30.830573+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Strategy: Designing mutation plan...",
+      "timestamp": "2026-09-28T17:24:30.831077+00:00"
+    },
+    {
+      "role": "Planner",
+      "phase": null,
+      "content": "Modification plan generated.\n\n{\"target_class\": \"\", \"ast_mutations\": [{\"action\": \"ADD_DECLARATION\", \"target\": \"MOD_CONSTANT\", \"details\": {\"modifiers\": [], \"type\": null, \"scope\": null, \"parameters\": [], \"logic_changes\": [], \"body_abstract\": null, \"value\": \"1000000007\", \"insert_after\": \"public class Solution {\"}}, {\"action\": \"RENAME_SYMBOL\", \"target\": \"findDerangement\", \"details\": {\"modifiers\": [], \"type\": \"method\", \"scope\": null, \"parameters\": [], \"logic_changes\": [], \"body_abstract\": \"Replace the magic number with the constant reference.\", \"value\": null, \"find_text\": \"findDerangement\"}}], \"enriched_by\": \"ASTMatcher\"}",
+      "timestamp": "2026-09-28T17:24:37.860256+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Execution: Implementing plan...",
+      "timestamp": "2026-09-28T17:24:37.860302+00:00"
+    },
+    {
+      "role": "Generator",
+      "phase": null,
+      "content": "Code refactored \u2014 1 pass. 12570ms\n\npublic class Solution {\n    private static final int MOD_CONSTANT = 1000000007;\n    \n    public int findDerangement(int n) {\n        long[] dp = new long[n + 1];\n        dp[2] = 1;\n        for (int i = 3; i <= n; ++i) {\n            dp[i] = (i - 1) * (dp[i - 1] + dp[i - 2]) % MOD_CONSTANT;\n        }\n        return (int)dp[n];\n    }\n}",
+      "timestamp": "2026-09-28T17:24:50.430839+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Validation: Validating (Strategy 2, Syntax 0)...",
+      "timestamp": "2026-09-28T17:24:50.430902+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Syntax OK.\n\n{\"syntax\": {\"passed\": true}}",
+      "timestamp": "2026-09-28T17:24:50.431688+00:00"
+    },
+    {
+      "role": "Validator",
+      "phase": null,
+      "content": "Structural Checks \u2014 3/3 passed\n\n{\"checks\": [{\"name\": \"Cyclomatic Complexity\", \"passed\": true, \"before\": 2, \"after\": 2, \"details\": \"Overall code complexity unchanged (2)\"}, {\"name\": \"Boundary Preservation\", \"passed\": true}, {\"name\": \"Intent Match\", \"passed\": true, \"details\": null}]}",
+      "timestamp": "2026-09-28T17:24:50.437760+00:00"
+    },
+    {
+      "role": "Judge",
+      "phase": null,
+      "content": "Adjudication: Running final audit...",
+      "timestamp": "2026-09-28T17:24:50.437805+00:00"
+    },
+    {
+      "role": "Judge",
+      "phase": null,
+      "content": "Audit Finished: ACCEPT\n\n{\"audit_scratchpad\": {\"variable_trace\": [{\"original\": \"i\", \"refactored\": \"i\", \"mapping\": null}], \"logic_comparison\": \"No logic drift detected in the refactored code. The conditional paths produce the same outputs for the same inputs.\"}, \"verdict\": \"ACCEPT\", \"issues\": []}",
+      "timestamp": "2026-09-28T17:24:55.655483+00:00"
+    },
+    {
+      "role": "System",
+      "phase": null,
+      "content": "Finalization: Finalizing session (Status: SUCCESS)...",
+      "timestamp": "2026-09-28T17:24:56.006383+00:00"
+    },
+    {
+      "role": "Judge",
+      "phase": null,
+      "content": "Generating insights...",
+      "timestamp": "2026-09-28T17:24:56.009225+00:00"
+    }
+  ]
+}

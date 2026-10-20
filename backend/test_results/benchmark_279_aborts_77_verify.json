@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-14T09:57:17.461437+00:00",
+    "duration_seconds": 24,
+    "dataset": "/home/pugario/Projects/horizon/backend/benchmark/data/dataset_final.json",
+    "range": {
+      "start": 0,
+      "end": 279
+    },
+    "total_entries": 1
+  },
+  "entries": [
+    {
+      "num": 62,
+      "difficulty": "Medium",
+      "intent": "CONSOLIDATE_CONDITIONAL",
+      "instruction": "Consolidate the 4 separate loops in the uniquePathsWithObstacles method into a single pass. The current approach iterates over the same data structure multiple times. Merge the loop bodies to eliminate duplicate iteration and improve performance.",
+      "exit_status": "SUCCESS",
+      "status": "PASS",
+      "original_cc": 11,
+      "refactored_cc": 14,
+      "cc_delta": 3,
+      "duration_ms": 23565,
+      "code_unchanged": false,
+      "original_code": "public class Solution {\n    public int uniquePathsWithObstacles(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        if (grid[0][0] == 1) return 0;\n    \n        grid[0][0] = 1;\n        for (int i = 1; i < m; ++i)\n            grid[i][0] = (grid[i][0] == 0 && grid[i - 1][0] == 1) ? 1 : 0;\n        for (int i = 1; i < n; ++i)\n            grid[0][i] = (grid[0][i] == 0 && grid[0][i - 1] == 1) ? 1 : 0;\n\n        for (int i = 1; i < m; ++i)\n            for (int j = 1; j < n; ++j)\n                if (grid[i][j] == 0)\n                    grid[i][j] = grid[i - 1][j] + grid[i][j - 1];\n                else\n                    grid[i][j] = 0;\n\n        return grid[m - 1][n - 1];\n    }\n}",
+      "final_code": "public class Solution {\n    public int uniquePathsWithObstacles(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n\n        if (grid[0][0] == 1 || grid[m - 1][n - 1] == 1) return 0;\n\n        for (int i = 0; i < m; ++i)\n            for (int j = 0; j < n; ++j) {\n                if (grid[i][j] == 1) continue;\n                if (i > 0 && grid[i - 1][j] != 0 || j > 0 && grid[i][j - 1] != 0)\n                    grid[i][j] = (i > 0 ? grid[i - 1][j] : 0) + (j > 0 ? grid[i][j - 1] : 0);\n                else\n                    grid[i][j] = i == j && i == 0 ? 1 : 0;\n            }\n\n        return grid[m - 1][n - 1];\n    }\n}",
+      "llm_calls": [
+        {
+          "raw_response": "<code>\npublic class Solution {\n    public int uniquePathsWithObstacles(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n\n        if (grid[0][0] == 1 || grid[m - 1][n - 1] == 1) return 0;\n\n        for (int i = 0; i < m; ++i)\n            for (int j = 0; j < n; ++j) {\n                if (grid[i][j] == 1) continue;\n                if (i > 0 && grid[i - 1][j] != 0 || j > 0 && grid[i][j - 1] != 0)\n                    grid[i][j] = (i > 0 ? grid[i - 1][j] : 0) + (j > 0 ? grid[i][j - 1] : 0);\n                else\n                    grid[i][j] = i == j && i == 0 ? 1 : 0;\n            }\n\n        return grid[m - 1][n - 1];\n    }\n}\n</code>",
+          "duration_ms": 23482,
+          "status": "OK"
+        }
+      ],
+      "gpu_metrics": {
+        "peak_memory_used_mb": 4242276352.0,
+        "avg_memory_used_mb": 4240937744.34,
+        "peak_utilization": 100.0,
+        "avg_utilization": 40.7
+      },
+      "model": {
+        "name": "Qwen2.5-Coder-7B-Instruct",
+        "temperature": 0.1,
+        "max_tokens": 4096,
+        "context_size": 4096,
+        "layers": 20,
+        "filename": "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+      }
+    }
+  ]
+}
